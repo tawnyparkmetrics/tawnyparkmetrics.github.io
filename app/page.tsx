@@ -1,9 +1,8 @@
 "use client"
 import React, { useState, useMemo, useEffect } from 'react';
-import { LucideUser } from 'lucide-react';
+import { LucideUser, ChevronDown, ChevronUp } from 'lucide-react';
 import Papa from 'papaparse';
 
-// Define the type for our draft prospect
 export interface DraftProspect {
   Name: string;
   'Actual Pick': string;
@@ -20,36 +19,87 @@ export interface DraftProspect {
   'Avg. Rank Y1-Y5': string;
 }
 
-// Sorting keys for our ranking buttons
 type SortKey = 'Actual Pick' | 'Pred. Y1 Rank' | 'Pred. Y2 Rank' | 'Pred. Y3 Rank' |
   'Avg. Rank Y1-Y3' | 'Pred. Y4 Rank' | 'Pred. Y5 Rank' | 'Avg. Rank Y1-Y5';
-// ui
+
 const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
-    <div className="bg-gray-800 rounded-lg p-4 flex space-x-4 w-96 h-48 shadow-lg">
-      {/* Player Image Placeholder */}
-      <div className="bg-gray-700 w-32 h-full flex items-center justify-center">
-        <LucideUser className="text-gray-500" size={64} />
-      </div>
-      {/* Player Basic Info */}
-      <div className="flex-grow">
-        <h2 className="text-xl font-bold text-white mb-2">{prospect.Name}</h2>
-        <div className="text-gray-300 space-y-1">
-          <p>Draft Pick: {prospect['Actual Pick']}</p>
-          <p>Team: {prospect.Team}</p>
-          <p>Pre-NBA: {prospect['Pre-NBA']}</p>
-          <p>Position: {prospect.Position}</p>
-          <p>Age: {prospect.Age}</p>
+    <div className="bg-gray-800 rounded-xs shadow-xs w-[800px] mx-auto overflow-hidden">
+      {/* Always visible header */}
+      <div 
+        className="p-4 flex items-center cursor-pointer hover:bg-gray-750 transition-colors"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {/* Player Image */}
+        <div className="bg-gray-700 w-16 h-16 flex items-center justify-center rounded-xs flex-shrink-0">
+          <LucideUser className="text-gray-500" size={32} />
+        </div>
+        
+        {/* Name and button */}
+        <div className="flex-grow ml-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white">{prospect.Name}</h2>
+          {isExpanded ? (
+            <ChevronUp className="text-gray-400 h-6 w-6" />
+          ) : (
+            <ChevronDown className="text-gray-400 h-6 w-6" />
+          )}
         </div>
       </div>
-      {/* Ranking Information */}
-      <div className="w-24 bg-gray-700 p-2 rounded text-center text-sm text-gray-300">
-        <h3 className="font-semibold mb-1">Rankings</h3>
-        <p>Y1: {prospect['Pred. Y1 Rank']}</p>
-        <p>Y2: {prospect['Pred. Y2 Rank']}</p>
-        <p>Y3: {prospect['Pred. Y3 Rank']}</p>
-        <p>Avg: {prospect['Avg. Rank Y1-Y3']}</p>
-      </div>
+
+      {/* Expandable content */}
+      {isExpanded && (
+        <div className="border-t border-gray-700 p-6">
+          <div className="flex space-x-6">
+            {/* Player Basic Info */}
+            <div className="flex-grow">
+              <div className="grid grid-cols-3 gap-y-2 text-gray-300">
+                <p>Pick: {prospect['Actual Pick']}</p>
+                <p>Team: {prospect.Team}</p>
+                <p>Position: {prospect.Position}</p>
+                <p>Age: {prospect.Age}</p>
+                <p>Pre-NBA: {prospect['Pre-NBA']}</p>
+              </div>
+            </div>
+            
+            {/* Ranking Information */}
+            <div className="bg-gray-700 p-4 rounded-xs text-gray-300 w-40 flex-shrink-0">
+              <h3 className="font-semibold text-center mb-3">Rankings</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Year 1:</span>
+                  <span>{prospect['Pred. Y1 Rank']}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Year 2:</span>
+                  <span>{prospect['Pred. Y2 Rank']}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Year 3:</span>
+                  <span>{prospect['Pred. Y3 Rank']}</span>
+                </div>
+                <div className="flex justify-between font-semibold border-t border-gray-600 pt-2">
+                  <span>3Y Avg:</span>
+                  <span>{prospect['Avg. Rank Y1-Y3']}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Year 4:</span>
+                  <span>{prospect['Pred. Y4 Rank']}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Year 5:</span>
+                  <span>{prospect['Pred. Y5 Rank']}</span>
+                </div>
+                <div className="flex justify-between font-semibold border-t border-gray-600 pt-2">
+                  <span>5Y Avg:</span>
+                  <span>{prospect['Avg. Rank Y1-Y5']}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -83,14 +133,20 @@ export default function DraftProspectsPage() {
 function ClientSidePage({ initialProspects }: { initialProspects: DraftProspect[] }) {
   const [sortKey, setSortKey] = useState<SortKey>('Actual Pick');
 
-  // Sorting function
   const sortedProspects = useMemo(() => {
-    return [...initialProspects].sort((a, b) =>
-      Number(a[sortKey]) - Number(b[sortKey])
-    );
+    return [...initialProspects].sort((a, b) => {
+      const valueA = a[sortKey];
+      const valueB = b[sortKey];
+  
+      // Handle cases where either value is null, undefined, empty string, or 'N/A'
+      if (!valueA || valueA === 'N/A') return 1;  // Move a to the end
+      if (!valueB || valueB === 'N/A') return -1; // Move b to the end
+      
+      // If both values exist, sort numerically
+      return Number(valueA) - Number(valueB);
+    });
   }, [initialProspects, sortKey]);
 
-  // Sorting button configuration
   const sortButtons: SortKey[] = [
     'Actual Pick',
     'Pred. Y1 Rank',
@@ -103,24 +159,26 @@ function ClientSidePage({ initialProspects }: { initialProspects: DraftProspect[
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
-        {sortButtons.map((key) => (
-          <button
-            key={key}
-            onClick={() => setSortKey(key)}
-            className={`
-              px-4 py-2 rounded
-              ${sortKey === key
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}
-            `}
-          >
-            {key}
-          </button>
-        ))}
+    <div className="min-h-screen bg-gray-900 py-8">
+      <div className="max-w-[800px] mx-auto px-4 mb-8">
+        <div className="flex flex-wrap justify-center gap-2">
+          {sortButtons.map((key) => (
+            <button
+              key={key}
+              onClick={() => setSortKey(key)}
+              className={`
+                px-3 py-1.5 rounded text-sm font-medium transition-colors duration-200
+                ${sortKey === key
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}
+              `}
+            >
+              {key}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="flex flex-wrap justify-center gap-6">
+      <div className="space-y-4">
         {sortedProspects.map((prospect) => (
           <ProspectCard key={prospect.Name} prospect={prospect} />
         ))}
