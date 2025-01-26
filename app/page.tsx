@@ -23,7 +23,7 @@ export interface DraftProspect {
 // Sorting keys for our ranking buttons
 type SortKey = 'Actual Pick' | 'Pred. Y1 Rank' | 'Pred. Y2 Rank' | 'Pred. Y3 Rank' |
   'Avg. Rank Y1-Y3' | 'Pred. Y4 Rank' | 'Pred. Y5 Rank' | 'Avg. Rank Y1-Y5';
-
+// ui
 const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   return (
     <div className="bg-gray-800 rounded-lg p-4 flex space-x-4 w-96 h-48 shadow-lg">
