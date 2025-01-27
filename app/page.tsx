@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useMemo, useEffect } from 'react';
 import { LucideUser, ChevronDown, ChevronUp } from 'lucide-react';
 import Papa from 'papaparse';
@@ -17,27 +17,36 @@ export interface DraftProspect {
   'Pred. Y4 Rank': string;
   'Pred. Y5 Rank': string;
   'Avg. Rank Y1-Y5': string;
+  Summary?: string;
 }
 
-type SortKey = 'Actual Pick' | 'Pred. Y1 Rank' | 'Pred. Y2 Rank' | 'Pred. Y3 Rank' |
-  'Avg. Rank Y1-Y3' | 'Pred. Y4 Rank' | 'Pred. Y5 Rank' | 'Avg. Rank Y1-Y5';
+// Define keys that can be sorted
+type SortKey = keyof Pick<DraftProspect, 
+  'Actual Pick' | 
+  'Pred. Y1 Rank' | 
+  'Pred. Y2 Rank' | 
+  'Pred. Y3 Rank' |
+  'Avg. Rank Y1-Y3' | 
+  'Pred. Y4 Rank' | 
+  'Pred. Y5 Rank' | 
+  'Avg. Rank Y1-Y5'
+>;
 
 const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA. This should include information about their playing style, physical attributes, and potential impact at the next level.";
 
   return (
-    <div className="bg-gray-800 rounded-xs shadow-xs w-[800px] mx-auto overflow-hidden">
+    <div className="bg-gray-800 rounded-lg shadow-lg w-[800px] mx-auto overflow-hidden">
       {/* Always visible header */}
-      <div 
+      <div
         className="p-4 flex items-center cursor-pointer hover:bg-gray-750 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        {/* Player Image */}
-        <div className="bg-gray-700 w-16 h-16 flex items-center justify-center rounded-xs flex-shrink-0">
+        <div className="bg-gray-700 w-16 h-16 flex items-center justify-center rounded-lg flex-shrink-0">
           <LucideUser className="text-gray-500" size={32} />
         </div>
-        
-        {/* Name and button */}
+
         <div className="flex-grow ml-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-white">{prospect.Name}</h2>
           {isExpanded ? (
@@ -48,25 +57,48 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
         </div>
       </div>
 
-      {/* Expandable content */}
+      {/* Expandable content with two-column layout */}
       {isExpanded && (
-        <div className="border-t border-gray-700 p-6">
-          <div className="flex space-x-6">
-            {/* Player Basic Info */}
-            <div className="flex-grow">
-              <div className="grid grid-cols-3 gap-y-2 text-gray-300">
-                <p>Pick: {prospect['Actual Pick']}</p>
-                <p>Team: {prospect.Team}</p>
-                <p>Position: {prospect.Position}</p>
-                <p>Age: {prospect.Age}</p>
-                <p>Pre-NBA: {prospect['Pre-NBA']}</p>
+        <div className="grid grid-cols-2 gap-4 p-4 bg-gray-700">
+          {/* Left Column - Player Summary */}
+          <div className="text-gray-300">
+            <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
+            <p className="text-sm leading-relaxed">{playerSummary}</p>
+          </div>
+
+          {/* Right Column - Stats and Info */}
+          <div className="space-y-4">
+            {/* Basic Info Section */}
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="font-semibold text-white mb-3">Basic Information</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
+                <div className="flex justify-between">
+                  <span>Pick:</span>
+                  <span>{prospect['Actual Pick']}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Team:</span>
+                  <span>{prospect.Team}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Position:</span>
+                  <span>{prospect.Position}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Age:</span>
+                  <span>{prospect.Age}</span>
+                </div>
+                <div className="flex justify-between col-span-2">
+                  <span>Pre-NBA:</span>
+                  <span>{prospect['Pre-NBA']}</span>
+                </div>
               </div>
             </div>
-            
-            {/* Ranking Information */}
-            <div className="bg-gray-700 p-4 rounded-xs text-gray-300 w-40 flex-shrink-0">
-              <h3 className="font-semibold text-center mb-3">Rankings</h3>
-              <div className="space-y-2 text-sm">
+
+            {/* Rankings Section */}
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
+              <div className="space-y-2 text-sm text-gray-300">
                 <div className="flex justify-between">
                   <span>Year 1:</span>
                   <span>{prospect['Pred. Y1 Rank']}</span>
@@ -104,32 +136,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   );
 };
 
-export default function DraftProspectsPage() {
-  const [prospects, setProspects] = useState<DraftProspect[]>([]);
-
-  useEffect(() => {
-    async function fetchDraftProspects() {
-      try {
-        const response = await fetch('/2024_Draft_Class.csv');
-        const csvText = await response.text();
-        
-        Papa.parse(csvText, {
-          header: true,
-          complete: (results) => {
-            setProspects(results.data as DraftProspect[]);
-          }
-        });
-      } catch (error) {
-        console.error('Error fetching draft prospects:', error);
-      }
-    }
-
-    fetchDraftProspects();
-  }, []);
-
-  return <ClientSidePage initialProspects={prospects} />;
-}
-
 function ClientSidePage({ initialProspects }: { initialProspects: DraftProspect[] }) {
   const [sortKey, setSortKey] = useState<SortKey>('Actual Pick');
 
@@ -137,11 +143,11 @@ function ClientSidePage({ initialProspects }: { initialProspects: DraftProspect[
     return [...initialProspects].sort((a, b) => {
       const valueA = a[sortKey];
       const valueB = b[sortKey];
-  
+
       // Handle cases where either value is null, undefined, empty string, or 'N/A'
       if (!valueA || valueA === 'N/A') return 1;  // Move a to the end
       if (!valueB || valueB === 'N/A') return -1; // Move b to the end
-      
+
       // If both values exist, sort numerically
       return Number(valueA) - Number(valueB);
     });
@@ -185,4 +191,30 @@ function ClientSidePage({ initialProspects }: { initialProspects: DraftProspect[
       </div>
     </div>
   );
+}
+
+export default function DraftProspectsPage() {
+  const [prospects, setProspects] = useState<DraftProspect[]>([]);
+
+  useEffect(() => {
+    async function fetchDraftProspects() {
+      try {
+        const response = await fetch('/2024_Draft_Class.csv');
+        const csvText = await response.text();
+
+        Papa.parse(csvText, {
+          header: true,
+          complete: (results) => {
+            setProspects(results.data as DraftProspect[]);
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching draft prospects:', error);
+      }
+    }
+
+    fetchDraftProspects();
+  }, []);
+
+  return <ClientSidePage initialProspects={prospects} />;
 }
