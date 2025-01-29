@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect } from 'react';
+import Image, { ImageProps } from 'next/image';
 import { LucideUser, ChevronDown, ChevronUp } from 'lucide-react';
 import Papa from 'papaparse';
 
@@ -34,30 +35,50 @@ type SortKey = keyof Pick<DraftProspect,
 
 const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA. This should include information about their playing style, physical attributes, and potential impact at the next level.";
 
+  const playerimageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
+  const prenbalogoUrl = `/prenba-logos/${prospect['Pre-NBA']}.png`;
+
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg w-[800px] mx-auto overflow-hidden">
-      {/* Always visible header */}
+    <div className="bg-gray-800 rounded-xs shadow-xs w-[800px] mx-auto overflow-visible">
+      {/* Header with full-width image background */}
       <div
-        className="p-4 flex items-center cursor-pointer hover:bg-gray-750 transition-colors"
+        className="relative h-24 cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="bg-gray-700 w-16 h-16 flex items-center justify-center rounded-lg flex-shrink-0">
-          <LucideUser className="text-gray-500" size={32} />
-        </div>
+        {/* Player Image */}
+        {!imageError ? (
+          <Image
+            src={playerimageUrl}
+            alt={prospect.Name}
+            fill
+            className="object-cover grayscale"
+            onError={() => setImageError(true)}
+            sizes="800px"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gray-700 flex items-center justify-center">
+            <LucideUser className="text-gray-500" size={32} />
+          </div>
+        )}
+        
+        {/* Dark overlay for better text visibility */}
+        <div className="absolute inset-0 bg-black/40" />
 
-        <div className="flex-grow ml-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">{prospect.Name}</h2>
+        {/* Content overlay */}
+        <div className="absolute inset-0 p-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white text-center">{prospect.Name}</h2>
           {isExpanded ? (
-            <ChevronUp className="text-gray-400 h-6 w-6" />
+            <ChevronUp className="text-white h-6 w-6" />
           ) : (
-            <ChevronDown className="text-gray-400 h-6 w-6" />
+            <ChevronDown className="text-white h-6 w-6" />
           )}
         </div>
       </div>
 
-      {/* Expandable content with two-column layout */}
+      {/* Rest of your existing expanded content */}
       {isExpanded && (
         <div className="grid grid-cols-2 gap-4 p-4 bg-gray-700">
           {/* Left Column - Player Summary */}
@@ -69,7 +90,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           {/* Right Column - Stats and Info */}
           <div className="space-y-4">
             {/* Basic Info Section */}
-            <div className="bg-gray-800 p-4 rounded-lg">
+            <div className="bg-gray-800 p-4 rounded-xs">
               <h3 className="font-semibold text-white mb-3">Basic Information</h3>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
                 <div className="flex justify-between">
@@ -96,7 +117,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
             </div>
 
             {/* Rankings Section */}
-            <div className="bg-gray-800 p-4 rounded-lg">
+            <div className="bg-gray-800 p-4 rounded-xs">
               <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
               <div className="space-y-2 text-sm text-gray-300">
                 <div className="flex justify-between">
