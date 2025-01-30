@@ -36,40 +36,64 @@ type SortKey = keyof Pick<DraftProspect,
 const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA. This should include information about their playing style, physical attributes, and potential impact at the next level.";
-
-  const playerimageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
+  const [logoError, setLogoError] = useState(false);
+  
+  const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
+  const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba-logos/${prospect['Pre-NBA']}.png`;
 
   return (
-    <div className="bg-gray-800 rounded-xs shadow-xs w-[800px] mx-auto overflow-visible">
-      {/* Header with full-width image background */}
-      <div
-        className="relative h-24 cursor-pointer"
+    <div className="w-[800px] mx-auto">
+      {/* Header section with integrated player image, logo, and name */}
+      <div 
+        className="relative h-48 cursor-pointer group"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        {/* Player Image */}
-        {!imageError ? (
-          <Image
-            src={playerimageUrl}
-            alt={prospect.Name}
-            fill
-            className="object-cover grayscale"
-            onError={() => setImageError(true)}
-            sizes="800px"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gray-700 flex items-center justify-center">
-            <LucideUser className="text-gray-500" size={32} />
-          </div>
-        )}
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/0 to-gray-900" />
         
-        {/* Dark overlay for better text visibility */}
-        <div className="absolute inset-0 bg-black/40" />
+        {/* Player Image */}
+        <div className="absolute inset-0 flex justify-center">
+          {!imageError ? (
+            <Image
+              src={playerImageUrl}
+              alt={prospect.Name}
+              fill
+              className="object-contain transition-transform duration-300 group-hover:scale-105 grayscale hover:grayscale-0"
+              onError={() => setImageError(true)}
+              sizes="800px"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <LucideUser className="text-gray-500" size={48} />
+            </div>
+          )}
+        </div>
 
-        {/* Content overlay */}
-        <div className="absolute inset-0 p-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white text-center">{prospect.Name}</h2>
+        {/* Pre-NBA Logo */}
+        <div className="absolute top-4 left-4 w-16 h-16">
+          {!logoError ? (
+            <Image
+              src={prenbalogoUrl}
+              alt={prospect['Pre-NBA']}
+              width={64}
+              height={64}
+              className="object-contain grayscale"
+              onError={() => setLogoError(true)}
+            />
+          ) : (
+            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
+              <span className="text-xs text-gray-400">{prospect['Pre-NBA']}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Name and expand button */}
+        <div className="absolute bottom-0 inset-x-0 p-4 flex items-end justify-between">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-white">{prospect.Name}</h2>
+            <p className="text-sm text-gray-300">{prospect.Position} • {prospect.Age} years</p>
+          </div>
           {isExpanded ? (
             <ChevronUp className="text-white h-6 w-6" />
           ) : (
@@ -78,9 +102,9 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
         </div>
       </div>
 
-      {/* Rest of your existing expanded content */}
+      {/* Expanded content */}
       {isExpanded && (
-        <div className="grid grid-cols-2 gap-4 p-4 bg-gray-700">
+        <div className="mt-4 grid grid-cols-2 gap-4 bg-gray-800/50 p-6 rounded-xs backdrop-blur-sm">
           {/* Left Column - Player Summary */}
           <div className="text-gray-300">
             <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
@@ -90,63 +114,27 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           {/* Right Column - Stats and Info */}
           <div className="space-y-4">
             {/* Basic Info Section */}
-            <div className="bg-gray-800 p-4 rounded-xs">
+            <div className="bg-gray-800/80 p-4 rounded-xs">
               <h3 className="font-semibold text-white mb-3">Basic Information</h3>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
-                <div className="flex justify-between">
-                  <span>Pick:</span>
-                  <span>{prospect['Actual Pick']}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Team:</span>
-                  <span>{prospect.Team}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Position:</span>
-                  <span>{prospect.Position}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Age:</span>
-                  <span>{prospect.Age}</span>
-                </div>
-                <div className="flex justify-between col-span-2">
-                  <span>Pre-NBA:</span>
-                  <span>{prospect['Pre-NBA']}</span>
-                </div>
+                <div>Pick: {prospect['Actual Pick']}</div>
+                <div>Team: {prospect.Team}</div>
               </div>
             </div>
 
             {/* Rankings Section */}
-            <div className="bg-gray-800 p-4 rounded-xs">
+            <div className="bg-gray-800/80 p-4 rounded-xs">
               <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
-              <div className="space-y-2 text-sm text-gray-300">
-                <div className="flex justify-between">
-                  <span>Year 1:</span>
-                  <span>{prospect['Pred. Y1 Rank']}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Year 2:</span>
-                  <span>{prospect['Pred. Y2 Rank']}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Year 3:</span>
-                  <span>{prospect['Pred. Y3 Rank']}</span>
-                </div>
-                <div className="flex justify-between font-semibold border-t border-gray-600 pt-2">
-                  <span>3Y Avg:</span>
+              <div className="space-y-2 text-sm">
+                {['Y1', 'Y2', 'Y3'].map((year) => (
+                  <div key={year} className="flex justify-between text-gray-300">
+                    <span>Year {year.slice(1)}:</span>
+                    <span>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between font-semibold border-t border-gray-700 pt-2 text-blue-400">
+                  <span>3Y Average:</span>
                   <span>{prospect['Avg. Rank Y1-Y3']}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Year 4:</span>
-                  <span>{prospect['Pred. Y4 Rank']}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Year 5:</span>
-                  <span>{prospect['Pred. Y5 Rank']}</span>
-                </div>
-                <div className="flex justify-between font-semibold border-t border-gray-600 pt-2">
-                  <span>5Y Avg:</span>
-                  <span>{prospect['Avg. Rank Y1-Y5']}</span>
                 </div>
               </div>
             </div>
