@@ -18,7 +18,14 @@ export interface DraftProspect {
   'Pred. Y4 Rank': string;
   'Pred. Y5 Rank': string;
   'Avg. Rank Y1-Y5': string;
+
+  'Height': string;
+  'Wingspan': string;
+  'Wing - Height': string;
+  'Weight (lbs)': string;
+
   Summary?: string;
+  
 }
 
 // Define keys that can be sorted
@@ -44,17 +51,15 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   const prenbalogoUrl = `/prenba-logos/${prospect['Pre-NBA']}.png`;
 
   return (
-    <div className="w-[800px] mx-auto">
-      {/* Main container */}
+    <div className="max-w-5xl mx-auto px-4">
       <div className="relative">
-        {/* Card with hover detection */}
         <div 
-          className="relative h-[300px] group"
+          className="relative h-[400px] group bg-gray-800/20 rounded-lg"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           {/* Background Pre-NBA Logo */}
-          <div className="absolute inset-0 flex items-center pl-12 opacity-20">
+          <div className="absolute inset-0 flex items-center justify-start pl-12 opacity-20">
             {!logoError ? (
               <Image
                 src={prenbalogoUrl}
@@ -89,43 +94,48 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
             )}
           </div>
 
-          {/* Name */}
-          <div className="absolute bottom-0 inset-x-0 p-4">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-white text-center">{prospect.Name}</h2>
-              <p className="text-sm text-gray-300 text-center">{prospect['Actual Pick']}</p>
+          {/* Large Centered Name */}
+          <div 
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              isHovered ? 'opacity-0' : 'opacity-100'
+            }`}
+          >
+            <div className="text-center z-10">
+              <h2 className="text-6xl font-bold text-white text-shadow-lg tracking-wider">
+                {prospect.Name}
+              </h2>
             </div>
           </div>
 
           {/* Hover info panel */}
           <div 
-            className={`absolute top-0 left-full h-full w-[300px] bg-gray-800/90 backdrop-blur-sm transition-transform duration-300 transform ${
-              isHovered ? 'translate-x-0' : '-translate-x-4 opacity-0 pointer-events-none'
+            className={`absolute top-0 right-0 h-full w-[300px] bg-gray-800/90 backdrop-blur-sm transition-all duration-300 rounded-r-lg ${
+              isHovered ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
             }`}
           >
             <div className="p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-white">Basic Information</h3>
+              <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <div>Team: {prospect.Team}</div>
-                <div>Position: {prospect.Position}</div>
-                <div>Age: {prospect.Age}</div>
-                <div>College: {prospect['Pre-NBA']}</div>
+                <div>Height: {prospect.Height}</div>
+                <div>Wingspan: {prospect.Wingspan}</div>
+                <div>Wing - Height: {prospect['Wing - Height']}</div>
+                <div>Weight: {prospect['Weight (lbs)']}</div>
               </div>
               
               <div className="pt-4 border-t border-gray-700">
                 <h4 className="text-sm font-semibold text-white mb-2">Quick Stats</h4>
                 <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
-                  <div>Y1 Rank: {prospect['Pred. Y1 Rank']}</div>
-                  <div>Y2 Rank: {prospect['Pred. Y2 Rank']}</div>
-                  <div>Y3 Rank: {prospect['Pred. Y3 Rank']}</div>
-                  <div>3Y Avg: {prospect['Avg. Rank Y1-Y3']}</div>
+                  <div>Team: {prospect.Team}</div>
+                  <div>Position: {prospect.Position}</div>
+                  <div>Draft Age: {prospect.Age}</div>
+                  <div>College: {prospect['Pre-NBA']}</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Full-width expand button */}
+        {/* Expand button */}
         <div 
           onClick={() => setIsExpanded(!isExpanded)}
           className="cursor-pointer w-full py-2 flex items-center justify-center hover:bg-gray-800/10 transition-colors duration-200"
@@ -137,16 +147,14 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           )}
         </div>
 
-        {/* Expanded content - full width */}
+        {/* Expanded content */}
         {isExpanded && (
           <div className="grid grid-cols-2 gap-4 bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm">
-            {/* Left Column - Scouting Report */}
             <div className="text-gray-300">
               <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
               <p className="text-sm leading-relaxed">{playerSummary}</p>
             </div>
 
-            {/* Right Column - Rankings */}
             <div className="space-y-4">
               <div className="bg-gray-800/80 p-4 rounded-lg">
                 <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
@@ -204,7 +212,7 @@ function ClientSidePage({ initialProspects }: { initialProspects: DraftProspect[
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 py-8">
+    <div className="min-h-screen py-8" style={{ backgroundColor: '#19191A' }}>
       <div className="max-w-[800px] mx-auto px-4 mb-8">
         <div className="flex flex-wrap justify-center gap-2">
           {sortButtons.map((key) => (
