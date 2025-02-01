@@ -3,7 +3,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Image, { ImageProps } from 'next/image';
 import { LucideUser, ChevronDown, ChevronUp } from 'lucide-react';
 import Papa from 'papaparse';
-import { Barlow } from 'next/font/google'
+import { Barlow } from 'next/font/google';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export interface DraftProspect {
   Name: string;
@@ -24,6 +25,7 @@ export interface DraftProspect {
   'Wingspan': string;
   'Wing - Height': string;
   'Weight (lbs)': string;
+  'Role': string;
 
   Summary?: string;
 
@@ -57,7 +59,19 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   return (
-    <div className="max-w-5xl mx-auto px-4">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{
+        opacity: { duration: 0.3 },
+        y: { duration: 0.5 },
+        layout: { duration: 0.5 }
+      }}
+      className="max-w-5xl mx-auto px-4"
+      style={{ marginBottom: '1rem' }}
+    >
       <div className="relative">
         <div
           className="relative h-[400px] group bg-gray-800/20 rounded-xs"
@@ -139,10 +153,9 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
               </div>
 
               <div className="pt-4 border-t border-gray-700">
-                <h4 className="text-sm font-semibold text-white mb-2">Quick Stats</h4>
-                <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
-                  <div>Team: {prospect.Team}</div>
-                  <div>Position: {prospect.Position}</div>
+                <div className="space-y-2 text-sm text-gray-300">
+                  <div>Drafted Team: {prospect.Team}</div>
+                  <div>Position: {prospect.Role}</div>
                   <div>Draft Age: {prospect.Age}</div>
                   <div>College: {prospect['Pre-NBA']}</div>
                 </div>
@@ -195,7 +208,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
