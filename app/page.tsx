@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Image, { ImageProps } from 'next/image';
 import { LucideUser, ChevronDown, ChevronUp } from 'lucide-react';
 import Papa from 'papaparse';
+import { Barlow } from 'next/font/google'
 
 export interface DraftProspect {
   Name: string;
@@ -25,36 +26,42 @@ export interface DraftProspect {
   'Weight (lbs)': string;
 
   Summary?: string;
-  
+
 }
 
 // Define keys that can be sorted
-type SortKey = keyof Pick<DraftProspect, 
-  'Actual Pick' | 
-  'Pred. Y1 Rank' | 
-  'Pred. Y2 Rank' | 
+type SortKey = keyof Pick<DraftProspect,
+  'Actual Pick' |
+  'Pred. Y1 Rank' |
+  'Pred. Y2 Rank' |
   'Pred. Y3 Rank' |
-  'Avg. Rank Y1-Y3' | 
-  'Pred. Y4 Rank' | 
-  'Pred. Y5 Rank' | 
+  'Avg. Rank Y1-Y3' |
+  'Pred. Y4 Rank' |
+  'Pred. Y5 Rank' |
   'Avg. Rank Y1-Y5'
 >;
+
+const barlow = Barlow({
+  subsets: ['latin'],
+  weight: ['700'], // Use 700 for bold text
+});
 
 const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
-  
+
   const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
-  const prenbalogoUrl = `/prenba-logos/${prospect['Pre-NBA']}.png`;
+  const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   return (
     <div className="max-w-5xl mx-auto px-4">
       <div className="relative">
-        <div 
-          className="relative h-[400px] group bg-gray-800/20 rounded-lg"
+        <div
+          className="relative h-[400px] group bg-gray-800/20 rounded-xs"
+          style={{ backgroundColor: '#19191A' }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -75,7 +82,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
               </div>
             )}
           </div>
-          
+
           {/* Player Image */}
           <div className="absolute inset-0 flex justify-center">
             {!imageError ? (
@@ -95,23 +102,32 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           </div>
 
           {/* Large Centered Name */}
-          <div 
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-              isHovered ? 'opacity-0' : 'opacity-100'
-            }`}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'
+              }`}
           >
             <div className="text-center z-10">
-              <h2 className="text-6xl font-bold text-white text-shadow-lg tracking-wider">
+              <h2
+                className={`
+                  ${barlow.className} 
+                  text-7xl 
+                  font-bold 
+                  text-white 
+                  uppercase 
+                  tracking-wider
+                  [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
+                `}
+              >
                 {prospect.Name}
               </h2>
             </div>
           </div>
 
-          {/* Hover info panel */}
-          <div 
-            className={`absolute top-0 right-0 h-full w-[300px] bg-gray-800/90 backdrop-blur-sm transition-all duration-300 rounded-r-lg ${
-              isHovered ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-            }`}
+          {/* Fixed Hover info panel */}
+          <div
+            className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${isHovered ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
+              }`}
+            style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
           >
             <div className="p-6 space-y-4">
               <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
@@ -121,7 +137,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
                 <div>Wing - Height: {prospect['Wing - Height']}</div>
                 <div>Weight: {prospect['Weight (lbs)']}</div>
               </div>
-              
+
               <div className="pt-4 border-t border-gray-700">
                 <h4 className="text-sm font-semibold text-white mb-2">Quick Stats</h4>
                 <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
@@ -136,7 +152,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
         </div>
 
         {/* Expand button */}
-        <div 
+        <div
           onClick={() => setIsExpanded(!isExpanded)}
           className="cursor-pointer w-full py-2 flex items-center justify-center hover:bg-gray-800/10 transition-colors duration-200"
         >
@@ -149,7 +165,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
 
         {/* Expanded content */}
         {isExpanded && (
-          <div className="grid grid-cols-2 gap-4 bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm">
+          <div className="grid grid-cols-2 gap-4 rounded-lg backdrop-blur-sm p-6" style={{ backgroundColor: '#19191A' }}>
             <div className="text-gray-300">
               <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
               <p className="text-sm leading-relaxed">{playerSummary}</p>
