@@ -6,6 +6,8 @@ import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion, AnimatePresence } from 'framer-motion';
 
+//fix dropdown stretch and compress issue
+
 export interface DraftProspect {
   Name: string;
   'Actual Pick': string;
@@ -60,22 +62,18 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
 
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{
-        opacity: { duration: 0.3 },
-        y: { duration: 0.5 },
-        layout: { duration: 0.5 }
-      }}
-      className="max-w-5xl mx-auto px-4"
-      style={{ marginBottom: '1rem' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="max-w-5xl mx-auto px-4 mb-4"
     >
       <div className="relative">
         <div
-          className="relative h-[400px] group bg-gray-800/20 rounded-xs"
-          style={{ backgroundColor: '#19191A' }}
+          className="relative h-[400px] group bg-gray-800/20 rounded-xs overflow-hidden"
+          style={{ 
+            backgroundColor: '#19191A',
+            transform: 'translate3d(0,0,0)'
+          }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -107,6 +105,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
                 className="object-contain transition-transform duration-300 group-hover:scale-105 grayscale group-hover:grayscale-0"
                 onError={() => setImageError(true)}
                 sizes="800px"
+                priority
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -117,8 +116,9 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
 
           {/* Large Centered Name */}
           <div
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'
-              }`}
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              isHovered ? 'opacity-0' : 'opacity-100'
+            }`}
           >
             <div className="text-center z-10">
               <h2
@@ -139,25 +139,26 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
 
           {/* Fixed Hover info panel */}
           <div
-            className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${isHovered ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-              }`}
+            className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${
+              isHovered ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
+            }`}
             style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
           >
             <div className="p-6 space-y-4">
               <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
               <div className="space-y-2 text-sm text-gray-300">
-                <div>Height: {prospect.Height}</div>
-                <div>Wingspan: {prospect.Wingspan}</div>
-                <div>Wing - Height: {prospect['Wing - Height']}</div>
-                <div>Weight: {prospect['Weight (lbs)']}</div>
+                <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
+                <div><span className="font-bold text-white">Wingspan  </span> {prospect.Wingspan}</div>
+                <div><span className="font-bold text-white">Wing - Height  </span> {prospect['Wing - Height']}</div>
+                <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
               </div>
 
               <div className="pt-4 border-t border-gray-700">
                 <div className="space-y-2 text-sm text-gray-300">
-                  <div>Drafted Team: {prospect.Team}</div>
-                  <div>Position: {prospect.Role}</div>
-                  <div>Draft Age: {prospect.Age}</div>
-                  <div>College: {prospect['Pre-NBA']}</div>
+                  <div><span className="font-bold text-white">Drafted Team  </span> {prospect.Team}</div>
+                  <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
+                  <div><span className="font-bold text-white">Drafted Age  </span> {prospect.Age}</div>
+                  <div><span className="font-bold text-white">College  </span> {prospect['Pre-NBA']}</div>
                 </div>
               </div>
             </div>
@@ -177,36 +178,46 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
         </div>
 
         {/* Expanded content */}
-        {isExpanded && (
-          <div className="grid grid-cols-2 gap-4 rounded-lg backdrop-blur-sm p-6" style={{ backgroundColor: '#19191A' }}>
-            <div className="text-gray-300">
-              <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
-              <p className="text-sm leading-relaxed">{playerSummary}</p>
-            </div>
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="relative mt-2"
+            >
+              <div className="grid grid-cols-2 gap-4 rounded-lg backdrop-blur-sm p-6" style={{ backgroundColor: '#19191A' }}>
+                <div className="text-gray-300">
+                  <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
+                  <p className="text-sm leading-relaxed">{playerSummary}</p>
+                </div>
 
-            <div className="space-y-4">
-              <div className="bg-gray-800/80 p-4 rounded-lg">
-                <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
-                <div className="space-y-2 text-sm">
-                  {['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].map((year) => (
-                    <div key={year} className="flex justify-between text-gray-300">
-                      <span>Year {year.slice(1)}:</span>
-                      <span>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</span>
+                <div className="space-y-4">
+                  <div className="bg-gray-800/80 p-4 rounded-lg">
+                    <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
+                    <div className="space-y-2 text-sm">
+                      {['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].map((year) => (
+                        <div key={year} className="flex justify-between text-gray-300">
+                          <span>Year {year.slice(1)}:</span>
+                          <span>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between font-semibold border-t border-gray-700 pt-2 text-blue-400">
+                        <span>3Y Average:</span>
+                        <span>{prospect['Avg. Rank Y1-Y3']}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold text-blue-400">
+                        <span>5Y Average:</span>
+                        <span>{prospect['Avg. Rank Y1-Y5']}</span>
+                      </div>
                     </div>
-                  ))}
-                  <div className="flex justify-between font-semibold border-t border-gray-700 pt-2 text-blue-400">
-                    <span>3Y Average:</span>
-                    <span>{prospect['Avg. Rank Y1-Y3']}</span>
-                  </div>
-                  <div className="flex justify-between font-semibold text-blue-400">
-                    <span>5Y Average:</span>
-                    <span>{prospect['Avg. Rank Y1-Y5']}</span>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
