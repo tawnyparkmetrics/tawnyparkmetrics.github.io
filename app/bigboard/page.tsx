@@ -257,23 +257,48 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
   const filteredProspects = useMemo(() => {
     let sortedProspects = [...initialProspects];
-
+  
     // Handle year-based sorting for timeline
     if (yearSortKeys.includes(selectedSortKey)) {
       const yearKey = selectedSortKey as keyof DraftProspect;
-      sortedProspects = sortedProspects
-        .filter(prospect => prospect[yearKey] !== 'N/A')
-        .sort((a, b) => Number(a[yearKey]) - Number(b[yearKey]));
+      sortedProspects = sortedProspects.sort((a, b) => {
+        const aValue = a[yearKey];
+        const bValue = b[yearKey];
+  
+        // Handle invalid or missing values by placing them at the bottom
+        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
+          return 1; // a should come after b
+        }
+        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
+          return -1; // b should come after a
+        }
+  
+        // Now compare the valid values
+        return Number(aValue) - Number(bValue);
+      });
     }
     // Handle other sorting keys
     else {
-      sortedProspects = sortedProspects
-        .filter(prospect => prospect[selectedSortKey as keyof DraftProspect] !== 'N/A')
-        .sort((a, b) => Number(a[selectedSortKey as keyof DraftProspect]) - Number(b[selectedSortKey as keyof DraftProspect]));
+      sortedProspects = sortedProspects.sort((a, b) => {
+        const aValue = a[selectedSortKey as keyof DraftProspect];
+        const bValue = b[selectedSortKey as keyof DraftProspect];
+  
+        // Handle invalid or missing values by placing them at the bottom
+        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
+          return 1; // a should come after b
+        }
+        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
+          return -1; // b should come after a
+        }
+  
+        // Now compare the valid values
+        return Number(aValue) - Number(bValue);
+      });
     }
-
+  
     return sortedProspects;
   }, [initialProspects, selectedSortKey]);
+  
 
   return (
     <div className="bg-[#19191A] min-h-screen">
