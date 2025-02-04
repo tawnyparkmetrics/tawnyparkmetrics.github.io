@@ -317,6 +317,10 @@ img, video {
   inset: 0;
 }
 
+.left-4 {
+  left: 1rem;
+}
+
 .right-0 {
   right: 0;
 }
@@ -327,10 +331,6 @@ img, video {
 
 .top-1\/2 {
   top: 50%;
-}
-
-.left-4 {
-  left: 1rem;
 }
 
 .top-4 {
