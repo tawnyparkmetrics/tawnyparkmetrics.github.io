@@ -7,7 +7,6 @@ import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
-
 export interface DraftProspect {
   Name: string;
   'Actual Pick': string;
@@ -70,6 +69,198 @@ const teamNames: { [key: string]: string } = {
   POR: "Portland Trailblazers",
   CLE: "Cleveland Cavaliers",
 }
+
+const yearSortKeys = [
+  'Pred. Y1 Rank',
+  'Pred. Y2 Rank',
+  'Pred. Y3 Rank',
+  'Pred. Y4 Rank',
+  'Pred. Y5 Rank'
+];
+
+const timelineFilterKeys = [
+  { key: 'Actual Pick', label: 'Draft' },
+  { key: 'Pred. Y1 Rank', label: 'Y1' },
+  { key: 'Pred. Y2 Rank', label: 'Y2' },
+  { key: 'Pred. Y3 Rank', label: 'Y3' },
+  { key: 'Pred. Y4 Rank', label: 'Y4' },
+  { key: 'Pred. Y5 Rank', label: 'Y5' }
+];
+
+const averageKeys = [
+  { key: 'Avg. Rank Y1-Y3', label: '3Y Avg' },
+  { key: 'Avg. Rank Y1-Y5', label: '5Y Avg' }
+];
+
+const TimelineFilter = ({ 
+  selectedSortKey, 
+  setSelectedSortKey,
+  selectedPosition,
+  setSelectedPosition 
+}: { 
+  selectedSortKey: string, 
+  setSelectedSortKey: (key: string) => void,
+  selectedPosition: string | null,
+  setSelectedPosition: (position: string | null) => void
+}) => {
+  const yearSortKeys = [
+    { key: 'Actual Pick', label: 'Draft' },
+    { key: 'Pred. Y1 Rank', label: 'Y1' },
+    { key: 'Pred. Y2 Rank', label: 'Y2' },
+    { key: 'Pred. Y3 Rank', label: 'Y3' },
+    { key: 'Pred. Y4 Rank', label: 'Y4' },
+    { key: 'Pred. Y5 Rank', label: 'Y5' }
+  ];
+
+  const averageKeys = [
+    { key: 'Avg. Rank Y1-Y3', label: '3Y Avg' },
+    { key: 'Avg. Rank Y1-Y5', label: '5Y Avg' }
+  ];
+
+  const positions = [
+    { key: 'Guard', label: 'Guards' },
+    { key: 'Wing', label: 'Wings' },
+    { key: 'Big', label: 'Bigs' }
+  ];
+
+  const shouldHighlight = (itemKey: string) => {
+    if (selectedSortKey === 'Avg. Rank Y1-Y3') {
+      return ['Pred. Y1 Rank', 'Pred. Y2 Rank', 'Pred. Y3 Rank'].includes(itemKey);
+    }
+    if (selectedSortKey === 'Avg. Rank Y1-Y5') {
+      return ['Pred. Y1 Rank', 'Pred. Y2 Rank', 'Pred. Y3 Rank', 'Pred. Y4 Rank', 'Pred. Y5 Rank'].includes(itemKey);
+    }
+    return selectedSortKey === itemKey;
+  };
+
+  const handlePositionClick = (position: string) => {
+    if (selectedPosition === position) {
+      setSelectedPosition(null);
+    } else {
+      setSelectedPosition(position);
+    }
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto py-8 px-4">
+      <div className="absolute top-4 left-4">
+        <Link
+          href="/"
+          className="inline-block px-4 py-2 bg-gray-800/20 text-white rounded-xs text-sm font-medium hover:bg-gray-700 transition-colors duration-300"
+        >
+          ← Home
+        </Link>
+      </div>
+
+      <div className="relative mt-12">
+        {/* Timeline Track */}
+        <div className="relative h-24 flex items-center justify-center mb-8">
+          <div className="absolute w-full h-1 bg-gray-700/30" />
+
+          {selectedSortKey && (
+            <motion.div
+              className="absolute h-1 bg-white-500/4"
+              initial={{ width: 0 }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 0.5 }}
+            />
+          )}
+
+          <div className="relative w-full flex justify-between items-center px-12">
+            {yearSortKeys.map((item) => (
+              <motion.button
+                key={item.key}
+                onClick={() => setSelectedSortKey(item.key)}
+                className={`
+                  relative flex flex-col items-center justify-center
+                  transition-colors duration-300 rounded-full
+                  ${shouldHighlight(item.key) ? 'z-20' : 'z-10'}
+                `}
+                whileHover={{ scale: 1.1 }}
+              >
+                <motion.div
+                  className={`
+                    rounded-full border-4 cursor-pointer
+                    ${shouldHighlight(item.key)
+                      ? 'bg-blue-500 border-blue-300 w-12 h-12'
+                      : 'bg-gray-800 border-gray-700 w-8 h-8 hover:border-gray-600'
+                    }
+                  `}
+                  animate={{
+                    scale: shouldHighlight(item.key) ? 1.2 : 1,
+                    transition: { duration: 0.3 }
+                  }}
+                />
+
+                <motion.span
+                  className={`
+                    absolute -bottom-8 whitespace-nowrap text-sm font-medium
+                    ${shouldHighlight(item.key) ? 'text-blue-400' : 'text-gray-400'}
+                  `}
+                  animate={{
+                    scale: shouldHighlight(item.key) ? 1.1 : 1,
+                    transition: { duration: 0.3 }
+                  }}
+                >
+                  {item.label}
+                </motion.span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
+        {/* Combined Average and Position Filters */}
+        <div className="flex justify-end items-center space-x-4 mt-8">
+          {/* Divider */}
+          <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+          {/* Position Filters */}
+          {positions.map((position) => (
+            <motion.button
+              key={position.key}
+              onClick={() => handlePositionClick(position.key)}
+              className={`
+                px-4 py-2 rounded-lg text-sm font-medium
+                transition-all duration-300
+                ${selectedPosition === position.key
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                  : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                }
+              `}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {position.label}
+            </motion.button>
+          ))}
+
+          {/* Divider */}
+          <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+          {/* Average Filters */}
+          {averageKeys.map((item) => (
+            <motion.button
+              key={item.key}
+              onClick={() => setSelectedSortKey(item.key)}
+              className={`
+                px-4 py-2 rounded-lg text-sm font-medium
+                transition-all duration-300
+                ${selectedSortKey === item.key
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                  : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                }
+              `}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {item.label}
+            </motion.button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 
 const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
@@ -180,10 +371,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
 
               <div className="pt-4 border-t border-gray-700">
                 <div className="space-y-2 text-sm text-gray-300">
-                  <div><span className="font-bold text-white">Drafted Team  </span> {draftedTeam}</div>
+                  <div>
+                    <span className="font-bold text-white">Draft  </span>
+                    {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
+                  </div>
                   <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
-                  <div><span className="font-bold text-white">Drafted Age  </span> {prospect.Age}</div>
-                  <div><span className="font-bold text-white">College  </span> {prospect['Pre-NBA']}</div>
+                  <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
+                  <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
                 </div>
               </div>
             </div>
@@ -193,7 +387,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
         {/* Expand button */}
         <div
           onClick={() => setIsExpanded(!isExpanded)}
-          className="cursor-pointer w-full py-2 flex items-center justify-center hover:bg-gray-800/10 transition-colors duration-200"
+          className="cursor-pointer w-8 h-8 rounded-full flex hover:bg-gray-800/10 transition-colors duration-200"
         >
           {isExpanded ? (
             <ChevronUp className="text-white h-6 w-6" />
@@ -240,167 +434,69 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
 
 function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[] }) {
   const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
-
-  const yearSortKeys = [
-    'Pred. Y1 Rank',
-    'Pred. Y2 Rank',
-    'Pred. Y3 Rank',
-    'Pred. Y4 Rank',
-    'Pred. Y5 Rank'
-  ];
-
-  const additionalSortKeys = [
-    'Avg. Rank Y1-Y3',
-    'Avg. Rank Y1-Y5'
-  ];
-
+  const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
 
   const filteredProspects = useMemo(() => {
     let sortedProspects = [...initialProspects];
-  
-    // Handle year-based sorting for timeline
+
+    // First apply position filter if selected
+    if (selectedPosition) {
+      sortedProspects = sortedProspects.filter(prospect => prospect.Role === selectedPosition);
+    }
+
+    // Then apply sorting
     if (yearSortKeys.includes(selectedSortKey)) {
       const yearKey = selectedSortKey as keyof DraftProspect;
       sortedProspects = sortedProspects.sort((a, b) => {
         const aValue = a[yearKey];
         const bValue = b[yearKey];
-  
-        // Handle invalid or missing values by placing them at the bottom
+
         if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
-          return 1; // a should come after b
+          return 1;
         }
         if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
-          return -1; // b should come after a
+          return -1;
         }
-  
-        // Now compare the valid values
+
         return Number(aValue) - Number(bValue);
       });
     }
-    // Handle other sorting keys
     else {
       sortedProspects = sortedProspects.sort((a, b) => {
         const aValue = a[selectedSortKey as keyof DraftProspect];
         const bValue = b[selectedSortKey as keyof DraftProspect];
-  
-        // Handle invalid or missing values by placing them at the bottom
+
         if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
-          return 1; // a should come after b
+          return 1;
         }
         if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
-          return -1; // b should come after a
+          return -1;
         }
-  
-        // Now compare the valid values
+
         return Number(aValue) - Number(bValue);
       });
     }
-  
+
     return sortedProspects;
-  }, [initialProspects, selectedSortKey]);
-  
+  }, [initialProspects, selectedSortKey, selectedPosition]);
 
   return (
     <div className="bg-[#19191A] min-h-screen">
-      <div className="max-w-6xl mx-auto py-8 px-4">
-        {/* New Home Navigation Button */}
-        <div className="absolute top-4 left-4">
-          <Link
-            href="/"
-            className="
-              inline-block 
-              px-4 py-2 
-              bg-gray-800/20 
-              text-white 
-              rounded-xs 
-              text-sm 
-              font-medium 
-              hover:bg-gray-700 
-              transition-colors 
-              duration-300
-            "
-          >
-            ← Home
-          </Link>
-        </div>
+      <TimelineFilter
+        selectedSortKey={selectedSortKey}
+        setSelectedSortKey={setSelectedSortKey}
+        selectedPosition={selectedPosition}
+        setSelectedPosition={setSelectedPosition}
+      />
 
-        {/* Main Filter Section */}
-        <div className="flex items-center justify-between mb-8 space-x-4">
-          {/* Actual Pick Filter */}
-          <button
-            onClick={() => setSelectedSortKey('Actual Pick')}
-            className={`
-              px-4 py-2 text-sm font-medium transition-all
-              ${selectedSortKey === 'Actual Pick'
-                ? 'bg-gray-800/20 text-white'
-                : 'bg-gray-800/20 text-gray-400 hover:bg-gray-700'}
-            `}
-          >
-            Actual Pick
-          </button>
-
-          {/* Timeline Slider for Year Rankings */}
-          <div className="relative flex-grow max-w-3xl">
-            <div className="relative h-16 bg-gray-800/20">
-              {yearSortKeys.map((key, index) => (
-                <motion.div
-                  key={key}
-                  onClick={() => setSelectedSortKey(key)}
-                  className={`
-                    absolute top-1/2 -translate-y-1/2 w-12 h-12 
-                    cursor-pointer flex items-center justify-between
-                    transition-all duration-300 z-10
-                    ${selectedSortKey === key
-                      ? 'bg-gray-800/20 text-white scale-110 z-10'
-                      : 'bg-gray-700 text-gray-400 hover:bg-gray-800/20'}
-                  `}
-                  style={{
-                    left: `${(index + 1) * 20}%`,
-                    transform: 'translate(-50%, -50%)'
-                  }}
-                >
-                  Y{index + 1}
-                </motion.div>
-              ))}
-              <motion.div
-                className="absolute h-1 bg-white top-1/2 -translate-y-1/2 opacity-30 z-0"
-                style={{
-                  width: '100%',
-                  left: '0%',
-                  transformOrigin: 'left center'
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Additional Sort Keys */}
-          <div className="flex space-x-2">
-            {additionalSortKeys.map(key => (
-              <button
-                key={key}
-                onClick={() => setSelectedSortKey(key)}
-                className={`
-                  px-4 py-2 text-sm font-medium transition-all
-                  ${selectedSortKey === key
-                    ? 'bg-gray-800/20 text-white'
-                    : 'bg-ggray-800/20 text-white hover:bg-gray-700'}
-                `}
-              >
-                {key}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Prospects Grid */}
-        <div className="space-y-4">
-          {filteredProspects.map((prospect) => (
-            <ProspectCard
-              key={prospect.Name}
-              prospect={prospect}
-            />
-          ))}
-        </div>
+      {/* Prospects Grid */}
+      <div className="space-y-4 max-w-6xl mx-auto px-4">
+        {filteredProspects.map((prospect) => (
+          <ProspectCard
+            key={prospect.Name}
+            prospect={prospect}
+          />
+        ))}
       </div>
     </div>
   );
