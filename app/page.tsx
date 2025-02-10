@@ -11,7 +11,7 @@ interface Geometry {
 interface Feature {
   type: string;
   geometry: Geometry;
-  properties?: any;
+  // properties?: any;
 }
 
 interface GeoJSON {
@@ -47,7 +47,7 @@ const AnimatedBackground = () => {
       "type": "FeatureCollection",
       "features": [{
         "type": "Feature",
-        "properties": {},
+        // "properties": {},
         "geometry": {
           "coordinates": [[
             [-121.90803713349084, 37.68708129080545],
@@ -61,7 +61,7 @@ const AnimatedBackground = () => {
       }]
     };
 
-    let allPaths: string[] = [];
+    const allPaths: string[] = [];
     let allCoordinates: number[][][] = [];
 
     geoData.features.forEach(feature => {
@@ -87,8 +87,8 @@ const AnimatedBackground = () => {
     });
 
     // Calculate bounds for viewBox
-    const bounds = calculateBounds(allCoordinates);
-    const padding = 0.01; // Adjusted for geographic coordinates
+    // const bounds = calculateBounds(allCoordinates);
+    // const padding = 0.01; // Adjusted for geographic coordinates
     const newViewBox = `${-100} ${-100} ${1000} ${1000}`; // Fixed viewBox for better visibility
     setViewBox(newViewBox);
 

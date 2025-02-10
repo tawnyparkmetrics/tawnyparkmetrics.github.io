@@ -78,20 +78,6 @@ const yearSortKeys = [
   'Pred. Y5 Rank'
 ];
 
-const timelineFilterKeys = [
-  { key: 'Actual Pick', label: 'Draft' },
-  { key: 'Pred. Y1 Rank', label: 'Y1' },
-  { key: 'Pred. Y2 Rank', label: 'Y2' },
-  { key: 'Pred. Y3 Rank', label: 'Y3' },
-  { key: 'Pred. Y4 Rank', label: 'Y4' },
-  { key: 'Pred. Y5 Rank', label: 'Y5' }
-];
-
-const averageKeys = [
-  { key: 'Avg. Rank Y1-Y3', label: '3Y Avg' },
-  { key: 'Avg. Rank Y1-Y5', label: '5Y Avg' }
-];
-
 const TimelineFilter = ({ 
   selectedSortKey, 
   setSelectedSortKey,
