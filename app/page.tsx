@@ -24,23 +24,23 @@ const AnimatedBackground = () => {
   const [viewBox, setViewBox] = useState('0 0 800 600');
 
   useEffect(() => {
-    const calculateBounds = (coordinates: number[][][]) => {
-      let minX = Infinity;
-      let minY = Infinity;
-      let maxX = -Infinity;
-      let maxY = -Infinity;
+    // const calculateBounds = (coordinates: number[][][]) => {
+    //   let minX = Infinity;
+    //   let minY = Infinity;
+    //   let maxX = -Infinity;
+    //   let maxY = -Infinity;
 
-      coordinates.forEach(poly => {
-        poly.forEach(point => {
-          minX = Math.min(minX, point[0]);
-          minY = Math.min(minY, point[1]);
-          maxX = Math.max(maxX, point[0]);
-          maxY = Math.max(maxY, point[1]);
-        });
-      });
+    //   coordinates.forEach(poly => {
+    //     poly.forEach(point => {
+    //       minX = Math.min(minX, point[0]);
+    //       minY = Math.min(minY, point[1]);
+    //       maxX = Math.max(maxX, point[0]);
+    //       maxY = Math.max(maxY, point[1]);
+    //     });
+    //   });
 
-      return { minX, minY, maxX, maxY };
-    };
+    //   return { minX, minY, maxX, maxY };
+    // };
 
     // Your exact GeoJSON data
     const geoData: GeoJSON = {
