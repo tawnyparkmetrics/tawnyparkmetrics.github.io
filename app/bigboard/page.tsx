@@ -1,11 +1,15 @@
 "use client";
 import React, { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
-import { LucideUser, ChevronDown, ChevronUp } from 'lucide-react';
+import { LucideUser, ChevronDown, ChevronUp, X } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+
 
 export interface DraftProspect {
   Name: string;
@@ -14,6 +18,7 @@ export interface DraftProspect {
   'Pre-NBA': string;
   Position: string;
   Age: string;
+  'Team Color': string;
   'Pred. Y1 Rank': string;
   'Pred. Y2 Rank': string;
   'Pred. Y3 Rank': string;
@@ -70,6 +75,150 @@ const teamNames: { [key: string]: string } = {
   CLE: "Cleveland Cavaliers",
 }
 
+interface EPMModelProps {
+  isOpen: boolean;
+  onClose: () => void;
+  prospects: DraftProspect[];
+  selectedPosition: string | null;
+  allProspects: DraftProspect[]; // Add this prop for comparison
+  focusedProspect?: DraftProspect; // Add this prop to identify the selected player
+}
+
+// Fixed prop destructuring with type
+const EPMModel = (props: EPMModelProps) => {
+  const { isOpen, onClose, prospects, selectedPosition, allProspects, focusedProspect } = props;
+
+  const graphData = React.useMemo(() => {
+    // Create data points for years 1-5
+    return [1, 2, 3, 4, 5].map(year => {
+      const dataPoint: any = { name: `Year ${year}` };
+
+      // Add background comparison lines data
+      allProspects.forEach(prospect => {
+        const rankValue = prospect[`Pred. Y${year} Rank` as keyof DraftProspect];
+        if (rankValue && !isNaN(parseFloat(rankValue as string))) {
+          dataPoint[prospect.Name] = parseFloat(rankValue as string);
+        }
+      });
+
+      return dataPoint;
+    });
+  }, [allProspects]);
+
+
+  // Custom tooltip component
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-[#19191A] border border-gray-700 p-3 rounded-lg">
+          <p className="text-gray-400 mb-2">{label}</p>
+          {payload.map((entry: any) => (
+            entry.value && (
+              <div
+                key={entry.dataKey}
+                className="flex items-center gap-2"
+              >
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: entry.stroke,
+                    opacity: entry.dataKey === focusedProspect?.Name ? 1 : 0.4
+                  }}
+                />
+                <span className="text-white">{entry.dataKey}</span>
+                <span className="text-gray-400">Rank {entry.value}</span>
+              </div>
+            )
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="bg-[#19191A] text-white max-w-4xl">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">
+            {focusedProspect
+              ? `${focusedProspect.Name} - Projected Rankings`
+              : 'Projected Rankings Comparison'}
+            {selectedPosition && ` - ${selectedPosition}s`}
+          </DialogTitle>
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 text-gray-400 hover:text-white"
+          >
+            <X size={20} />
+          </button>
+        </DialogHeader>
+
+        <div className="mt-4 p-4 bg-gray-800/20 rounded-lg">
+          <LineChart
+            width={800}
+            height={400}
+            data={graphData}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+            <XAxis
+              dataKey="name"
+              stroke="#666"
+            />
+            <YAxis
+              stroke="#666"
+              domain={[0, 'dataMax']}
+              reversed={true}
+              label={{
+                value: 'Rank',
+                angle: -90,
+                position: 'insideLeft',
+                style: { fill: '#666' }
+              }}
+            />
+            <Tooltip content={<CustomTooltip />} />
+
+            {/* Background comparison lines */}
+            {allProspects.map((prospect) => {
+              if (focusedProspect && prospect.Name === focusedProspect.Name) return null;
+              const teamColor = prospect['Team Color'] || '808080';
+              return (
+                <Line
+                  key={prospect.Name}
+                  type="monotone"
+                  dataKey={prospect.Name}
+                  stroke={`#444444`}
+                  strokeWidth={1}
+                  dot={false}
+                  opacity={0.2}
+                  activeDot={false}
+                />
+              );
+            })}
+
+            {/* Focused player line */}
+            {focusedProspect && (
+              <Line
+                key={focusedProspect.Name}
+                type="monotone"
+                dataKey={focusedProspect.Name}
+                stroke={`#${focusedProspect['Team Color']}`} // Make sure this matches your CSV column name exactly
+                strokeWidth={3}
+                dot={{
+                  r: 4,
+                  fill: `#${focusedProspect['Team Color']}`,
+                  strokeWidth: 0
+                }}
+              />
+            )}
+          </LineChart>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const yearSortKeys = [
   'Pred. Y1 Rank',
   'Pred. Y2 Rank',
@@ -78,17 +227,72 @@ const yearSortKeys = [
   'Pred. Y5 Rank'
 ];
 
-const TimelineFilter = ({ 
-  selectedSortKey, 
+interface NavigationHeaderProps {
+  activeTab?: string;
+}
+
+const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
+  const tabs = [
+    { name: 'Home', href: '/' },
+    { name: 'Draft Board', href: '/bigboard' },
+  ];
+
+  return (
+    <>
+      {/* Fixed header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#19191A] border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Navigation Tabs */}
+            <div className="flex space-x-4">
+              {tabs.map((tab) => (
+                <Link
+                  key={tab.name}
+                  href={tab.href}
+                  className={`
+                    px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
+                    ${activeTab === tab.name
+                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                      : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                    }
+                  `}
+                >
+                  {tab.name}
+                </Link>
+              ))}
+            </div>
+
+            {/* TPM Logo */}
+            <div className={`${barlow.className} text-4xl font-bold text-white italic`}>
+              TPM
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Spacer div to prevent content from hiding behind fixed header */}
+      <div className="h-16"></div>
+    </>
+  );
+};
+
+interface TimelineFilterProps {
+  selectedSortKey: string;
+  setSelectedSortKey: (key: string) => void;
+  selectedPosition: string | null;
+  setSelectedPosition: (position: string | null) => void;
+  filteredProspects: DraftProspect[]; // Added this prop
+}
+
+const TimelineFilter = ({
+  selectedSortKey,
   setSelectedSortKey,
   selectedPosition,
-  setSelectedPosition 
-}: { 
-  selectedSortKey: string, 
-  setSelectedSortKey: (key: string) => void,
-  selectedPosition: string | null,
-  setSelectedPosition: (position: string | null) => void
-}) => {
+  setSelectedPosition,
+  filteredProspects
+}: TimelineFilterProps) => {
+  const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
+
   const yearSortKeys = [
     { key: 'Actual Pick', label: 'Draft' },
     { key: 'Pred. Y1 Rank', label: 'Y1' },
@@ -129,15 +333,6 @@ const TimelineFilter = ({
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
-      <div className="absolute top-4 left-4">
-        <Link
-          href="/"
-          className="inline-block px-4 py-2 bg-gray-800/20 text-white rounded-xs text-sm font-medium hover:bg-gray-700 transition-colors duration-300"
-        >
-          ← Home
-        </Link>
-      </div>
-
       <div className="relative mt-12">
         {/* Timeline Track */}
         <div className="relative h-24 flex items-center justify-center mb-8">
@@ -242,6 +437,15 @@ const TimelineFilter = ({
               {item.label}
             </motion.button>
           ))}
+
+          {/* Add EPM Model */}
+          <EPMModel
+            isOpen={isGraphModelOpen}
+            onClose={() => setIsGraphModelOpen(false)}
+            prospects={filteredProspects}
+            selectedPosition={selectedPosition}
+            allProspects={filteredProspects}
+          />
         </div>
       </div>
     </div>
@@ -249,17 +453,17 @@ const TimelineFilter = ({
 };
 
 
-const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
+const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
 
   const draftedTeam = teamNames[prospect.Team] || prospect.Team;
   const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
-
 
   return (
     <motion.div
@@ -282,6 +486,24 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
+          {/* Rank Number - Repositioned to top right with persistent display */}
+          <div className={`
+            absolute top-6 right-8 z-20
+            transition-opacity duration-300
+            ${isHovered ? 'opacity-40' : 'opacity-100'}
+          `}>
+            <div className={`
+              ${barlow.className}
+              text-6xl font-bold
+              text-white
+              select-none
+              transition-all duration-300
+              ${isHovered ? 'mr-[300px]' : ''}
+            `}>
+              {rank}
+            </div>
+          </div>
+
           {/* Background Pre-NBA Logo */}
           <div className="absolute inset-0 flex items-center justify-start pl-12 opacity-20">
             {!logoError ? (
@@ -340,7 +562,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
             </div>
           </div>
 
-          {/* Fixed Hover info panel */}
+          {/* Hover info panel */}
           <div
             className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${isHovered ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
               }`}
@@ -370,16 +592,19 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           </div>
         </div>
 
-        {/* Expand button */}
-        <div
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="cursor-pointer w-8 h-8 rounded-full flex hover:bg-gray-800/10 transition-colors duration-200"
-        >
-          {isExpanded ? (
-            <ChevronUp className="text-white h-6 w-6" />
-          ) : (
-            <ChevronDown className="text-white h-6 w-6" />
-          )}
+        {/* Centered expand/collapse button */}
+        <div className="flex justify-center mt-2">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800/10 transition-colors duration-200"
+            aria-label={isExpanded ? "Collapse details" : "Expand details"}
+          >
+            {isExpanded ? (
+              <ChevronUp className="text-white h-6 w-6" />
+            ) : (
+              <ChevronDown className="text-white h-6 w-6" />
+            )}
+          </button>
         </div>
 
         {/* Expanded content */}
@@ -409,10 +634,25 @@ const ProspectCard: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
                     <span>{prospect['Avg. Rank Y1-Y5']}</span>
                   </div>
                 </div>
+                <Button
+                  onClick={() => setIsGraphModelOpen(true)}
+                  className="bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 px-4 py-2 rounded-lg text-sm"
+                >
+                  View Graph
+                </Button>
               </div>
             </div>
           </div>
         )}
+        {/* Individual player graph model */}
+        <EPMModel
+          isOpen={isGraphModelOpen}
+          onClose={() => setIsGraphModelOpen(false)}
+          prospects={[prospect]}
+          selectedPosition={null}
+          allProspects={filteredProspects}
+          focusedProspect={prospect}
+        />
       </div>
     </motion.div>
   );
@@ -473,14 +713,17 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         setSelectedSortKey={setSelectedSortKey}
         selectedPosition={selectedPosition}
         setSelectedPosition={setSelectedPosition}
+        filteredProspects={filteredProspects}  // Add this line
       />
 
       {/* Prospects Grid */}
       <div className="space-y-4 max-w-6xl mx-auto px-4">
-        {filteredProspects.map((prospect) => (
+        {filteredProspects.map((prospect, index) => (
           <ProspectCard
             key={prospect.Name}
             prospect={prospect}
+            rank={index + 1}
+            filteredProspects={filteredProspects} // Pass filtered prospects
           />
         ))}
       </div>
@@ -511,5 +754,10 @@ export default function DraftProspectsPage() {
     fetchDraftProspects();
   }, []);
 
-  return <TimelineSlider initialProspects={prospects} />;
+  return (
+    <div className="min-h-screen bg-[#19191A]">
+      <NavigationHeader activeTab="Draft Board" />
+      <TimelineSlider initialProspects={prospects} />
+    </div>
+  );
 }
