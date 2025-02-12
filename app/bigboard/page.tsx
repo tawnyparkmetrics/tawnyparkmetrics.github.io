@@ -5,7 +5,7 @@ import { LucideUser, ChevronDown, ChevronUp, X } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -86,7 +86,7 @@ interface EPMModelProps {
 
 // Fixed prop destructuring with type
 const EPMModel = (props: EPMModelProps) => {
-  const { isOpen, onClose, prospects, selectedPosition, allProspects, focusedProspect } = props;
+  const { isOpen, onClose, selectedPosition, allProspects, focusedProspect } = props;
 
   const graphData = React.useMemo(() => {
     // Create data points for years 1-5
@@ -182,7 +182,6 @@ const EPMModel = (props: EPMModelProps) => {
             {/* Background comparison lines */}
             {allProspects.map((prospect) => {
               if (focusedProspect && prospect.Name === focusedProspect.Name) return null;
-              const teamColor = prospect['Team Color'] || '808080';
               return (
                 <Line
                   key={prospect.Name}
