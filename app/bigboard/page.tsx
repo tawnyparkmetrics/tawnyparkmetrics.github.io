@@ -117,7 +117,7 @@ const EPMModel = (props: EPMModelProps) => {
       return (
         <div className="bg-[#19191A] border border-gray-700 p-3 rounded-lg">
           <p className="text-gray-400 mb-2">{label}</p>
-          {payload.map((entry: any) => (
+          {payload.map((entry) => (
             entry.value && (
               <div
                 key={entry.dataKey}
