@@ -9,6 +9,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 
 export interface DraftProspect {
@@ -112,7 +114,7 @@ const EPMModel = (props: EPMModelProps) => {
   }
 
   // Custom tooltip component
-  const CustomTooltip : React.FC<{ active?: boolean; payload?: TooltipPayload[]; label?: string }> = ({ active, payload, label }) => {
+  const CustomTooltip: React.FC<{ active?: boolean; payload?: TooltipPayload[]; label?: string }> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-[#19191A] border border-gray-700 p-3 rounded-lg">
@@ -285,7 +287,9 @@ interface TimelineFilterProps {
   setSelectedSortKey: (key: string) => void;
   selectedPosition: string | null;
   setSelectedPosition: (position: string | null) => void;
-  filteredProspects: DraftProspect[]; // Added this prop
+  filteredProspects: DraftProspect[];
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 const TimelineFilter = ({
@@ -293,7 +297,9 @@ const TimelineFilter = ({
   setSelectedSortKey,
   selectedPosition,
   setSelectedPosition,
-  filteredProspects
+  filteredProspects,
+  searchQuery,
+  setSearchQuery
 }: TimelineFilterProps) => {
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
 
@@ -396,6 +402,19 @@ const TimelineFilter = ({
 
         {/* Combined Average and Position Filters */}
         <div className="flex justify-end items-center space-x-4 mt-8">
+
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search prospects..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-2 w-64 bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+            />
+          </div>
+          
           {/* Divider */}
           <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
@@ -665,11 +684,26 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
 function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[] }) {
   const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredProspects = useMemo(() => {
     let sortedProspects = [...initialProspects];
 
-    // First apply position filter if selected
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      sortedProspects = sortedProspects.filter(prospect => {
+        // Split the full name into parts
+        const nameParts = prospect.Name.toLowerCase().split(' ');
+        const firstName = nameParts[0];
+        const lastName = nameParts[nameParts.length - 1];
+        
+        // Check if first name or last name starts with the query
+        return firstName.startsWith(query) || lastName.startsWith(query);
+      });
+    }
+
+    // Apply position filter if selected
     if (selectedPosition) {
       sortedProspects = sortedProspects.filter(prospect => prospect.Role === selectedPosition);
     }
@@ -708,7 +742,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
     }
 
     return sortedProspects;
-  }, [initialProspects, selectedSortKey, selectedPosition]);
+  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery]);
 
   return (
     <div className="bg-[#19191A] min-h-screen">
@@ -717,7 +751,9 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         setSelectedSortKey={setSelectedSortKey}
         selectedPosition={selectedPosition}
         setSelectedPosition={setSelectedPosition}
-        filteredProspects={filteredProspects}  // Add this line
+        filteredProspects={filteredProspects}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
 
       {/* Prospects Grid */}
@@ -727,7 +763,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
             key={prospect.Name}
             prospect={prospect}
             rank={index + 1}
-            filteredProspects={filteredProspects} // Pass filtered prospects
+            filteredProspects={filteredProspects}
           />
         ))}
       </div>
