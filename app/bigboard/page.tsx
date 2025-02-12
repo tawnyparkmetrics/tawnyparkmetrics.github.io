@@ -91,7 +91,7 @@ const EPMModel = (props: EPMModelProps) => {
   const graphData = React.useMemo(() => {
     // Create data points for years 1-5
     return [1, 2, 3, 4, 5].map(year => {
-      const dataPoint: any = { name: `Year ${year}` };
+      const dataPoint: Record<string, number | string> = { name: `Year ${year}` };
 
       // Add background comparison lines data
       allProspects.forEach(prospect => {
@@ -105,9 +105,14 @@ const EPMModel = (props: EPMModelProps) => {
     });
   }, [allProspects]);
 
+  interface TooltipPayload {
+    dataKey: string;
+    value: number;
+    stroke: string;
+  }
 
   // Custom tooltip component
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip : React.FC<{ active?: boolean; payload?: TooltipPayload[]; label?: string }> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-[#19191A] border border-gray-700 p-3 rounded-lg">
