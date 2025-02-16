@@ -226,13 +226,13 @@ const EPMModel = (props: EPMModelProps) => {
   );
 };
 
-const yearSortKeys = [
-  'Pred. Y1 Rank',
-  'Pred. Y2 Rank',
-  'Pred. Y3 Rank',
-  'Pred. Y4 Rank',
-  'Pred. Y5 Rank'
-];
+// const yearSortKeys = [
+//   'Pred. Y1 Rank',
+//   'Pred. Y2 Rank',
+//   'Pred. Y3 Rank',
+//   'Pred. Y4 Rank',
+//   'Pred. Y5 Rank'
+// ];
 
 interface NavigationHeaderProps {
   activeTab?: string;
@@ -741,7 +741,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
   const filteredProspects = useMemo(() => {
     // First, sort all prospects according to the selected sort key
-    let allSortedProspects = [...initialProspects].sort((a, b) => {
+    const allSortedProspects = [...initialProspects].sort((a, b) => {
       const aValue = a[selectedSortKey as keyof DraftProspect];
       const bValue = b[selectedSortKey as keyof DraftProspect];
 
