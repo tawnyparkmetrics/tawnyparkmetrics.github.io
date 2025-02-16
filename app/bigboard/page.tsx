@@ -36,6 +36,7 @@ export interface DraftProspect {
   'Role': string;
 
   Summary?: string;
+  originalRank?: number;
 
 }
 
@@ -408,13 +409,13 @@ const TimelineFilter = ({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               type="text"
-              placeholder="Search prospects..."
+              placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2 w-64 bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
             />
           </div>
-          
+
           {/* Divider */}
           <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
@@ -483,94 +484,107 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
   const [logoError, setLogoError] = useState(false);
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
 
+  // Update hover state when dropdown is expanded
+  useEffect(() => {
+    if (isExpanded) {
+      setIsHovered(true);
+    }
+  }, [isExpanded]);
+
   const draftedTeam = teamNames[prospect.Team] || prospect.Team;
   const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{
-        opacity: { duration: 0.3 },
-        y: { duration: 0.5 },
-        layout: { duration: 0.5 }
-      }}
-      className="max-w-5xl mx-auto px-4"
-      style={{ marginBottom: '1rem' }}
-    >
-      <div className="relative">
-        <div
-          className="relative h-[400px] group bg-gray-800/20 rounded-xs"
-          style={{ backgroundColor: '#19191A' }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {/* Rank Number - Repositioned to top right with persistent display */}
-          <div className={`
-            absolute top-6 right-8 z-20
-            transition-opacity duration-300
-            ${isHovered ? 'opacity-40' : 'opacity-100'}
-          `}>
-            <div className={`
-              ${barlow.className}
-              text-6xl font-bold
-              text-white
-              select-none
-              transition-all duration-300
-              ${isHovered ? 'mr-[300px]' : ''}
-            `}>
-              {rank}
-            </div>
-          </div>
-
-          {/* Background Pre-NBA Logo */}
-          <div className="absolute inset-0 flex items-center justify-start pl-12 opacity-20">
-            {!logoError ? (
-              <Image
-                src={prenbalogoUrl}
-                alt={prospect['Pre-NBA']}
-                width={200}
-                height={200}
-                className="object-contain transition-transform duration-300 group-hover:scale-105 grayscale group-hover:grayscale-0"
-                onError={() => setLogoError(true)}
-              />
-            ) : (
-              <div className="w-48 h-48 bg-gray-800 rounded-full flex items-center justify-center">
-                <span className="text-xl text-gray-400">{prospect['Pre-NBA']}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Player Image */}
-          <div className="absolute inset-0 flex justify-center">
-            {!imageError ? (
-              <Image
-                src={playerImageUrl}
-                alt={prospect.Name}
-                fill
-                className="object-contain transition-transform duration-300 group-hover:scale-105 grayscale group-hover:grayscale-0"
-                onError={() => setImageError(true)}
-                sizes="800px"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <LucideUser className="text-gray-500" size={48} />
-              </div>
-            )}
-          </div>
-
-          {/* Large Centered Name */}
+    <div className="max-w-5xl mx-auto px-4 mb-4">
+      <motion.div
+        layout="position"
+        transition={{
+          layout: { duration: 0.3, ease: "easeInOut" }
+        }}
+      >
+        <div className="relative">
+          {/* Main card container - removed motion from this level */}
           <div
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'
-              }`}
+            className="relative h-[400px] bg-gray-800/20 rounded-xs"
+            style={{ backgroundColor: '#19191A' }}
+            onMouseEnter={() => !isExpanded && setIsHovered(true)}
+            onMouseLeave={() => !isExpanded && setIsHovered(false)}
           >
-            <div className="text-center z-10">
-              <h2
-                className={`
+            {/* Rank Number */}
+            <motion.div
+              layout="position"
+              className={`
+                absolute top-6 right-8 z-20
+                transition-opacity duration-300
+                ${(isHovered || isExpanded) ? 'opacity-40' : 'opacity-100'}
+              `}
+            >
+              <div className={`
+                ${barlow.className}
+                text-6xl font-bold
+                text-white
+                select-none
+                transition-all duration-300
+                ${(isHovered || isExpanded) ? 'mr-[300px]' : ''}
+              `}>
+                {rank}
+              </div>
+            </motion.div>
+
+            {/* Background Pre-NBA Logo - Made static */}
+            <div className="absolute inset-0 flex items-center justify-start pl-12 opacity-20">
+              {!logoError ? (
+                <Image
+                  src={prenbalogoUrl}
+                  alt={prospect['Pre-NBA']}
+                  width={200}
+                  height={200}
+                  className={`object-contain transition-transform duration-300 ${(isHovered || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}`}
+                  onError={() => setLogoError(true)}
+                />
+              ) : (
+                <div className="w-48 h-48 bg-gray-800 rounded-full flex items-center justify-center">
+                  <span className="text-xl text-gray-400">{prospect['Pre-NBA']}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Player Image - With containment */}
+            <div className="absolute inset-0 flex justify-center overflow-hidden">
+              <div className="relative w-[90%] h-[90%] mt-8"> {/* Added padding via width/height reduction and top margin */}
+                {!imageError ? (
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={playerImageUrl}
+                      alt={prospect.Name}
+                      fill
+                      className={`
+                        object-contain 
+                        transition-all duration-300 
+                        ${(isHovered || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}
+                      `}
+                      onError={() => setImageError(true)}
+                      sizes="800px"
+                      priority
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <LucideUser className="text-gray-500" size={48} />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Large Centered Name */}
+            <motion.div
+              layout="position"
+              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${(isHovered || isExpanded) ? 'opacity-0' : 'opacity-100'}`}
+            >
+              <div className="text-center z-10">
+                <h2 className={`
                   ${barlow.className} 
                   text-7xl 
                   font-bold 
@@ -578,106 +592,145 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
                   uppercase 
                   tracking-wider
                   [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
-                `}
-              >
-                {prospect.Name}
-              </h2>
-            </div>
-          </div>
-
-          {/* Hover info panel */}
-          <div
-            className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${isHovered ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-              }`}
-            style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-          >
-            <div className="p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
-              <div className="space-y-2 text-sm text-gray-300">
-                <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
-                <div><span className="font-bold text-white">Wingspan  </span> {prospect.Wingspan}</div>
-                <div><span className="font-bold text-white">Wing - Height  </span> {prospect['Wing - Height']}</div>
-                <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
+                `}>
+                  {prospect.Name}
+                </h2>
               </div>
+            </motion.div>
 
-              <div className="pt-4 border-t border-gray-700">
+            {/* Hover info panel */}
+            <div
+              className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
+                }`}
+              style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
+            >
+              <div className="p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
                 <div className="space-y-2 text-sm text-gray-300">
-                  <div>
-                    <span className="font-bold text-white">Draft  </span>
-                    {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
-                  </div>
-                  <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
-                  <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
-                  <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
+                  <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
+                  <div><span className="font-bold text-white">Wingspan  </span> {prospect.Wingspan}</div>
+                  <div><span className="font-bold text-white">Wing - Height  </span> {prospect['Wing - Height']}</div>
+                  <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Centered expand/collapse button */}
-        <div className="flex justify-center mt-2">
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800/10 transition-colors duration-200"
-            aria-label={isExpanded ? "Collapse details" : "Expand details"}
-          >
-            {isExpanded ? (
-              <ChevronUp className="text-white h-6 w-6" />
-            ) : (
-              <ChevronDown className="text-white h-6 w-6" />
-            )}
-          </button>
-        </div>
-
-        {/* Expanded content */}
-        {isExpanded && (
-          <div className="grid grid-cols-2 gap-4 rounded-xs backdrop-blur-sm p-6" style={{ backgroundColor: '#19191A' }}>
-            <div className="text-gray-300">
-              <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
-              <p className="text-sm leading-relaxed">{playerSummary}</p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-gray-800/80 p-4 rounded-xs">
-                <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
-                <div className="space-y-2 text-sm">
-                  {['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].map((year) => (
-                    <div key={year} className="flex justify-between text-gray-300">
-                      <span>Year {year.slice(1)}:</span>
-                      <span>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</span>
+                <div className="pt-4 border-t border-gray-700">
+                  <div className="space-y-2 text-sm text-gray-300">
+                    <div>
+                      <span className="font-bold text-white">Draft  </span>
+                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
                     </div>
-                  ))}
-                  <div className="flex justify-between font-semibold border-t border-gray-800/20 pt-2 text-blue-400">
-                    <span>3Y Average:</span>
-                    <span>{prospect['Avg. Rank Y1-Y3']}</span>
-                  </div>
-                  <div className="flex justify-between font-semibold text-blue-400">
-                    <span>5Y Average:</span>
-                    <span>{prospect['Avg. Rank Y1-Y5']}</span>
+                    <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
+                    <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
+                    <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
                   </div>
                 </div>
-                <Button
-                  onClick={() => setIsGraphModelOpen(true)}
-                  className="bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 px-4 py-2 rounded-lg text-sm"
-                >
-                  View Graph
-                </Button>
               </div>
             </div>
           </div>
-        )}
-        {/* Individual player graph model */}
-        <EPMModel
-          isOpen={isGraphModelOpen}
-          onClose={() => setIsGraphModelOpen(false)}
-          prospects={[prospect]}
-          selectedPosition={null}
-          allProspects={filteredProspects}
-          focusedProspect={prospect}
-        />
-      </div>
-    </motion.div>
+
+          {/* Expand/collapse button */}
+          <div className="flex justify-center mt-2">
+            <motion.button
+              layout="position"
+              onClick={() => {
+                setIsExpanded(!isExpanded);
+                if (!isExpanded) {
+                  setIsHovered(true);
+                }
+              }}
+              className={`
+                w-10 h-10
+                rounded-full
+                flex items-center justify-center
+                bg-gray-800/20
+                hover:bg-gray-800/30
+                transition-all duration-300
+                border border-gray-700
+                hover:border-gray-600
+                ${isExpanded ? 'bg-gray-800/30 border-gray-600' : ''}
+              `}
+              aria-label={isExpanded ? "Collapse details" : "Expand details"}
+            >
+              {isExpanded ? (
+                <ChevronUp className="text-white h-5 w-5" />
+              ) : (
+                <ChevronDown className="text-white h-5 w-5 transition-all duration-300 group-hover:animate-bounce hover:animate-bounce" />
+              )}
+            </motion.button>
+          </div>
+
+          {/* Expanded content */}
+          {isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-2 gap-4 rounded-xs backdrop-blur-sm p-6"
+              style={{ backgroundColor: '#19191A' }}
+            >
+              {/* Expanded content remains the same */}
+              <div className="text-gray-300">
+                <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
+                <p className="text-sm leading-relaxed">{playerSummary}</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-gray-800/80 p-4 rounded-xs">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
+                      <div className="space-y-2 text-sm">
+                        {['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].map((year) => (
+                          <div key={year} className="flex justify-between text-gray-300">
+                            <span>Year {year.slice(1)}:</span>
+                            <span>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-white mb-3">Averages & Draft</h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between text-blue-400">
+                          <span>3Y Average:</span>
+                          <span>{prospect['Avg. Rank Y1-Y3']}</span>
+                        </div>
+                        <div className="flex justify-between text-blue-400">
+                          <span>5Y Average:</span>
+                          <span>{prospect['Avg. Rank Y1-Y5']}</span>
+                        </div>
+                        <div className="flex justify-between text-gray-300">
+                          <span>Draft Position:</span>
+                          <span>{prospect['Actual Pick']}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => setIsGraphModelOpen(true)}
+                    className="mt-4 bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 px-4 py-2 rounded-lg text-sm w-full"
+                  >
+                    View Graph
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          <EPMModel
+            isOpen={isGraphModelOpen}
+            onClose={() => setIsGraphModelOpen(false)}
+            prospects={[prospect]}
+            selectedPosition={null}
+            allProspects={filteredProspects}
+            focusedProspect={prospect}
+          />
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
@@ -687,61 +740,61 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredProspects = useMemo(() => {
-    let sortedProspects = [...initialProspects];
+    // First, sort all prospects according to the selected sort key
+    let allSortedProspects = [...initialProspects].sort((a, b) => {
+      const aValue = a[selectedSortKey as keyof DraftProspect];
+      const bValue = b[selectedSortKey as keyof DraftProspect];
+
+      if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
+        return 1;
+      }
+      if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
+        return -1;
+      }
+
+      return Number(aValue) - Number(bValue);
+    });
+
+    // Create a map of original rankings
+    const rankMap = new Map(
+      allSortedProspects.map((prospect, index) => [prospect.Name, index + 1])
+    );
+
+    // Then apply filters while preserving the original ranking
+    let filteredProspects = [...allSortedProspects];
 
     // Apply search filter
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      sortedProspects = sortedProspects.filter(prospect => {
-        // Split the full name into parts
+      const query = searchQuery.toLowerCase().trim();
+      filteredProspects = filteredProspects.filter(prospect => {
+        // Search by player name
         const nameParts = prospect.Name.toLowerCase().split(' ');
         const firstName = nameParts[0];
         const lastName = nameParts[nameParts.length - 1];
-        
-        // Check if first name or last name starts with the query
-        return firstName.startsWith(query) || lastName.startsWith(query);
+        const nameMatch = firstName.startsWith(query) || lastName.startsWith(query);
+
+        // Search by Pre-NBA program
+        const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
+
+        // Search by NBA team (both abbreviation and full name)
+        const teamAbbrevMatch = prospect.Team.toLowerCase().includes(query);
+        const teamFullNameMatch = teamNames[prospect.Team]?.toLowerCase().includes(query);
+
+        return nameMatch || preNBAMatch || teamAbbrevMatch || teamFullNameMatch;
       });
     }
 
     // Apply position filter if selected
     if (selectedPosition) {
-      sortedProspects = sortedProspects.filter(prospect => prospect.Role === selectedPosition);
+      filteredProspects = filteredProspects.filter(prospect => prospect.Role === selectedPosition);
     }
 
-    // Then apply sorting
-    if (yearSortKeys.includes(selectedSortKey)) {
-      const yearKey = selectedSortKey as keyof DraftProspect;
-      sortedProspects = sortedProspects.sort((a, b) => {
-        const aValue = a[yearKey];
-        const bValue = b[yearKey];
+    // Add original ranking to each prospect
+    return filteredProspects.map(prospect => ({
+      ...prospect,
+      originalRank: rankMap.get(prospect.Name)
+    }));
 
-        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
-          return 1;
-        }
-        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
-          return -1;
-        }
-
-        return Number(aValue) - Number(bValue);
-      });
-    }
-    else {
-      sortedProspects = sortedProspects.sort((a, b) => {
-        const aValue = a[selectedSortKey as keyof DraftProspect];
-        const bValue = b[selectedSortKey as keyof DraftProspect];
-
-        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
-          return 1;
-        }
-        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
-          return -1;
-        }
-
-        return Number(aValue) - Number(bValue);
-      });
-    }
-
-    return sortedProspects;
   }, [initialProspects, selectedSortKey, selectedPosition, searchQuery]);
 
   return (
@@ -758,14 +811,20 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
       {/* Prospects Grid */}
       <div className="space-y-4 max-w-6xl mx-auto px-4">
-        {filteredProspects.map((prospect, index) => (
-          <ProspectCard
-            key={prospect.Name}
-            prospect={prospect}
-            rank={index + 1}
-            filteredProspects={filteredProspects}
-          />
-        ))}
+        {filteredProspects.length > 0 ? (
+          filteredProspects.map((prospect) => (
+            <ProspectCard
+              key={prospect.Name}
+              prospect={prospect}
+              rank={prospect.originalRank || 0}
+              filteredProspects={filteredProspects}
+            />
+          ))
+        ) : (
+          <div className="text-center py-8 text-gray-400">
+            No prospects found matching your search criteria
+          </div>
+        )}
       </div>
     </div>
   );
