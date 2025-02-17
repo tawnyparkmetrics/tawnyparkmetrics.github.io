@@ -474,13 +474,13 @@ const TimelineFilter = ({
 //   filteredProspects: DraftProspect[];
 // }
 
-const NBATeamLogo = ({ team }: { team: string }) => {
+const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   const [logoError, setNBALogoError] = useState(false);
-  const teamLogoUrl = `/nbateam_logos/${team}.png`;
+  const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
 
   if (logoError) {
     return <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{team}</span>
+      <span className="text-xs text-gray-400">{NBA}</span>
     </div>;
   }
 
@@ -488,7 +488,7 @@ const NBATeamLogo = ({ team }: { team: string }) => {
     <div className="h-16 w-16 relative">
       <Image
         src={teamLogoUrl}
-        alt={`${team} logo`}
+        alt={`${NBA} logo`}
         fill
         className="object-contain"
         onError={() => setNBALogoError(true)}
@@ -656,7 +656,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
                 {/* Add NBA Team logo section */}
                 <div className="pt-3 flex justify-center">
-                  <NBATeamLogo team={prospect['NBA Team']} />
+                  <NBATeamLogo NBA={prospect['NBA Team']} />
                 </div>
               </div>
             </div>
