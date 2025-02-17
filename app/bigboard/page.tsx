@@ -59,7 +59,7 @@ const teamNames: { [key: string]: string } = {
   MIL: "Milwaukee Bucks",
   WAS: "Washington Wizards",
   HOU: "Houston Rockets",
-  MEM: "Memphis Grizzlies",
+  MEM: "Memphis Grizzlies", 
   SAC: "Sacramento Kings",
   OKC: "Okhlahoma City Thunder",
   NY: "Brooklyn Nets",
@@ -467,19 +467,32 @@ const TimelineFilter = ({
   );
 };
 
-const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
+// interface ProspectCardProps {
+//   prospect: DraftProspect;
+//   rank: RankType;
+//   filteredProspects: DraftProspect[];
+// }
+
+const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
 
-  // Helper function for ordinal suffixes
-  const getOrdinalSuffix = (num: number): string => {
-    const suffixes = ['th', 'st', 'nd', 'rd'];
-    const v = num % 100;
-    return suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0];
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => {
+    if (!isExpanded) {
+      setIsHovered(false);
+    }
   };
+
+  // // Helper function for ordinal suffixes
+  // const getOrdinalSuffix = (num: number): string => {
+  //   const suffixes = ['th', 'st', 'nd', 'rd'];
+  //   const v = num % 100;
+  //   return suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0];
+  // };
 
   // Update hover state when dropdown is expanded
   useEffect(() => {
@@ -495,19 +508,14 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
 
   return (
     <div className="max-w-5xl mx-auto px-4 mb-4">
-      <motion.div
-        layout="position"
-        transition={{
-          layout: { duration: 0.3, ease: "easeInOut" }
-        }}
-      >
+      <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
         <div className="relative">
-          {/* Main card container */}
-          <div
-            className="relative h-[400px] bg-gray-800/20 rounded-xs"
+          {/* Main card container - add mouse event handlers here */}
+            <div 
+            className="relative h-[400px] bg-gray-800/20 rounded-xs" 
             style={{ backgroundColor: '#19191A' }}
-            onMouseEnter={() => !isExpanded && setIsHovered(true)}
-            onMouseLeave={() => !isExpanded && setIsHovered(false)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             {/* Rank Number */}
             <motion.div
@@ -526,7 +534,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
                 transition-all duration-300
                 ${(isHovered || isExpanded) ? 'mr-[300px]' : ''}
               `}>
-                {rank}
+                {typeof rank === 'number' ? rank : 'N/A'}
               </div>
             </motion.div>
 
@@ -789,6 +797,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
   );
 };
 
+type RankType = number | 'N/A';
+
+interface ProspectWithRank {
+  prospect: DraftProspect;
+  originalRank?: RankType;
+}
+
 function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[] }) {
   const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
@@ -796,24 +811,59 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
   const filteredProspects = useMemo(() => {
     // First, sort all prospects according to the selected sort key
-    const allSortedProspects = [...initialProspects].sort((a, b) => { //changed from let
+    const allSortedProspects = [...initialProspects].sort((a, b) => {
+      // Special handling for 'Actual Pick'
+      if (selectedSortKey === 'Actual Pick') {
+        const aValue = a[selectedSortKey];
+        const bValue = b[selectedSortKey];
 
-      const aValue = a[selectedSortKey as keyof DraftProspect];
-      const bValue = b[selectedSortKey as keyof DraftProspect];
+        // If either value is 'N/A' or empty, treat it as greater than draft picks
+        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
+          return 1;
+        }
+        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
+          return -1;
+        }
 
-      if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
-        return 1;
+        const aNum = Number(aValue);
+        const bNum = Number(bValue);
+
+        // If both are valid numbers
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          return aNum - bNum;
+        }
+        return 0;
+      } else {
+        // Regular sorting for other keys
+        const aValue = a[selectedSortKey as keyof DraftProspect];
+        const bValue = b[selectedSortKey as keyof DraftProspect];
+
+        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
+          return 1;
+        }
+        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
+          return -1;
+        }
+
+        return Number(aValue) - Number(bValue);
       }
-      if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
-        return -1;
-      }
-
-      return Number(aValue) - Number(bValue);
     });
 
-    // Create a map of original rankings
-    const rankMap = new Map(
-      allSortedProspects.map((prospect, index) => [prospect.Name, index + 1])
+    // Create a map of rankings that preserves draft pick numbers
+    const rankMap = new Map<string, RankType>(
+      allSortedProspects.map((prospect, index) => {
+        if (selectedSortKey === 'Actual Pick') {
+          const actualPick = prospect['Actual Pick'];
+          // If it's a valid draft pick number and less than or equal to 58, use it
+          if (actualPick && !isNaN(Number(actualPick)) && Number(actualPick) <= 58) {
+            return [prospect.Name, Number(actualPick)];
+          }
+          // For undrafted players or invalid numbers, return N/A
+          return [prospect.Name, 'N/A'];
+        }
+        // For other sort keys, use the regular index + 1
+        return [prospect.Name, index + 1];
+      })
     );
 
     // Then apply filters while preserving the original ranking
@@ -823,16 +873,11 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
     if (searchQuery) {
       const query = searchQuery.toLowerCase().trim();
       filteredProspects = filteredProspects.filter(prospect => {
-        // Search by player name
         const nameParts = prospect.Name.toLowerCase().split(' ');
         const firstName = nameParts[0];
         const lastName = nameParts[nameParts.length - 1];
         const nameMatch = firstName.startsWith(query) || lastName.startsWith(query);
-
-        // Search by Pre-NBA program
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
-
-        // Search by NBA team (both abbreviation and full name)
         const teamAbbrevMatch = prospect.NBA.toLowerCase().includes(query);
         const teamFullNameMatch = teamNames[prospect.NBA]?.toLowerCase().includes(query);
 
@@ -845,9 +890,9 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
       filteredProspects = filteredProspects.filter(prospect => prospect.Role === selectedPosition);
     }
 
-    // Add original ranking to each prospect
+    // Create array of ProspectWithRank objects
     return filteredProspects.map(prospect => ({
-      ...prospect,
+      prospect,
       originalRank: rankMap.get(prospect.Name)
     }));
 
@@ -860,7 +905,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         setSelectedSortKey={setSelectedSortKey}
         selectedPosition={selectedPosition}
         setSelectedPosition={setSelectedPosition}
-        filteredProspects={filteredProspects}
+        filteredProspects={filteredProspects.map(p => p.prospect)}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
@@ -868,12 +913,12 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
       {/* Prospects Grid */}
       <div className="space-y-4 max-w-6xl mx-auto px-4">
         {filteredProspects.length > 0 ? (
-          filteredProspects.map((prospect) => (
+          filteredProspects.map(({ prospect, originalRank }) => (
             <ProspectCard
               key={prospect.Name}
               prospect={prospect}
-              rank={prospect.originalRank || 0}
-              filteredProspects={filteredProspects}
+              rank={originalRank ?? 0}
+              filteredProspects={filteredProspects.map(p => p.prospect)}
             />
           ))
         ) : (
