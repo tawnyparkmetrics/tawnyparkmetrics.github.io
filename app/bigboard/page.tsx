@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 export interface DraftProspect {
   Name: string;
   'Actual Pick': string;
-  Team: string;
+  NBA: string;
   'Pre-NBA': string;
   Position: string;
   Age: string;
@@ -87,7 +87,6 @@ interface EPMModelProps {
   focusedProspect?: DraftProspect; // Add this prop to identify the selected player
 }
 
-// Fixed prop destructuring with type
 const EPMModel = (props: EPMModelProps) => {
   const { isOpen, onClose, selectedPosition, allProspects, focusedProspect } = props;
 
@@ -225,14 +224,6 @@ const EPMModel = (props: EPMModelProps) => {
     </Dialog>
   );
 };
-
-// const yearSortKeys = [
-//   'Pred. Y1 Rank',
-//   'Pred. Y2 Rank',
-//   'Pred. Y3 Rank',
-//   'Pred. Y4 Rank',
-//   'Pred. Y5 Rank'
-// ];
 
 interface NavigationHeaderProps {
   activeTab?: string;
@@ -476,13 +467,19 @@ const TimelineFilter = ({
   );
 };
 
-
 const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
+
+  // Helper function for ordinal suffixes
+  const getOrdinalSuffix = (num: number): string => {
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const v = num % 100;
+    return suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0];
+  };
 
   // Update hover state when dropdown is expanded
   useEffect(() => {
@@ -491,7 +488,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
     }
   }, [isExpanded]);
 
-  const draftedTeam = teamNames[prospect.Team] || prospect.Team;
+  const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
   const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
@@ -505,7 +502,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
         }}
       >
         <div className="relative">
-          {/* Main card container - removed motion from this level */}
+          {/* Main card container */}
           <div
             className="relative h-[400px] bg-gray-800/20 rounded-xs"
             style={{ backgroundColor: '#19191A' }}
@@ -533,7 +530,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
               </div>
             </motion.div>
 
-            {/* Background Pre-NBA Logo - Made static */}
+            {/* Background Pre-NBA Logo */}
             <div className="absolute inset-0 flex items-center justify-start pl-12 opacity-20">
               {!logoError ? (
                 <Image
@@ -551,9 +548,9 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
               )}
             </div>
 
-            {/* Player Image - With containment */}
+            {/* Player Image */}
             <div className="absolute inset-0 flex justify-center overflow-hidden">
-              <div className="relative w-[90%] h-[90%] mt-8"> {/* Added padding via width/height reduction and top margin */}
+              <div className="relative w-[90%] h-[90%] mt-8">
                 {!imageError ? (
                   <div className="relative w-full h-full">
                     <Image
@@ -669,41 +666,99 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
               className="grid grid-cols-2 gap-4 rounded-xs backdrop-blur-sm p-6"
               style={{ backgroundColor: '#19191A' }}
             >
-              {/* Expanded content remains the same */}
+              {/* Scouting Report Column */}
               <div className="text-gray-300">
                 <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
                 <p className="text-sm leading-relaxed">{playerSummary}</p>
               </div>
 
+              {/* Rankings Column */}
               <div className="space-y-4">
                 <div className="bg-gray-800/80 p-4 rounded-xs">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
-                      <div className="space-y-2 text-sm">
-                        {['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].map((year) => (
-                          <div key={year} className="flex justify-between text-gray-300">
-                            <span>Year {year.slice(1)}:</span>
-                            <span>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                  <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
 
-                    <div>
-                      <h3 className="font-semibold text-white mb-3">Averages & Draft</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between text-blue-400">
-                          <span>3Y Average:</span>
-                          <span>{prospect['Avg. Rank Y1-Y3']}</span>
+                  {/* Rankings Table */}
+                  <div className="w-full">
+                    <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
+                      <div>Year</div>
+                      <div>Overall</div>
+                      <div>Position</div>
+                    </div>
+                    <div className="space-y-2">
+                      {['Y1', 'Y2', 'Y3'].map((year) => {
+                        // Get all prospects with the same role
+                        const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+
+                        // Sort them by the current year's rank
+                        const sortedByYear = samePositionProspects.sort((a, b) => {
+                          const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
+                          const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
+                          return aRank - bRank;
+                        });
+
+                        // Find position rank
+                        const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
+
+                        return (
+                          <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                            <div>Year {year.slice(1)}</div>
+                            <div>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
+                            <div>{positionRank === 0 ? 'N/A' : positionRank}</div>
+                          </div>
+                        );
+                      })}
+
+                      {/* 3 Year Average after Year 3 */}
+                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                        <div>3 Year Average</div>
+                        <div>{prospect['Avg. Rank Y1-Y3']}</div>
+                        <div>
+                          {(() => {
+                            const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+                            const sortedBy3YAvg = samePositionProspects.sort((a, b) => {
+                              const aRank = Number(a['Avg. Rank Y1-Y3']);
+                              const bRank = Number(b['Avg. Rank Y1-Y3']);
+                              return aRank - bRank;
+                            });
+                            const positionRank = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+                            return positionRank === 0 ? 'N/A' : positionRank;
+                          })()}
                         </div>
-                        <div className="flex justify-between text-blue-400">
-                          <span>5Y Average:</span>
-                          <span>{prospect['Avg. Rank Y1-Y5']}</span>
-                        </div>
-                        <div className="flex justify-between text-gray-300">
-                          <span>Draft Position:</span>
-                          <span>{prospect['Actual Pick']}</span>
+                      </div>
+
+                      {['Y4', 'Y5'].map((year) => {
+                        const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+                        const sortedByYear = samePositionProspects.sort((a, b) => {
+                          const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
+                          const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
+                          return aRank - bRank;
+                        });
+                        const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
+
+                        return (
+                          <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                            <div>Year {year.slice(1)}</div>
+                            <div>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
+                            <div>{positionRank === 0 ? 'N/A' : positionRank}</div>
+                          </div>
+                        );
+                      })}
+
+                      {/* 5 Year Average after Year 5 */}
+                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                        <div>5 Year Average</div>
+                        <div>{prospect['Avg. Rank Y1-Y5']}</div>
+                        <div>
+                          {(() => {
+                            const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+                            const sortedBy5YAvg = samePositionProspects.sort((a, b) => {
+                              const aRank = Number(a['Avg. Rank Y1-Y5']);
+                              const bRank = Number(b['Avg. Rank Y1-Y5']);
+                              return aRank - bRank;
+                            });
+                            const positionRank = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+                            return positionRank === 0 ? 'N/A' : positionRank;
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -711,7 +766,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: number; filteredPr
 
                   <Button
                     onClick={() => setIsGraphModelOpen(true)}
-                    className="mt-4 bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 px-4 py-2 rounded-lg text-sm w-full"
+                    className="mt-4 bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 px-4 py-2 rounded-xs text-sm w-full"
                   >
                     View Graph
                   </Button>
@@ -741,7 +796,8 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
   const filteredProspects = useMemo(() => {
     // First, sort all prospects according to the selected sort key
-    const allSortedProspects = [...initialProspects].sort((a, b) => {
+    const allSortedProspects = [...initialProspects].sort((a, b) => { //changed from let
+
       const aValue = a[selectedSortKey as keyof DraftProspect];
       const bValue = b[selectedSortKey as keyof DraftProspect];
 
@@ -777,8 +833,8 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
 
         // Search by NBA team (both abbreviation and full name)
-        const teamAbbrevMatch = prospect.Team.toLowerCase().includes(query);
-        const teamFullNameMatch = teamNames[prospect.Team]?.toLowerCase().includes(query);
+        const teamAbbrevMatch = prospect.NBA.toLowerCase().includes(query);
+        const teamFullNameMatch = teamNames[prospect.NBA]?.toLowerCase().includes(query);
 
         return nameMatch || preNBAMatch || teamAbbrevMatch || teamFullNameMatch;
       });
