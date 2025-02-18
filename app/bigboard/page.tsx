@@ -828,11 +828,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
 type RankType = number | 'N/A';
 
-interface ProspectWithRank {
-  prospect: DraftProspect;
-  originalRank?: RankType;
-}
-
 function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[] }) {
   const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
