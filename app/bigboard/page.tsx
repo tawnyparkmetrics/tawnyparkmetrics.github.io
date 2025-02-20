@@ -544,13 +544,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
     }
   };
 
-  // // Helper function for ordinal suffixes
-  // const getOrdinalSuffix = (num: number): string => {
-  //   const suffixes = ['th', 'st', 'nd', 'rd'];
-  //   const v = num % 100;
-  //   return suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0];
-  // };
-
   // Update hover state when dropdown is expanded
   useEffect(() => {
     if (isExpanded) {
@@ -677,13 +670,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
                 <div className="pt-4 border-t border-gray-700">
                   <div className="space-y-2 text-sm text-gray-300">
+                    <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
+                    <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
+                    <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                     <div>
                       <span className="font-bold text-white">Draft  </span>
                       {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
                     </div>
-                    <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
-                    <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
-                    <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
                   </div>
                 </div>
 
@@ -855,6 +848,10 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
           />
         </div>
       </motion.div>
+
+      {/* Divider */}
+      <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
     </div>
   );
 };
