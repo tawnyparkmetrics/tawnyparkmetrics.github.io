@@ -1,5 +1,13 @@
 "use client";
 import React, { useState, useMemo, useEffect } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import Image from 'next/image';
 import { LucideUser, ChevronDown, ChevronUp, X } from 'lucide-react';
 import Papa from 'papaparse';
@@ -283,6 +291,8 @@ interface TimelineFilterProps {
   filteredProspects: DraftProspect[];
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  viewMode: 'cards' | 'table';
+  setViewMode: (mode: 'cards' | 'table') => void;
 }
 
 const TimelineFilter = ({
@@ -292,7 +302,9 @@ const TimelineFilter = ({
   setSelectedPosition,
   filteredProspects,
   searchQuery,
-  setSearchQuery
+  setSearchQuery,
+  viewMode,
+  setViewMode,
 }: TimelineFilterProps) => {
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
 
@@ -411,6 +423,26 @@ const TimelineFilter = ({
           {/* Divider */}
           <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
+          {/* View Toggle */}
+          <motion.button
+            onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
+            className={`
+                      px-4 py-2 rounded-lg text-sm font-medium
+                      transition-all duration-300
+            ${viewMode === 'table'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+  `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {viewMode === 'cards' ? 'Table View' : 'Card View'}
+          </motion.button>
+
+          {/* Divider */}
+          <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
           {/* Position Filters */}
           {positions.map((position) => (
             <motion.button
@@ -497,6 +529,7 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   );
 };
 
+{/* Player Cards */ }
 const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -536,7 +569,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
         <div className="relative">
           {/* Main card container - add mouse event handlers here */}
           <div
-            className="relative h-[400px] bg-gray-800/20 rounded-xs"
+            className="relative h-[400px] rounded-xl border border-gray-700/50 overflow-hidden shadow-[0_0_15px_rgba(255,255,255,0.07)] transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50"
             style={{ backgroundColor: '#19191A' }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -633,7 +666,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 }`}
               style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
             >
-              <div className="p-6 space-y-4">
+              <div className="p-6 space-y-4 flex flex-col">
                 <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
                 <div className="space-y-2 text-sm text-gray-300">
                   <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
@@ -654,25 +687,25 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   </div>
                 </div>
 
-                {/* Add NBA Team logo section */}
-                <div className="pt-3 flex justify-center">
+                {/* NBA Team logo */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
                   <NBATeamLogo NBA={prospect['NBA Team']} />
                 </div>
               </div>
             </div>
-          </div>  
+          </div>
 
-            {/* Expand/collapse button */}
-            <div className="flex justify-center mt-2">
-              <motion.button
-                layout="position"
-                onClick={() => {
-                  setIsExpanded(!isExpanded);
-                  if (!isExpanded) {
-                    setIsHovered(true);
-                  }
-                }}
-                className={`
+          {/* Expand/collapse button */}
+          <div className="flex justify-center mt-2">
+            <motion.button
+              layout="position"
+              onClick={() => {
+                setIsExpanded(!isExpanded);
+                if (!isExpanded) {
+                  setIsHovered(true);
+                }
+              }}
+              className={`
                 w-10 h-10
                 rounded-full
                 flex items-center justify-center
@@ -683,155 +716,216 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 hover:border-gray-600
                 ${isExpanded ? 'bg-gray-800/30 border-gray-600' : ''}
               `}
-                aria-label={isExpanded ? "Collapse details" : "Expand details"}
-              >
-                {isExpanded ? (
-                  <ChevronUp className="text-white h-5 w-5" />
-                ) : (
-                  <ChevronDown className="text-white h-5 w-5 transition-all duration-300 group-hover:animate-bounce hover:animate-bounce" />
-                )}
-              </motion.button>
-            </div>
+              aria-label={isExpanded ? "Collapse details" : "Expand details"}
+            >
+              {isExpanded ? (
+                <ChevronUp className="text-white h-5 w-5" />
+              ) : (
+                <ChevronDown className="text-white h-5 w-5 transition-all duration-300 group-hover:animate-bounce hover:animate-bounce" />
+              )}
+            </motion.button>
+          </div>
 
-            {/* Expanded content */}
-            {isExpanded && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="grid grid-cols-2 gap-4 rounded-xs backdrop-blur-sm p-6"
-                style={{ backgroundColor: '#19191A' }}
-              >
-                {/* Scouting Report Column */}
-                <div className="text-gray-300">
-                  <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
-                  <p className="text-sm leading-relaxed">{playerSummary}</p>
-                </div>
+          {/* Expanded content */}
+          {isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-2 gap-4 rounded-xl backdrop-blur-sm p-6 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
+              style={{ backgroundColor: '#19191A' }}
+            >
+              {/* Scouting Report Column */}
+              <div className="text-gray-300">
+                <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
+                <p className="text-sm leading-relaxed">{playerSummary}</p>
+              </div>
 
-                {/* Rankings Column */}
-                <div className="space-y-4">
-                  <div className="bg-gray-800/80 p-4 rounded-xs">
-                    <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
+              {/* Rankings Column */}
+              <div className="space-y-4">
+                <div className="bg-gray-800/80 p-4 rounded-xs">
+                  <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
 
-                    {/* Rankings Table */}
-                    <div className="w-full">
-                      <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
-                        <div>Year</div>
-                        <div>Overall</div>
-                        <div>Position</div>
-                      </div>
-                      <div className="space-y-2">
-                        {['Y1', 'Y2', 'Y3'].map((year) => {
-                          // Get all prospects with the same role
-                          const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+                  {/* Rankings Table */}
+                  <div className="w-full">
+                    <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
+                      <div>Year</div>
+                      <div>Overall</div>
+                      <div>Position</div>
+                    </div>
+                    <div className="space-y-2">
+                      {['Y1', 'Y2', 'Y3'].map((year) => {
+                        // Get all prospects with the same role
+                        const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
 
-                          // Sort them by the current year's rank
-                          const sortedByYear = samePositionProspects.sort((a, b) => {
-                            const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
-                            const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
-                            return aRank - bRank;
-                          });
+                        // Sort them by the current year's rank
+                        const sortedByYear = samePositionProspects.sort((a, b) => {
+                          const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
+                          const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
+                          return aRank - bRank;
+                        });
 
-                          // Find position rank
-                          const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
+                        // Find position rank
+                        const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
 
-                          return (
-                            <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-                              <div>Year {year.slice(1)}</div>
-                              <div>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
-                              <div>{positionRank === 0 ? 'N/A' : positionRank}</div>
-                            </div>
-                          );
-                        })}
-
-                        {/* 3 Year Average after Year 3 */}
-                        <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                          <div>3 Year Average</div>
-                          <div>{prospect['Avg. Rank Y1-Y3']}</div>
-                          <div>
-                            {(() => {
-                              const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-                              const sortedBy3YAvg = samePositionProspects.sort((a, b) => {
-                                const aRank = Number(a['Avg. Rank Y1-Y3']);
-                                const bRank = Number(b['Avg. Rank Y1-Y3']);
-                                return aRank - bRank;
-                              });
-                              const positionRank = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
-                              return positionRank === 0 ? 'N/A' : positionRank;
-                            })()}
+                        return (
+                          <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                            <div>Year {year.slice(1)}</div>
+                            <div>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
+                            <div>{positionRank === 0 ? 'N/A' : positionRank}</div>
                           </div>
+                        );
+                      })}
+
+                      {/* 3 Year Average after Year 3 */}
+                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                        <div>3 Year Average</div>
+                        <div>{prospect['Avg. Rank Y1-Y3']}</div>
+                        <div>
+                          {(() => {
+                            const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+                            const sortedBy3YAvg = samePositionProspects.sort((a, b) => {
+                              const aRank = Number(a['Avg. Rank Y1-Y3']);
+                              const bRank = Number(b['Avg. Rank Y1-Y3']);
+                              return aRank - bRank;
+                            });
+                            const positionRank = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+                            return positionRank === 0 ? 'N/A' : positionRank;
+                          })()}
                         </div>
+                      </div>
 
-                        {['Y4', 'Y5'].map((year) => {
-                          const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-                          const sortedByYear = samePositionProspects.sort((a, b) => {
-                            const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
-                            const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
-                            return aRank - bRank;
-                          });
-                          const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
+                      {['Y4', 'Y5'].map((year) => {
+                        const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+                        const sortedByYear = samePositionProspects.sort((a, b) => {
+                          const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
+                          const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
+                          return aRank - bRank;
+                        });
+                        const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
 
-                          return (
-                            <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-                              <div>Year {year.slice(1)}</div>
-                              <div>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
-                              <div>{positionRank === 0 ? 'N/A' : positionRank}</div>
-                            </div>
-                          );
-                        })}
-
-                        {/* 5 Year Average after Year 5 */}
-                        <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                          <div>5 Year Average</div>
-                          <div>{prospect['Avg. Rank Y1-Y5']}</div>
-                          <div>
-                            {(() => {
-                              const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-                              const sortedBy5YAvg = samePositionProspects.sort((a, b) => {
-                                const aRank = Number(a['Avg. Rank Y1-Y5']);
-                                const bRank = Number(b['Avg. Rank Y1-Y5']);
-                                return aRank - bRank;
-                              });
-                              const positionRank = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
-                              return positionRank === 0 ? 'N/A' : positionRank;
-                            })()}
+                        return (
+                          <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                            <div>Year {year.slice(1)}</div>
+                            <div>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
+                            <div>{positionRank === 0 ? 'N/A' : positionRank}</div>
                           </div>
+                        );
+                      })}
+
+                      {/* 5 Year Average after Year 5 */}
+                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                        <div>5 Year Average</div>
+                        <div>{prospect['Avg. Rank Y1-Y5']}</div>
+                        <div>
+                          {(() => {
+                            const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+                            const sortedBy5YAvg = samePositionProspects.sort((a, b) => {
+                              const aRank = Number(a['Avg. Rank Y1-Y5']);
+                              const bRank = Number(b['Avg. Rank Y1-Y5']);
+                              return aRank - bRank;
+                            });
+                            const positionRank = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+                            return positionRank === 0 ? 'N/A' : positionRank;
+                          })()}
                         </div>
                       </div>
                     </div>
-
-                    <Button
-                      onClick={() => setIsGraphModelOpen(true)}
-                      className="mt-4 bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 px-4 py-2 rounded-xs text-sm w-full"
-                    >
-                      View Graph
-                    </Button>
                   </div>
-                </div>
-              </motion.div>
-            )}
 
-            <EPMModel
-              isOpen={isGraphModelOpen}
-              onClose={() => setIsGraphModelOpen(false)}
-              prospects={[prospect]}
-              selectedPosition={null}
-              allProspects={filteredProspects}
-              focusedProspect={prospect}
-            />
-          </div>
+                  <Button
+                    onClick={() => setIsGraphModelOpen(true)}
+                    className="mt-4 bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 px-4 py-2 rounded-xs text-sm w-full"
+                  >
+                    View Graph
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          <EPMModel
+            isOpen={isGraphModelOpen}
+            onClose={() => setIsGraphModelOpen(false)}
+            prospects={[prospect]}
+            selectedPosition={null}
+            allProspects={filteredProspects}
+            focusedProspect={prospect}
+          />
+        </div>
       </motion.div>
+    </div>
+  );
+};
+
+{/* Player Tables */ }
+const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: Record<string, RankType> }) => {
+  return (
+    <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-gray-400">Rank</TableHead>
+            <TableHead className="text-gray-400">Name</TableHead>
+            <TableHead className="text-gray-400">Position</TableHead>
+            <TableHead className="text-gray-400">Pre-NBA</TableHead>
+            <TableHead className="text-gray-400">Draft Pick</TableHead>
+            <TableHead className="text-gray-400">NBA Team</TableHead>
+            <TableHead className="text-gray-400">Age</TableHead>
+            <TableHead className="text-gray-400">Height</TableHead>
+            <TableHead className="text-gray-400">Wingspan</TableHead>
+            <TableHead className="text-gray-400">Weight</TableHead>
+            <TableHead className="text-gray-400">Y1 Rank</TableHead>
+            <TableHead className="text-gray-400">Y2 Rank</TableHead>
+            <TableHead className="text-gray-400">Y3 Rank</TableHead>
+            <TableHead className="text-gray-400">3Y Avg</TableHead>
+            <TableHead className="text-gray-400">Y4 Rank</TableHead>
+            <TableHead className="text-gray-400">Y5 Rank</TableHead>
+            <TableHead className="text-gray-400">5Y Avg</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {prospects.map((prospect) => (
+            <TableRow 
+              key={prospect.Name}
+              className="hover:bg-gray-800/20"
+            >
+              <TableCell className="text-gray-300">{rank[prospect.Name]}</TableCell>
+              <TableCell className="font-medium text-gray-300">{prospect.Name}</TableCell>
+              <TableCell className="text-gray-300">{prospect.Role}</TableCell>
+              <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
+              <TableCell className="text-gray-300">
+                {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
+              </TableCell>
+              <TableCell className="text-gray-300">{teamNames[prospect.NBA] || prospect.NBA}</TableCell>
+              <TableCell className="text-gray-300">{prospect.Age}</TableCell>
+              <TableCell className="text-gray-300">{prospect.Height}</TableCell>
+              <TableCell className="text-gray-300">{prospect.Wingspan}</TableCell>
+              <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
+              <TableCell className="text-gray-300">{prospect['Pred. Y1 Rank']}</TableCell>
+              <TableCell className="text-gray-300">{prospect['Pred. Y2 Rank']}</TableCell>
+              <TableCell className="text-gray-300">{prospect['Pred. Y3 Rank']}</TableCell>
+              <TableCell className="text-blue-400">{prospect['Avg. Rank Y1-Y3']}</TableCell>
+              <TableCell className="text-gray-300">{prospect['Pred. Y4 Rank']}</TableCell>
+              <TableCell className="text-gray-300">{prospect['Pred. Y5 Rank']}</TableCell>
+              <TableCell className="text-blue-400">{prospect['Avg. Rank Y1-Y5']}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
 
 type RankType = number | 'N/A';
 
+{/* Filters */ }
 function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[] }) {
   const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   const filteredProspects = useMemo(() => {
     // First, sort all prospects according to the selected sort key
@@ -932,19 +1026,35 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         filteredProspects={filteredProspects.map(p => p.prospect)}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
       />
-
-      {/* Prospects Grid */}
-      <div className="space-y-4 max-w-6xl mx-auto px-4">
+  
+      {/* Prospects Display */}
+      <div className="max-w-6xl mx-auto px-4">
         {filteredProspects.length > 0 ? (
-          filteredProspects.map(({ prospect, originalRank }) => (
-            <ProspectCard
-              key={prospect.Name}
-              prospect={prospect}
-              rank={originalRank ?? 0}
-              filteredProspects={filteredProspects.map(p => p.prospect)}
+          viewMode === 'cards' ? (
+            <div className="space-y-4">
+              {filteredProspects.map(({ prospect, originalRank }) => (
+                <ProspectCard
+                  key={prospect.Name}
+                  prospect={prospect}
+                  rank={originalRank ?? 0}
+                  filteredProspects={filteredProspects.map(p => p.prospect)}
+                />
+              ))}
+            </div>
+          ) : (
+            <ProspectTable 
+              prospects={filteredProspects.map(p => p.prospect)}
+              rank={Object.fromEntries(
+                filteredProspects.map(({ prospect, originalRank }) => [
+                  prospect.Name,
+                  originalRank ?? 'N/A'
+                ])
+              )}
             />
-          ))
+          )
         ) : (
           <div className="text-center py-8 text-gray-400">
             No prospects found matching your search criteria
