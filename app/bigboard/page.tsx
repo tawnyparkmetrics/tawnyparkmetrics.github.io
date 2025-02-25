@@ -14,6 +14,7 @@ import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+// import Chart from Chart.js/auto;
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -347,8 +348,8 @@ const TimelineFilter = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4">
-      <div className="relative mt-12">
+    <div className="sticky top-14 z-40 bg-[#19191A] border-b border-gray-800 py-6 px-4 max-w-6xl mx-auto">
+      <div className="relative">
         {/* Timeline Track */}
         <div className="relative h-24 flex items-center justify-center mb-8">
           <div className="absolute w-full h-1 bg-gray-700/30" />
@@ -499,12 +500,6 @@ const TimelineFilter = ({
     </div>
   );
 };
-
-// interface ProspectCardProps {
-//   prospect: DraftProspect;
-//   rank: RankType;
-//   filteredProspects: DraftProspect[];
-// }
 
 const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   const [logoError, setNBALogoError] = useState(false);
@@ -714,7 +709,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               {isExpanded ? (
                 <ChevronUp className="text-white h-5 w-5" />
               ) : (
-                <ChevronDown className="text-white h-5 w-5 transition-all duration-300 group-hover:animate-bounce hover:animate-bounce" />
+                <ChevronDown className="text-white h-5 w-5 transition-all duration-300" />
               )}
             </motion.button>
           </div>
@@ -744,8 +739,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   <div className="w-full">
                     <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
                       <div>Year</div>
-                      <div>Overall</div>
-                      <div>Position</div>
+                      <div className="text-center">Overall</div>
+                      <div className="text-center">Position</div>
                     </div>
                     <div className="space-y-2">
                       {['Y1', 'Y2', 'Y3'].map((year) => {
@@ -765,8 +760,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         return (
                           <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
                             <div>Year {year.slice(1)}</div>
-                            <div>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
-                            <div>{positionRank === 0 ? 'N/A' : positionRank}</div>
+                            <div className="text-center">{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
+                            <div className="text-center">{positionRank === 0 ? 'N/A' : positionRank}</div>
                           </div>
                         );
                       })}
@@ -774,8 +769,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       {/* 3 Year Average after Year 3 */}
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
                         <div>3 Year Average</div>
-                        <div>{prospect['Avg. Rank Y1-Y3']}</div>
-                        <div>
+                        <div className="text-center">{prospect['Avg. Rank Y1-Y3']}</div>
+                        <div className="text-center">
                           {(() => {
                             const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
                             const sortedBy3YAvg = samePositionProspects.sort((a, b) => {
@@ -801,8 +796,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         return (
                           <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
                             <div>Year {year.slice(1)}</div>
-                            <div>{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
-                            <div>{positionRank === 0 ? 'N/A' : positionRank}</div>
+                            <div className="text-center">{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
+                            <div className="text-center">{positionRank === 0 ? 'N/A' : positionRank}</div>
                           </div>
                         );
                       })}
@@ -810,8 +805,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       {/* 5 Year Average after Year 5 */}
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
                         <div>5 Year Average</div>
-                        <div>{prospect['Avg. Rank Y1-Y5']}</div>
-                        <div>
+                        <div className="text-center">{prospect['Avg. Rank Y1-Y5']}</div>
+                        <div className="text-center">
                           {(() => {
                             const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
                             const sortedBy5YAvg = samePositionProspects.sort((a, b) => {
@@ -850,8 +845,11 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
       </motion.div>
 
       {/* Divider */}
-      <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
+      <div>
+        <div className="h-px w=3/4 bg-gray my-5"/>
+          <div className="h-px w-full bg-gray-700/30 my -8" />
+        <div className="h-px w=3/4 bg-gray my-5"/> 
+      </div>
     </div>
   );
 };
@@ -1015,6 +1013,9 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
   return (
     <div className="bg-[#19191A] min-h-screen">
+      {/* The NavigationHeader would be outside this component */}
+      
+      {/* Sticky Filter Section */}
       <TimelineFilter
         selectedSortKey={selectedSortKey}
         setSelectedSortKey={setSelectedSortKey}
@@ -1027,8 +1028,8 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         setViewMode={setViewMode}
       />
   
-      {/* Prospects Display */}
-      <div className="max-w-6xl mx-auto px-4">
+      {/* Content area - add padding-top to give space after the filters */}
+      <div className="max-w-6xl mx-auto px-4 pt-8">
         {filteredProspects.length > 0 ? (
           viewMode === 'cards' ? (
             <div className="space-y-4">
