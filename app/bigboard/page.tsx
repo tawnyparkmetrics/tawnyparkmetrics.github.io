@@ -8,11 +8,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuGroup,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
-import { LucideUser, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 // import Chart from Chart.js/auto;
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -308,6 +317,10 @@ const TimelineFilter = ({
   setViewMode,
 }: TimelineFilterProps) => {
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  
+  // New state for controlling filter section visibility
+  const [showFilterSection, setShowFilterSection] = useState(false);
 
   const yearSortKeys = [
     { key: 'Actual Pick', label: 'Draft' },
@@ -322,6 +335,18 @@ const TimelineFilter = ({
     { key: 'Avg. Rank Y1-Y3', label: '3Y Avg' },
     { key: 'Avg. Rank Y1-Y5', label: '5Y Avg' }
   ];
+
+  // New constant for full text labels
+  const summaryLabels: { [key: string]: string } = {
+    'Actual Pick': 'Draft Order',
+    'Pred. Y1 Rank': 'Year 1',
+    'Pred. Y2 Rank': 'Year 2',
+    'Pred. Y3 Rank': 'Year 3',
+    'Pred. Y4 Rank': 'Year 4',
+    'Pred. Y5 Rank': 'Year 5',
+    'Avg. Rank Y1-Y3': '3 Year Average',
+    'Avg. Rank Y1-Y5': '5 Year Average',
+  };
 
   const positions = [
     { key: 'Guard', label: 'Guards' },
@@ -347,156 +372,293 @@ const TimelineFilter = ({
     }
   };
 
+  // Get active filter summary text
+  const getFilterSummary = () => {
+    const parts = [];
+  
+    // Add sort method
+    if (selectedSortKey) {
+      parts.push(summaryLabels[selectedSortKey] || selectedSortKey);
+    }
+  
+    // Add position if selected
+    if (selectedPosition) {
+      parts.push(positions.find(p => p.key === selectedPosition)?.label || selectedPosition);
+    }
+  
+    // Add search query if present
+    if (searchQuery) {
+      parts.push(`"${searchQuery}"`);
+    }
+  
+    return parts.join(' • ');
+  };
+
   return (
-    <div className="sticky top-14 z-40 bg-[#19191A] border-b border-gray-800 py-6 px-4 max-w-6xl mx-auto">
-      <div className="relative">
-        {/* Timeline Track */}
-        <div className="relative h-24 flex items-center justify-center mb-8">
-          <div className="absolute w-full h-1 bg-gray-700/30" />
-
-          {selectedSortKey && (
-            <motion.div
-              className="absolute h-1 bg-white-500/4"
-              initial={{ width: 0 }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 0.5 }}
-            />
-          )}
-
-          <div className="relative w-full flex justify-between items-center px-12">
-            {yearSortKeys.map((item) => (
-              <motion.button
-                key={item.key}
-                onClick={() => setSelectedSortKey(item.key)}
-                className={`
-                  relative flex flex-col items-center justify-center
-                  transition-colors duration-300 rounded-full
-                  ${shouldHighlight(item.key) ? 'z-20' : 'z-10'}
-                `}
-                whileHover={{ scale: 1.1 }}
-              >
-                <motion.div
-                  className={`
-                    rounded-full border-4 cursor-pointer
-                    ${shouldHighlight(item.key)
-                      ? 'bg-blue-500 border-blue-300 w-12 h-12'
-                      : 'bg-gray-800 border-gray-700 w-8 h-8 hover:border-gray-600'
-                    }
-                  `}
-                  animate={{
-                    scale: shouldHighlight(item.key) ? 1.2 : 1,
-                    transition: { duration: 0.3 }
-                  }}
-                />
-
-                <motion.span
-                  className={`
-                    absolute -bottom-8 whitespace-nowrap text-sm font-medium
-                    ${shouldHighlight(item.key) ? 'text-blue-400' : 'text-gray-400'}
-                  `}
-                  animate={{
-                    scale: shouldHighlight(item.key) ? 1.1 : 1,
-                    transition: { duration: 0.3 }
-                  }}
-                >
-                  {item.label}
-                </motion.span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        {/* Combined Average and Position Filters */}
-        <div className="flex justify-end items-center space-x-4 mt-8">
-
-          {/* Search Input */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 w-64 bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
-            />
-          </div>
-
-          {/* Divider */}
-          <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-          {/* View Toggle */}
+    <div className="sticky top-14 z-40 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
+      {/* Collapsible trigger button */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800/50">
+        <div className="flex items-center space-x-2">
           <motion.button
-            onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
-            className={`
-                      px-4 py-2 rounded-lg text-sm font-medium
-                      transition-all duration-300
-            ${viewMode === 'table'
-                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-              }
-  `}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowFilterSection(!showFilterSection)}
+            className="flex items-center gap-2 bg-gray-800/20 hover:bg-gray-800/40 text-gray-300 border border-gray-800 hover:border-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {viewMode === 'cards' ? 'Table View' : 'Card View'}
+            <SlidersHorizontal className="h-4 w-4" />
+            Filters
+            {showFilterSection ? <ChevronUp className="h-4 w-4 ml-1" /> : <ChevronDown className="h-4 w-4 ml-1" />}
           </motion.button>
-
-          {/* Divider */}
-          <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-          {/* Position Filters */}
-          {positions.map((position) => (
-            <motion.button
-              key={position.key}
-              onClick={() => handlePositionClick(position.key)}
-              className={`
-                px-4 py-2 rounded-lg text-sm font-medium
-                transition-all duration-300
-                ${selectedPosition === position.key
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                  : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                }
-              `}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {position.label}
-            </motion.button>
-          ))}
-
-          {/* Divider */}
-          <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-          {/* Average Filters */}
-          {averageKeys.map((item) => (
-            <motion.button
-              key={item.key}
-              onClick={() => setSelectedSortKey(item.key)}
-              className={`
-                px-4 py-2 rounded-lg text-sm font-medium
-                transition-all duration-300
-                ${selectedSortKey === item.key
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                  : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                }
-              `}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {item.label}
-            </motion.button>
-          ))}
-
-          {/* Add EPM Model */}
-          <EPMModel
-            isOpen={isGraphModelOpen}
-            onClose={() => setIsGraphModelOpen(false)}
-            prospects={filteredProspects}
-            selectedPosition={selectedPosition}
-            allProspects={filteredProspects}
-          />
+          
+          {/* Filter summary text - shows when collapsed */}
+          {!showFilterSection && (
+            <div className="text-sm text-gray-400">
+              {getFilterSummary() || "No filters applied"}
+            </div>
+          )}
         </div>
+        
+        {/* View mode toggle - always visible */}
+        <motion.button
+          onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
+          className={`
+            px-3 py-2 rounded-lg text-sm font-medium
+            transition-all duration-300
+            ${viewMode === 'table'
+              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+              : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+            }
+          `}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          {viewMode === 'cards' ? 'Table View' : 'Prospect Cards'}
+        </motion.button>
       </div>
+
+      {/* Collapsible content */}
+      <AnimatePresence>
+        {showFilterSection && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="px-2 md:px-4 py-4 md:py-6">
+              <div className="relative">
+                {/* Timeline Track - Responsive */}
+                <div className="relative h-20 md:h-24 flex items-center justify-center mb-4 md:mb-8">
+                  <div className="absolute w-full h-1 bg-gray-700/30" />
+
+                  {selectedSortKey && (
+                    <motion.div
+                      className="absolute h-1 bg-white-500/4"
+                      initial={{ width: 0 }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  )}
+
+                  <div className="relative w-full flex justify-between items-center px-2 md:px-12">
+                    {yearSortKeys.map((item) => (
+                      <motion.button
+                        key={item.key}
+                        onClick={() => setSelectedSortKey(item.key)}
+                        className={`
+                          relative flex flex-col items-center justify-center
+                          transition-colors duration-300 rounded-full
+                          ${shouldHighlight(item.key) ? 'z-20' : 'z-10'}
+                        `}
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        <motion.div
+                          className={`
+                            rounded-full border-2 md:border-4 cursor-pointer
+                            ${shouldHighlight(item.key)
+                              ? 'bg-blue-500 border-blue-300 w-8 h-8 md:w-12 md:h-12'
+                              : 'bg-gray-800 border-gray-700 w-6 h-6 md:w-8 md:h-8 hover:border-gray-600'
+                            }
+                          `}
+                          animate={{
+                            scale: shouldHighlight(item.key) ? 1.2 : 1,
+                            transition: { duration: 0.3 }
+                          }}
+                        />
+
+                        <motion.span
+                          className={`
+                            absolute -bottom-6 whitespace-nowrap text-xs md:text-sm font-medium
+                            ${shouldHighlight(item.key) ? 'text-blue-400' : 'text-gray-400'}
+                          `}
+                          animate={{
+                            scale: shouldHighlight(item.key) ? 1.1 : 1,
+                            transition: { duration: 0.3 }
+                          }}
+                        >
+                          {item.label}
+                        </motion.span>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mobile toggle button for filters - only shown in mobile view */}
+                <div className="flex md:hidden justify-between items-center mb-3">
+                  <button
+                    onClick={() => setShowMobileFilters(!showMobileFilters)}
+                    className="flex items-center gap-2 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 px-3 py-2 rounded-lg text-sm"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Filters
+                    {showMobileFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                </div>
+
+                {/* Mobile filter drawer */}
+                {showMobileFilters && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="md:hidden space-y-3 mb-4 p-3 bg-gray-800/10 rounded-lg border border-gray-800"
+                  >
+                    {/* Position Filters for Mobile */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <div className="w-full text-xs text-gray-400 mb-1">Position:</div>
+                      {positions.map((position) => (
+                        <motion.button
+                          key={position.key}
+                          onClick={() => handlePositionClick(position.key)}
+                          className={`
+                            px-3 py-1 rounded-lg text-xs font-medium
+                            transition-all duration-300
+                            ${selectedPosition === position.key
+                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                              : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                            }
+                          `}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {position.label}
+                        </motion.button>
+                      ))}
+                    </div>
+
+                    {/* Average Filters for Mobile */}
+                    <div className="flex flex-wrap gap-2">
+                      <div className="w-full text-xs text-gray-400 mb-1">Average:</div>
+                      {averageKeys.map((item) => (
+                        <motion.button
+                          key={item.key}
+                          onClick={() => setSelectedSortKey(item.key)}
+                          className={`
+                            px-3 py-1 rounded-lg text-xs font-medium
+                            transition-all duration-300
+                            ${selectedSortKey === item.key
+                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                              : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                            }
+                          `}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {item.label}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Desktop filter bar - hidden on mobile */}
+                <div className="hidden md:flex justify-between items-center space-x-4 mt-4">
+                  {/* Search Input */}
+                  <div className="relative flex-grow max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      type="text"
+                      placeholder="Search"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+                    />
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+                  {/* Position Filters */}
+                  {positions.map((position) => (
+                    <motion.button
+                      key={position.key}
+                      onClick={() => handlePositionClick(position.key)}
+                      className={`
+                        px-4 py-2 rounded-lg text-sm font-medium
+                        transition-all duration-300
+                        ${selectedPosition === position.key
+                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                        }
+                      `}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {position.label}
+                    </motion.button>
+                  ))}
+
+                  {/* Divider */}
+                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+                  {/* Average Filters */}
+                  {averageKeys.map((item) => (
+                    <motion.button
+                      key={item.key}
+                      onClick={() => setSelectedSortKey(item.key)}
+                      className={`
+                        px-4 py-2 rounded-lg text-sm font-medium
+                        transition-all duration-300
+                        ${selectedSortKey === item.key
+                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                        }
+                      `}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {item.label}
+                    </motion.button>
+                  ))}
+
+                  {/* EPM Model */}
+                  <EPMModel
+                    isOpen={isGraphModelOpen}
+                    onClose={() => setIsGraphModelOpen(false)}
+                    prospects={filteredProspects}
+                    selectedPosition={selectedPosition}
+                    allProspects={filteredProspects}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Mobile search field */}
+            <div className="md:hidden relative mx-2 my-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
