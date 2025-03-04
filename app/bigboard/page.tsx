@@ -18,13 +18,15 @@ import {
 //   DropdownMenuTrigger,
 // } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
-import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal } from 'lucide-react';
+import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal, BarChart as BarChartIcon } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Bar, BarChart, Legend, ResponsiveContainer } from 'recharts';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from '@/components/ui/alert-dialog';
 // import Chart from Chart.js/auto;
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
@@ -84,7 +86,7 @@ const teamNames: { [key: string]: string } = {
   NY: "Brooklyn Nets",
   SA: "San Antonio Spurs",
   IND: "Indiana Pacers",
-  TOR: "Toronot Raptors",
+  TOR: "Toronto Raptors",
   NO: "New Orleans Pelicans",
   ATL: "Atlanta Hawks",
   PHI: "Philadelphia 76ers",
@@ -97,64 +99,56 @@ const teamNames: { [key: string]: string } = {
   CLE: "Cleveland Cavaliers",
 }
 
+// ALL GRAPHING NECESSITIES ARE HERE
 interface EPMModelProps {
   isOpen: boolean;
   onClose: () => void;
   prospects: DraftProspect[];
   selectedPosition: string | null;
-  allProspects: DraftProspect[]; // Add this prop for comparison
+  // allProspects: DraftProspect[]; // Add this prop for comparison
   focusedProspect?: DraftProspect; // Add this prop to identify the selected player
 }
 
-const EPMModel = (props: EPMModelProps) => {
-  const { isOpen, onClose, selectedPosition, allProspects, focusedProspect } = props;
 
-  const graphData = React.useMemo(() => {
-    // Create data points for years 1-5
-    return [1, 2, 3, 4, 5].map(year => {
-      const dataPoint: Record<string, number | string> = { name: `Year ${year}` };
+const EPMGraphModel: React.FC<EPMModelProps> = ({
+  isOpen,
+  onClose,
+  prospects,
+  selectedPosition
+}) => {
+  // Filter prospects based on selected position
+  const filteredProspects = selectedPosition
+    ? prospects.filter(p => p.Position === selectedPosition)
+    : prospects;
 
-      // Add background comparison lines data
-      allProspects.forEach(prospect => {
-        const rankValue = prospect[`Pred. Y${year} Rank` as keyof DraftProspect];
-        if (rankValue && !isNaN(parseFloat(rankValue as string))) {
-          dataPoint[prospect.Name] = parseFloat(rankValue as string);
-        }
-      });
+  // Prepare data for chart
+  const prepareChartData = (prospects: DraftProspect[]) => {
+    return prospects.map(prospect => ({
+      name: prospect.Name,
+      'Year 1': prospect['Pred. Y1 Rank'],
+      'Year 2': prospect['Pred. Y2 Rank'],
+      'Year 3': prospect['Pred. Y3 Rank'],
+      'Year 4': prospect['Pred. Y4 Rank'],
+      'Year 5': prospect['Pred. Y5 Rank'],
+    }));
+  };
 
-      return dataPoint;
-    });
-  }, [allProspects]);
+  const chartData = prepareChartData(filteredProspects);
 
-  interface TooltipPayload {
-    dataKey: string;
-    value: number;
-    stroke: string;
-  }
-
-  // Custom tooltip component
-  const CustomTooltip: React.FC<{ active?: boolean; payload?: TooltipPayload[]; label?: string }> = ({ active, payload, label }) => {
+  // Custom tooltip for the chart
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#19191A] border border-gray-700 p-3 rounded-lg">
-          <p className="text-gray-400 mb-2">{label}</p>
-          {payload.map((entry) => (
-            entry.value && (
-              <div
-                key={entry.dataKey}
-                className="flex items-center gap-2"
-              >
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{
-                    backgroundColor: entry.stroke,
-                    opacity: entry.dataKey === focusedProspect?.Name ? 1 : 0.4
-                  }}
-                />
-                <span className="text-white">{entry.dataKey}</span>
-                <span className="text-gray-400">Rank {entry.value}</span>
-              </div>
-            )
+        <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+          <p className="font-bold text-white">{label}</p>
+          {payload.map((entry: any) => (
+            <p key={entry.dataKey} style={{ color: entry.color }}>
+              {entry.dataKey}: {
+                typeof entry.value === 'number'
+                  ? entry.value.toFixed(2)
+                  : entry.value
+              }
+            </p>
           ))}
         </div>
       );
@@ -163,86 +157,203 @@ const EPMModel = (props: EPMModelProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-[#19191A] text-white max-w-4xl">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-white">
-            {focusedProspect
-              ? `${focusedProspect.Name} - Projected Rankings`
-              : 'Projected Rankings Comparison'}
-            {selectedPosition && ` - ${selectedPosition}s`}
-          </DialogTitle>
-          <button
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+        <AlertDialogHeader className="flex flex-row items-center justify-between">
+          <AlertDialogTitle className="text-xl">
+            Prospect EPM Progression
+          </AlertDialogTitle>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="absolute right-4 top-4 text-gray-400 hover:text-white"
           >
-            <X size={20} />
-          </button>
-        </DialogHeader>
+            <X className="h-5 w-5" />
+          </Button>
+        </AlertDialogHeader>
 
-        <div className="mt-4 p-4 bg-gray-800/20 rounded-lg">
-          <LineChart
-            width={800}
-            height={400}
-            data={graphData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-            <XAxis
-              dataKey="name"
-              stroke="#666"
-            />
-            <YAxis
-              stroke="#666"
-              domain={[0, 'dataMax']}
-              reversed={true}
-              label={{
-                value: 'Rank',
-                angle: -90,
-                position: 'insideLeft',
-                style: { fill: '#666' }
-              }}
-            />
-            <Tooltip content={<CustomTooltip />} />
+        <CardContent className="space-y-6">
+          {/* Line Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>EPM Progression Over Time</CardTitle>
+            </CardHeader>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="name" stroke="#888" />
+                <YAxis stroke="#888" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Line type="monotone" dataKey="Year 1" stroke="#8884d8" />
+                <Line type="monotone" dataKey="Year 2" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="Year 3" stroke="#ffc658" />
+                <Line type="monotone" dataKey="Year 4" stroke="#ff7300" />
+                <Line type="monotone" dataKey="Year 5" stroke="#ff0000" />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
 
-            {/* Background comparison lines */}
-            {allProspects.map((prospect) => {
-              if (focusedProspect && prospect.Name === focusedProspect.Name) return null;
-              return (
-                <Line
-                  key={prospect.Name}
-                  type="monotone"
-                  dataKey={prospect.Name}
-                  stroke={`#444444`}
-                  strokeWidth={1}
-                  dot={false}
-                  opacity={0.2}
-                  activeDot={false}
-                />
-              );
-            })}
-
-            {/* Focused player line */}
-            {focusedProspect && (
-              <Line
-                key={focusedProspect.Name}
-                type="monotone"
-                dataKey={focusedProspect.Name}
-                stroke={`#${focusedProspect['Team Color']}`} // Make sure this matches your CSV column name exactly
-                strokeWidth={3}
-                dot={{
-                  r: 4,
-                  fill: `#${focusedProspect['Team Color']}`,
-                  strokeWidth: 0
-                }}
-              />
-            )}
-          </LineChart>
-        </div>
-      </DialogContent>
-    </Dialog>
+          {/* Bar Chart for Comparison */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Final Year EPM Comparison</CardTitle>
+            </CardHeader>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="name" stroke="#888" />
+                <YAxis stroke="#888" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar dataKey="Year 5" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Card>
+        </CardContent>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
+
+//will need this for when we implement graphs again
+// const EPMModel = (props: EPMModelProps) => {
+//   const { isOpen, onClose, selectedPosition, allProspects, focusedProspect } = props;
+
+//   const graphData = React.useMemo(() => {
+//     // Create data points for years 1-5
+//     return [1, 2, 3, 4, 5].map(year => {
+//       const dataPoint: Record<string, number | string> = { name: `Year ${year}` };
+
+//       // Add background comparison lines data
+//       allProspects.forEach(prospect => {
+//         const rankValue = prospect[`Pred. Y${year} Rank` as keyof DraftProspect];
+//         if (rankValue && !isNaN(parseFloat(rankValue as string))) {
+//           dataPoint[prospect.Name] = parseFloat(rankValue as string);
+//         }
+//       });
+
+//       return dataPoint;
+//     });
+//   }, [allProspects]);
+
+//   interface TooltipPayload {
+//     dataKey: string;
+//     value: number;
+//     stroke: string;
+//   }
+
+//   // Custom tooltip component
+//   const CustomTooltip: React.FC<{ active?: boolean; payload?: TooltipPayload[]; label?: string }> = ({ active, payload, label }) => {
+//     if (active && payload && payload.length) {
+//       return (
+//         <div className="bg-[#19191A] border border-gray-700 p-3 rounded-lg">
+//           <p className="text-gray-400 mb-2">{label}</p>
+//           {payload.map((entry) => (
+//             entry.value && (
+//               <div
+//                 key={entry.dataKey}
+//                 className="flex items-center gap-2"
+//               >
+//                 <div
+//                   className="w-2 h-2 rounded-full"
+//                   style={{
+//                     backgroundColor: entry.stroke,
+//                     opacity: entry.dataKey === focusedProspect?.Name ? 1 : 0.4
+//                   }}
+//                 />
+//                 <span className="text-white">{entry.dataKey}</span>
+//                 <span className="text-gray-400">Rank {entry.value}</span>
+//               </div>
+//             )
+//           ))}
+//         </div>
+//       );
+//     }
+//     return null;
+//   };
+
+//   return (
+//     <Dialog open={isOpen} onOpenChange={onClose}>
+//       <DialogContent className="bg-[#19191A] text-white max-w-4xl">
+//         <DialogHeader>
+//           <DialogTitle className="text-xl font-bold text-white">
+//             {focusedProspect
+//               ? `${focusedProspect.Name} - Projected Rankings`
+//               : 'Projected Rankings Comparison'}
+//             {selectedPosition && ` - ${selectedPosition}s`}
+//           </DialogTitle>
+//           <button
+//             onClick={onClose}
+//             className="absolute right-4 top-4 text-gray-400 hover:text-white"
+//           >
+//             <X size={20} />
+//           </button>
+//         </DialogHeader>
+
+//         <div className="mt-4 p-4 bg-gray-800/20 rounded-lg">
+//           <LineChart
+//             width={800}
+//             height={400}
+//             data={graphData}
+//             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+//           >
+//             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+//             <XAxis
+//               dataKey="name"
+//               stroke="#666"
+//             />
+//             <YAxis
+//               stroke="#666"
+//               domain={[0, 'dataMax']}
+//               reversed={true}
+//               label={{
+//                 value: 'Rank',
+//                 angle: -90,
+//                 position: 'insideLeft',
+//                 style: { fill: '#666' }
+//               }}
+//             />
+//             <Tooltip content={<CustomTooltip />} />
+
+//             {/* Background comparison lines */}
+//             {allProspects.map((prospect) => {
+//               if (focusedProspect && prospect.Name === focusedProspect.Name) return null;
+//               return (
+//                 <Line
+//                   key={prospect.Name}
+//                   type="monotone"
+//                   dataKey={prospect.Name}
+//                   stroke={`#444444`}
+//                   strokeWidth={1}
+//                   dot={false}
+//                   opacity={0.2}
+//                   activeDot={false}
+//                 />
+//               );
+//             })}
+
+//             {/* Focused player line */}
+//             {focusedProspect && (
+//               <Line
+//                 key={focusedProspect.Name}
+//                 type="monotone"
+//                 dataKey={focusedProspect.Name}
+//                 stroke={`#${focusedProspect['Team Color']}`} // Make sure this matches your CSV column name exactly
+//                 strokeWidth={3}
+//                 dot={{
+//                   r: 4,
+//                   fill: `#${focusedProspect['Team Color']}`,
+//                   strokeWidth: 0
+//                 }}
+//               />
+//             )}
+//           </LineChart>
+//         </div>
+//       </DialogContent>
+//     </Dialog>
+//   );
+// };
 
 interface NavigationHeaderProps {
   activeTab?: string;
@@ -298,7 +409,7 @@ interface TimelineFilterProps {
   setSelectedSortKey: (key: string) => void;
   selectedPosition: string | null;
   setSelectedPosition: (position: string | null) => void;
-  filteredProspects: DraftProspect[];
+  filteredProspects: any[]; // Replace 'any' with your actual prospect type
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   viewMode: 'cards' | 'table';
@@ -316,12 +427,13 @@ const TimelineFilter = ({
   viewMode,
   setViewMode,
 }: TimelineFilterProps) => {
-  const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
-  
-  // New state for controlling filter section visibility
   const [showFilterSection, setShowFilterSection] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [isEPMModelOpen, setIsEPMModelOpen] = useState(false);
 
+  const filterBasketball = `filter_basketball.png`;
+
+  //timeline labels
   const yearSortKeys = [
     { key: 'Actual Pick', label: 'Draft' },
     { key: 'Pred. Y1 Rank', label: 'Y1' },
@@ -331,12 +443,13 @@ const TimelineFilter = ({
     { key: 'Pred. Y5 Rank', label: 'Y5' }
   ];
 
+  //button titles
   const averageKeys = [
     { key: 'Avg. Rank Y1-Y3', label: '3Y Avg' },
     { key: 'Avg. Rank Y1-Y5', label: '5Y Avg' }
   ];
 
-  // New constant for full text labels
+  //for the summary by the filters
   const summaryLabels: { [key: string]: string } = {
     'Actual Pick': 'Draft Order',
     'Pred. Y1 Rank': 'Year 1',
@@ -348,11 +461,19 @@ const TimelineFilter = ({
     'Avg. Rank Y1-Y5': '5 Year Average',
   };
 
+  //position labels
   const positions = [
     { key: 'Guard', label: 'Guards' },
     { key: 'Wing', label: 'Wings' },
     { key: 'Big', label: 'Bigs' }
   ];
+
+  // Function to reset all filters
+  const resetFilters = () => {
+    setSelectedSortKey('Actual Pick'); // Reset to Draft Order
+    setSelectedPosition(null); // Clear position filter
+    setSearchQuery(''); // Clear search
+  };
 
   const shouldHighlight = (itemKey: string) => {
     if (selectedSortKey === 'Avg. Rank Y1-Y3') {
@@ -375,23 +496,29 @@ const TimelineFilter = ({
   // Get active filter summary text
   const getFilterSummary = () => {
     const parts = [];
-  
+
     // Add sort method
     if (selectedSortKey) {
       parts.push(summaryLabels[selectedSortKey] || selectedSortKey);
     }
-  
+
     // Add position if selected
     if (selectedPosition) {
       parts.push(positions.find(p => p.key === selectedPosition)?.label || selectedPosition);
     }
-  
+
     // Add search query if present
     if (searchQuery) {
       parts.push(`"${searchQuery}"`);
     }
-  
+
     return parts.join(' • ');
+  };
+
+  // Check if any filters are applied (for conditionally showing reset button)
+  const hasActiveFilters = () => {
+    // Check if any filter is different from default values
+    return selectedSortKey !== 'Actual Pick' || selectedPosition !== null || searchQuery.trim() !== '';
   };
 
   return (
@@ -409,15 +536,28 @@ const TimelineFilter = ({
             Filters
             {showFilterSection ? <ChevronUp className="h-4 w-4 ml-1" /> : <ChevronDown className="h-4 w-4 ml-1" />}
           </motion.button>
-          
+
           {/* Filter summary text - shows when collapsed */}
           {!showFilterSection && (
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-400 flex items-center ml-2">
               {getFilterSummary() || "No filters applied"}
+
+              {/* New reset button when filter is collapsed */}
+              {hasActiveFilters() && (
+                <motion.button
+                  onClick={resetFilters}
+                  className="ml-2 flex items-center text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30 px-3 py-2 rounded-lg text-xs"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <X className="h-4 w-4" />
+                  Reset
+                </motion.button>
+              )}
             </div>
           )}
         </div>
-        
+
         {/* View mode toggle - always visible */}
         <motion.button
           onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
@@ -504,16 +644,19 @@ const TimelineFilter = ({
                   </div>
                 </div>
 
-                {/* Mobile toggle button for filters - only shown in mobile view */}
-                <div className="flex md:hidden justify-between items-center mb-3">
-                  <button
-                    onClick={() => setShowMobileFilters(!showMobileFilters)}
-                    className="flex items-center gap-2 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 px-3 py-2 rounded-lg text-sm"
-                  >
-                    <SlidersHorizontal className="h-4 w-4" />
-                    Filters
-                    {showMobileFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </button>
+                {/* Filter header section - removed redundant reset button */}
+                <div className="flex justify-between items-center mb-3">
+                  {/* Mobile toggle button for filters - only shown in mobile view */}
+                  <div className="flex md:hidden items-center">
+                    <button
+                      onClick={() => setShowMobileFilters(!showMobileFilters)}
+                      className="flex items-center gap-2 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 px-3 py-2 rounded-lg text-sm"
+                    >
+                      <SlidersHorizontal className="h-4 w-4" />
+                      Filters
+                      {showMobileFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Mobile filter drawer */}
@@ -575,17 +718,63 @@ const TimelineFilter = ({
 
                 {/* Desktop filter bar - hidden on mobile */}
                 <div className="hidden md:flex justify-between items-center space-x-4 mt-4">
-                  {/* Search Input */}
-                  <div className="relative flex-grow max-w-md">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      type="text"
-                      placeholder="Search"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
-                    />
+                  {/* Reset Button and Search Section */}
+                  <div className="relative flex items-center space-x-2 flex-grow max-w-md">
+                    {/* Reset Button moved to the left of the Search Bar */}
+                    <motion.button
+                      onClick={resetFilters}
+                      className={`
+                        flex items-center gap-1 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all duration-200
+                        ${hasActiveFilters()
+                          ? 'bg-gray-800/20 text-red-400 hover:text-red-300 border border-gray-800 hover:border-red-700/30'
+                          : 'bg-gray-800/10 text-gray-500 border border-gray-800/50 opacity-60'
+                        }
+                      `}
+                      whileHover={{ scale: hasActiveFilters() ? 1.05 : 1 }}
+                      whileTap={{ scale: hasActiveFilters() ? 0.95 : 1 }}
+                      disabled={!hasActiveFilters()}
+                    >
+                      <X className="h-4 w-4" /> {/* w-10 is what we need */}
+                      Reset
+                    </motion.button>
+
+                    {/* Search field */}
+                    <div className="relative flex-grow">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        type="text"
+                        placeholder="Search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+                      />
+                    </div>
                   </div>
+
+                  {/* Divider */}
+                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+                  {/* Graphs button */}
+                  <motion.button
+                    onClick={() => setIsEPMModelOpen(true)}
+                    className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2
+                    transition-all duration-300
+                    bg-gray-800/20 text-gray-400 
+                    border border-gray-800 hover:border-gray-700"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <BarChartIcon className="h-4 w-4" />
+                    Graphs
+                  </motion.button>
+
+                  {/* EPM Graph Modal */}
+                  <EPMGraphModel
+                    isOpen={isEPMModelOpen}
+                    onClose={() => setIsEPMModelOpen(false)}
+                    prospects={filteredProspects}
+                    selectedPosition={selectedPosition}
+                  />
 
                   {/* Divider */}
                   <div className="h-8 w-px bg-gray-700/30 mx-2" />
@@ -634,17 +823,17 @@ const TimelineFilter = ({
                   ))}
 
                   {/* EPM Model */}
-                  <EPMModel
+                  {/* <EPMModel
                     isOpen={isGraphModelOpen}
                     onClose={() => setIsGraphModelOpen(false)}
                     prospects={filteredProspects}
                     selectedPosition={selectedPosition}
                     allProspects={filteredProspects}
-                  />
+                  /> */}
                 </div>
               </div>
             </div>
-            
+
             {/* Mobile search field */}
             <div className="md:hidden relative mx-2 my-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -692,7 +881,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
-  const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
+  // const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
 
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => {
@@ -983,34 +1172,18 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       </div>
                     </div>
                   </div>
-
-                  <Button
-                    onClick={() => setIsGraphModelOpen(true)}
-                    className="mt-4 bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30 px-4 py-2 rounded-xs text-sm w-full"
-                  >
-                    View Graph
-                  </Button>
                 </div>
               </div>
             </motion.div>
           )}
-
-          <EPMModel
-            isOpen={isGraphModelOpen}
-            onClose={() => setIsGraphModelOpen(false)}
-            prospects={[prospect]}
-            selectedPosition={null}
-            allProspects={filteredProspects}
-            focusedProspect={prospect}
-          />
         </div>
       </motion.div>
 
       {/* Divider */}
       <div>
-        <div className="h-px w=3/4 bg-gray my-5"/>
-          <div className="h-px w-full bg-gray-700/30 my -8" />
-        <div className="h-px w=3/4 bg-gray my-5"/> 
+        <div className="h-px w=3/4 bg-gray my-5" />
+        <div className="h-px w-full bg-gray-700/30 my -8" />
+        <div className="h-px w=3/4 bg-gray my-5" />
       </div>
     </div>
   );
@@ -1044,7 +1217,7 @@ const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: 
         </TableHeader>
         <TableBody>
           {prospects.map((prospect) => (
-            <TableRow 
+            <TableRow
               key={prospect.Name}
               className="hover:bg-gray-800/20"
             >
@@ -1155,6 +1328,8 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
         const teamAbbrevMatch = prospect.NBA.toLowerCase().includes(query);
         const teamFullNameMatch = teamNames[prospect.NBA]?.toLowerCase().includes(query);
+        // const fullName = prospect.Name.toLowerCase();
+        //^ this was an attempt to just add the full player name to the search
 
         return nameMatch || preNBAMatch || teamAbbrevMatch || teamFullNameMatch;
       });
@@ -1176,7 +1351,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   return (
     <div className="bg-[#19191A] min-h-screen">
       {/* The NavigationHeader would be outside this component */}
-      
+
       {/* Sticky Filter Section */}
       <TimelineFilter
         selectedSortKey={selectedSortKey}
@@ -1189,7 +1364,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         viewMode={viewMode}
         setViewMode={setViewMode}
       />
-  
+
       {/* Content area - add padding-top to give space after the filters */}
       <div className="max-w-6xl mx-auto px-4 pt-8">
         {filteredProspects.length > 0 ? (
@@ -1205,7 +1380,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
               ))}
             </div>
           ) : (
-            <ProspectTable 
+            <ProspectTable
               prospects={filteredProspects.map(p => p.prospect)}
               rank={Object.fromEntries(
                 filteredProspects.map(({ prospect, originalRank }) => [
