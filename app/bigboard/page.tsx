@@ -23,14 +23,13 @@ import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Bar, BarChart, Legend, ResponsiveContainer } from 'recharts';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from '@/components/ui/alert-dialog';
-// import Chart from Chart.js/auto;
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { TooltipProps } from 'recharts';
 
 
 export interface DraftProspect {
@@ -109,6 +108,17 @@ interface EPMModelProps {
   focusedProspect?: DraftProspect; // Add this prop to identify the selected player
 }
 
+interface PayloadItem {
+  dataKey: string;
+  color: string;
+  value: string | number;
+}
+
+type CustomTooltipProps = TooltipProps<number | string, string> & {
+  active?: boolean;
+  payload?: PayloadItem[];
+  label?: string;
+};
 
 const EPMGraphModel: React.FC<EPMModelProps> = ({
   isOpen,
@@ -136,12 +146,12 @@ const EPMGraphModel: React.FC<EPMModelProps> = ({
   const chartData = prepareChartData(filteredProspects);
 
   // Custom tooltip for the chart
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
           <p className="font-bold text-white">{label}</p>
-          {payload.map((entry: any) => (
+          {payload.map((entry: PayloadItem) => (
             <p key={entry.dataKey} style={{ color: entry.color }}>
               {entry.dataKey}: {
                 typeof entry.value === 'number'
@@ -216,7 +226,7 @@ const EPMGraphModel: React.FC<EPMModelProps> = ({
   );
 };
 
-//will need this for when we implement graphs again
+// for individual player graphs
 // const EPMModel = (props: EPMModelProps) => {
 //   const { isOpen, onClose, selectedPosition, allProspects, focusedProspect } = props;
 
@@ -409,7 +419,7 @@ interface TimelineFilterProps {
   setSelectedSortKey: (key: string) => void;
   selectedPosition: string | null;
   setSelectedPosition: (position: string | null) => void;
-  filteredProspects: any[]; // Replace 'any' with your actual prospect type
+  filteredProspects: DraftProspect[]; // Replace 'any' with your actual prospect type
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   viewMode: 'cards' | 'table';
@@ -431,7 +441,7 @@ const TimelineFilter = ({
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isEPMModelOpen, setIsEPMModelOpen] = useState(false);
 
-  const filterBasketball = `filter_basketball.png`;
+  // const filterBasketball = `filter_basketball.png`;
 
   //timeline labels
   const yearSortKeys = [
