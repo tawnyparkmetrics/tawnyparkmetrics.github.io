@@ -41,12 +41,12 @@ export interface DraftProspect {
   Position: string;
   Age: string;
   'Team Color': string;
-  'Pred. Y1 Rank': string;
-  'Pred. Y2 Rank': string;
-  'Pred. Y3 Rank': string;
+  'Pred. Y1 Rank': number;
+  'Pred. Y2 Rank': number;
+  'Pred. Y3 Rank': number;
   'Avg. Rank Y1-Y3': string;
-  'Pred. Y4 Rank': string;
-  'Pred. Y5 Rank': string;
+  'Pred. Y4 Rank': number;
+  'Pred. Y5 Rank': number;
   'Avg. Rank Y1-Y5': string;
 
   'Height': string;
@@ -119,6 +119,19 @@ type CustomTooltipProps = TooltipProps<number | string, string> & {
   payload?: PayloadItem[];
   label?: string;
 };
+
+// const prepareChartData = (prospects: DraftProspect[]) => {
+//   const years = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'];
+//   const chartData: Record<string, number>[] = years.map(year => ({ year }));
+
+//   prospects.forEach(prospect => {
+//     chartData.forEach(yearData => {
+//       yearData[prospect.Name] = prospect[`Pred. ${year.split(' ')[1]} Rank`];
+//     });
+//   });
+
+//   return chartData;
+// };
 
 const EPMGraphModel: React.FC<EPMModelProps> = ({
   isOpen,
@@ -910,6 +923,18 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
   const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
+  // const getPlayerImageUrl = () => {
+//   if (prospect.Name === "Riley Minix") {
+//     // Return special URL for Riley Minix
+//     return `/player_images2024/Riley Minix BG Removed Top.png`;
+//     // Or another variation if needed:
+//     // return `/player_images2024_special/Riley Minix BG Removed.png`;
+//   }
+  
+//   // Default URL format for other players
+//   return `/player_images2024/${prospect.Name} BG Removed.png`;
+// };
+
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   return (
@@ -1332,14 +1357,14 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
     if (searchQuery) {
       const query = searchQuery.toLowerCase().trim();
       filteredProspects = filteredProspects.filter(prospect => {
-        const nameParts = prospect.Name.toLowerCase().split(' ');
-        const firstName = nameParts[0];
-        const lastName = nameParts[nameParts.length - 1];
-        const nameMatch = firstName.startsWith(query) || lastName.startsWith(query);
+        // const nameParts = prospect.Name.toLowerCase().split(' ');
+        // const firstName = nameParts[0];
+        // const lastName = nameParts[nameParts.length - 1];
+        const fullName = prospect.Name.toLowerCase();
+        const nameMatch = fullName.includes(query)
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
         const teamAbbrevMatch = prospect.NBA.toLowerCase().includes(query);
         const teamFullNameMatch = teamNames[prospect.NBA]?.toLowerCase().includes(query);
-        // const fullName = prospect.Name.toLowerCase();
         //^ this was an attempt to just add the full player name to the search
 
         return nameMatch || preNBAMatch || teamAbbrevMatch || teamFullNameMatch;
