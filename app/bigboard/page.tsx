@@ -963,16 +963,17 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             </div>
 
             {/* Player Image */}
-            <div className="absolute inset-0 flex justify-center overflow-hidden">
-              <div className="relative w-[90%] h-[90%] mt-8">
+            <div className="absolute inset-0 flex justify-center items-end overflow-hidden">
+              <div className="relative w-[90%] h-[90%]">
                 {!imageError ? (
-                  <div className="relative w-full h-full">
+                  <div className="relative w-full h-full flex items-end justify-center">
                     <Image
                       src={playerImageUrl}
                       alt={prospect.Name}
                       fill
                       className={`
                         object-contain 
+                        object-bottom
                         transition-all duration-300 
                         ${(isHovered || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}
                       `}
