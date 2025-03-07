@@ -940,10 +940,10 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
   const displayNumber = isSearchActive
   ? typeof rank === 'number'
     ? rank
-    : 'N/A'
+    : rank
   : visibleIndex !== undefined
     ? visibleIndex + 0
-    : 'N/A'; // Handle undefined visibleIndex
+    : rank // Handle undefined visibleIndex
 
   const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
   const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
@@ -1308,7 +1308,7 @@ const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: 
   );
 };
 
-type RankType = string |number | undefined;
+type RankType = string | number | undefined;
 
 {/* Filters */ }
 function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[] }) {
@@ -1382,9 +1382,9 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
     if (searchQuery) {
       const query = searchQuery.toLowerCase().trim();
       filteredProspects = filteredProspects.filter(prospect => {
-        const nameParts = prospect.Name.toLowerCase().split(' ');
-        const firstName = nameParts[0];
-        const lastName = nameParts[nameParts.length - 1];
+        // const nameParts = prospect.Name.toLowerCase().split(' ');
+        // const firstName = nameParts[0];
+        // const lastName = nameParts[nameParts.length - 1];
         const fullName = prospect.Name.toLowerCase();
         const nameMatch = fullName.includes(query);
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
