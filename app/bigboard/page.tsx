@@ -437,7 +437,6 @@ interface TimelineFilterProps {
   setSearchQuery: (query: string) => void;
   viewMode: 'cards' | 'table';
   setViewMode: (mode: 'cards' | 'table') => void;
-  
 }
 
 const TimelineFilter = ({
@@ -899,23 +898,8 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   );
 };
 
-interface ProspectCardProps {
-  prospect: DraftProspect;
-  rank: RankType;
-  isSearchActive: boolean;
-  visibleIndex?: number | undefined; // Or number | undefined, if you prefer
-  filteredProspects: DraftProspect[];
-}
-
 {/* Player Cards */ }
-const ProspectCard: React.FC<ProspectCardProps> = ({
-  prospect,
-  rank,
-  isSearchActive,
-  visibleIndex,
-  filteredProspects
-}) => {
-
+const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -936,19 +920,9 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
     }
   }, [isExpanded]);
 
-  // Determine what number to display
-  const displayNumber = isSearchActive
-  ? typeof rank === 'number'
-    ? rank
-    : rank
-  : visibleIndex !== undefined
-    ? visibleIndex + 0
-    : rank // Handle undefined visibleIndex
-
   const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
   const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
-  const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
   // const getPlayerImageUrl = () => {
 //   if (prospect.Name === "Riley Minix") {
 //     // Return special URL for Riley Minix
@@ -960,6 +934,8 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
 //   // Default URL format for other players
 //   return `/player_images2024/${prospect.Name} BG Removed.png`;
 // };
+
+  const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   return (
     <div className="max-w-5xl mx-auto px-4 mb-4">
@@ -989,7 +965,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({
                 transition-all duration-300
                 ${(isHovered || isExpanded) ? 'mr-[300px]' : ''}
               `}>
-                {displayNumber}
+                {typeof rank === 'number' ? rank : 'N/A'}
               </div>
             </motion.div>
 
@@ -1308,15 +1284,14 @@ const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: 
   );
 };
 
-type RankType = string | number | undefined;
+type RankType = number | 'N/A';
 
 {/* Filters */ }
 function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[] }) {
   const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
-  const isSearchActive = searchQuery.trim() !== '';
 
   const filteredProspects = useMemo(() => {
     // First, sort all prospects according to the selected sort key
@@ -1386,7 +1361,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         // const firstName = nameParts[0];
         // const lastName = nameParts[nameParts.length - 1];
         const fullName = prospect.Name.toLowerCase();
-        const nameMatch = fullName.includes(query);
+        const nameMatch = fullName.includes(query)
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
         const teamAbbrevMatch = prospect.NBA.toLowerCase().includes(query);
         const teamFullNameMatch = teamNames[prospect.NBA]?.toLowerCase().includes(query);
@@ -1435,11 +1410,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
                 <ProspectCard
                   key={prospect.Name}
                   prospect={prospect}
-                  rank={prospect[selectedSortKey as keyof DraftProspect]}
-                  isSearchActive={isSearchActive}
-                  visibleIndex={
-                    typeof originalRank === 'number' ? originalRank : undefined
-                  }
+                  rank={originalRank ?? 0}
                   filteredProspects={filteredProspects.map(p => p.prospect)}
                 />
               ))}
