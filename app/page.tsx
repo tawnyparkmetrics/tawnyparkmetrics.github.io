@@ -1,23 +1,9 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+// import React, { useEffect, useState } from 'react';
+// import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Barlow } from 'next/font/google';
 
-interface Geometry {
-  type: string;
-  coordinates: number[][][];
-}
-
-interface Feature {
-  type: string;
-  geometry: Geometry;
-}
-
-interface GeoJSON {
-  type: string;
-  features: Feature[];
-}
 
 const barlow = Barlow({
   subsets: ['latin'],
@@ -73,7 +59,6 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     </>
   );
 };
-
 
 export default function Home() {
   return (

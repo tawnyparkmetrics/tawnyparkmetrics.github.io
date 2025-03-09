@@ -1463,7 +1463,7 @@ export default function DraftProspectsPage() {
 
   return (
     <div className="min-h-screen bg-[#19191A]">
-      <NavigationHeader activeTab="Draft Board" />
+      <NavigationHeader activeTab="TPM" />
       <TimelineSlider initialProspects={prospects} />
     </div>
   );
