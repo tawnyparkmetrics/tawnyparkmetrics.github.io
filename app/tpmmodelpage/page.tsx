@@ -385,7 +385,8 @@ interface NavigationHeaderProps {
 const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   const tabs = [
     { name: 'Home', href: '/' },
-    { name: 'Draft Board', href: '/bigboard' },
+    { name: 'TPM', href: '/tpmmodelpage' },
+    { name: 'Models', href: '/other_models' },
   ];
 
   return (
@@ -1357,6 +1358,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
     if (searchQuery) {
       const query = searchQuery.toLowerCase().trim();
       filteredProspects = filteredProspects.filter(prospect => {
+        //NEED TO FIX THIS ISSUE
         // const nameParts = prospect.Name.toLowerCase().split(' ');
         // const firstName = nameParts[0];
         // const lastName = nameParts[nameParts.length - 1];
