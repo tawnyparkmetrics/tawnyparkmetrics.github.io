@@ -3,11 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Barlow } from 'next/font/google';
 
-// const barlow = Barlow({
-//   subsets: ['latin'],
-//   weight: ['700'], // Use 700 for bold text
-// });
-
 interface NavigationHeaderProps {
   activeTab?: string;
 }
