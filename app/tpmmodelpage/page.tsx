@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Table,
   TableBody,
@@ -24,7 +24,7 @@ import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Bar, BarChart, Legend, ResponsiveContainer } from 'recharts';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
@@ -48,6 +48,12 @@ export interface DraftProspect {
   'Pred. Y4 Rank': number;
   'Pred. Y5 Rank': number;
   'Avg. Rank Y1-Y5': string;
+
+  'Pred. Y1 EPM': string;
+  'Pred. Y2 EPM': string;
+  'Pred. Y3 EPM': string;
+  'Pred. Y4 EPM': string;
+  'Pred. Y5 EPM': string;
 
   'Height': string;
   'Wingspan': string;
@@ -102,10 +108,10 @@ const teamNames: { [key: string]: string } = {
 interface EPMModelProps {
   isOpen: boolean;
   onClose: () => void;
-  prospects: DraftProspect[];
+  prospects: DraftProspect[]; // All prospects.
   selectedPosition: string | null;
-  // allProspects: DraftProspect[]; // Add this prop for comparison
-  focusedProspect?: DraftProspect; // Add this prop to identify the selected player
+  selectedProspect?: DraftProspect; // Pass the selected prospect
+  allProspects: DraftProspect[];
 }
 
 interface PayloadItem {
@@ -137,40 +143,39 @@ const EPMGraphModel: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
   prospects,
-  selectedPosition
+  selectedPosition,
 }) => {
-  // Filter prospects based on selected position
   const filteredProspects = selectedPosition
-    ? prospects.filter(p => p.Position === selectedPosition)
+    ? prospects.filter((p) => p.Position === selectedPosition)
     : prospects;
 
-  // Prepare data for chart
-  const prepareChartData = (prospects: DraftProspect[]) => {
-    return prospects.map(prospect => ({
-      name: prospect.Name,
-      'Year 1': prospect['Pred. Y1 Rank'],
-      'Year 2': prospect['Pred. Y2 Rank'],
-      'Year 3': prospect['Pred. Y3 Rank'],
-      'Year 4': prospect['Pred. Y4 Rank'],
-      'Year 5': prospect['Pred. Y5 Rank'],
-    }));
+  const prepareChartData = () => {
+    const yearData: { year: string | number; [key: string]: string | number }[] = [];
+
+    for (let year = 1; year <= 5; year++) {
+      const yearObj: { year: string | number; [key: string]: string | number } = { year };
+
+      filteredProspects.forEach((prospect) => {
+        const rankKey = `Pred. Y${year} EPM` as keyof DraftProspect;
+        yearObj[prospect.Name] = prospect[rankKey] ?? 0;
+      });
+
+      yearData.push(yearObj);
+    }
+
+    return yearData;
   };
 
-  const chartData = prepareChartData(filteredProspects);
+  const chartData = prepareChartData();
 
-  // Custom tooltip for the chart
   const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
-          <p className="font-bold text-white">{label}</p>
+          <p className="font-bold text-white">Year {label}</p>
           {payload.map((entry: PayloadItem) => (
             <p key={entry.dataKey} style={{ color: entry.color }}>
-              {entry.dataKey}: {
-                typeof entry.value === 'number'
-                  ? entry.value.toFixed(2)
-                  : entry.value
-              }
+              {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
             </p>
           ))}
         </div>
@@ -183,54 +188,35 @@ const EPMGraphModel: React.FC<EPMModelProps> = ({
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
         <AlertDialogHeader className="flex flex-row items-center justify-between">
-          <AlertDialogTitle className="text-xl">
-            Prospect EPM Progression
-          </AlertDialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-          >
+          <AlertDialogTitle className="text-xl">Prospect EPM Progression</AlertDialogTitle>
+          <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
         </AlertDialogHeader>
 
         <CardContent className="space-y-6">
-          {/* Line Chart */}
           <Card>
             <CardHeader>
-              <CardTitle>EPM Progression Over Time</CardTitle>
+              <CardTitle>EPM Progression By Player</CardTitle>
+              <CardDescription>Years on X-axis, EPM values on Y-axis</CardDescription>
             </CardHeader>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={500}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#888" />
-                <YAxis stroke="#888" />
+                <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} /> {/* X-axis domain */}
+                <YAxis type="number" stroke="#888" domain={[-5, 5]} /> {/* Y-axis domain */}
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Line type="monotone" dataKey="Year 1" stroke="#8884d8" />
-                <Line type="monotone" dataKey="Year 2" stroke="#82ca9d" />
-                <Line type="monotone" dataKey="Year 3" stroke="#ffc658" />
-                <Line type="monotone" dataKey="Year 4" stroke="#ff7300" />
-                <Line type="monotone" dataKey="Year 5" stroke="#ff0000" />
+                {filteredProspects.map((prospect) => (
+                  <Line
+                    key={prospect.Name}
+                    type="monotone"
+                    dataKey={prospect.Name}
+                    stroke={prospect['Team Color']}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
               </LineChart>
-            </ResponsiveContainer>
-          </Card>
-
-          {/* Bar Chart for Comparison */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Final Year EPM Comparison</CardTitle>
-            </CardHeader>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#888" />
-                <YAxis stroke="#888" />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Bar dataKey="Year 5" fill="#8884d8" />
-              </BarChart>
             </ResponsiveContainer>
           </Card>
         </CardContent>
@@ -383,11 +369,56 @@ interface NavigationHeaderProps {
 }
 
 const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
-  const tabs = [
-    { name: 'Home', href: '/' },
-    { name: 'TPM', href: '/tpmmodelpage' },
-    { name: 'Models', href: '/other_models' },
+  const [tpmDropdownOpen, setTpmDropdownOpen] = useState(false);
+  const [modelsDropdownOpen, setModelsDropdownOpen] = useState(false);
+  const tpmDropdownRef = useRef<HTMLDivElement>(null);
+  const modelsDropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Only Home as regular tab
+  const homeTab = { name: 'Home', href: '/' };
+  
+  // TPM dropdown items
+  const tpmDropdownItems = [
+    { name: 'Write Up', href: '/write-up' },
+    { name: 'Draft Model', href: '/tpmmodelpage' },
+    { name: 'FVC', href: '/fvc' },
   ];
+  
+  // Models dropdown items
+  const modelsDropdownItems = [
+    { name: 'Nick', href: '/nick' },
+  ];
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (tpmDropdownRef.current && !tpmDropdownRef.current.contains(event.target as Node)) {
+        setTpmDropdownOpen(false);
+      }
+      if (modelsDropdownRef.current && !modelsDropdownRef.current.contains(event.target as Node)) {
+        setModelsDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const toggleTpmDropdown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setTpmDropdownOpen(!tpmDropdownOpen);
+    if (modelsDropdownOpen) setModelsDropdownOpen(false);
+  };
+  
+  const toggleModelsDropdown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setModelsDropdownOpen(!modelsDropdownOpen);
+    if (tpmDropdownOpen) setTpmDropdownOpen(false);
+  };
 
   return (
     <>
@@ -397,31 +428,113 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
           <div className="flex justify-between items-center h-16">
             {/* Navigation Tabs */}
             <div className="flex space-x-4">
-              {tabs.map((tab) => (
-                <Link
-                  key={tab.name}
-                  href={tab.href}
+              {/* Home tab */}
+              <Link
+                href={homeTab.href}
+                className={`
+                  px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
+                  ${activeTab === homeTab.name 
+                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                    : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                  }
+                `}
+              >
+                {homeTab.name}
+              </Link>
+              
+              {/* TPM Dropdown */}
+              <div className="relative" ref={tpmDropdownRef}>
+                <button 
+                  onClick={toggleTpmDropdown}
                   className={`
                     px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                    ${activeTab === tab.name
+                    ${activeTab === 'TPM' 
                       ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                       : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                     }
+                    flex items-center
                   `}
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded={tpmDropdownOpen}
                 >
-                  {tab.name}
-                </Link>
-              ))}
+                  TPM
+                  <svg className="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                
+                {/* TPM Dropdown menu */}
+                {tpmDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+                    <div className="py-1" role="menu" aria-orientation="vertical">
+                      {tpmDropdownItems.map((item) => (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
+                          role="menuitem"
+                          onClick={() => setTpmDropdownOpen(false)}
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Models Dropdown */}
+              <div className="relative" ref={modelsDropdownRef}>
+                <button 
+                  onClick={toggleModelsDropdown}
+                  className={`
+                    px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
+                    ${activeTab === 'Models' 
+                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                      : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                    }
+                    flex items-center
+                  `}
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded={modelsDropdownOpen}
+                >
+                  Models
+                  <svg className="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                
+                {/* Models Dropdown menu */}
+                {modelsDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+                    <div className="py-1" role="menu" aria-orientation="vertical">
+                      {modelsDropdownItems.map((item) => (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
+                          role="menuitem"
+                          onClick={() => setModelsDropdownOpen(false)}
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* TPM Logo */}
-            <div className={`${barlow.className} text-4xl font-bold text-white italic`}>
+            {/* TPM Logo on the right */}
+            <div className={`text-4xl font-bold text-white`}>
               TPM
             </div>
           </div>
         </div>
       </div>
-
+      
       {/* Spacer div to prevent content from hiding behind fixed header */}
       <div className="h-16"></div>
     </>
@@ -792,12 +905,13 @@ const TimelineFilter = ({
                     Graphs
                   </motion.button>
 
-                  {/* EPM Graph Modal */}
+                  {/* EPM Graph Model */}
                   <EPMGraphModel
                     isOpen={isEPMModelOpen}
                     onClose={() => setIsEPMModelOpen(false)}
                     prospects={filteredProspects}
                     selectedPosition={selectedPosition}
+                    allProspects={filteredProspects}
                   />
 
                   {/* Divider */}
@@ -899,13 +1013,199 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   );
 };
 
+const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
+  isOpen,
+  onClose,
+  selectedProspect,
+  allProspects,
+}) => {
+  const filteredProspects = useMemo(() => {
+    if (!selectedProspect) return [];
+    return allProspects.filter(p => p.Position === selectedProspect.Position);
+  }, [allProspects, selectedProspect]);
+
+  const prepareChartData = () => {
+    const yearData: { year: string | number; [key: string]: string | number }[] = [];
+
+    for (let year = 1; year <= 5; year++) {
+      const yearObj: { year: string | number; [key: string]: string | number } = { year };
+
+      filteredProspects.forEach((prospect) => {
+        const rankKey = `Pred. Y${year} Rank` as keyof DraftProspect;
+        yearObj[prospect.Name] = prospect[rankKey] ?? 0;
+      });
+
+      yearData.push(yearObj);
+    }
+
+    return yearData;
+  };
+
+  const chartData = prepareChartData();
+
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+          <p className="font-bold text-white">Year {label}</p>
+          {payload.map((entry: PayloadItem) => (
+            <p key={entry.dataKey} style={{ color: entry.color }}>
+              {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+        <AlertDialogHeader className="flex flex-row items-center justify-between">
+          <AlertDialogTitle className="text-xl">
+            {selectedProspect
+              ? `${selectedProspect.Name} EPM Comparison ${selectedProspect.Position === 'Wing' ? '(Wing Comparison)' : ''}`
+              : 'Select a Prospect'}
+          </AlertDialogTitle>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+        </AlertDialogHeader>
+
+        <CardContent className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>EPM Progression By Player</CardTitle>
+              <CardDescription>Years on X-axis, EPM values on Y-axis</CardDescription>
+            </CardHeader>
+            <ResponsiveContainer width="100%" height={500}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} />
+                <YAxis type="number" stroke="#888" domain={[-5, 5]} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                {filteredProspects.map((prospect) => (
+                  <Line
+                    key={prospect.Name}
+                    type="monotone"
+                    dataKey={prospect.Name}
+                    stroke={prospect.Name === selectedProspect?.Name ? prospect['Team Color'] : 'lightgray'}
+                    strokeWidth={prospect.Name === selectedProspect?.Name ? 3 : 1}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+        </CardContent>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+const PlayerRankingsGraph: React.FC<EPMModelProps> = ({
+  isOpen,
+  onClose,
+  prospects,
+  selectedProspect,
+  allProspects,
+}) => {
+  // ... (similar logic as IndividualProspectGraphs but for player rankings) ...
+  const filteredProspects = useMemo(() => {
+    if (!selectedProspect) return [];
+    return allProspects.filter(p => p.Position === selectedProspect.Position);
+  }, [allProspects, selectedProspect]);
+
+  const prepareChartData = () => {
+    const yearData: { year: string | number; [key: string]: string | number }[] = [];
+
+    for (let year = 1; year <= 5; year++) {
+      const yearObj: { year: string | number; [key: string]: string | number } = { year };
+
+      filteredProspects.forEach((prospect) => {
+        const rankKey = `Pred. Y${year} Rank` as keyof DraftProspect;
+        yearObj[prospect.Name] = prospect[rankKey] ?? 0;
+      });
+
+      yearData.push(yearObj);
+    }
+
+    return yearData;
+  };
+
+  const chartData = prepareChartData();
+
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+          <p className="font-bold text-white">Year {label}</p>
+          {payload.map((entry: PayloadItem) => (
+            <p key={entry.dataKey} style={{ color: entry.color }}>
+              {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+        <AlertDialogHeader className="flex flex-row items-center justify-between">
+          <AlertDialogTitle className="text-xl">
+            {selectedProspect
+              ? `${selectedProspect.Name} Player Rankings Comparison ${selectedProspect.Position === 'Wing' ? '(Wing Comparison)' : ''}`
+              : 'Select a Prospect'}
+          </AlertDialogTitle>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+        </AlertDialogHeader>
+
+        <CardContent className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Player Rankings Progression By Player</CardTitle>
+              <CardDescription>Years on X-axis, Player Rankings values on Y-axis</CardDescription>
+            </CardHeader>
+            <ResponsiveContainer width="100%" height={500}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} />
+                <YAxis type="number" stroke="#888" domain={['dataMin - 5', 'dataMax + 5']} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                {filteredProspects.map((prospect) => (
+                  <Line
+                    key={prospect.Name}
+                    type="monotone"
+                    dataKey={prospect.Name}
+                    stroke={prospect.Name === selectedProspect?.Name ? prospect['Team Color'] : 'lightgray'}
+                    strokeWidth={prospect.Name === selectedProspect?.Name ? 3 : 1}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+        </CardContent>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
 {/* Player Cards */ }
 const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
-  // const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
+  const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
 
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => {
@@ -1210,6 +1510,27 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     </div>
                   </div>
                 </div>
+
+                {/* Graphs Button */}
+                <div>
+                <button
+                  onClick={() => setIsGraphModelOpen(true)}
+                  className="bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded">
+                  View Graphs
+                </button>
+
+                {isGraphModelOpen && (
+                  <IndividualProspectGraphs
+                    isOpen={isGraphModelOpen}
+                    onClose={() => setIsGraphModelOpen(false)}
+                    prospects={filteredProspects}
+                    selectedPosition={prospect.Role}
+                    selectedProspect={prospect}
+                    allProspects={filteredProspects}
+                  />
+                )}
+              </div>
+
               </div>
             </motion.div>
           )}
