@@ -22,7 +22,7 @@ import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal, BarChart as B
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Bar, BarChart, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1084,100 +1084,6 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} />
                 <YAxis type="number" stroke="#888" domain={[-5, 5]} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                {filteredProspects.map((prospect) => (
-                  <Line
-                    key={prospect.Name}
-                    type="monotone"
-                    dataKey={prospect.Name}
-                    stroke={prospect.Name === selectedProspect?.Name ? prospect['Team Color'] : 'lightgray'}
-                    strokeWidth={prospect.Name === selectedProspect?.Name ? 3 : 1}
-                    activeDot={{ r: 8 }}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
-        </CardContent>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-};
-
-const PlayerRankingsGraph: React.FC<EPMModelProps> = ({
-  isOpen,
-  onClose,
-  prospects,
-  selectedProspect,
-  allProspects,
-}) => {
-  // ... (similar logic as IndividualProspectGraphs but for player rankings) ...
-  const filteredProspects = useMemo(() => {
-    if (!selectedProspect) return [];
-    return allProspects.filter(p => p.Position === selectedProspect.Position);
-  }, [allProspects, selectedProspect]);
-
-  const prepareChartData = () => {
-    const yearData: { year: string | number; [key: string]: string | number }[] = [];
-
-    for (let year = 1; year <= 5; year++) {
-      const yearObj: { year: string | number; [key: string]: string | number } = { year };
-
-      filteredProspects.forEach((prospect) => {
-        const rankKey = `Pred. Y${year} Rank` as keyof DraftProspect;
-        yearObj[prospect.Name] = prospect[rankKey] ?? 0;
-      });
-
-      yearData.push(yearObj);
-    }
-
-    return yearData;
-  };
-
-  const chartData = prepareChartData();
-
-  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
-          <p className="font-bold text-white">Year {label}</p>
-          {payload.map((entry: PayloadItem) => (
-            <p key={entry.dataKey} style={{ color: entry.color }}>
-              {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        <AlertDialogHeader className="flex flex-row items-center justify-between">
-          <AlertDialogTitle className="text-xl">
-            {selectedProspect
-              ? `${selectedProspect.Name} Player Rankings Comparison ${selectedProspect.Position === 'Wing' ? '(Wing Comparison)' : ''}`
-              : 'Select a Prospect'}
-          </AlertDialogTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
-        </AlertDialogHeader>
-
-        <CardContent className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Player Rankings Progression By Player</CardTitle>
-              <CardDescription>Years on X-axis, Player Rankings values on Y-axis</CardDescription>
-            </CardHeader>
-            <ResponsiveContainer width="100%" height={500}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} />
-                <YAxis type="number" stroke="#888" domain={['dataMin - 5', 'dataMax + 5']} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 {filteredProspects.map((prospect) => (

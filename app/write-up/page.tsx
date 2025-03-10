@@ -183,7 +183,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
 export default function ModelsPage() {
     return (
       <main className="min-h-screen bg-[#19191A]">
-        <NavigationHeader activeTab="Models" />
+        <NavigationHeader activeTab="Nick" />
       </main>
     );
 }
