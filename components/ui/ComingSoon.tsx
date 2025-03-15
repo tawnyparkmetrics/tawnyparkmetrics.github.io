@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 
 interface DevelopmentStageProps {
   stage: 'brainstorming' | 'development' | 'testing';
@@ -13,29 +14,38 @@ const DevelopmentStage: React.FC<DevelopmentStageProps> = ({ stage, text, subtex
     switch (stage) {
       case 'brainstorming':
         return (
-          <div className="w-24 h-24 mx-auto my-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
-              <path d="M12 7c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1s1-.45 1-1V8c0-.55-.45-1-1-1zm0 8c-.55 0-1 .45-1 1s.45 1 1 1s1-.45 1-1s-.45-1-1-1z" />
-            </svg>
+          <div className="w-24 h-24 mx-auto my-4 relative">
+            <Image 
+              src="/icons/Brainstorming_Icon.png" 
+              alt="Brainstorming icon" 
+              width={96} 
+              height={96}
+              className={`${isActive ? 'opacity-100' : 'opacity-50'}`}
+            />
           </div>
         );
       case 'development':
         return (
-          <div className="w-24 h-24 mx-auto my-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8z" />
-              <path d="M15.88 8.29L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.59 2.59c.39.39 1.02.39 1.41 0L17 9.7a.996.996 0 0 0 0-1.41c-.39-.39-1.03-.39-1.12 0z" />
-            </svg>
+          <div className="w-24 h-24 mx-auto my-4 relative">
+            <Image 
+              src="/icons/In_Development_Icon.png" 
+              alt="In Development Icon" 
+              width={96} 
+              height={96}
+              className={`${isActive ? 'opacity-100' : 'opacity-50'}`}
+            />
           </div>
         );
       case 'testing':
         return (
-          <div className="w-24 h-24 mx-auto my-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" />
-              <path d="M9 12H7v-2h2v2zm0 4H7v-2h2v2zm4-4h-2v-2h2v2zm4 0h-2v-2h2v2zm-4 4h-2v-2h2v2zm4 0h-2v-2h2v2z" />
-            </svg>
+          <div className="w-24 h-24 mx-auto my-4 relative">
+            <Image 
+              src="/icons/Testing_Deployment_Icon.png" 
+              alt="Testing Development Icon" 
+              width={96} 
+              height={96}
+              className={`${isActive ? 'opacity-100' : 'opacity-50'}`}
+            />
           </div>
         );
       default:
@@ -81,7 +91,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({ feature, currentStage, onClose 
         <DevelopmentStage 
           stage="brainstorming" 
           text="brainstorming" 
-          subtext="(planned feature)" 
+          subtext="planned feature" 
           isActive={currentStage === 'brainstorming'} 
         />
         
@@ -90,7 +100,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({ feature, currentStage, onClose 
         <DevelopmentStage 
           stage="development" 
           text="in development" 
-          subtext="(work in progress)" 
+          subtext="work in progress" 
           isActive={currentStage === 'development'} 
         />
         
@@ -99,7 +109,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({ feature, currentStage, onClose 
         <DevelopmentStage 
           stage="testing" 
           text="testing deployment" 
-          subtext="(finalizing)" 
+          subtext="finalizing" 
           isActive={currentStage === 'testing'} 
         />
       </div>

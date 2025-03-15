@@ -7,6 +7,13 @@ interface NavigationHeaderProps {
     activeTab?: string;
 }
 
+interface MenuItem {
+    name: string;
+    href: string;
+    available: boolean;
+    stage?: 'brainstorming' | 'development' | 'testing';
+  }
+
 const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     const [DraftDropdownOpen, setTpmDropdownOpen] = useState(false);
     const [NBADropdownOpen, setModelsDropdownOpen] = useState(false);
@@ -61,11 +68,13 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       if (DraftDropdownOpen) setTpmDropdownOpen(false);
     };
 
-    const handleItemClick = (e: React.MouseEvent, item: any) => {
+    const handleItemClick = (e: React.MouseEvent, item: MenuItem) => {
       if (!item.available) {
         e.preventDefault();
         setComingSoonFeature(item.name);
-        setDevelopmentStage(item.stage);
+        if (item.stage) {
+            setDevelopmentStage(item.stage);
+          }
         setShowComingSoon(true);
         setTpmDropdownOpen(false);
         setModelsDropdownOpen(false);
