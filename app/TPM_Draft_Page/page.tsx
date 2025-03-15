@@ -618,7 +618,7 @@ const TimelineFilter = ({
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isEPMModelOpen, setIsEPMModelOpen] = useState(false);
 
-  // const filterBasketball = `filter_basketball.png`;
+  const basketballImage = "/icons/filter_basketball.png";
 
   //timeline labels
   const yearSortKeys = [
@@ -802,18 +802,25 @@ const TimelineFilter = ({
                       >
                         <motion.div
                           className={`
-                            rounded-full border-2 md:border-4 cursor-pointer
+                            rounded-full border-5 md:border-2 cursor-pointer
                             ${shouldHighlight(item.key)
-                              ? 'bg-blue-500 border-blue-300 w-8 h-8 md:w-12 md:h-12'
+                              ? 'bg-blue-500 border-blue-500 w-8 h-8 md:w-12 md:h-12'
                               : 'bg-gray-800 border-gray-700 w-6 h-6 md:w-8 md:h-8 hover:border-gray-600'
                             }
                           `}
                           animate={{
                             scale: shouldHighlight(item.key) ? 1.2 : 1,
-                            transition: { duration: 0.3 }
+                            rotate: shouldHighlight(item.key) ? 360 : 0,
+                            transition: { duration: 0.5 }
                           }}
-                        />
-
+                          >
+                          <img
+                            src="/icons/filter_basketball.png" 
+                            alt="Test Basketball"
+                            className="w-full h-full rounded-full"
+                          />
+                        </motion.div>
+                        
                         <motion.span
                           className={`
                             absolute -bottom-6 whitespace-nowrap text-xs md:text-sm font-medium
