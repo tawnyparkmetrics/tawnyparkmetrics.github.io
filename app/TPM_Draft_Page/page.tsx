@@ -618,8 +618,6 @@ const TimelineFilter = ({
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isEPMModelOpen, setIsEPMModelOpen] = useState(false);
 
-  const basketballImage = "/icons/filter_basketball.png";
-
   //timeline labels
   const yearSortKeys = [
     { key: 'Actual Pick', label: 'Draft' },
@@ -802,7 +800,7 @@ const TimelineFilter = ({
                       >
                         <motion.div
                           className={`
-                            rounded-full border-5 md:border-2 cursor-pointer
+                            rounded-full border-2 md:border-2 cursor-pointer
                             ${shouldHighlight(item.key)
                               ? 'bg-blue-500 border-blue-500 w-8 h-8 md:w-12 md:h-12'
                               : 'bg-gray-800 border-gray-700 w-6 h-6 md:w-8 md:h-8 hover:border-gray-600'
@@ -811,12 +809,14 @@ const TimelineFilter = ({
                           animate={{
                             scale: shouldHighlight(item.key) ? 1.2 : 1,
                             rotate: shouldHighlight(item.key) ? 360 : 0,
-                            transition: { duration: 0.5 }
+                            transition: { duration: .75 }
                           }}
                           >
-                          <img
+                          <Image
                             src="/icons/filter_basketball.png" 
                             alt="Test Basketball"
+                            width={48}
+                            height={48}
                             className="w-full h-full rounded-full"
                           />
                         </motion.div>
