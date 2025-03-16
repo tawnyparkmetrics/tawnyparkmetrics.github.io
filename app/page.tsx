@@ -103,13 +103,13 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                   {homeTab.name}
                 </Link>
                 
-                {/* TPM Dropdown */}
+                {/* Draft Dropdown */}
                 <div className="relative" ref={DraftDropdownRef}>
                   <button 
                     onClick={toggleTpmDropdown}
                     className={`
                       px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                      ${activeTab === 'TPM' 
+                      ${activeTab === 'Draft' 
                         ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                         : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                       }
@@ -154,13 +154,13 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                   )}
                 </div>
                 
-                {/* Models Dropdown */}
+                {/* NBA Dropdown */}
                 <div className="relative" ref={NBADropdownRef}>
                   <button 
                     onClick={toggleModelsDropdown}
                     className={`
                       px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                      ${activeTab === 'Models' 
+                      ${activeTab === 'NBA' 
                         ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                         : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                       }
@@ -176,7 +176,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                     </svg>
                   </button>
                   
-                  {/* Models Dropdown menu */}
+                  {/* NBA Dropdown menu */}
                   {NBADropdownOpen && (
                     <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
                       <div className="py-1" role="menu" aria-orientation="vertical">
