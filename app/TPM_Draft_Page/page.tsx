@@ -1431,7 +1431,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         <span className="ml-1">Undrafted</span>
                       ) : (
                         <span className="ml-1 flex items-center">
-                          {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
+                          {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect.NBA}`}
                         </span>
                       )}
                     </div>
@@ -1524,13 +1524,18 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         </div>
                       </div>
 
-                      {!isMobile && ['Y4', 'Y5'].map((year) => {
+                      {['Y4', 'Y5'].map((year) => {
+                        // Get all prospects with the same role
                         const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+
+                        // Sort them by the current year's rank
                         const sortedByYear = samePositionProspects.sort((a, b) => {
                           const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
                           const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
                           return aRank - bRank;
                         });
+
+                        // Find position rank
                         const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
 
                         return (
