@@ -1585,9 +1585,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               layout="position"
               className={`
                 ${barlow.className}
-                ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20'}
-                transition-opacity duration-300
-                ${((isHovered && !isMobile) || isExpanded) ? 'opacity-40' : 'opacity-100'}
+                ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20 transition-opacity duration-300'}
+                ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
               `}
             >
               {/* Change here for rank number formating for mobile view */}
@@ -1597,7 +1596,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 font-bold
                 text-white
                 select-none
-                transition-all duration-300
                 ${((isHovered && !isMobile) || isExpanded) ? (isMobile ? 'mr-4' : 'mr-[300px]') : ''}
               `}>
                 {typeof rank === 'number' ? rank : 'N/A'}
@@ -1678,39 +1676,18 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             {/* Info panel - different for mobile/desktop */}
             {isMobile ? (
               // Mobile info panel (when expanded)
-              <div
-                className={`
-                  absolute top-0 left-0 w-full h-full backdrop-blur-sm 
-                  transition-all duration-300 
-                  ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-                `}
-                style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-              >
-                <div className="p-4 space-y-2 flex flex-col">
-                  <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-gray-300">
-                    <div><span className="font-bold text-white">Height:</span> {prospect.Height}</div>
-                    <div><span className="font-bold text-white">Weight:</span> {prospect['Weight (lbs)']} lbs</div>
-                    <div><span className="font-bold text-white">Wingspan:</span> {prospect.Wingspan}</div>
-                    <div><span className="font-bold text-white">Age:</span> {prospect.Age}</div>
-                    <div><span className="font-bold text-white">Position:</span> {prospect.Role}</div>
-                    <div><span className="font-bold text-white">School:</span> {prospect['Pre-NBA']}</div>
-                    <div className="col-span-2">
-                      <span className="font-bold text-white">Draft:</span> {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
-                    </div>
-                  </div>
-
-                  {/* NBA Team logo */}
-                  <div className="flex justify-center mt-2">
-                    <NBATeamLogo NBA={prospect['NBA Team']} />
-                  </div>
+              isExpanded && ( // Only render if isExpanded is true
+                <div
+                  style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
+                >
                 </div>
-              </div>
+              )
             ) : (
               // Desktop hover info panel
               <div
-                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-                  }`}
+                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${
+                  (isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
+                }`}
                 style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
               >
                 <div className="p-6 space-y-4 flex flex-col">
