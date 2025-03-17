@@ -1420,7 +1420,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               <div className="grid grid-cols-2 gap-2">
                 {/* Draft Information */}
                 <div>
-                  <h4 className="font-semibold text-white text-sm mb-1">Draft Information</h4>
+                  <h4 className="font-semibold text-white text-sm mb-1 italic">Draft Information</h4>
                   <div className="space-y-1 text-xs text-gray-300">
                     <div><span className="font-bold text-white">Pre-NBA:</span> {prospect['Pre-NBA']}</div>
                     <div><span className="font-bold text-white">Position:</span> {prospect.Role}</div>
@@ -1440,7 +1440,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
                 {/* Physicals */}
                 <div className="ml-2">
-                  <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
+                  <h4 className="font-semibold text-white text-sm mb-1 italic">Physicals</h4>
                   <div className="space-y-1 text-xs text-gray-300">
                     <div><span className="font-bold text-white">Height:</span> {prospect.Height}</div>
                     <div><span className="font-bold text-white">Wingspan:</span> {prospect.Wingspan}</div>
