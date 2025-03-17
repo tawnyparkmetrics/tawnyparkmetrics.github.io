@@ -151,10 +151,10 @@ const EPMGraphModel: React.FC<EPMModelProps> = ({
     : prospects;
 
   const prepareChartData = () => {
-    const yearData: { year: string | number; [key: string]: string | number }[] = [];
+    const yearData: { year: string | number;[key: string]: string | number }[] = [];
 
     for (let year = 1; year <= 5; year++) {
-      const yearObj: { year: string | number; [key: string]: string | number } = { year };
+      const yearObj: { year: string | number;[key: string]: string | number } = { year };
 
       filteredProspects.forEach((prospect) => {
         const rankKey = `Pred. Y${year} EPM` as keyof DraftProspect;
@@ -384,16 +384,16 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState('');
   const [developmentStage, setDevelopmentStage] = useState<'brainstorming' | 'development' | 'testing'>('development');
-  
+
   // Only Home as regular tab
   const homeTab = { name: 'Home', href: '/' };
-  
+
   // TPM dropdown items
   const DraftDropdownItems = [
     { name: 'Max Savin', href: '/TPM_Draft_Page', available: true },
     { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: false, stage: 'development' as const },
   ];
-  
+
   // Models dropdown items
   const NBADropdownItems = [
     { name: 'Max Savin', href: '/TPM_FVC', available: false, stage: 'testing' as const },
@@ -409,7 +409,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
         setModelsDropdownOpen(false);
       }
     }
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -422,7 +422,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     setTpmDropdownOpen(!DraftDropdownOpen);
     if (NBADropdownOpen) setModelsDropdownOpen(false);
   };
-  
+
   const toggleModelsDropdown = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -456,7 +456,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                 href={homeTab.href}
                 className={`
                   px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                  ${activeTab === homeTab.name 
+                  ${activeTab === homeTab.name
                     ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                     : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                   }
@@ -464,14 +464,14 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
               >
                 {homeTab.name}
               </Link>
-              
+
               {/* Draft Dropdown */}
               <div className="relative" ref={DraftDropdownRef}>
-                <button 
+                <button
                   onClick={toggleTpmDropdown}
                   className={`
                     px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                    ${activeTab === 'Draft' 
+                    ${activeTab === 'Draft'
                       ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                       : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                     }
@@ -486,7 +486,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
-                
+
                 {/* Draft Dropdown menu */}
                 {DraftDropdownOpen && (
                   <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
@@ -497,8 +497,8 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                           href={item.available ? item.href : '#'}
                           className={`
                             block px-4 py-2 text-sm transition-colors duration-200
-                            ${item.available 
-                              ? 'text-gray-300 hover:bg-gray-700 hover:text-white' 
+                            ${item.available
+                              ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
                               : 'text-gray-500 hover:bg-gray-700'
                             }
                           `}
@@ -515,14 +515,14 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                   </div>
                 )}
               </div>
-              
+
               {/* NBA Dropdown */}
               <div className="relative" ref={NBADropdownRef}>
-                <button 
+                <button
                   onClick={toggleModelsDropdown}
                   className={`
                     px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                    ${activeTab === 'NBA' 
+                    ${activeTab === 'NBA'
                       ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                       : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                     }
@@ -537,7 +537,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
-                
+
                 {/* NBA Dropdown menu */}
                 {NBADropdownOpen && (
                   <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
@@ -548,8 +548,8 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                           href={item.available ? item.href : '#'}
                           className={`
                             block px-4 py-2 text-sm transition-colors duration-200
-                            ${item.available 
-                              ? 'text-gray-300 hover:bg-gray-700 hover:text-white' 
+                            ${item.available
+                              ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
                               : 'text-gray-500 hover:bg-gray-700'
                             }
                           `}
@@ -575,13 +575,13 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Spacer div to prevent content from hiding behind fixed header */}
       <div className="h-16"></div>
 
       {/* Coming Soon overlay */}
       {showComingSoon && (
-        <ComingSoon 
+        <ComingSoon
           feature={comingSoonFeature}
           currentStage={developmentStage}
           onClose={() => setShowComingSoon(false)}
@@ -811,16 +811,16 @@ const TimelineFilter = ({
                             rotate: shouldHighlight(item.key) ? 360 : 0,
                             transition: { duration: .75 }
                           }}
-                          >
+                        >
                           <Image
-                            src="/icons/filter_basketball.png" 
+                            src="/icons/filter_basketball.png"
                             alt="Test Basketball"
                             width={48}
                             height={48}
                             className="w-full h-full rounded-full"
                           />
                         </motion.div>
-                        
+
                         <motion.span
                           className={`
                             absolute -bottom-6 whitespace-nowrap text-xs md:text-sm font-medium
@@ -1082,10 +1082,10 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   }, [allProspects, selectedProspect]);
 
   const prepareChartData = () => {
-    const yearData: { year: string | number; [key: string]: string | number }[] = [];
+    const yearData: { year: string | number;[key: string]: string | number }[] = [];
 
     for (let year = 1; year <= 5; year++) {
-      const yearObj: { year: string | number; [key: string]: string | number } = { year };
+      const yearObj: { year: string | number;[key: string]: string | number } = { year };
 
       filteredProspects.forEach((prospect) => {
         const rankKey = `Pred. Y${year} Rank` as keyof DraftProspect;
@@ -1194,7 +1194,7 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
 // //     // Or another variation if needed:
 // //     // return `/player_images2024_special/Riley Minix BG Removed.png`;
 // //   }
-  
+
 // //   // Default URL format for other players
 // //   return `/player_images2024/${prospect.Name} BG Removed.png`;
 // // };
@@ -1523,13 +1523,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     // Set initial value
     checkMobile();
-    
+
     // Add event listener for window resize
     window.addEventListener('resize', checkMobile);
-    
+
     // Cleanup
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
@@ -1539,7 +1539,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
       setIsHovered(true);
     }
   };
-  
+
   const handleMouseLeave = () => {
     if (!isMobile && !isExpanded) {
       setIsHovered(false);
@@ -1573,7 +1573,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
           <div
             className={`
               relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] 
-              ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50' : 'h-[300px]'}
+              ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50' : 'h-[100px]'}
             `}
             style={{ backgroundColor: '#19191A' }}
             onMouseEnter={handleMouseEnter}
@@ -1584,14 +1584,16 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             <motion.div
               layout="position"
               className={`
-                absolute top-6 right-8 z-20
+                ${barlow.className}
+                ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20'}
                 transition-opacity duration-300
                 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-40' : 'opacity-100'}
               `}
             >
+              {/* Change here for rank number formating for mobile view */}
               <div className={`
-                ${barlow.className}
-                ${isMobile ? 'text-4xl' : 'text-6xl'}
+                ${barlow.className} 
+                ${isMobile ? 'text-1xl' : 'text-6xl'} 
                 font-bold
                 text-white
                 select-none
@@ -1613,8 +1615,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 <Image
                   src={prenbalogoUrl}
                   alt={prospect['Pre-NBA']}
-                  width={isMobile ? 100 : 200}
-                  height={isMobile ? 100 : 200}
+                  width={isMobile ? 70 : 200}
+                  height={isMobile ? 70 : 200}
                   className={`object-contain transition-transform duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}`}
                   onError={() => setLogoError(true)}
                 />
@@ -1627,7 +1629,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
             {/* Player Image */}
             <div className="absolute inset-0 flex justify-center items-end overflow-hidden">
-              <div className={`relative ${isMobile ? 'w-[80%] h-[80%]' : 'w-[90%] h-[90%]'}`}>
+              <div className={`relative ${isMobile ? 'w-[90%] h-[90%]' : 'w-[90%] h-[90%]'}`}> {/* change this line for player image sizing mobile view */}
                 {!imageError ? (
                   <div className="relative w-full h-full flex items-end justify-center">
                     <Image
@@ -1661,7 +1663,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               <div className="text-center z-10">
                 <h2 className={`
                   ${barlow.className} 
-                  ${isMobile ? 'text-4xl' : 'text-7xl'}
+                  ${isMobile ? 'text-1xl' : 'text-7xl'}
                   font-bold 
                   text-white 
                   uppercase 
@@ -1697,7 +1699,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       <span className="font-bold text-white">Draft:</span> {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
                     </div>
                   </div>
-                
+
                   {/* NBA Team logo */}
                   <div className="flex justify-center mt-2">
                     <NBATeamLogo NBA={prospect['NBA Team']} />
@@ -1911,12 +1913,14 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
         </div>
       </motion.div>
 
-      {/* Divider */}
-      <div>
-        <div className="h-px w=3/4 bg-gray my-5" />
-        <div className="h-px w-full bg-gray-700/30 my -8" />
-        <div className="h-px w=3/4 bg-gray my-5" />
-      </div>
+      {/* Divider - only show for desktop */}
+      {!isMobile && (
+        <div>
+          <div className="h-px w=3/4 bg-gray my-5" />
+          <div className="h-px w-full bg-gray-700/30 my -8" />
+          <div className="h-px w=3/4 bg-gray my-5" />
+        </div>
+      )}
     </div>
   );
 };
