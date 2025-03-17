@@ -1162,354 +1162,6 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   );
 };
 
-{/* Player Cards */ }
-// const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
-//   const [isExpanded, setIsExpanded] = useState(false);
-//   const [isHovered, setIsHovered] = useState(false);
-//   const [imageError, setImageError] = useState(false);
-//   const [logoError, setLogoError] = useState(false);
-//   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
-
-//   const handleMouseEnter = () => setIsHovered(true);
-//   const handleMouseLeave = () => {
-//     if (!isExpanded) {
-//       setIsHovered(false);
-//     }
-//   };
-
-//   // Update hover state when dropdown is expanded
-//   useEffect(() => {
-//     if (isExpanded) {
-//       setIsHovered(true);
-//     }
-//   }, [isExpanded]);
-
-//   const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
-//   const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
-//   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
-//   // const getPlayerImageUrl = () => {
-// //   if (prospect.Name === "Riley Minix") {
-// //     // Return special URL for Riley Minix
-// //     return `/player_images2024/Riley Minix BG Removed Top.png`;
-// //     // Or another variation if needed:
-// //     // return `/player_images2024_special/Riley Minix BG Removed.png`;
-// //   }
-
-// //   // Default URL format for other players
-// //   return `/player_images2024/${prospect.Name} BG Removed.png`;
-// // };
-
-//   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
-
-//   return (
-//     <div className="max-w-5xl mx-auto px-4 mb-4">
-//       <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
-//         <div className="relative">
-//           {/* Main card container - add mouse event handlers here */}
-//           <div
-//             className="relative h-[400px] rounded-xl border border-gray-700/50 overflow-hidden shadow-[0_0_15px_rgba(255,255,255,0.07)] transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50"
-//             style={{ backgroundColor: '#19191A' }}
-//             onMouseEnter={handleMouseEnter}
-//             onMouseLeave={handleMouseLeave}
-//           >
-//             {/* Rank Number */}
-//             <motion.div
-//               layout="position"
-//               className={`
-//                 absolute top-6 right-8 z-20
-//                 transition-opacity duration-300
-//                 ${(isHovered || isExpanded) ? 'opacity-40' : 'opacity-100'}
-//               `}
-//             >
-//               <div className={`
-//                 ${barlow.className}
-//                 text-6xl font-bold
-//                 text-white
-//                 select-none
-//                 transition-all duration-300
-//                 ${(isHovered || isExpanded) ? 'mr-[300px]' : ''}
-//               `}>
-//                 {typeof rank === 'number' ? rank : 'N/A'}
-//               </div>
-//             </motion.div>
-
-//             {/* Background Pre-NBA Logo */}
-//             <div className={`absolute inset-0 flex items-center justify-start pl-12 transition-opacity duration-300 ${(isHovered || isExpanded) ? 'opacity-90' : 'opacity-20'}`}>
-//               {!logoError ? (
-//                 <Image
-//                   src={prenbalogoUrl}
-//                   alt={prospect['Pre-NBA']}
-//                   width={200}
-//                   height={200}
-//                   className={`object-contain transition-transform duration-300 ${(isHovered || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}`}
-//                   onError={() => setLogoError(true)}
-//                 />
-//               ) : (
-//                 <div className="w-48 h-48 bg-gray-800 rounded-full flex items-center justify-center">
-//                   <span className="text-xl text-gray-400">{prospect['Pre-NBA']}</span>
-//                 </div>
-//               )}
-//             </div>
-
-//             {/* Player Image */}
-//             <div className="absolute inset-0 flex justify-center items-end overflow-hidden">
-//               <div className="relative w-[90%] h-[90%]">
-//                 {!imageError ? (
-//                   <div className="relative w-full h-full flex items-end justify-center">
-//                     <Image
-//                       src={playerImageUrl}
-//                       alt={prospect.Name}
-//                       fill
-//                       className={`
-//                         object-contain 
-//                         object-bottom
-//                         transition-all duration-300 
-//                         ${(isHovered || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}
-//                       `}
-//                       onError={() => setImageError(true)}
-//                       sizes="800px"
-//                       priority
-//                     />
-//                   </div>
-//                 ) : (
-//                   <div className="w-full h-full flex items-center justify-center">
-//                     <LucideUser className="text-gray-500" size={48} />
-//                   </div>
-//                 )}
-//               </div>
-//             </div>
-
-//             {/* Large Centered Name */}
-//             <motion.div
-//               layout="position"
-//               className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${(isHovered || isExpanded) ? 'opacity-0' : 'opacity-100'}`}
-//             >
-//               <div className="text-center z-10">
-//                 <h2 className={`
-//                   ${barlow.className} 
-//                   text-7xl 
-//                   font-bold 
-//                   text-white 
-//                   uppercase 
-//                   tracking-wider
-//                   [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
-//                 `}>
-//                   {prospect.Name}
-//                 </h2>
-//               </div>
-//             </motion.div>
-
-//             {/* Hover info panel */}
-//             <div
-//               className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-//                 }`}
-//               style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-//             >
-//               <div className="p-6 space-y-4 flex flex-col">
-//                 <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
-//                 <div className="space-y-2 text-sm text-gray-300">
-//                   <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
-//                   <div><span className="font-bold text-white">Wingspan  </span> {prospect.Wingspan}</div>
-//                   <div><span className="font-bold text-white">Wing - Height  </span> {prospect['Wing - Height']}</div>
-//                   <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
-//                 </div>
-
-//                 <div className="pt-4 border-t border-gray-700">
-//                   <div className="space-y-2 text-sm text-gray-300">
-//                     <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
-//                     <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
-//                     <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
-//                     <div>
-//                       <span className="font-bold text-white">Draft  </span>
-//                       {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 {/* NBA Team logo */}
-//                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-//                   <NBATeamLogo NBA={prospect['NBA Team']} />
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-
-//           {/* Expand/collapse button */}
-//           <div className="flex justify-center mt-2">
-//             <motion.button
-//               layout="position"
-//               onClick={() => {
-//                 setIsExpanded(!isExpanded);
-//                 if (!isExpanded) {
-//                   setIsHovered(true);
-//                 }
-//               }}
-//               className={`
-//                 w-10 h-10
-//                 rounded-full
-//                 flex items-center justify-center
-//                 bg-gray-800/20
-//                 hover:bg-gray-800/30
-//                 transition-all duration-300
-//                 border border-gray-700
-//                 hover:border-gray-600
-//                 ${isExpanded ? 'bg-gray-800/30 border-gray-600' : ''}
-//               `}
-//               aria-label={isExpanded ? "Collapse details" : "Expand details"}
-//             >
-//               {isExpanded ? (
-//                 <ChevronUp className="text-white h-5 w-5" />
-//               ) : (
-//                 <ChevronDown className="text-white h-5 w-5 transition-all duration-300" />
-//               )}
-//             </motion.button>
-//           </div>
-
-//           {/* Expanded content */}
-//           {isExpanded && (
-//             <motion.div
-//               initial={{ opacity: 0, height: 0 }}
-//               animate={{ opacity: 1, height: "auto" }}
-//               exit={{ opacity: 0, height: 0 }}
-//               transition={{ duration: 0.3 }}
-//               className="grid grid-cols-2 gap-4 rounded-xl backdrop-blur-sm p-6 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
-//               style={{ backgroundColor: '#19191A' }}
-//             >
-//               {/* Scouting Report Column */}
-//               <div className="text-gray-300">
-//                 <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
-//                 <p className="text-sm leading-relaxed">{playerSummary}</p>
-//               </div>
-
-//               {/* Rankings Column */}
-//               <div className="space-y-4">
-//                 <div className="bg-gray-800/80 p-4 rounded-xs">
-//                   <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
-
-//                   {/* Rankings Table */}
-//                   <div className="w-full">
-//                     <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
-//                       <div>Year</div>
-//                       <div className="text-center">Overall</div>
-//                       <div className="text-center">Position</div>
-//                     </div>
-//                     <div className="space-y-2">
-//                       {['Y1', 'Y2', 'Y3'].map((year) => {
-//                         // Get all prospects with the same role
-//                         const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-
-//                         // Sort them by the current year's rank
-//                         const sortedByYear = samePositionProspects.sort((a, b) => {
-//                           const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
-//                           const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
-//                           return aRank - bRank;
-//                         });
-
-//                         // Find position rank
-//                         const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
-
-//                         return (
-//                           <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-//                             <div>Year {year.slice(1)}</div>
-//                             <div className="text-center">{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
-//                             <div className="text-center">{positionRank === 0 ? 'N/A' : positionRank}</div>
-//                           </div>
-//                         );
-//                       })}
-
-//                       {/* 3 Year Average after Year 3 */}
-//                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-//                         <div>3 Year Average</div>
-//                         <div className="text-center">{prospect['Avg. Rank Y1-Y3']}</div>
-//                         <div className="text-center">
-//                           {(() => {
-//                             const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-//                             const sortedBy3YAvg = samePositionProspects.sort((a, b) => {
-//                               const aRank = Number(a['Avg. Rank Y1-Y3']);
-//                               const bRank = Number(b['Avg. Rank Y1-Y3']);
-//                               return aRank - bRank;
-//                             });
-//                             const positionRank = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
-//                             return positionRank === 0 ? 'N/A' : positionRank;
-//                           })()}
-//                         </div>
-//                       </div>
-
-//                       {['Y4', 'Y5'].map((year) => {
-//                         const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-//                         const sortedByYear = samePositionProspects.sort((a, b) => {
-//                           const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
-//                           const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
-//                           return aRank - bRank;
-//                         });
-//                         const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
-
-//                         return (
-//                           <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-//                             <div>Year {year.slice(1)}</div>
-//                             <div className="text-center">{prospect[`Pred. ${year} Rank` as keyof DraftProspect]}</div>
-//                             <div className="text-center">{positionRank === 0 ? 'N/A' : positionRank}</div>
-//                           </div>
-//                         );
-//                       })}
-
-//                       {/* 5 Year Average after Year 5 */}
-//                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-//                         <div>5 Year Average</div>
-//                         <div className="text-center">{prospect['Avg. Rank Y1-Y5']}</div>
-//                         <div className="text-center">
-//                           {(() => {
-//                             const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-//                             const sortedBy5YAvg = samePositionProspects.sort((a, b) => {
-//                               const aRank = Number(a['Avg. Rank Y1-Y5']);
-//                               const bRank = Number(b['Avg. Rank Y1-Y5']);
-//                               return aRank - bRank;
-//                             });
-//                             const positionRank = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
-//                             return positionRank === 0 ? 'N/A' : positionRank;
-//                           })()}
-//                         </div>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 {/* Graphs Button */}
-//                 <div>
-//                 <button
-//                   onClick={() => setIsGraphModelOpen(true)}
-//                   className="bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded">
-//                   View Graphs
-//                 </button>
-
-//                 {isGraphModelOpen && (
-//                   <IndividualProspectGraphs
-//                     isOpen={isGraphModelOpen}
-//                     onClose={() => setIsGraphModelOpen(false)}
-//                     prospects={filteredProspects}
-//                     selectedPosition={prospect.Role}
-//                     selectedProspect={prospect}
-//                     allProspects={filteredProspects}
-//                   />
-//                 )}
-//               </div>
-
-//               </div>
-//             </motion.div>
-//           )}
-//         </div>
-//       </motion.div>
-
-//       {/* Divider */}
-//       <div>
-//         <div className="h-px w=3/4 bg-gray my-5" />
-//         <div className="h-px w-full bg-gray-700/30 my -8" />
-//         <div className="h-px w=3/4 bg-gray my-5" />
-//       </div>
-//     </div>
-//   );
-// };
-
 const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -1517,6 +1169,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   const [logoError, setLogoError] = useState(false);
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false); // New state for mobile info dropdown
 
   // Check if device is mobile
   useEffect(() => {
@@ -1549,7 +1202,11 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   // Handle card click for mobile
   const handleCardClick = () => {
     if (isMobile) {
-      setIsExpanded(!isExpanded);
+      if (isMobileInfoExpanded) {
+        setIsMobileInfoExpanded(false);
+      } else {
+        setIsExpanded(!isExpanded);
+      }
     }
   };
 
@@ -1596,7 +1253,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 font-bold
                 text-white
                 select-none
-                ${((isHovered && !isMobile) || isExpanded) ? (isMobile ? 'mr-4' : 'mr-[300px]') : ''}
+                ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
               `}>
                 {typeof rank === 'number' ? rank : 'N/A'}
               </div>
@@ -1627,7 +1284,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
             {/* Player Image */}
             <div className="absolute inset-0 flex justify-center items-end overflow-hidden">
-              <div className={`relative ${isMobile ? 'w-[90%] h-[90%]' : 'w-[90%] h-[90%]'}`}> {/* change this line for player image sizing mobile view */}
+              <div className={`relative ${isMobile ? 'w-[90%] h-[90%]' : 'w-[90%] h-[90%]'}`}>
                 {!imageError ? (
                   <div className="relative w-full h-full flex items-end justify-center">
                     <Image
@@ -1677,17 +1334,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             {isMobile ? (
               // Mobile info panel (when expanded)
               isExpanded && ( // Only render if isExpanded is true
-                <div
-                  style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-                >
-                </div>
+                <div style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}></div>
               )
             ) : (
               // Desktop hover info panel
               <div
-                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${
-                  (isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-                }`}
+                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
+                  }`}
                 style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
               >
                 <div className="p-6 space-y-4 flex flex-col">
@@ -1706,7 +1359,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
-                        {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
+                        {Number(prospect.NBA) >= 59 ? "Undrafted - " : `${prospect.NBA} - `}{draftedTeam}
                       </div>
                     </div>
                   </div>
@@ -1753,6 +1406,52 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             </div>
           )}
 
+          {/* Mobile Info Dropdown */}
+          {isMobile && isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
+              style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
+            >
+              <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Draft Information */}
+                <div>
+                  <h4 className="font-semibold text-white text-sm mb-1">Draft Information</h4>
+                  <div className="space-y-1 text-xs text-gray-300">
+                    <div><span className="font-bold text-white">Pre-NBA:</span> {prospect['Pre-NBA']}</div>
+                    <div><span className="font-bold text-white">Position:</span> {prospect.Role}</div>
+                    <div><span className="font-bold text-white">Draft Age:</span> {prospect.Age}</div>
+                    <div className="flex items-center">
+                      <span className="font-bold text-white">Draft:</span>
+                      {Number(prospect['Actual Pick']) >= 59 ? (
+                        <span className="ml-1">Undrafted</span>
+                      ) : (
+                        <span className="ml-1 flex items-center">
+                          {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - `}{draftedTeam}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Physicals */}
+                <div className="ml-2">
+                  <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
+                  <div className="space-y-1 text-xs text-gray-300">
+                    <div><span className="font-bold text-white">Height:</span> {prospect.Height}</div>
+                    <div><span className="font-bold text-white">Wingspan:</span> {prospect.Wingspan}</div>
+                    <div><span className="font-bold text-white">Wing - Height:</span> {prospect['Wing - Height']}</div>
+                    <div><span className="font-bold text-white">Weight:</span> {prospect['Weight (lbs)']}</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Expanded content */}
           {isExpanded && (
             <motion.div
@@ -1776,7 +1475,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               <div className="space-y-4">
                 <div className="bg-gray-800/80 p-4 rounded-xs">
                   <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
-
                   {/* Rankings Table */}
                   <div className="w-full">
                     <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
