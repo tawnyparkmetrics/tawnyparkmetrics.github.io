@@ -72,6 +72,17 @@ const barlow = Barlow({
   weight: ['700'], // Use 700 for bold text
 });
 
+const collegeNames: { [key: string]: string } = {
+  "UC Santa Barbara": "UCSB",
+  "G League Ignite": "Ignite",
+  "JL Bourg-en-Bresse": "JL Bourg",
+  "Cholet Basket": "Cholet",
+  "KK Crvena Zvezda": "KK Crvena",
+  "Ratiopharm Ulm": "Ulm",
+  "Washington State": "Washington St.",
+  "KK Mega Basket": "KK Mega",
+}
+
 const teamNames: { [key: string]: string } = {
   CHA: "Charlotte Hornets",
   GSW: "Golden State Warriors",
@@ -1421,7 +1432,10 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 <div>
                   <h4 className="font-semibold text-white text-sm mb-1 italic">Draft Information</h4>
                   <div className="space-y-1 text-xs text-gray-300">
-                    <div><span className="font-bold text-white">Pre-NBA:</span> {prospect['Pre-NBA']}</div>
+                    <span className="font-bold text-white">Pre-NBA: </span>
+                    {collegeNames[prospect['Pre-NBA']]
+                      ? collegeNames[prospect['Pre-NBA']]
+                      : prospect['Pre-NBA']}
                     <div><span className="font-bold text-white">Position:</span> {prospect.Role}</div>
                     <div><span className="font-bold text-white">Draft Age:</span> {prospect.Age}</div>
                     <div className="flex items-center">
