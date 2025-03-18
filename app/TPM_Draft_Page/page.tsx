@@ -1423,37 +1423,33 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
+              className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative" // Added 'relative' here
               style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
             >
               <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
               <div className="grid grid-cols-2 gap-2">
-                {/* Draft Information */}
+                {/* Draft Information Column */}
                 <div>
-                  <h4 className="font-semibold text-white text-sm mb-1 italic">Draft Information</h4>
+                  <h4 className="font-semibold text-white text-sm mb-1">Draft Information</h4>
                   <div className="space-y-1 text-xs text-gray-300">
-                    <span className="font-bold text-white">Pre-NBA: </span>
-                    {collegeNames[prospect['Pre-NBA']]
-                      ? collegeNames[prospect['Pre-NBA']]
-                      : prospect['Pre-NBA']}
+                    <div>
+                      <span className="font-bold text-white">Pre-NBA: </span>
+                      {collegeNames[prospect['Pre-NBA']]
+                        ? collegeNames[prospect['Pre-NBA']]
+                        : prospect['Pre-NBA']}
+                    </div>
                     <div><span className="font-bold text-white">Position:</span> {prospect.Role}</div>
                     <div><span className="font-bold text-white">Draft Age:</span> {prospect.Age}</div>
-                    <div className="flex items-center">
-                      <span className="font-bold text-white">Draft:</span>
-                      {Number(prospect['Actual Pick']) >= 59 ? (
-                        <span className="ml-1">Undrafted</span>
-                      ) : (
-                        <span className="ml-1 flex items-center">
-                          {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect.NBA}`}
-                        </span>
-                      )}
+                    <div>
+                      <span className="font-bold text-white">Draft </span>
+                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect.NBA}`}
                     </div>
                   </div>
                 </div>
 
-                {/* Physicals */}
+                {/* Physicals Column */}
                 <div className="ml-2">
-                  <h4 className="font-semibold text-white text-sm mb-1 italic">Physicals</h4>
+                  <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
                   <div className="space-y-1 text-xs text-gray-300">
                     <div><span className="font-bold text-white">Height:</span> {prospect.Height}</div>
                     <div><span className="font-bold text-white">Wingspan:</span> {prospect.Wingspan}</div>
@@ -1461,6 +1457,10 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     <div><span className="font-bold text-white">Weight:</span> {prospect['Weight (lbs)']}</div>
                   </div>
                 </div>
+              </div>
+              {/* Team Logo in Top Right */}
+              <div className="absolute top-2 right-2">
+                <NBATeamLogo NBA={prospect['NBA Team']} /> {/* Adjust size as needed */}
               </div>
             </motion.div>
           )}
