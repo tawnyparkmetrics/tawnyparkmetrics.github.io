@@ -1521,7 +1521,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
                       {/* 3 Year Average after Year 3 */}
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                        <div>3 Year Average</div>
+                        <div>3 Year Avg</div>
                         <div className="text-center">{prospect['Avg. Rank Y1-Y3']}</div>
                         <div className="text-center">
                           {(() => {
