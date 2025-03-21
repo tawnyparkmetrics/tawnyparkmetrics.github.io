@@ -1427,6 +1427,9 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
             >
               <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
+              {/* <div className="transform scale-50 origin-top-right">
+                <NBATeamLogo NBA={prospect['NBA Team']}/>
+              </div> */}
               <div className="grid grid-cols-2 gap-2">
                 {/* Draft Information Column */}
                 <div>
@@ -1459,8 +1462,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 </div>
               </div>
               {/* Team Logo in Top Right */}
-              <div className="absolute top-2 right-2">
-                <NBATeamLogo NBA={prospect['NBA Team']} /> {/* Adjust size as needed */}
+              <div className="absolute top-3.5 right-3.5 transform scale-50 origin-top-right">
+                <NBATeamLogo NBA={prospect['NBA Team']}/> {/* Adjust size as needed */}
               </div>
             </motion.div>
           )}
@@ -1521,7 +1524,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
                       {/* 3 Year Average after Year 3 */}
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                        <div>3 Year Avg</div>
+                      <div>{isMobile ? "3 Year Avg" : "3 Year Average"}</div>
                         <div className="text-center">{prospect['Avg. Rank Y1-Y3']}</div>
                         <div className="text-center">
                           {(() => {
