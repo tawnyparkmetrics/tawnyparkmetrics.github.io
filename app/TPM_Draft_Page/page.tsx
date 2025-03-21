@@ -123,6 +123,7 @@ interface EPMModelProps {
   selectedPosition: string | null;
   selectedProspect?: DraftProspect; // Pass the selected prospect
   allProspects: DraftProspect[];
+  graphType?: 'EPM' | 'rankings'; // Optional prop to determine graph type
 }
 
 interface PayloadItem {
@@ -1080,18 +1081,21 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   );
 };
 
+// const [graphType, setGraphType] = useState('rankings');
+
 const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
   selectedProspect,
   allProspects,
+  graphType = 'rankings', // Default to rankings if not specified
 }) => {
   const filteredProspects = useMemo(() => {
     if (!selectedProspect) return [];
     return allProspects.filter(p => p.Position === selectedProspect.Position);
   }, [allProspects, selectedProspect]);
 
-  const prepareChartData = () => {
+  const prepareRankingsChartData = () => {
     const yearData: { year: string | number;[key: string]: string | number }[] = [];
 
     for (let year = 1; year <= 5; year++) {
@@ -1108,7 +1112,28 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
     return yearData;
   };
 
-  const chartData = prepareChartData();
+  const prepareEpmChartData = () => {
+    const yearData: { year: string | number;[key: string]: string | number }[] = [];
+
+    for (let year = 1; year <= 5; year++) {
+      const yearObj: { year: string | number;[key: string]: string | number } = { year };
+
+      filteredProspects.forEach((prospect) => {
+        const epmKey = `Pred. Y${year} EPM` as keyof DraftProspect;
+        yearObj[prospect.Name] = prospect[epmKey] ?? 0;
+      });
+
+      yearData.push(yearObj);
+    }
+
+    return yearData;
+  };
+
+  const rankingsChartData = prepareRankingsChartData();
+  const epmChartData = prepareEpmChartData();
+
+  // Use the appropriate data based on the selected graph type
+  const chartData = graphType === 'rankings' ? rankingsChartData : epmChartData;
 
   const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
@@ -1118,6 +1143,7 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
           {payload.map((entry: PayloadItem) => (
             <p key={entry.dataKey} style={{ color: entry.color }}>
               {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
+              {graphType === 'rankings' ? ' (rank)' : ' (EPM)'}
             </p>
           ))}
         </div>
@@ -1132,7 +1158,7 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
         <AlertDialogHeader className="flex flex-row items-center justify-between">
           <AlertDialogTitle className="text-xl">
             {selectedProspect
-              ? `${selectedProspect.Name} EPM Comparison ${selectedProspect.Position === 'Wing' ? '(Wing Comparison)' : ''}`
+              ? `${selectedProspect.Name} ${graphType === 'rankings' ? 'Rankings' : 'EPM'} Comparison ${selectedProspect.Position === 'Wing' ? '(Wing Comparison)' : ''}`
               : 'Select a Prospect'}
           </AlertDialogTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -1141,16 +1167,45 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
         </AlertDialogHeader>
 
         <CardContent className="space-y-6">
+          <div className="flex justify-center space-x-4 mb-4">
+            <Button
+              variant={graphType === 'rankings' ? "default" : "outline"}
+              onClick={() => onClose()} // Close and reopen with rankings type
+              className="w-32"
+            >
+              Rankings
+            </Button>
+            <Button
+              variant={graphType === 'EPM' ? "default" : "outline"}
+              onClick={() => onClose()} // Close and reopen with EPM type
+              className="w-32"
+            >
+              Projected EPM
+            </Button>
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle>EPM Progression By Player</CardTitle>
-              <CardDescription>Years on X-axis, EPM values on Y-axis</CardDescription>
+              <CardTitle>
+                {graphType === 'rankings'
+                  ? 'Rankings Progression By Player'
+                  : 'EPM Progression By Player'}
+              </CardTitle>
+              <CardDescription>
+                Years on X-axis, {graphType === 'rankings' ? 'Ranking values' : 'EPM values'} on Y-axis
+              </CardDescription>
             </CardHeader>
             <ResponsiveContainer width="100%" height={500}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} />
-                <YAxis type="number" stroke="#888" domain={[-5, 5]} />
+                <YAxis
+                  type="number"
+                  stroke="#888"
+                  domain={graphType === 'rankings' ? [-5, 5] : [-5, 5]}
+                // For rankings, you might want to invert the axis so lower (better) ranks are at the top
+                // Consider: reversed={graphType === 'rankings'}
+                />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 {filteredProspects.map((prospect) => (
@@ -1179,7 +1234,9 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   const [logoError, setLogoError] = useState(false);
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false); // New state for mobile info dropdown
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Check if device is mobile
   useEffect(() => {
@@ -1463,7 +1520,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               </div>
               {/* Team Logo in Top Right */}
               <div className="absolute top-3.5 right-3.5 transform scale-50 origin-top-right">
-                <NBATeamLogo NBA={prospect['NBA Team']}/> {/* Adjust size as needed */}
+                <NBATeamLogo NBA={prospect['NBA Team']} /> {/* Adjust size as needed */}
               </div>
             </motion.div>
           )}
@@ -1524,7 +1581,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
                       {/* 3 Year Average after Year 3 */}
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                      <div>{isMobile ? "3 Year Avg" : "3 Year Average"}</div>
+                        <div>{isMobile ? "3 Year Avg" : "3 Year Average"}</div>
                         <div className="text-center">{prospect['Avg. Rank Y1-Y3']}</div>
                         <div className="text-center">
                           {(() => {
@@ -1584,25 +1641,70 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   </div>
                 </div>
 
-                {/* Graphs Button */}
-                <div>
+                {/* Graphs Dropdown Button */}
+                <div className="relative">
+                  {/* Main button that toggles dropdown */}
                   <button
-                    onClick={() => setIsGraphModelOpen(true)}
-                    className="bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm">
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm flex items-center"
+                  >
                     View Graphs
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 ml-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
 
-                  {isGraphModelOpen && (
-                    <IndividualProspectGraphs
-                      isOpen={isGraphModelOpen}
-                      onClose={() => setIsGraphModelOpen(false)}
-                      prospects={filteredProspects}
-                      selectedPosition={prospect.Role}
-                      selectedProspect={prospect}
-                      allProspects={filteredProspects}
-                    />
+                  {/* Dropdown menu */}
+                  {isDropdownOpen && (
+                    <div className="absolute mt-1 w-40 bg-gray-800 rounded-md shadow-lg z-10">
+                      <ul className="py-1">
+                        <li>
+                          <button
+                            onClick={() => {
+                              setGraphType('rankings');
+                              setIsGraphModelOpen(true);
+                              setIsDropdownOpen(false);
+                            }}
+                            className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700"
+                          >
+                            Rankings
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            onClick={() => {
+                              setGraphType('EPM');
+                              setIsGraphModelOpen(true);
+                              setIsDropdownOpen(false);
+                            }}
+                            className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700"
+                          >
+                            Projected EPM
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
                   )}
                 </div>
+
+                {/* Graph Modal */}
+                {isGraphModelOpen && (
+                  <IndividualProspectGraphs
+                    isOpen={isGraphModelOpen}
+                    onClose={() => setIsGraphModelOpen(false)}
+                    prospects={filteredProspects}
+                    selectedPosition={prospect.Role}
+                    selectedProspect={prospect}
+                    allProspects={filteredProspects}
+                    graphType={graphType}
+                  />
+                )}
               </div>
             </motion.div>
           )}
