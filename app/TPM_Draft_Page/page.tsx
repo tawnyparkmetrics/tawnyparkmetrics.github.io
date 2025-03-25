@@ -402,7 +402,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   // TPM dropdown items
   const DraftDropdownItems = [
     { name: 'Max Savin', href: '/TPM_Draft_Page', available: true },
-    { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: false, stage: 'development' as const },
+    { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: true },
   ];
 
   // Models dropdown items
@@ -1237,6 +1237,24 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false); // New state for mobile info dropdown
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const DraftDropdownRef = useRef<HTMLDivElement>(null);
+  const NBADropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (DraftDropdownRef.current && !DraftDropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+      if (NBADropdownRef.current && !NBADropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Check if device is mobile
   useEffect(() => {

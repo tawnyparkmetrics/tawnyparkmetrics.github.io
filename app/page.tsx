@@ -29,7 +29,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     // TPM dropdown items
     const DraftDropdownItems = [
       { name: 'Max Savin', href: '/TPM_Draft_Page', available: true },
-      { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: false, stage: 'development' as const },
+      { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: true},
     ];
     
     // Models dropdown items
