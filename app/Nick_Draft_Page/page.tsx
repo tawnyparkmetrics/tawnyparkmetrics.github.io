@@ -1,33 +1,11 @@
 "use client";
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuGroup,
-//   DropdownMenuItem,
-//   DropdownMenuLabel,
-//   DropdownMenuSeparator,
-//   DropdownMenuTrigger,
-// } from '@/components/ui/dropdown-menu';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal, BarChart as BarChartIcon } from 'lucide-react';
+import { LucideUser } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
-import { AnimatePresence, motion } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
 import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
 
 
@@ -296,7 +274,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   // TPM dropdown items
   const DraftDropdownItems = [
     { name: 'Max Savin', href: '/TPM_Draft_Page', available: true },
-    { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: false, stage: 'development' as const },
+    { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: true},
   ];
 
   // Models dropdown items
@@ -1121,12 +1099,11 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
 //   );
 // };
 
-const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
+const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
-  const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   // const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false); // New state for mobile info dropdown
@@ -1197,7 +1174,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   }, [isExpanded, isMobile]);
 
   const draftedTeam = teamNames[prospect['NBA Team']] || prospect['NBA Team'];
-  const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
+  // const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
