@@ -1166,7 +1166,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
     }
   }, [isExpanded, isMobile]);
 
-  const draftedTeam = teamNames[prospect['NBA Team']] || prospect['NBA Team'];
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
@@ -1434,9 +1433,9 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 type RankType = number | 'N/A';
 
 interface ProspectFilterProps {
-  prospects: any[]; // Replace 'any[]' with the actual type of your prospects array
-  onFilteredProspectsChange?: (filteredProspects: any[]) => void;
-  setFilteredProspects?: (filteredProspects: any[]) => void;
+  prospects: DraftProspect[]; // Replace 'any[]' with the actual type of your prospects array
+  onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
+  setFilteredProspects?: (filteredProspects: DraftProspect[]) => void;
 }
 
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
