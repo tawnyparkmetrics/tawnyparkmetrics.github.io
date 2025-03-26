@@ -7,6 +7,8 @@ import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input'; // Import the Input component
 
 
 export interface DraftProspect {
@@ -18,6 +20,8 @@ export interface DraftProspect {
   'Height': string;
   'Weight (lbs)': string;
   'Role': string;
+
+  "NCAAM": string;
 
   Summary?: string;
   originalRank?: number;
@@ -900,18 +904,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
 //                     </motion.button>
 //                   ))}
 
-//                   {/* EPM Model */}
-//                   {/* <EPMModel
-//                     isOpen={isGraphModelOpen}
-//                     onClose={() => setIsGraphModelOpen(false)}
-//                     prospects={filteredProspects}
-//                     selectedPosition={selectedPosition}
-//                     allProspects={filteredProspects}
-//                   /> */}
-//                 </div>
-//               </div>
-//             </div>
-
+//                  
 //             {/* Mobile search field */}
 //             <div className="md:hidden relative mx-2 my-4">
 //               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -1174,7 +1167,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   }, [isExpanded, isMobile]);
 
   const draftedTeam = teamNames[prospect['NBA Team']] || prospect['NBA Team'];
-  // const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
@@ -1312,7 +1304,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
-                        {Number(prospect['NBA Team']) >= 59 ? "Undrafted - " : `${prospect['NBA Team']} - `}{draftedTeam}
+                        {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect['NBA Team']}`}
                       </div>
                     </div>
                   </div>
@@ -1346,15 +1338,15 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   <h4 className="font-semibold text-white text-sm mb-1">Draft Information</h4>
                   <div className="space-y-1 text-xs text-gray-300">
                     <div>
-                      <span className="font-bold text-white">Pre-NBA: </span>
+                      <span className="font-bold text-white">Pre-NBA </span>
                       {collegeNames[prospect['Pre-NBA']]
                         ? collegeNames[prospect['Pre-NBA']]
                         : prospect['Pre-NBA']}
                     </div>
-                    <div><span className="font-bold text-white">Position:</span> {prospect.Role}</div>
+                    <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
                     <div>
                       <span className="font-bold text-white">Draft </span>
-                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect['NBA Team']}`}
+                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${teamNames}`}
                     </div>
                   </div>
                 </div>
@@ -1363,8 +1355,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 <div className="ml-2">
                   <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
                   <div className="space-y-1 text-xs text-gray-300">
-                    <div><span className="font-bold text-white">Height:</span> {prospect.Height}</div>
-                    <div><span className="font-bold text-white">Weight:</span> {prospect['Weight (lbs)']}</div>
+                    <div><span className="font-bold text-white">Height </span> {prospect.Height}</div>
+                    <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
                   </div>
                 </div>
               </div>
@@ -1441,9 +1433,117 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
 type RankType = number | 'N/A';
 
+interface ProspectFilterProps {
+  prospects: any[]; // Replace 'any[]' with the actual type of your prospects array
+  onFilteredProspectsChange?: (filteredProspects: any[]) => void;
+  setFilteredProspects?: (filteredProspects: any[]) => void;
+}
+
+const ProspectFilter: React.FC<ProspectFilterProps> = ({
+  prospects,
+  onFilteredProspectsChange,
+  setFilteredProspects,
+}) => {
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filter, setFilter] = useState<'all' | 'NCAA' | 'Int'>('all');
+
+  useEffect(() => {
+    let filteredResults = prospects;
+
+    if (filter === 'NCAA') {
+      filteredResults = filteredResults.filter((prospect) => prospect.NCAAM === '1');
+    } else if (filter === 'Int') {
+      filteredResults = filteredResults.filter((prospect) => prospect.NCAAM === '0');
+    }
+
+    if (searchQuery) {
+      const searchTermLower = searchQuery.toLowerCase();
+      filteredResults = filteredResults.filter(
+        (prospect) =>
+          prospect.Name.toLowerCase().includes(searchTermLower) ||
+          (prospect['Pre-NBA'] && prospect['Pre-NBA'].toLowerCase().includes(searchTermLower)) ||
+          (prospect['NBA Team'] && prospect['NBA Team'].toLowerCase().includes(searchTermLower))
+      );
+    }
+
+    if (onFilteredProspectsChange) {
+      onFilteredProspectsChange(filteredResults);
+    }
+
+    if (setFilteredProspects) {
+      setFilteredProspects(filteredResults);
+    }
+  }, [prospects, filter, searchQuery, onFilteredProspectsChange, setFilteredProspects]);
+
+  return (
+    <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
+      <div className="px-4 py-3 flex items-center justify-between">
+        <div className="relative flex-grow max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+          />
+        </div>
+
+        <div className="flex space-x-4">
+          <motion.button
+            onClick={() => setFilter('all')}
+            className={`
+              px-4 py-2 rounded-lg text-sm font-medium
+              transition-all duration-300
+              ${filter === 'all'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            All
+          </motion.button>
+          <motion.button
+            onClick={() => setFilter('NCAA')}
+            className={`
+              px-4 py-2 rounded-lg text-sm font-medium
+              transition-all duration-300
+              ${filter === 'NCAA'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            NCAA
+          </motion.button>
+          <motion.button
+            onClick={() => setFilter('Int')}
+            className={`
+              px-4 py-2 rounded-lg text-sm font-medium
+              transition-all duration-300
+              ${filter === 'Int'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Int
+          </motion.button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function DraftProspectsPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);
+  const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
 
   useEffect(() => {
     async function fetchDraftProspects() {
@@ -1454,7 +1554,9 @@ export default function DraftProspectsPage() {
         Papa.parse(csvText, {
           header: true,
           complete: (results) => {
-            setProspects(results.data as DraftProspect[]);
+            const prospectData = results.data as DraftProspect[];
+            setProspects(prospectData);
+            setFilteredProspects(prospectData);
           }
         });
       } catch (error) {
@@ -1468,13 +1570,19 @@ export default function DraftProspectsPage() {
   return (
     <div className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Nick Kalinowski" />
+      
+      <ProspectFilter 
+        prospects={prospects} 
+        onFilteredProspectsChange={setFilteredProspects} 
+      />
+
       <div className="max-w-6xl mx-auto px-4 pt-8">
-        {prospects.map((prospect, index) => (
+        {filteredProspects.map((prospect, index) => (
           <ProspectCard
             key={prospect.Name}
             prospect={prospect}
-            rank={index + 1} // Assign a simple rank based on array index
-            filteredProspects={prospects}
+            rank={index + 1}
+            filteredProspects={filteredProspects}
           />
         ))}
       </div>

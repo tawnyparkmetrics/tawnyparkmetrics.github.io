@@ -1444,7 +1444,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
-                        {Number(prospect.NBA) >= 59 ? "Undrafted - " : `${prospect.NBA} - `}{draftedTeam}
+                        {Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}{draftedTeam}
                       </div>
                     </div>
                   </div>
@@ -1511,13 +1511,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   <h4 className="font-semibold text-white text-sm mb-1">Draft Information</h4>
                   <div className="space-y-1 text-xs text-gray-300">
                     <div>
-                      <span className="font-bold text-white">Pre-NBA: </span>
+                      <span className="font-bold text-white">Pre-NBA </span>
                       {collegeNames[prospect['Pre-NBA']]
                         ? collegeNames[prospect['Pre-NBA']]
                         : prospect['Pre-NBA']}
                     </div>
-                    <div><span className="font-bold text-white">Position:</span> {prospect.Role}</div>
-                    <div><span className="font-bold text-white">Draft Age:</span> {prospect.Age}</div>
+                    <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
+                    <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                     <div>
                       <span className="font-bold text-white">Draft </span>
                       {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect.NBA}`}
@@ -1529,10 +1529,10 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 <div className="ml-2">
                   <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
                   <div className="space-y-1 text-xs text-gray-300">
-                    <div><span className="font-bold text-white">Height:</span> {prospect.Height}</div>
-                    <div><span className="font-bold text-white">Wingspan:</span> {prospect.Wingspan}</div>
-                    <div><span className="font-bold text-white">Wing - Height:</span> {prospect['Wing - Height']}</div>
-                    <div><span className="font-bold text-white">Weight:</span> {prospect['Weight (lbs)']}</div>
+                    <div><span className="font-bold text-white">Height </span> {prospect.Height}</div>
+                    <div><span className="font-bold text-white">Wingspan </span> {prospect.Wingspan}</div>
+                    <div><span className="font-bold text-white">Wing - Height </span> {prospect['Wing - Height']}</div>
+                    <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
                   </div>
                 </div>
               </div>
