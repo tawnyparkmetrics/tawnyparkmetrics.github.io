@@ -1,14 +1,15 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { LucideUser } from 'lucide-react';
+import { LucideUser, X } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
-import { Search } from 'lucide-react';
+import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 
 export interface DraftProspect {
@@ -75,8 +76,6 @@ const teamNames: { [key: string]: string } = {
   POR: "Portland Trailblazers",
   CLE: "Cleveland Cavaliers",
 }
-
-// ALL GRAPHING NECESSITIES ARE HERE
 // interface EPMModelProps {
 //   isOpen: boolean;
 //   onClose: () => void;
@@ -278,7 +277,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   // TPM dropdown items
   const DraftDropdownItems = [
     { name: 'Max Savin', href: '/TPM_Draft_Page', available: true },
-    { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: true},
+    { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: true },
   ];
 
   // Models dropdown items
@@ -477,8 +476,6 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     </>
   );
 };
-
-// interface TimelineFilterProps {
 //   selectedSortKey: string;
 //   setSelectedSortKey: (key: string) => void;
 //   selectedPosition: string | null;
@@ -946,8 +943,6 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   );
 };
 
-// const [graphType, setGraphType] = useState('rankings');
-
 // const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
 //   isOpen,
 //   onClose,
@@ -1381,7 +1376,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 };
 
 {/* Player Tables */ }
-// const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: Record<string, RankType> }) => {
+//const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: Record<string, RankType> }) => {
 //   return (
 //     <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
 //       <Table>
@@ -1433,31 +1428,72 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 type RankType = number | 'N/A';
 
 interface ProspectFilterProps {
-  prospects: DraftProspect[]; // Replace 'any[]' with the actual type of your prospects array
+  prospects: DraftProspect[];
   onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
-  setFilteredProspects?: (filteredProspects: DraftProspect[]) => void;
+  rank: Record<string, RankType>;
+  onViewModeChange?: (mode: 'card' | 'table') => void; // New prop
 }
 
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
   prospects,
   onFilteredProspectsChange,
-  setFilteredProspects,
+  rank,
+  onViewModeChange
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filter, setFilter] = useState<'all' | 'NCAA' | 'Int'>('all');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'Guard' | 'Wing' | 'Big'>('all');
+  const [filteredProspects, setLocalFilteredProspects] = useState(prospects);
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
 
   useEffect(() => {
-    let filteredResults = prospects;
+    if (onViewModeChange) {
+      onViewModeChange(viewMode);
+    }
+  }, [viewMode, onViewModeChange]);
+
+  // const toggleViewMode = () => {
+  //   const newMode = viewMode === 'card' ? 'table' : 'card';
+  //   setViewMode(newMode);
+  // };
+
+  // New function to check if any filter is active
+  const hasActiveFilters = () => {
+    return (
+      filter !== 'all' ||
+      roleFilter !== 'all' ||
+      searchQuery !== ''
+    );
+  };
+
+  // New reset filters function
+  const resetFilters = () => {
+    setSearchQuery('');
+    setFilter('all');
+    setRoleFilter('all');
+    setLocalFilteredProspects(prospects);
+
+    if (onFilteredProspectsChange) {
+      onFilteredProspectsChange(prospects);
+    }
+  };
+
+  useEffect(() => {
+    let results = prospects;
 
     if (filter === 'NCAA') {
-      filteredResults = filteredResults.filter((prospect) => prospect.NCAAM === '1');
+      results = results.filter((prospect) => prospect.NCAAM === '1');
     } else if (filter === 'Int') {
-      filteredResults = filteredResults.filter((prospect) => prospect.NCAAM === '0');
+      results = results.filter((prospect) => prospect.NCAAM === '0');
+    }
+
+    if (roleFilter !== 'all') {
+      results = results.filter((prospect) => prospect.Role === roleFilter);
     }
 
     if (searchQuery) {
       const searchTermLower = searchQuery.toLowerCase();
-      filteredResults = filteredResults.filter(
+      results = results.filter(
         (prospect) =>
           prospect.Name.toLowerCase().includes(searchTermLower) ||
           (prospect['Pre-NBA'] && prospect['Pre-NBA'].toLowerCase().includes(searchTermLower)) ||
@@ -1465,47 +1501,47 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
       );
     }
 
-    if (onFilteredProspectsChange) {
-      onFilteredProspectsChange(filteredResults);
-    }
+    setLocalFilteredProspects(results);
 
-    if (setFilteredProspects) {
-      setFilteredProspects(filteredResults);
+    if (onFilteredProspectsChange) {
+      onFilteredProspectsChange(results);
     }
-  }, [prospects, filter, searchQuery, onFilteredProspectsChange, setFilteredProspects]);
+  }, [prospects, filter, searchQuery, roleFilter, onFilteredProspectsChange]);
 
   return (
     <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
       <div className="px-4 py-3 flex items-center justify-between">
-        <div className="relative flex-grow max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
-          />
+        <div className="flex items-center space-x-2">
+          <div className="relative flex-grow max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+            />
+          </div>
+
+          {/* Reset button */}
+          {hasActiveFilters() && (
+            <motion.button
+              onClick={resetFilters}
+              className="ml-2 flex items-center text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30 px-3 py-2 rounded-lg text-xs"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X className="h-4 w-4" />
+              Reset
+            </motion.button>
+          )}
+          
         </div>
 
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 items-center">
+          {/* NCAA and International Filters */}
           <motion.button
-            onClick={() => setFilter('all')}
-            className={`
-              px-4 py-2 rounded-lg text-sm font-medium
-              transition-all duration-300
-              ${filter === 'all'
-                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-              }
-            `}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            All
-          </motion.button>
-          <motion.button
-            onClick={() => setFilter('NCAA')}
+            onClick={() => setFilter(filter === 'NCAA' ? 'all' : 'NCAA')}
             className={`
               px-4 py-2 rounded-lg text-sm font-medium
               transition-all duration-300
@@ -1520,7 +1556,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             NCAA
           </motion.button>
           <motion.button
-            onClick={() => setFilter('Int')}
+            onClick={() => setFilter(filter === 'Int' ? 'all' : 'Int')}
             className={`
               px-4 py-2 rounded-lg text-sm font-medium
               transition-all duration-300
@@ -1532,7 +1568,77 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Int
+            Int/G-league
+          </motion.button>
+
+          {/* Divider */}
+          <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+          {/* Role Filters */}
+          <motion.button
+            onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
+            className={`
+              px-4 py-2 rounded-lg text-sm font-medium
+              transition-all duration-300
+              ${roleFilter === 'Guard'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Guard
+          </motion.button>
+          <motion.button
+            onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
+            className={`
+              px-4 py-2 rounded-lg text-sm font-medium
+              transition-all duration-300
+              ${roleFilter === 'Wing'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Wing
+          </motion.button>
+          <motion.button
+            onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
+            className={`
+              px-4 py-2 rounded-lg text-sm font-medium
+              transition-all duration-300
+              ${roleFilter === 'Big'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Big
+          </motion.button>
+
+          {/* Divider */}
+          <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+          <motion.button
+            onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
+            className={`
+              px-4 py-2 rounded-lg text-sm font-medium flex items-center
+              transition-all duration-300
+              ${viewMode === 'table'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <TableIcon className="mr-2 h-4 w-4" />
+            {viewMode === 'card' ? 'Table View' : 'Card View'}
           </motion.button>
         </div>
       </div>
@@ -1543,6 +1649,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 export default function DraftProspectsPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);
   const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
 
   useEffect(() => {
     async function fetchDraftProspects() {
@@ -1566,25 +1673,85 @@ export default function DraftProspectsPage() {
     fetchDraftProspects();
   }, []);
 
+  // Render the table directly in the component
+  const ProspectTable = ({
+    prospects,
+    rank
+  }: {
+    prospects: DraftProspect[],
+    rank: Record<string, RankType>
+  }) => {
+    return (
+      <div className="max-w-6xl mx-auto px-4 pt-8">
+        <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-gray-400">Rank</TableHead>
+                <TableHead className="text-gray-400">Name</TableHead>
+                <TableHead className="text-gray-400">Position</TableHead>
+                <TableHead className="text-gray-400">Pre-NBA</TableHead>
+                <TableHead className="text-gray-400">Draft Pick</TableHead>
+                <TableHead className="text-gray-400">NBA Team</TableHead>
+                <TableHead className="text-gray-400">Height</TableHead>
+                <TableHead className="text-gray-400">Weight</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {prospects.map((prospect, index) => (
+                <TableRow
+                  key={prospect.Name}
+                  className="hover:bg-gray-800/20"
+                >
+                  <TableCell className="text-gray-300">{index + 1}</TableCell>
+                  <TableCell className="font-medium text-gray-300">{prospect.Name}</TableCell>
+                  <TableCell className="text-gray-300">{prospect.Role}</TableCell>
+                  <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
+                  <TableCell className="text-gray-300">
+                    {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
+                  </TableCell>
+                  <TableCell className="text-gray-300">
+                    {teamNames[prospect['NBA Team']] || prospect['NBA Team']}
+                  </TableCell>
+                  <TableCell className="text-gray-300">{prospect.Height}</TableCell>
+                  <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Nick Kalinowski" />
-      
-      <ProspectFilter 
-        prospects={prospects} 
-        onFilteredProspectsChange={setFilteredProspects} 
+
+      <ProspectFilter
+        prospects={prospects}
+        onFilteredProspectsChange={setFilteredProspects}
+        rank={{}} // You might want to create an actual ranking here
+        onViewModeChange={setViewMode} // New prop to handle view mode changes
       />
 
-      <div className="max-w-6xl mx-auto px-4 pt-8">
-        {filteredProspects.map((prospect, index) => (
-          <ProspectCard
-            key={prospect.Name}
-            prospect={prospect}
-            rank={index + 1}
-            filteredProspects={filteredProspects}
-          />
-        ))}
-      </div>
+      {viewMode === 'card' ? (
+        <div className="max-w-6xl mx-auto px-4 pt-8">
+          {filteredProspects.map((prospect, index) => (
+            <ProspectCard
+              key={prospect.Name}
+              prospect={prospect}
+              rank={index + 1}
+              filteredProspects={filteredProspects}
+            />
+          ))}
+        </div>
+      ) : (
+        <ProspectTable
+          prospects={filteredProspects}
+          rank={{}}
+        />
+      )}
     </div>
   );
 }

@@ -1,13 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 // import {
 //   DropdownMenu,
 //   DropdownMenuContent,
@@ -27,7 +20,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { TooltipProps } from 'recharts';
 import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
@@ -628,6 +621,7 @@ const TimelineFilter = ({
   const [showFilterSection, setShowFilterSection] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isEPMModelOpen, setIsEPMModelOpen] = useState(false);
+  
 
   //timeline labels
   const yearSortKeys = [
@@ -758,7 +752,8 @@ const TimelineFilter = ({
         <motion.button
           onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
           className={`
-            px-3 py-2 rounded-lg text-sm font-medium
+            px-4 py-2 rounded-lg text-sm font-medium
+            flex items-center
             transition-all duration-300
             ${viewMode === 'table'
               ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
@@ -768,7 +763,8 @@ const TimelineFilter = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          {viewMode === 'cards' ? 'Table View' : 'Prospect Cards'}
+          <TableIcon className="mr-2 h-4 w-4" />
+          {viewMode === 'cards' ? 'Table View' : 'Card View'}
         </motion.button>
       </div>
 
