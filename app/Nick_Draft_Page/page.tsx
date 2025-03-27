@@ -1440,7 +1440,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
   onViewModeChange
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [filter, setFilter] = useState<'all' | 'NCAA' | 'Int'>('all');
+  const [filter, setFilter] = useState<'NCAA' | 'Int'>('NCAA');
   const [roleFilter, setRoleFilter] = useState<'all' | 'Guard' | 'Wing' | 'Big'>('all');
   const [, setLocalFilteredProspects] = useState(prospects);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
@@ -1459,7 +1459,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
   // New function to check if any filter is active
   const hasActiveFilters = () => {
     return (
-      filter !== 'all' ||
       roleFilter !== 'all' ||
       searchQuery !== ''
     );
@@ -1468,7 +1467,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
   // New reset filters function
   const resetFilters = () => {
     setSearchQuery('');
-    setFilter('all');
+    setFilter('NCAA');
     setRoleFilter('all');
     setLocalFilteredProspects(prospects);
 
@@ -1540,7 +1539,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
         <div className="flex space-x-4 items-center">
           {/* NCAA and International Filters */}
           <motion.button
-            onClick={() => setFilter(filter === 'NCAA' ? 'all' : 'NCAA')}
+            onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
             className={`
               px-4 py-2 rounded-lg text-sm font-medium
               transition-all duration-300
@@ -1555,7 +1554,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             NCAA
           </motion.button>
           <motion.button
-            onClick={() => setFilter(filter === 'Int' ? 'all' : 'Int')}
+            onClick={() => setFilter(filter === 'Int' ? 'NCAA' : 'Int')}
             className={`
               px-4 py-2 rounded-lg text-sm font-medium
               transition-all duration-300
