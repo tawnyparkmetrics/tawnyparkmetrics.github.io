@@ -1437,13 +1437,12 @@ interface ProspectFilterProps {
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
   prospects,
   onFilteredProspectsChange,
-  rank,
   onViewModeChange
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filter, setFilter] = useState<'all' | 'NCAA' | 'Int'>('all');
   const [roleFilter, setRoleFilter] = useState<'all' | 'Guard' | 'Wing' | 'Big'>('all');
-  const [filteredProspects, setLocalFilteredProspects] = useState(prospects);
+  const [, setLocalFilteredProspects] = useState(prospects);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
 
   useEffect(() => {
@@ -1676,7 +1675,6 @@ export default function DraftProspectsPage() {
   // Render the table directly in the component
   const ProspectTable = ({
     prospects,
-    rank
   }: {
     prospects: DraftProspect[],
     rank: Record<string, RankType>
