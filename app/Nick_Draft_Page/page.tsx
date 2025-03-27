@@ -1298,7 +1298,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
-                        {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect['NBA Team']}`}
+                        {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect['NBA Team'] !== 'NCAA' ? prospect['NBA Team'] : 'Loser'}`}
                       </div>
                     </div>
                   </div>
