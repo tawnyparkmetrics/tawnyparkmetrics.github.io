@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { LucideUser, X } from 'lucide-react';
+import { LucideUser, X, ChevronDown, Filter} from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
@@ -956,6 +956,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
   const [roleFilter, setRoleFilter] = useState<'all' | 'Guard' | 'Wing' | 'Big'>('all');
   const [, setLocalFilteredProspects] = useState(prospects);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     if (onViewModeChange) {
@@ -963,12 +964,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     }
   }, [viewMode, onViewModeChange]);
 
-  // const toggleViewMode = () => {
-  //   const newMode = viewMode === 'card' ? 'table' : 'card';
-  //   setViewMode(newMode);
-  // };
-
-  // New function to check if any filter is active
   const hasActiveFilters = () => {
     return (
       roleFilter !== 'all' ||
@@ -976,12 +971,12 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     );
   };
 
-  // New reset filters function
   const resetFilters = () => {
     setSearchQuery('');
     setFilter('NCAA');
     setRoleFilter('all');
     setLocalFilteredProspects(prospects);
+    setIsMobileFilterOpen(false);
 
     if (onFilteredProspectsChange) {
       onFilteredProspectsChange(prospects);
@@ -1020,9 +1015,30 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
   return (
     <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
-      <div className="px-4 py-3 flex flex-wrap items-center justify-between">
-        <div className="flex flex-wrap items-center w-full sm:w-auto">
-          <div className="relative flex-grow max-w-full sm:max-w-md mr-2">
+      {/* Mobile Filter Toggle Button */}
+      <div className="sm:hidden px-4 py-3">
+        <motion.button
+          onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+          className="w-full flex items-center justify-center bg-gray-800/20 text-gray-300 border border-gray-800 rounded-lg py-2"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Filter className="mr-2 h-5 w-5" />
+          {isMobileFilterOpen ? 'Close Filters' : 'Open Filters'}
+          <ChevronDown className={`ml-2 h-5 w-5 transform transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`} />
+        </motion.button>
+      </div>
+
+      {/* Filter Content (Desktop and Mobile) */}
+      <div className={`
+        px-4 py-3 
+        sm:grid sm:grid-cols-[1fr_auto] sm:gap-4 
+        flex flex-col
+        ${isMobileFilterOpen ? 'block' : 'hidden sm:grid'}
+      `}>
+        {/* Search and Reset Section */}
+        <div className="flex flex-wrap items-center w-full mb-3 sm:mb-0">
+          <div className="relative flex-grow max-w-full mr-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               type="text"
@@ -1047,64 +1063,124 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
           )} 
         </div>
 
-        <div className="flex flex-wrap items-center w-full sm:w-auto justify-start sm:justify-end">
-          <div className="flex flex-wrap items-center mr-4"> {/* Grouping NCAA/Int */}
-            <motion.button
-              onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              NCAA
-            </motion.button>
-            <motion.button
-              onClick={() => setFilter(filter === 'Int' ? 'NCAA' : 'Int')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ml-2 ${filter === 'Int' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Int. & G League
-            </motion.button>
+        {/* Filters and View Mode Container */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
+          {/* Mobile Only: League Section */}
+          <div className="w-full sm:hidden mb-4">
+            <div className="text-sm text-gray-400 mb-2">League:</div>
+            <div className="flex items-center space-x-2">
+              <motion.button
+                onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                NCAA
+              </motion.button>
+              <motion.button
+                onClick={() => setFilter(filter === 'Int' ? 'NCAA' : 'Int')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'Int' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Int. & G League
+              </motion.button>
+            </div>
           </div>
 
-          {/* Divider
-          <div className="h-8 w-px bg-gray-700/30 mx-2" /> */}
-
-          {/* Role Filters */}
-          <div className="flex flex-wrap items-center mr-4"> {/* Grouping Roles */}
-            <motion.button
-              onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Guards
-            </motion.button>
-            <motion.button
-              onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ml-2 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Wings
-            </motion.button>
-            <motion.button
-              onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ml-2 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Bigs
-            </motion.button>
+          {/* Mobile Only: Position Section */}
+          <div className="w-full sm:hidden mb-4">
+            <div className="text-sm text-gray-400 mb-2">Positions:</div>
+            <div className="flex items-center space-x-2">
+              <motion.button
+                onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Guards
+              </motion.button>
+              <motion.button
+                onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Wings
+              </motion.button>
+              <motion.button
+                onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Bigs
+              </motion.button>
+            </div>
           </div>
 
-          {/* Divider
-          <div className="justify-start h-8 w-px bg-gray-700/30 mx-2" /> */}
+          {/* Desktop Filters (unchanged) */}
+          <div className="hidden sm:flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
+            {/* League Filters */}
+            <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+              <motion.button
+                onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                NCAA
+              </motion.button>
+              <motion.button
+                onClick={() => setFilter(filter === 'Int' ? 'NCAA' : 'Int')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'Int' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Int. & G League
+              </motion.button>
+            </div>
 
+            {/* Divider */}
+            <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+            {/* Position Filters */}
+            <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+              <motion.button
+                onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Guards
+              </motion.button>
+              <motion.button
+                onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Wings
+              </motion.button>
+              <motion.button
+                onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Bigs
+              </motion.button>
+            </div>
+
+            {/* Divider */}
+            <div className="h-8 w-px bg-gray-700/30 mx-2" />
+          </div>
+
+          {/* View Mode Toggle */}
           <motion.button
             onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
             className={`
-              px-4 py-2 rounded-lg text-sm font-medium flex items-center
+              px-3 py-2 rounded-lg text-sm font-medium flex items-center
               transition-all duration-300
               ${viewMode === 'table'
                 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
@@ -1115,7 +1191,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             whileTap={{ scale: 0.95 }}
           >
             <TableIcon className="mr-2 h-4 w-4" />
-            {viewMode === 'card' ? 'Table View' : 'Card View'}
+            {viewMode === 'card' ? 'Table' : 'Card'}
           </motion.button>
         </div>
       </div>
