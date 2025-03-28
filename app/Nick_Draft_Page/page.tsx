@@ -1203,6 +1203,10 @@ export default function DraftProspectsPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);
   const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof DraftProspect | 'Rank';
+    direction: 'ascending' | 'descending';
+  } | null>(null);
 
   useEffect(() => {
     async function fetchDraftProspects() {
@@ -1226,7 +1230,91 @@ export default function DraftProspectsPage() {
     fetchDraftProspects();
   }, []);
 
-  // Render the table directly in the component
+  // Function to handle sorting
+  const handleSort = (key: keyof DraftProspect | 'Rank') => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    
+    // If already sorting by this key, toggle direction
+    if (sortConfig && sortConfig.key === key) {
+      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
+    }
+    
+    setSortConfig({ key, direction });
+  };
+
+  // Apply sorting to the filtered prospects
+  const sortedProspects = React.useMemo(() => {
+    let sortableProspects = [...filteredProspects];
+    
+    if (sortConfig) {
+      sortableProspects.sort((a, b) => {
+        // Handle Rank column specially (it's not in the data)
+        if (sortConfig.key === 'Rank') {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        
+        let aValue = a[sortConfig.key as keyof DraftProspect];
+        let bValue = b[sortConfig.key as keyof DraftProspect];
+
+        // Handle specific columns
+        if (sortConfig.key === 'Actual Pick') {
+          // Convert to numbers for sorting
+          const aNum = parseInt(aValue as string) || 99; // Use 99 for undrafted
+          const bNum = parseInt(bValue as string) || 99;
+          return sortConfig.direction === 'ascending' 
+            ? aNum - bNum 
+            : bNum - aNum;
+        }
+        
+        // Handle Height (convert to inches)
+        if (sortConfig.key === 'Height') {
+          const aInches = heightToInches(aValue as string);
+          const bInches = heightToInches(bValue as string);
+          return sortConfig.direction === 'ascending' 
+            ? aInches - bInches 
+            : bInches - aInches;
+        }
+
+        // Handle Weight
+        if (sortConfig.key === 'Weight (lbs)') {
+          const aNum = parseInt(aValue as string) || 0;
+          const bNum = parseInt(bValue as string) || 0;
+          return sortConfig.direction === 'ascending' 
+            ? aNum - bNum 
+            : bNum - aNum;
+        }
+
+        // Default string comparison
+        if (aValue === undefined) aValue = '';
+        if (bValue === undefined) bValue = '';
+        
+        if (sortConfig.direction === 'ascending') {
+          return String(aValue).localeCompare(String(bValue));
+        } else {
+          return String(bValue).localeCompare(String(aValue));
+        }
+      });
+    }
+    
+    return sortableProspects;
+  }, [filteredProspects, sortConfig]);
+
+  // Helper function to convert height to inches
+  const heightToInches = (height: string): number => {
+    if (!height) return 0;
+    
+    // Handle format like "6'8"
+    const parts = height.split("'");
+    if (parts.length === 2) {
+      const feet = parseInt(parts[0]) || 0;
+      const inches = parseInt(parts[1]) || 0;
+      return (feet * 12) + inches;
+    }
+    
+    return 0;
+  };
+
+  // Render the table with sorting functionality
   const ProspectTable = ({
     prospects,
   }: {
@@ -1239,14 +1327,94 @@ export default function DraftProspectsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-gray-400">Rank</TableHead>
-                <TableHead className="text-gray-400">Name</TableHead>
-                <TableHead className="text-gray-400">Position</TableHead>
-                <TableHead className="text-gray-400">Pre-NBA</TableHead>
-                <TableHead className="text-gray-400">Draft Pick</TableHead>
-                <TableHead className="text-gray-400">NBA Team</TableHead>
-                <TableHead className="text-gray-400">Height</TableHead>
-                <TableHead className="text-gray-400">Weight</TableHead>
+                <TableHead 
+                  className={`text-gray-400 cursor-pointer hover:text-gray-200`}
+                  onClick={() => handleSort('Rank')}
+                >
+                  Rank
+                  {sortConfig?.key === 'Rank' && (
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="text-gray-400 cursor-pointer hover:text-gray-200"
+                  onClick={() => handleSort('Name')}
+                >
+                  Name
+                  {sortConfig?.key === 'Name' && (
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="text-gray-400 cursor-pointer hover:text-gray-200"
+                  onClick={() => handleSort('Role')}
+                >
+                  Position
+                  {sortConfig?.key === 'Role' && (
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="text-gray-400 cursor-pointer hover:text-gray-200"
+                  onClick={() => handleSort('Pre-NBA')}
+                >
+                  Pre-NBA
+                  {sortConfig?.key === 'Pre-NBA' && (
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="text-gray-400 cursor-pointer hover:text-gray-200"
+                  onClick={() => handleSort('Actual Pick')}
+                >
+                  Draft Pick
+                  {sortConfig?.key === 'Actual Pick' && (
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="text-gray-400 cursor-pointer hover:text-gray-200"
+                  onClick={() => handleSort('NBA Team')}
+                >
+                  NBA Team
+                  {sortConfig?.key === 'NBA Team' && (
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="text-gray-400 cursor-pointer hover:text-gray-200"
+                  onClick={() => handleSort('Height')}
+                >
+                  Height
+                  {sortConfig?.key === 'Height' && (
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
+                <TableHead 
+                  className="text-gray-400 cursor-pointer hover:text-gray-200"
+                  onClick={() => handleSort('Weight (lbs)')}
+                >
+                  Weight
+                  {sortConfig?.key === 'Weight (lbs)' && (
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1289,7 +1457,7 @@ export default function DraftProspectsPage() {
 
       {viewMode === 'card' ? (
         <div className="max-w-6xl mx-auto px-4 pt-8">
-          {filteredProspects.map((prospect, index) => (
+          {sortedProspects.map((prospect, index) => (
             <ProspectCard
               key={prospect.Name}
               prospect={prospect}
@@ -1300,7 +1468,7 @@ export default function DraftProspectsPage() {
         </div>
       ) : (
         <ProspectTable
-          prospects={filteredProspects}
+          prospects={sortedProspects}
           rank={{}}
         />
       )}
