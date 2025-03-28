@@ -1191,7 +1191,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             whileTap={{ scale: 0.95 }}
           >
             <TableIcon className="mr-2 h-4 w-4" />
-            {viewMode === 'card' ? 'Table' : 'Card'}
+            {viewMode === 'card' ? 'Table View' : 'Card View'}
           </motion.button>
         </div>
       </div>
@@ -1244,7 +1244,7 @@ export default function DraftProspectsPage() {
 
   // Apply sorting to the filtered prospects
   const sortedProspects = React.useMemo(() => {
-    const sortableProspects = [...filteredProspects];
+    let sortableProspects = [...filteredProspects];
     
     if (sortConfig) {
       sortableProspects.sort((a, b) => {
