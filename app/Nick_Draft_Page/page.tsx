@@ -1244,7 +1244,7 @@ export default function DraftProspectsPage() {
 
   // Apply sorting to the filtered prospects
   const sortedProspects = React.useMemo(() => {
-    let sortableProspects = [...filteredProspects];
+    const sortableProspects = [...filteredProspects];
     
     if (sortConfig) {
       sortableProspects.sort((a, b) => {
