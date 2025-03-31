@@ -1244,57 +1244,59 @@ export default function DraftProspectsPage() {
 
   // Apply sorting to the filtered prospects
   const sortedProspects = React.useMemo(() => {
-    let sortableProspects = [...filteredProspects];
+    const sortableProspects = [...filteredProspects];
     
-    if (sortConfig) {
-      sortableProspects.sort((a, b) => {
-        // Handle Rank column specially (it's not in the data)
-        if (sortConfig.key === 'Rank') {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        
-        let aValue = a[sortConfig.key as keyof DraftProspect];
-        let bValue = b[sortConfig.key as keyof DraftProspect];
-
-        // Handle specific columns
-        if (sortConfig.key === 'Actual Pick') {
-          // Convert to numbers for sorting
-          const aNum = parseInt(aValue as string) || 99; // Use 99 for undrafted
-          const bNum = parseInt(bValue as string) || 99;
-          return sortConfig.direction === 'ascending' 
-            ? aNum - bNum 
-            : bNum - aNum;
-        }
-        
-        // Handle Height (convert to inches)
-        if (sortConfig.key === 'Height') {
-          const aInches = heightToInches(aValue as string);
-          const bInches = heightToInches(bValue as string);
-          return sortConfig.direction === 'ascending' 
-            ? aInches - bInches 
-            : bInches - aInches;
-        }
-
-        // Handle Weight
-        if (sortConfig.key === 'Weight (lbs)') {
-          const aNum = parseInt(aValue as string) || 0;
-          const bNum = parseInt(bValue as string) || 0;
-          return sortConfig.direction === 'ascending' 
-            ? aNum - bNum 
-            : bNum - aNum;
-        }
-
-        // Default string comparison
-        if (aValue === undefined) aValue = '';
-        if (bValue === undefined) bValue = '';
-        
-        if (sortConfig.direction === 'ascending') {
-          return String(aValue).localeCompare(String(bValue));
-        } else {
-          return String(bValue).localeCompare(String(aValue));
-        }
-      });
+    if (!sortConfig) {
+      return sortableProspects;
     }
+
+    sortableProspects.sort((a, b) => {
+      // Handle Rank column specially (it's not in the data)
+      if (sortConfig.key === 'Rank') {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      
+      let aValue = a[sortConfig.key as keyof DraftProspect];
+      let bValue = b[sortConfig.key as keyof DraftProspect];
+
+      // Handle specific columns
+      if (sortConfig.key === 'Actual Pick') {
+        // Convert to numbers for sorting
+        const aNum = parseInt(aValue as string) || 99; // Use 99 for undrafted
+        const bNum = parseInt(bValue as string) || 99;
+        return sortConfig.direction === 'ascending' 
+          ? aNum - bNum 
+          : bNum - aNum;
+      }
+      
+      // Handle Height (convert to inches)
+      if (sortConfig.key === 'Height') {
+        const aInches = heightToInches(aValue as string);
+        const bInches = heightToInches(bValue as string);
+        return sortConfig.direction === 'ascending' 
+          ? aInches - bInches 
+          : bInches - aInches;
+      }
+
+      // Handle Weight
+      if (sortConfig.key === 'Weight (lbs)') {
+        const aNum = parseInt(aValue as string) || 0;
+        const bNum = parseInt(bValue as string) || 0;
+        return sortConfig.direction === 'ascending' 
+          ? aNum - bNum 
+          : bNum - aNum;
+      }
+
+      // Default string comparison
+      if (aValue === undefined) aValue = '';
+      if (bValue === undefined) bValue = '';
+      
+      if (sortConfig.direction === 'ascending') {
+        return String(aValue).localeCompare(String(bValue));
+      } else {
+        return String(bValue).localeCompare(String(aValue));
+      }
+    });
     
     return sortableProspects;
   }, [filteredProspects, sortConfig]);

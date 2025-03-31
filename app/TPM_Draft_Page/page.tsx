@@ -24,7 +24,6 @@ import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { TooltipProps } from 'recharts';
 import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
-import { FixedSizeList as List } from "react-window";
 
 
 export interface DraftProspect {
@@ -149,12 +148,13 @@ type CustomTooltipProps = TooltipProps<number | string, string> & {
 const EPMGraphModel: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
-  prospects,
-  selectedPosition,
+  prospects: _prospects, // Prefix with underscore to indicate intentionally unused
+  selectedPosition: _selectedPosition, // Prefix with underscore to indicate intentionally unused
+  allProspects,
 }) => {
-  const filteredProspects = selectedPosition
-    ? prospects.filter((p) => p.Position === selectedPosition)
-    : prospects;
+  const filteredProspects = _selectedPosition
+    ? allProspects.filter((p) => p.Position === _selectedPosition)
+    : allProspects;
 
   const prepareChartData = () => {
     const yearData: { year: string | number;[key: string]: string | number }[] = [];
