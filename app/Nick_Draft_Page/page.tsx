@@ -21,6 +21,9 @@ export interface DraftProspect {
   'Height': string;
   'Weight (lbs)': string;
   'Role': string;
+  'Age': string;
+  'Wingspan': string;
+  'Wing - Height': string;
 
   "NCAAM": string;
 
@@ -853,6 +856,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
                   <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
                   <div className="space-y-2 text-sm text-gray-300">
                     <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
+                    <div><span className="font-bold text-white">Wingspan  </span> {prospect.Wingspan}</div>
+                    <div><span className="font-bold text-white">Wing - Height  </span> {prospect['Wing - Height']}</div>
                     <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
                   </div>
 
@@ -860,6 +865,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
                     <div className="space-y-2 text-sm text-gray-300">
                       <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
                       <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
+                      <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
                         {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect['NBA Team'] !== 'NCAA' ? prospect['NBA Team'] : 'Unsigned'}`}
@@ -883,13 +889,10 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative" // Added 'relative' here
+              className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative"
               style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
             >
               <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
-              {/* <div className="transform scale-50 origin-top-right">
-                <NBATeamLogo NBA={prospect['NBA Team']}/>
-              </div> */}
               <div className="grid grid-cols-2 gap-2">
                 {/* Draft Information Column */}
                 <div>
@@ -902,6 +905,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
                         : prospect['Pre-NBA']}
                     </div>
                     <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
+                    <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                     <div>
                       <span className="font-bold text-white">Draft </span>
                       {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect['ABV'] !== 'NCAA' ? prospect['ABV'] : 'Unsigned'}`}
@@ -914,13 +918,15 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
                   <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
                   <div className="space-y-1 text-xs text-gray-300">
                     <div><span className="font-bold text-white">Height </span> {prospect.Height}</div>
+                    <div><span className="font-bold text-white">Wingspan </span> {prospect.Wingspan}</div>
+                    <div><span className="font-bold text-white">Wing - Height </span> {prospect['Wing - Height']}</div>
                     <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
                   </div>
                 </div>
               </div>
               {/* Team Logo in Top Right */}
               <div className="absolute top-3.5 right-3.5 transform scale-50 origin-top-right">
-                <NBATeamLogo NBA={prospect['NBA Team']} /> {/* Adjust size as needed */}
+                <NBATeamLogo NBA={prospect['NBA Team']} />
               </div>
             </motion.div>
           )}
