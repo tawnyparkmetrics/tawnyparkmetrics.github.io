@@ -1461,7 +1461,7 @@ export default function DraftProspectsPage() {
 
       {viewMode === 'card' ? (
         <div className="max-w-6xl mx-auto px-4 pt-8">
-          {sortedProspects.map((prospect, index) => (
+          {sortedProspects.map((prospect) => (
             <ProspectCard
               key={prospect.Name}
               prospect={prospect}
