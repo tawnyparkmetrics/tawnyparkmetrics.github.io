@@ -24,6 +24,7 @@ import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { TooltipProps } from 'recharts';
 import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
+import { FixedSizeList as List } from "react-window";
 
 
 export interface DraftProspect {
@@ -117,6 +118,7 @@ interface EPMModelProps {
   selectedProspect?: DraftProspect; // Pass the selected prospect
   allProspects: DraftProspect[];
   graphType?: 'EPM' | 'rankings'; // Optional prop to determine graph type
+  setGraphType?: (type: 'EPM' | 'rankings') => void; // Make optional
 }
 
 interface PayloadItem {
@@ -621,7 +623,7 @@ const TimelineFilter = ({
   const [showFilterSection, setShowFilterSection] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isEPMModelOpen, setIsEPMModelOpen] = useState(false);
-  
+
 
   //timeline labels
   const yearSortKeys = [
@@ -976,6 +978,7 @@ const TimelineFilter = ({
                     prospects={filteredProspects}
                     selectedPosition={selectedPosition}
                     allProspects={filteredProspects}
+                    setGraphType={() => {}} // Add empty function since this component doesn't use it
                   />
 
                   {/* Divider */}
@@ -1082,9 +1085,12 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
 const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
+  prospects,
+  selectedPosition,
   selectedProspect,
   allProspects,
-  graphType = 'rankings', // Default to rankings if not specified
+  graphType = 'rankings',
+  setGraphType,
 }) => {
   const filteredProspects = useMemo(() => {
     if (!selectedProspect) return [];
@@ -1163,22 +1169,24 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
         </AlertDialogHeader>
 
         <CardContent className="space-y-6">
-          <div className="flex justify-center space-x-4 mb-4">
-            <Button
-              variant={graphType === 'rankings' ? "default" : "outline"}
-              onClick={() => onClose()} // Close and reopen with rankings type
-              className="w-32"
-            >
-              Rankings
-            </Button>
-            <Button
-              variant={graphType === 'EPM' ? "default" : "outline"}
-              onClick={() => onClose()} // Close and reopen with EPM type
-              className="w-32"
-            >
-              Projected EPM
-            </Button>
-          </div>
+          {setGraphType && (
+            <div className="flex justify-center space-x-4 mb-4">
+              <Button
+                variant={graphType === 'rankings' ? "default" : "outline"}
+                onClick={() => setGraphType('rankings')}
+                className="w-32"
+              >
+                Rankings
+              </Button>
+              <Button
+                variant={graphType === 'EPM' ? "default" : "outline"}
+                onClick={() => setGraphType('EPM')}
+                className="w-32"
+              >
+                Projected EPM
+              </Button>
+            </div>
+          )}
 
           <Card>
             <CardHeader>
@@ -1231,26 +1239,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
-  const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false); // New state for mobile info dropdown
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const DraftDropdownRef = useRef<HTMLDivElement>(null);
-  const NBADropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (DraftDropdownRef.current && !DraftDropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-      if (NBADropdownRef.current && !NBADropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
 
   // Check if device is mobile
   useEffect(() => {
@@ -1655,56 +1644,30 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   </div>
                 </div>
 
-                {/* Graphs Dropdown Button */}
-                <div className="relative">
-                  {/* Main button that toggles dropdown */}
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm flex items-center"
+                {/* Graph buttons */}
+                <div className="flex space-x-2 mt-4">
+                  <motion.button
+                    onClick={() => {
+                      setGraphType('rankings');
+                      setIsGraphModelOpen(true);
+                    }}
+                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm flex items-center justify-center transition-all duration-300"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    View Graphs
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 ml-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  {/* Dropdown menu */}
-                  {isDropdownOpen && (
-                    <div className="absolute mt-1 w-40 bg-gray-800 rounded-md shadow-lg z-10">
-                      <ul className="py-1">
-                        <li>
-                          <button
-                            onClick={() => {
-                              setGraphType('rankings');
-                              setIsGraphModelOpen(true);
-                              setIsDropdownOpen(false);
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700"
-                          >
-                            Rankings
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            onClick={() => {
-                              setGraphType('EPM');
-                              setIsGraphModelOpen(true);
-                              setIsDropdownOpen(false);
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700"
-                          >
-                            Projected EPM
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  )}
+                    Rankings Graph
+                  </motion.button>
+                  <motion.button
+                    onClick={() => {
+                      setGraphType('EPM');
+                      setIsGraphModelOpen(true);
+                    }}
+                    className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded text-sm flex items-center justify-center transition-all duration-300"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    EPM Graph
+                  </motion.button>
                 </div>
 
                 {/* Graph Modal */}
@@ -1717,6 +1680,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     selectedProspect={prospect}
                     allProspects={filteredProspects}
                     graphType={graphType}
+                    setGraphType={setGraphType}
                   />
                 )}
               </div>
@@ -1739,6 +1703,11 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
 {/* Player Tables */ }
 const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: Record<string, RankType> }) => {
+  // const [sortConfig, setSortConfig] = useState<{
+  //   key: keyof DraftProspect | 'Rank';
+  //   direction: 'ascending' | 'descending';
+  // } | null>(null);
+
   return (
     <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
       <Table>

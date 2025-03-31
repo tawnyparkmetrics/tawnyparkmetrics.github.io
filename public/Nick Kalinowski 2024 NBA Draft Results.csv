@@ -1,149 +1,149 @@
-Rank,Name,Role,Pre-NBA,NBA Team,ABV,Actual Pick,Class,Height,Weight (lbs),NCAAM,combine_invite
-1,Stephon Castle,Guard,UConn,San Antonio Spurs,SAS,4,Fr.,"6'6""",215,1,NBA
-2,Donovan Clingan,Big,UConn,Portland Trail Blazers,POR,7,So.,"7'2""",280,1,NBA
-3,Jared McCain,Guard,Duke,Philadelphia 76ers,PHI,16,Fr.,"6'3""",195,1,NBA
-4,KJ Simpson,Guard,Colorado,Charlotte Hornets,CHA,42,Jr.,"6'2""",189,1,NBA
-5,Zach Edey,Big,Purdue,Memphis Grizzlies,MEM,9,Sr.,"7'4""",305,1,NBA
-6,Kel'el Ware,Big,Indiana,Miami Heat,MIA,15,So.,"7'0""",230,1,NBA
-7,Dalton Knecht,Wing,Tennessee,Los Angeles Lakers,LAL,17,Jr.,"6'6""",215,1,NBA
-8,Yves Missi,Big,Baylor,New Orleans Pelicans,NOP,21,Fr.,"7'0""",235,1,NBA
-9,Dillon Jones,Wing,Weber State,Oklahoma City Thunder,OKC,26,Sr.,"6'6""",235,1,NBA
-10,Adem Bona,Big,UCLA,Philadelphia 76ers,PHI,41,So.,"6'10""",235,1,NBA
-11,Tristan da Silva,Wing,Colorado,Orlando Magic,ORL,18,Sr.,"6'9""",217,1,NBA
-12,Jaylon Tyson,Wing,Cal,Cleveland Cavaliers,CLE,20,Jr.,"6'7""",215,1,NBA
-13,Reed Sheppard,Guard,Kentucky,Houston Rockets,HOU,3,Fr.,"6'3""",185,1,NBA
-14,Rob Dillingham,Guard,Kentucky,Minnesota Timberwolves,MIN,8,Fr.,"6'3""",175,1,NBA
-15,Pelle Larsson,Wing,Arizona,Miami Heat,MIA,44,Sr.,"6'6""",215,1,NBA
-16,Kyle Filipowski,Big,Duke,Utah Jazz,UTA,32,So.,"7'0""",250,1,NBA
-17,Ryan Dunn,Big,Virginia,Phoenix Suns,PHX,28,So.,"6'8""",216,1,NBA
-18,Isaiah Collier,Guard,USC,Utah Jazz,UTA,29,Fr.,"6'5""",210,1,NBA
-19,Johnny Furphy,Wing,Kansas,Indiana Pacers,IND,35,Fr.,"6'9""",200,1,NBA
-20,Cody Williams,Wing,Colorado,Utah Jazz,UTA,10,Fr.,"6'8""",190,1,NBA
-21,Harrison Ingram,Wing,North Carolina,San Antonio Spurs,SAS,48,Jr.,"6'7""",230,1,NBA
-22,Tristen Newton,Guard,UConn,Indiana Pacers,IND,49,Gr.,"6'5""",190,1,NBA
-23,Jonathan Mogbo,Big,San Francisco,Toronto Raptors,TOR,31,Sr.,"6'9""",225,1,NBA
-24,Oso Ighodaro,Big,Marquette,Phoenix Suns,PHX,40,Sr.,"6'11""",235,1,NBA
-25,Baylor Scheierman,Wing,Creighton,Boston Celtics,BOS,30,Gr.,"6'7""",205,1,NBA
-26,Tyler Kolek,Guard,Marquette,New York Knicks,NYK,34,Sr.,"6'3""",195,1,NBA
-27,Cam Spencer,Guard,UConn,Memphis Grizzlies,MEM,53,Gr.,"6'4""",205,1,NBA
-28,DaRon Holmes II,Big,Dayton,Denver Nuggets,DEN,22,Jr.,"6'10""",225,1,NBA
-29,Devin Carter,Guard,Providence,Sacramento Kings,SAC,13,Jr.,"6'3""",195,1,NBA
-30,Justin Edwards,Wing,Kentucky,Philadelphia 76ers,PHI,UDFA,Fr.,"6'8""",203,1,NBA
-31,Judah Mintz,Guard,Syracuse,Philadelphia 76ers,PHI,UDFA,So.,"6'4""",172,1,G-League
-32,Ja'Kobe Walter,Wing,Baylor,Toronto Raptors,TOR,19,Fr.,"6'5""",180,1,NBA
-33,Jamal Shead,Guard,Houston,Toronto Raptors,TOR,45,Sr.,"6'1""",200,1,NBA
-34,Malevy Leons,Big,Bradley,Oklahoma City Thunder,OKC,UDFA,Jr.,"6'9""",210,1,None
-35,Kevin McCullar Jr.,Wing,Kansas,New York Knicks,NYK,56,Gr.,"6'7""",210,1,NBA
-36,Carlton Carrington,Guard,Pittsburgh,Washington Wizards,WAS,14,Fr.,"6'7""",190,1,None
-37,Ajay Mitchell,Guard,UC Santa Barbara,Oklahoma City Thunder,OKC,38,Jr.,"6'5""",190,1,NBA
-38,Kyshawn George,Wing,Miami,Washington Wizards,WAS,24,Fr.,"6'8""",200,1,NBA
-39,Jaylen Wells,Wing,Washington State,Memphis Grizzlies,MEM,39,Jr.,"6'8""",206,1,NBA
-40,Bronny James,Guard,USC,Los Angeles Lakers,LAL,55,Fr.,"6'4""",210,1,NBA
-41,Reece Beekman,Guard,Virginia,Golden State Warriors,GSW,UDFA,Sr.,"6'3""",190,1,NBA
-42,Isaac Jones,Big,Washington State,Sacramento Kings,SAC,UDFA,Sr.,"6'9""",245,1,NA
-43,Nae'Qwan Tomlin,Big,Memphis,Cleveland Cavaliers,CLE,UDFA,Sr.,"6'10""",205,1,NA
-44,Enrique Freeman,Big,Akron,Indiana Pacers,IND,50,Gr.,"6'7""",220,1,NBA
-45,Terrence Shannon Jr.,Wing,Illinois,Minnesota Timberwolves,MIN,27,Gr.,"6'6""",215,1,NBA
-46,PJ Hall,Big,Clemson,Denver Nuggets,DEN,UDFA,Sr.,"6'10""",245,1,NBA
-47,Anton Watson,Wing,Gonzaga,Boston Celtics,BOS,54,Gr.,"6'8""",225,1,G-League
-48,N'Faly Dante,Big,Oregon,Houston Rockets,HOU,UDFA,Gr.,"6'11""",230,1,NBA
-49,Tolu Smith,Big,Mississippi State,Detroit Pistons,DET,UDFA,Gr.,"6'11""",245,1,None
-50,Trey Alexander,Wing,Creighton,Denver Nuggets,DEN,UDFA,Jr.,"6'4""",185,1,NBA
-51,Eric Gaines,Guard,UAB,Boston Celtics,BOS,UDFA,Sr.,"6'2""",165,1,None
-52,Keshad Johnson,Wing,Arizona,Miami Heat,MIA,UDFA,Gr.,"6'7""",225,1,NBA
-53,Quinten Post,Big,Boston College,Golden State Warriors,GSW,52,Gr.,"7'0""",238,1,NBA
-54,Antonio Reeves,Wing,Kentucky,New Orleans Pelicans,NOP,47,Gr.,"6'6""",205,1,NBA
-55,Cam Christie,Wing,Minnesota,Los Angeles Clippers,LAC,46,Fr.,"6'6""",190,1,NBA
-56,Josiah-Jordan James,Wing,Tennessee,Indiana Pacers,IND,UDFA,Gr.,"6'7""",214,1,None
-57,Zyon Pullin,Guard,Florida,Miami Heat,MIA,UDFA,Gr.,"6'4""",206,1,G-League
-58,Riley Minix,Wing,Morehead State,San Antonio Spurs,SAS,UDFA,Sr.,"6'7""",230,1,None
-59,Sean East,Guard,Missouri,Los Angeles Lakers,LAL,UDFA,Sr.,"6'3""",180,1,G-League
-60,Dylan Disu,Big,Texas,Toronto Raptors,TOR,UDFA,Gr.,"6'9""",225,1,None
-61,Spencer Jones,Wing,Stanford,Denver Nuggets,DEN,UDFA,Gr.,"6'7""",225,1,None
-62,Jalen Bridges,Wing,Baylor,Phoenix Suns,PHX,UDFA,Sr.,"6'9""",225,1,NBA
-63,Jesse Edwards,Big,West Virginia,Minnesota Timberwolves,MIN,UDFA,Gr.,"6'11""",236,1,NA
-64,Donta Scott,Wing,Maryland,Golden State Warriors,GSW,UDFA,Gr.,"6'8""",230,1,None
-65,Clarence Daniels,Wing,New Hampshire,Oklahoma City Thunder,OKC,UDFA,So.,"6'6""",210,1,G-League
-66,Boogie Ellis,Guard,USC,Sacramento Kings,SAC,UDFA,Gr.,"6'3""",190,1,NA
-67,Isaiah Crawford,Wing,Louisiana Tech,Sacramento Kings,SAC,UDFA,Gr.,"6'6""",220,1,G-League
-68,David Jones,Wing,Memphis,Philadelphia 76ers,PHI,UDFA,Sr.,"6'6""",210,1,NBA
-69,Tyler Thomas,Guard,Hofstra,Chicago Bulls,CHI,UDFA,Gr.,"6'3""",195,1,None
-70,Demarcus Sharp,Guard,Austin Peay,FK Radnički Niš,Radnički,UDFA,Sr.,"6'3""",170,1,None
-71,Kenan Blackshear,Guard,Nevada,Sacramento Kings,SAC,UDFA,Gr.,"6'6""",215,1,None
-72,DJ Burns,Big,NC State,Cleveland Cavaliers,CLE,UDFA,Gr.,"6'9""",275,1,None
-73,Emanuel Miller,Wing,TCU,Chicago Bulls,CHI,UDFA,Gr.,"6'7""",215,1,G-League
-74,Makhi Mitchell,Big,Arkansas,Sheffield Sharks,Sheffield,UDFA,Gr.,"6'10""",240,1,None
-75,Josh Morgan,Big,USC,NCAA,NCAA,UDFA,Sr.,"6'11""",195,1,None
-76,Drew Pember,Big,UNC Asheville,Memphis Grizzlies,MEM,UDFA,Gr.,"6'11""",215,1,None
-77,Isaiah Stevens,Guard,Colorado State,Miami Heat,MIA,UDFA,Gr.,"6'0""",185,1,G-League
-78,Joel Soriano,Big,St. John's,Charlotte Hornets,CHA,UDFA,Gr.,"6'11""",256,1,None
-79,Hunter Cattoor,Guard,Virginia Tech,Cleveland Cavaliers,CLE,UDFA,Gr.,"6'3""",200,1,None
-80,Daniss Jenkins,Guard,St. John's,Detroit Pistons,DET,UDFA,Sr.,"6'4""",165,1,None
-81,Armando Bacot,Big,North Carolina,Memphis Grizzlies,MEM,UDFA,Gr.,"6'11""",240,1,None
-82,Tristan Enaruna,Wing,Cleveland State,Boston Celtics,BOS,UDFA,Gr.,"6'8""",220,1,G-League
-83,Shahada Wells,Guard,McNeese State,Houston Rockets,HOU,UDFA,Sr.,"6'0""",184,1,None
-84,Josh Oduro,Big,Providence,New Orleans Pelicans,NOP,UDFA,Gr.,"6'9""",240,1,None
-85,Marcus Domask,Wing,Illinois,Chicago Bulls,CHI,UDFA,Gr.,"6'6""",215,1,None
-86,Warren Washington,Big,Texas Tech,Miami Heat,MIA,UDFA,Gr.,"7'0""",225,1,None
-87,Santiago Vescovi,Guard,Tennessee,Golden State Warriors,GSW,UDFA,Gr.,"6'3""",188,1,None
-88,Jamarion Sharp,Big,Ole Miss,Dallas Mavericks,DAL,UDFA,Jr.,"7'5""",235,1,None
-89,Alex Ducas,Wing,Saint Mary's,Oklahoma City Thunder,OKC,UDFA,Gr.,"6'7""",220,1,None
-90,Gabe McGlothan,Wing,Grand Canyon,Denver Nuggets,DEN,UDFA,Gr.,"6'7""",235,1,None
-91,RaeQuan Battle,Wing,West Virginia,Charlotte Hornets,CHA,UDFA,Gr.,"6'5""",195,1,None
-92,Justin Moore,Wing,Villanova,Milwaukee Bucks,MIL,UDFA,Gr.,"6'5""",210,1,None
-93,Jordan Wright,Wing,LSU,Detroit Pistons,DET,UDFA,Gr.,"6'6""",230,1,None
-94,Casey Morsell,Guard,NC State,NCAA,NCAA,UDFA,Gr.,"6'3""",200,1,None
-95,Jaden Bediako,Big,Seton Hall,KK Mornar Bar,KK Mornar,UDFA,Gr.,"6'10""",245,1,None
-96,Blake Hinson,Wing,Pittsburgh,Los Angeles Lakers,LAL,UDFA,Sr.,"6'8""",230,1,G-League
-97,Mohamed Diarra,Big,NC State,Los Angeles Lakers,LAL,UDFA,Gr.,"6'10""",225,1,None
-98,Trey Calvin,Guard,Wright State,Frankfurt,Frankfurt,UDFA,Gr.,"6'0""",165,1,None
-99,Kevin Cross,Wing,Tulane,Charlotte Hornets,CHA,UDFA,Gr.,"6'8""",225,1,None
-100,Tre Mitchell,Big,Kentucky,Oklahoma City Thunder,OKC,UDFA,Gr.,"6'9""",240,1,None
-101,Jarron Coleman,Guard,Nebraska,BC GAU Tbilisi,Tbilisi,UDFA,Gr.,"6'5""",213,1,None
-102,Tyrese Samuel,Big,Florida,Phoenix Suns,PHX,UDFA,Gr.,"6'10""",239,1,None
-103,Jahmir Young,Guard,Maryland,Denver Nuggets,DEN,UDFA,Gr.,"6'1""",185,1,None
-104,Jalen Cook,Guard,LSU,NCAA,NCAA,UDFA,Sr.,"6'0""",194,1,None
-105,Xavier Johnson,Guard,Southern Illinois,Dallas Mavericks,DAL,UDFA,Gr.,"6'1""",189,1,None
-106,Elijah Pepper,Guard,UC Davis,Perth,Perth,UDFA,Gr.,"6'4""",200,1,None
-107,DJ Horne,Guard,NC State,San Antonio Spurs,SAS,UDFA,Gr.,"6'2""",175,1,None
-108,Jamison Battle,Wing,Ohio State,Toronto Raptors,TOR,UDFA,Gr.,"6'7""",220,1,None
-109,Allen Flanigan,Wing,Ole Miss,Stade Rochelais,Rochelais,UDFA,Gr.,"6'6""",215,1,G-League
-110,Joel Scott,Big,Colorado State,MHP Riesen Ludwigsburg,MHP Riesen,UDFA,Gr.,"6'7""",225,1,None
-111,Jaedon LeDee,Wing,San Diego State,Minnesota Timberwolves,MIN,UDFA,Gr.,"6'9""",240,1,G-League
-112,Jaelen House,Guard,New Mexico,Boston Celtics,BOS,UDFA,Gr.,"6'0""",165,1,G-League
-113,Vonterius Woolbright,Wing,Western Carolina,Houston Rockets,HOU,UDFA,Jr.,"6'6""",215,1,None
-114,Isaiah Cozart,Big,Eastern Kentucky,SC Rasta Vechta,SC Rasta,UDFA,Gr.,"6'7""",240,1,None
-115,Quincy Olivari,Wing,Xavier,Los Angeles Lakers,LAL,UDFA,Gr.,"6'3""",200,1,None
-116,Jahvon Quinerly,Guard,Memphis,NCAA,NCAA,UDFA,Gr.,"6'1""",175,1,None
-117,Keion Brooks Jr.,Wing,Washington,New Orleans Pelicans,NOP,UDFA,Gr.,"6'7""",210,1,G-League
-118,Boo Buie,Guard,Northwestern,New York Knicks,NYK,UDFA,Gr.,"6'2""",180,1,None
-119,RayJ Dennis,Guard,Baylor,Indiana Pacers,IND,UDFA,Gr.,"6'2""",180,1,None
-120,Keisei Tominaga,Guard,Nebraska,Indiana Pacers,IND,UDFA,Jr.,"6'2""",175,1,None
-121,Aaron Estrada,Guard,Alabama,Detroit Pistons,DET,UDFA,Gr.,"6'3""",190,1,G-League
-122,Jaylen Forbes,Wing,Tulane,Nelson (NZNBL),Nelson (NZ),UDFA,Gr.,"6'5""",185,1,None
-123,Tyrece Radford,Wing,Texas A&M,San Antonio Spurs,SAS,UDFA,Gr.,"6'3""",200,1,None
-124,Mark Armstrong,Guard,Villanova,Brooklyn Nets,BKN,UDFA,So.,"6'2""",180,1,G-League
-125,Jermaine Couisnard,Guard,Oregon,New Orleans Pelicans,NOP,UDFA,Gr.,"6'4""",215,1,None
-126,Tyson Walker,Guard,Michigan State,Phoenix Suns,PHX,UDFA,Gr.,"6'1""",185,1,None
-127,Brandon Carlson,Big,Utah,Oklahoma City Thunder,OKC,UDFA,Gr.,"7'0""",220,1,G-League
-1,Alexandre Sarr,Big,Perth,Washington Wizards,WAS,2,19,"7'1""",205,0,NBA
-2,Ron Holland,Wing,G League Ignite,Detroit Pistons,DET,5,19,"6'8""",206,0,NBA
-3,Nikola Topić,Guard,KK Crvena Zvezda,Oklahoma City Thunder,OKC,12,19,"6'5""",200,0,NBA
-4,Juan Núñez,Guard,Ratiopharm Ulm,San Antonio Spurs,SAS,36,20,"6'3""",190,0,NBA
-5,Zaccharie Risacher,Wing,JL Bourg-en-Bresse,Atlanta Hawks,ATL,1,19,"6'8""",200,0,NBA
-6,Matas Buzelis,Wing,G League Ignite,Chicago Bulls,CHI,11,20,"6'10""",209,0,NBA
-7,Tidjane Salaun,Wing,Cholet Basket,Charlotte Hornets,CHA,6,19,"6'9""",207,0,NBA
-8,AJ Johnson,Guard,Illawarra,Milwaukee Bucks,MIL,23,20,"6'5""",160,0,NBA
-9,Tyler Smith,Big,G League Ignite,Milwaukee Bucks,MIL,33,20,"6'10""",224,0,NBA
-10,Bobi Klintman,Big,Cairns,Detroit Pistons,DET,37,21,"6'10""",225,0,NBA
-11,Pacome Dadiet,Wing,Ratiopharm Ulm,New York Knicks,NYK,25,19,"6'8""",210,0,NBA
-12,Trentyn Flowers,Guard,Adelaide,Los Angeles Clippers,LAC,UDFA,19,"6'8""",185,0,NBA
-13,Nikola Djurisic,Wing,KK Mega Basket,Atlanta Hawks,ATL,43,20,"6'8""",214,0,NBA
-14,Melvin Ajinca,Wing,Saint-Quentin,Dallas Mavericks,DAL,51,20,"6'7""",210,0,NBA
-15,Ariel Hukporti,Big,Melbourne,New York Knicks,NYK,58,22,"7'0""",246,0,NBA
-16,Mantas Rubstavicius,Wing,New Zealand,Golden State Warriors,GSW,UDFA,22,"6'6""",185,0,G-League
-17,Armel Traoré,Big,ADA Blois,Los Angeles Lakers,LAL,UDFA,21,"6'8""",210,0,None
-18,Babacar Sane,Wing,G League Ignite,Utah Jazz,UTA,UDFA,21,"6'6""",230,0,G-League
-19,Bryson Warren,Guard,Sioux Falls,Miami Heat,MIA,UDFA,20,"6'3""",174,0,G-League
-20,Quinn Ellis,Guard,Trento,Portland Trail Blazers,POR,UDFA,21,"6'4""",194,0,None
-21,Taran Armstrong,Guard,Cairns,Golden State Warriors,GSW,UDFA,22,"6'6""",190,0,G-League
+Rank,Name,Role,Pre-NBA,NBA Team,ABV,Actual Pick,Class,Age,Height (in),Height,Wingspan (in),Wingspan,Wing - Height,Weight (lbs),NCAAM,combine_invite
+1,Stephon Castle,Guard,UConn,San Antonio Spurs,SAS,4,Fr.,19.63,77.5,"6'5.5""",81,"6'9""",3.5,210,1,NBA
+2,Donovan Clingan,Big,UConn,Portland Trail Blazers,POR,7,So.,20.32,85.75,"7'1.75""",90.75,"7'6.75""",5,282,1,NBA
+3,Jared McCain,Guard,Duke,Philadelphia 76ers,PHI,16,Fr.,20.33,74,"6'2""",75.5,"6'3.5""",1.5,203,1,NBA
+4,KJ Simpson,Guard,Colorado,Charlotte Hornets,CHA,42,Jr.,21.87,72.25,"6'0.25""",76.5,"6'4.5""",4.25,187,1,NBA
+5,Zach Edey,Big,Purdue,Memphis Grizzlies,MEM,9,Sr.,22.1,87.75,"7'3.75""",94.75,"7'10.75""",7,299,1,NBA
+6,Kel'el Ware,Big,Indiana,Miami Heat,MIA,15,So.,20.17,83.75,"6'11.75""",88.5,"7'4.5""",4.75,230,1,NBA
+7,Dalton Knecht,Wing,Tennessee,Los Angeles Lakers,LAL,17,Jr.,23.17,77.25,"6'5.25""",81,"6'9""",3.75,212,1,NBA
+8,Yves Missi,Big,Baylor,New Orleans Pelicans,NOP,21,Fr.,20.1,82.75,"6'10.75""",86,"7'2""",3.25,229,1,NBA
+9,Dillon Jones,Wing,Weber State,Oklahoma City Thunder,OKC,26,Sr.,22.64,76.5,"6'4.5""",83,"6'11""",6.5,237,1,NBA
+10,Adem Bona,Big,UCLA,Philadelphia 76ers,PHI,41,So.,21.23,81.5,"6'9.5""",87.75,"7'3.75""",6.25,243,1,NBA
+11,Tristan da Silva,Wing,Colorado,Orlando Magic,ORL,18,Sr.,23.1,80.25,"6'8.25""",82.25,"6'10.25""",2,217,1,NBA
+12,Jaylon Tyson,Wing,Cal,Cleveland Cavaliers,CLE,20,Jr.,21.55,77.5,"6'5.5""",80,"6'8""",2.5,218,1,NBA
+13,Reed Sheppard,Guard,Kentucky,Houston Rockets,HOU,3,Fr.,19.99,73.75,"6'1.75""",75.25,"6'3.25""",1.5,182,1,NBA
+14,Rob Dillingham,Guard,Kentucky,Minnesota Timberwolves,MIN,8,Fr.,19.46,73,"6'1""",75,"6'3""",2,164,1,NBA
+15,Pelle Larsson,Wing,Arizona,Miami Heat,MIA,44,Sr.,23.32,77.25,"6'5.25""",79.5,"6'7.5""",2.25,212,1,NBA
+16,Kyle Filipowski,Big,Duke,Utah Jazz,UTA,32,So.,20.62,82.75,"6'10.75""",82.5,"6'10.5""",-0.25,230,1,NBA
+17,Ryan Dunn,Big,Virginia,Phoenix Suns,PHX,28,So.,21.45,78.25,"6'6.25""",85.5,"7'1.5""",7.25,214,1,NBA
+18,Isaiah Collier,Guard,USC,Utah Jazz,UTA,29,Fr.,19.7,74.5,"6'2.5""",76.75,"6'4.75""",2.25,205,1,NBA
+19,Johnny Furphy,Wing,Kansas,Indiana Pacers,IND,35,Fr.,19.53,79.5,"6'7.5""",80,"6'8""",0.5,202,1,NBA
+20,Cody Williams,Wing,Colorado,Utah Jazz,UTA,10,Fr.,19.58,78.5,"6'6.5""",85,"7'1""",6.5,178,1,NBA
+21,Harrison Ingram,Wing,North Carolina,San Antonio Spurs,SAS,48,Jr.,21.56,77.25,"6'5.25""",84.25,"7'0.25""",7,234,1,NBA
+22,Tristen Newton,Guard,UConn,Indiana Pacers,IND,49,Gr.,23.15,75.25,"6'3.25""",78.75,"6'6.75""",3.5,192,1,NBA
+23,Jonathan Mogbo,Big,San Francisco,Toronto Raptors,TOR,31,Sr.,22.64,78.25,"6'6.25""",86,"7'2""",7.75,217,1,NBA
+24,Oso Ighodaro,Big,Marquette,Phoenix Suns,PHX,40,Sr.,21.97,81.5,"6'9.5""",83,"6'11""",1.5,222,1,NBA
+25,Baylor Scheierman,Wing,Creighton,Boston Celtics,BOS,30,Gr.,23.73,78.25,"6'6.25""",80.25,"6'8.25""",2,202,1,NBA
+26,Tyler Kolek,Guard,Marquette,New York Knicks,NYK,34,Sr.,23.23,73.25,"6'1.25""",74.75,"6'2.75""",1.5,197,1,NBA
+27,Cam Spencer,Guard,UConn,Memphis Grizzlies,MEM,53,Gr.,24.21,75,"6'3""",77,"6'5""",2,202,1,NBA
+28,DaRon Holmes II,Big,Dayton,Denver Nuggets,DEN,22,Jr.,21.85,80.75,"6'8.75""",85,"7'1""",4.25,236,1,NBA
+29,Devin Carter,Guard,Providence,Sacramento Kings,SAC,13,Jr.,22.26,74.25,"6'2.25""",80.75,"6'8.75""",6.5,193,1,NBA
+30,Justin Edwards,Wing,Kentucky,Philadelphia 76ers,PHI,UDFA,Fr.,20.51,78,"6'6""",82,"6'10""",4,209,1,NBA
+31,Judah Mintz,Guard,Syracuse,Philadelphia 76ers,PHI,UDFA,So.,20.95,76,"6'4""",75.5,"6'3.5""",-0.5,176,1,G-League
+32,Ja'Kobe Walter,Wing,Baylor,Toronto Raptors,TOR,19,Fr.,19.79,76.25,"6'4.25""",82,"6'10""",5.75,198,1,NBA
+33,Jamal Shead,Guard,Houston,Toronto Raptors,TOR,45,Sr.,21.99,72.25,"6'0.25""",75,"6'3""",2.75,201,1,NBA
+34,Malevy Leons,Big,Bradley,Oklahoma City Thunder,OKC,UDFA,Jr.,24.75,81,"6'9""",85,"7'1""",4,210,1,None
+35,Kevin McCullar Jr.,Wing,Kansas,New York Knicks,NYK,56,Gr.,23.27,77.25,"6'5.25""",81,"6'9""",3.75,206,1,NBA
+36,Carlton Carrington,Guard,Pittsburgh,Washington Wizards,WAS,14,Fr.,18.92,75.75,"6'3.75""",78.5,"6'6.5""",2.75,190,1,None
+37,Ajay Mitchell,Guard,UC Santa Barbara,Oklahoma City Thunder,OKC,38,Jr.,21.99,75.25,"6'3.25""",78.25,"6'6.25""",3,197,1,NBA
+38,Kyshawn George,Wing,Miami,Washington Wizards,WAS,24,Fr.,20.52,79,"6'7""",82.25,"6'10.25""",3.25,209,1,NBA
+39,Jaylen Wells,Wing,Washington State,Memphis Grizzlies,MEM,39,Jr.,20.82,78.5,"6'6.5""",79.25,"6'7.25""",0.75,206,1,NBA
+40,Bronny James,Guard,USC,Los Angeles Lakers,LAL,55,Fr.,19.64,73.5,"6'1.5""",79.25,"6'7.25""",5.75,210,1,NBA
+41,Reece Beekman,Guard,Virginia,Golden State Warriors,GSW,UDFA,Sr.,22.7,73.25,"6'1.25""",78.5,"6'6.5""",5.25,196,1,NBA
+42,Isaac Jones,Big,Washington State,Sacramento Kings,SAC,UDFA,Sr.,23.88,79.75,"6'7.75""",87,"7'3""",7.25,245,1,NA
+43,Nae'Qwan Tomlin,Big,Memphis,Cleveland Cavaliers,CLE,UDFA,Sr.,23.5,80.25,"6'8.25""",86.5,"7'2.5""",6.25,205,1,NA
+44,Enrique Freeman,Big,Akron,Indiana Pacers,IND,50,Gr.,23.91,79.25,"6'7.25""",86,"7'2""",6.75,212,1,NBA
+45,Terrence Shannon Jr.,Wing,Illinois,Minnesota Timberwolves,MIN,27,Gr.,23.89,77.75,"6'5.75""",80.75,"6'8.75""",3,219,1,NBA
+46,PJ Hall,Big,Clemson,Denver Nuggets,DEN,UDFA,Sr.,22.33,80.25,"6'8.25""",85.5,"7'1.5""",5.25,240,1,NBA
+47,Anton Watson,Wing,Gonzaga,Boston Celtics,BOS,54,Gr.,23.7,80,"6'8""",84,"7'0""",4,228,1,G-League
+48,N'Faly Dante,Big,Oregon,Houston Rockets,HOU,UDFA,Gr.,22.67,82,"6'10""",90,"7'6""",8,260,1,NBA
+49,Tolu Smith,Big,Mississippi State,Detroit Pistons,DET,UDFA,Gr.,23.92,82.75,"6'10.75""",84,"7'0""",1.25,245,1,None
+50,Trey Alexander,Wing,Creighton,Denver Nuggets,DEN,UDFA,Jr.,21.13,75.25,"6'3.25""",82.5,"6'10.5""",7.25,187,1,NBA
+51,Eric Gaines,Guard,UAB,Boston Celtics,BOS,UDFA,Sr.,23.42,73.25,"6'1.25""",79.5,"6'7.5""",6.25,165,1,None
+52,Keshad Johnson,Wing,Arizona,Miami Heat,MIA,UDFA,Gr.,22.99,78.25,"6'6.25""",82.25,"6'10.25""",4,224,1,NBA
+53,Quinten Post,Big,Boston College,Golden State Warriors,GSW,52,Gr.,24.25,84,"7'0""",86.5,"7'2.5""",2.5,244,1,NBA
+54,Antonio Reeves,Wing,Kentucky,New Orleans Pelicans,NOP,47,Gr.,23.58,76.5,"6'4.5""",80.25,"6'8.25""",3.75,187,1,NBA
+55,Cam Christie,Wing,Minnesota,Los Angeles Clippers,LAC,46,Fr.,18.91,76.5,"6'4.5""",80,"6'8""",3.5,190,1,NBA
+56,Josiah-Jordan James,Wing,Tennessee,Indiana Pacers,IND,UDFA,Gr.,23.8,78.25,"6'6.25""",83.25,"6'11.25""",5,214,1,None
+57,Zyon Pullin,Guard,Florida,Miami Heat,MIA,UDFA,Gr.,23.31,75.5,"6'3.5""",77.75,"6'5.75""",2.25,205,1,G-League
+58,Riley Minix,Wing,Morehead State,San Antonio Spurs,SAS,UDFA,Sr.,23.76,79.5,"6'7.5""",81.5,"6'9.5""",2,230,1,None
+59,Sean East,Guard,Missouri,Los Angeles Lakers,LAL,UDFA,Sr.,24.61,73.25,"6'1.25""",75.75,"6'3.75""",2.5,180,1,G-League
+60,Dylan Disu,Big,Texas,Toronto Raptors,TOR,UDFA,Gr.,23.63,81,"6'9""",84,"7'0""",3,225,1,None
+61,Spencer Jones,Wing,Stanford,Denver Nuggets,DEN,UDFA,Gr.,24.49,79,"6'7""",83,"6'11""",4,225,1,None
+62,Jalen Bridges,Wing,Baylor,Phoenix Suns,PHX,UDFA,Sr.,23.1,78.75,"6'6.75""",82,"6'10""",3.25,213,1,NBA
+63,Jesse Edwards,Big,West Virginia,Minnesota Timberwolves,MIN,UDFA,Gr.,24.28,83.5,"6'11.5""",89,"7'5""",5.5,236,1,NA
+64,Donta Scott,Wing,Maryland,Golden State Warriors,GSW,UDFA,Gr.,23.56,79.5,"6'7.5""",83,"6'11""",3.5,230,1,None
+65,Clarence Daniels,Wing,New Hampshire,Oklahoma City Thunder,OKC,UDFA,So.,23.55,77.5,"6'5.5""",82.5,"6'10.5""",5,210,1,G-League
+66,Boogie Ellis,Guard,USC,Sacramento Kings,SAC,UDFA,Gr.,23.54,72.75,"6'0.75""",79,"6'7""",6.25,190,1,NA
+67,Isaiah Crawford,Wing,Louisiana Tech,Sacramento Kings,SAC,UDFA,Gr.,22.6,78,"6'6""",84,"7'0""",6,220,1,G-League
+68,David Jones,Wing,Memphis,Philadelphia 76ers,PHI,UDFA,Sr.,22.58,75.5,"6'3.5""",78.75,"6'6.75""",3.25,210,1,NBA
+69,Tyler Thomas,Guard,Hofstra,Chicago Bulls,CHI,UDFA,Gr.,24.4,75,"6'3""",N/A,N/A,N/A,195,1,None
+70,Demarcus Sharp,Guard,Austin Peay,FK Radnički Niš,Radnički,UDFA,Sr.,25.5,75,"6'3""",N/A,N/A,N/A,170,1,None
+71,Kenan Blackshear,Guard,Nevada,Sacramento Kings,SAC,UDFA,Gr.,23.09,78.25,"6'6.25""",82,"6'10""",3.75,215,1,None
+72,DJ Burns,Big,NC State,Cleveland Cavaliers,CLE,UDFA,Gr.,23.7,81,"6'9""",N/A,N/A,N/A,275,1,None
+73,Emanuel Miller,Wing,TCU,Chicago Bulls,CHI,UDFA,Gr.,24.02,78,"6'6""",81,"6'9""",3,215,1,G-League
+74,Makhi Mitchell,Big,Arkansas,Sheffield Sharks,Sheffield,UDFA,Gr.,24.41,82,"6'10""",N/A,N/A,N/A,240,1,None
+75,Josh Morgan,Big,USC,NCAA,Unsigned,UDFA,Sr.,22.72,83,"6'11""",N/A,N/A,N/A,195,1,None
+76,Drew Pember,Big,UNC Asheville,Memphis Grizzlies,MEM,UDFA,Gr.,24.04,82.75,"6'10.75""",82,"6'10""",-0.75,215,1,None
+77,Isaiah Stevens,Guard,Colorado State,Miami Heat,MIA,UDFA,Gr.,23.65,71,"5'11""",76,"6'4""",5,185,1,G-League
+78,Joel Soriano,Big,St. John's,Charlotte Hornets,CHA,UDFA,Gr.,24.41,82,"6'10""",87.5,"7'3.5""",5.5,256,1,None
+79,Hunter Cattoor,Guard,Virginia Tech,Cleveland Cavaliers,CLE,UDFA,Gr.,23.6,74.5,"6'2.5""",75,"6'3""",0.5,200,1,None
+80,Daniss Jenkins,Guard,St. John's,Detroit Pistons,DET,UDFA,Sr.,22.85,75.25,"6'3.25""",78.5,"6'6.5""",3.25,165,1,None
+81,Armando Bacot,Big,North Carolina,Memphis Grizzlies,MEM,UDFA,Gr.,24.31,81,"6'9""",85,"7'1""",4,240,1,None
+82,Tristan Enaruna,Wing,Cleveland State,Boston Celtics,BOS,UDFA,Gr.,23,80.25,"6'8.25""",85,"7'1""",4.75,220,1,G-League
+83,Shahada Wells,Guard,McNeese State,Houston Rockets,HOU,UDFA,Sr.,24.83,71.25,"5'11.25""",77,"6'5""",5.75,184,1,None
+84,Josh Oduro,Big,Providence,New Orleans Pelicans,NOP,UDFA,Gr.,23.7,81,"6'9""",85,"7'1""",4,240,1,None
+85,Marcus Domask,Wing,Illinois,Chicago Bulls,CHI,UDFA,Gr.,23.8,78.25,"6'6.25""",78.5,"6'6.5""",0.25,211,1,None
+86,Warren Washington,Big,Texas Tech,Miami Heat,MIA,UDFA,Gr.,24.32,84,"7'0""",N/A,N/A,N/A,225,1,None
+87,Santiago Vescovi,Guard,Tennessee,Golden State Warriors,GSW,UDFA,Gr.,22.78,75.25,"6'3.25""",78.5,"6'6.5""",3.25,188,1,None
+88,Jamarion Sharp,Big,Ole Miss,Dallas Mavericks,DAL,UDFA,Jr.,22.83,87.75,"7'3.75""",93,"7'9""",5.25,235,1,None
+89,Alex Ducas,Wing,Saint Mary's,Oklahoma City Thunder,OKC,UDFA,Gr.,23.54,79.25,"6'7.25""",82,"6'10""",2.75,220,1,None
+90,Gabe McGlothan,Wing,Grand Canyon,Denver Nuggets,DEN,UDFA,Gr.,25.32,79,"6'7""",N/A,N/A,N/A,235,1,None
+91,RaeQuan Battle,Wing,West Virginia,Charlotte Hornets,CHA,UDFA,Gr.,23.35,76.5,"6'4.5""",80,"6'8""",3.5,195,1,None
+92,Justin Moore,Wing,Villanova,Milwaukee Bucks,MIL,UDFA,Gr.,24.21,77,"6'5""",N/A,N/A,N/A,210,1,None
+93,Jordan Wright,Wing,LSU,Detroit Pistons,DET,UDFA,Gr.,23.76,77.5,"6'5.5""",79.5,"6'7.5""",2,230,1,None
+94,Casey Morsell,Guard,NC State,NCAA,Unsigned,UDFA,Gr.,23.48,75,"6'3""",N/A,N/A,N/A,200,1,None
+95,Jaden Bediako,Big,Seton Hall,KK Mornar Bar,KK Mornar,UDFA,Gr.,23.78,82,"6'10""",N/A,N/A,N/A,245,1,None
+96,Blake Hinson,Wing,Pittsburgh,Los Angeles Lakers,LAL,UDFA,Sr.,23.5,77.75,"6'5.75""",82.5,"6'10.5""",4.75,230,1,G-League
+97,Mohamed Diarra,Big,NC State,Los Angeles Lakers,LAL,UDFA,Gr.,24.48,82,"6'10""",N/A,N/A,N/A,225,1,None
+98,Trey Calvin,Guard,Wright State,Frankfurt,Frankfurt,UDFA,Gr.,23.41,72,"6'0""",N/A,N/A,N/A,165,1,None
+99,Kevin Cross,Wing,Tulane,Charlotte Hornets,CHA,UDFA,Gr.,24.43,80,"6'8""",N/A,N/A,N/A,225,1,None
+100,Tre Mitchell,Big,Kentucky,Oklahoma City Thunder,OKC,UDFA,Gr.,23.76,81,"6'9""",N/A,N/A,N/A,240,1,None
+101,Jarron Coleman,Guard,Nebraska,BC GAU Tbilisi,Tbilisi,UDFA,Gr.,24.81,77,"6'5""",N/A,N/A,N/A,213,1,None
+102,Tyrese Samuel,Big,Florida,Phoenix Suns,PHX,UDFA,Gr.,24.3,81.25,"6'9.25""",87.5,"7'3.5""",6.25,239,1,None
+103,Jahmir Young,Guard,Maryland,Denver Nuggets,DEN,UDFA,Gr.,23.72,72.75,"6'0.75""",76.5,"6'4.5""",3.75,185,1,None
+104,Jalen Cook,Guard,LSU,NCAA,Unsigned,UDFA,Sr.,22.26,72,"6'0""",N/A,N/A,N/A,194,1,None
+105,Xavier Johnson,Guard,Southern Illinois,Dallas Mavericks,DAL,UDFA,Gr.,24.7,72.75,"6'0.75""",77.5,"6'5.5""",4.75,189,1,None
+106,Elijah Pepper,Guard,UC Davis,Perth,Perth,UDFA,Gr.,23.13,76,"6'4""",N/A,N/A,N/A,200,1,None
+107,DJ Horne,Guard,NC State,San Antonio Spurs,SAS,UDFA,Gr.,23.65,74,"6'2""",N/A,N/A,N/A,175,1,None
+108,Jamison Battle,Wing,Ohio State,Toronto Raptors,TOR,UDFA,Gr.,23.12,79.25,"6'7.25""",81,"6'9""",1.75,220,1,None
+109,Allen Flanigan,Wing,Ole Miss,Stade Rochelais,Rochelais,UDFA,Gr.,23.18,78.75,"6'6.75""",81,"6'9""",2.25,215,1,G-League
+110,Joel Scott,Big,Colorado State,MHP Riesen Ludwigsburg,MHP Riesen,UDFA,Gr.,23.19,79,"6'7""",N/A,N/A,N/A,225,1,None
+111,Jaedon LeDee,Wing,San Diego State,Minnesota Timberwolves,MIN,UDFA,Gr.,24.92,79.75,"6'7.75""",83,"6'11""",3.25,240,1,G-League
+112,Jaelen House,Guard,New Mexico,Boston Celtics,BOS,UDFA,Gr.,23.15,71.25,"5'11.25""",74.25,"6'2.25""",3,165,1,G-League
+113,Vonterius Woolbright,Wing,Western Carolina,Houston Rockets,HOU,UDFA,Jr.,23.72,77.25,"6'5.25""",78.5,"6'6.5""",1.25,215,1,None
+114,Isaiah Cozart,Big,Eastern Kentucky,SC Rasta Vechta,SC Rasta,UDFA,Gr.,23.21,79,"6'7""",N/A,N/A,N/A,240,1,None
+115,Quincy Olivari,Wing,Xavier,Los Angeles Lakers,LAL,UDFA,Gr.,23.08,74.5,"6'2.5""",79,"6'7""",4.5,200,1,None
+116,Jahvon Quinerly,Guard,Memphis,NCAA,Unsigned,UDFA,Gr.,25.59,73.5,"6'1.5""",76,"6'4""",2.5,175,1,None
+117,Keion Brooks Jr.,Wing,Washington,New Orleans Pelicans,NOP,UDFA,Gr.,23.88,78.75,"6'6.75""",82.5,"6'10.5""",3.75,210,1,G-League
+118,Boo Buie,Guard,Northwestern,New York Knicks,NYK,UDFA,Gr.,23.55,74,"6'2""",N/A,N/A,N/A,180,1,None
+119,RayJ Dennis,Guard,Baylor,Indiana Pacers,IND,UDFA,Gr.,23.24,74.75,"6'2.75""",80.5,"6'8.5""",5.75,180,1,None
+120,Keisei Tominaga,Guard,Nebraska,Indiana Pacers,IND,UDFA,Jr.,23.4,74,"6'2""",N/A,N/A,N/A,180,1,None
+121,Aaron Estrada,Guard,Alabama,Detroit Pistons,DET,UDFA,Gr.,23.39,75.5,"6'3.5""",77.5,"6'5.5""",2,190,1,G-League
+122,Jaylen Forbes,Wing,Tulane,Nelson (NZNBL),Nelson (NZ),UDFA,Gr.,23.53,77,"6'5""",N/A,N/A,N/A,185,1,None
+123,Tyrece Radford,Wing,Texas A&M,San Antonio Spurs,SAS,UDFA,Gr.,25.18,73.5,"6'1.5""",81,"6'9""",7.5,200,1,None
+124,Mark Armstrong,Guard,Villanova,Brooklyn Nets,BKN,UDFA,So.,20.35,73.25,"6'1.25""",76.25,"6'4.25""",3,180,1,G-League
+125,Jermaine Couisnard,Guard,Oregon,New Orleans Pelicans,NOP,UDFA,Gr.,24.49,76.5,"6'4.5""",81.5,"6'9.5""",5,215,1,None
+126,Tyson Walker,Guard,Michigan State,Phoenix Suns,PHX,UDFA,Gr.,23.77,72.5,"6'0.5""",75.5,"6'3.5""",3,185,1,None
+127,Brandon Carlson,Big,Utah,Oklahoma City Thunder,OKC,UDFA,Gr.,25.01,83.75,"6'11.75""",85,"7'1""",1.25,220,1,G-League
+1,Alexandre Sarr,Big,Perth,Washington Wizards,WAS,2,19,19.15,83.75,"6'11.75""",88.25,"7'4.25""",4.5,205,0,NBA
+2,Ron Holland,Wing,G League Ignite,Detroit Pistons,DET,5,19,18.95,78.5,"6'6.5""",82.75,"6'10.75""",4.25,197,0,NBA
+3,Nikola Topić,Guard,KK Crvena Zvezda,Oklahoma City Thunder,OKC,12,19,18.86,77.75,"6'5.75""",77.5,"6'5.5""",-0.25,200,0,NBA
+4,Juan Núñez,Guard,Ratiopharm Ulm,San Antonio Spurs,SAS,36,20,20.04,76,"6'4""",78.5,"6'6.5""",2.5,190,0,NBA
+5,Zaccharie Risacher,Wing,JL Bourg-en-Bresse,Atlanta Hawks,ATL,1,19,19.2,80.5,"6'8.5""",81.5,"6'9.5""",1,204,0,NBA
+6,Matas Buzelis,Wing,G League Ignite,Chicago Bulls,CHI,11,20,19.68,80.75,"6'8.75""",82,"6'10""",1.25,197,0,NBA
+7,Tidjane Salaun,Wing,Cholet Basket,Charlotte Hornets,CHA,6,19,18.86,80.75,"6'8.75""",85.5,"7'1.5""",4.75,203,0,NBA
+8,AJ Johnson,Guard,Illawarra,Milwaukee Bucks,MIL,23,20,19.55,76.25,"6'4.25""",80.5,"6'8.5""",4.25,167,0,NBA
+9,Tyler Smith,Big,G League Ignite,Milwaukee Bucks,MIL,33,20,19.63,81,"6'9""",85,"7'1""",4,224,0,NBA
+10,Bobi Klintman,Big,Cairns,Detroit Pistons,DET,37,21,21.29,80.75,"6'8.75""",83,"6'11""",2.25,212,0,NBA
+11,Pacome Dadiet,Wing,Ratiopharm Ulm,New York Knicks,NYK,25,19,18.9,79.75,"6'7.75""",81,"6'9""",1.25,210,0,NBA
+12,Trentyn Flowers,Guard,Adelaide,Los Angeles Clippers,LAC,UDFA,19,19.28,78.5,"6'6.5""",80.25,"6'8.25""",1.75,201,0,NBA
+13,Nikola Djurisic,Wing,KK Mega Basket,Atlanta Hawks,ATL,43,20,20.32,79,"6'7""",80,"6'8""",1,209,0,NBA
+14,Melvin Ajinca,Wing,Saint-Quentin,Dallas Mavericks,DAL,51,20,19.98,79.25,"6'7.25""",79.5,"6'7.5""",0.25,214,0,NBA
+15,Ariel Hukporti,Big,Melbourne,New York Knicks,NYK,58,22,22.19,82.75,"6'10.75""",86.5,"7'2.5""",3.75,246,0,NBA
+16,Mantas Rubstavicius,Wing,New Zealand,Golden State Warriors,GSW,UDFA,22,22.12,79.25,"6'7.25""",79.25,"6'7.25""",0,200,0,G-League
+17,Armel Traoré,Big,ADA Blois,Los Angeles Lakers,LAL,UDFA,21,21.4,80,"6'8""",87,"7'3""",7,215,0,None
+18,Babacar Sane,Wing,G League Ignite,Utah Jazz,UTA,UDFA,21,20.77,78.75,"6'6.75""",86.5,"7'2.5""",7.75,230,0,G-League
+19,Bryson Warren,Guard,Sioux Falls,Miami Heat,MIA,UDFA,20,19.7,73.5,"6'1.5""",78.25,"6'6.25""",4.75,174,0,G-League
+20,Quinn Ellis,Guard,Trento,Portland Trail Blazers,POR,UDFA,21,21.24,76,"6'4""",80.5,"6'8.5""",4.5,194,0,None
+21,Taran Armstrong,Guard,Cairns,Golden State Warriors,GSW,UDFA,22,22.45,76.75,"6'4.75""",78,"6'6""",1.25,190,0,G-League
