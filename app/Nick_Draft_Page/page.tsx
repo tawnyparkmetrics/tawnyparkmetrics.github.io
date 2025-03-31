@@ -649,7 +649,7 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
 //   );
 // };
 
-const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
+const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: DraftProspect[] }> = ({ prospect, filteredProspects }) => {
   // Find the actual rank of this prospect in the filtered and sorted list
   const actualRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
   
@@ -1465,7 +1465,6 @@ export default function DraftProspectsPage() {
             <ProspectCard
               key={prospect.Name}
               prospect={prospect}
-              rank={index + 1}
               filteredProspects={sortedProspects}
             />
           ))}

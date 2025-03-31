@@ -148,13 +148,9 @@ type CustomTooltipProps = TooltipProps<number | string, string> & {
 const EPMGraphModel: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
-  prospects: _prospects, // Prefix with underscore to indicate intentionally unused
-  selectedPosition: _selectedPosition, // Prefix with underscore to indicate intentionally unused
   allProspects,
 }) => {
-  const filteredProspects = _selectedPosition
-    ? allProspects.filter((p) => p.Position === _selectedPosition)
-    : allProspects;
+  const filteredProspects = allProspects;
 
   const prepareChartData = () => {
     const yearData: { year: string | number;[key: string]: string | number }[] = [];
@@ -1085,8 +1081,6 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
 const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
-  prospects: _prospects, // Prefix with underscore to indicate intentionally unused
-  selectedPosition: _selectedPosition, // Prefix with underscore to indicate intentionally unused
   selectedProspect,
   allProspects,
   graphType = 'rankings',
