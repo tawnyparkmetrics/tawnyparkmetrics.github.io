@@ -1085,8 +1085,8 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
 const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
-  prospects,
-  selectedPosition,
+  prospects: _prospects, // Prefix with underscore to indicate intentionally unused
+  selectedPosition: _selectedPosition, // Prefix with underscore to indicate intentionally unused
   selectedProspect,
   allProspects,
   graphType = 'rankings',

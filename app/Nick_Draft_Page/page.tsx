@@ -649,14 +649,16 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
 //   );
 // };
 
-const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank }) => {
+const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
+  // Find the actual rank of this prospect in the filtered and sorted list
+  const actualRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
+  
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  // const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
-  const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false); // New state for mobile info dropdown
+  const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [, setIsDropdownOpen] = useState(false);
   const DraftDropdownRef = useRef<HTMLDivElement>(null);
   const NBADropdownRef = useRef<HTMLDivElement>(null);
@@ -759,7 +761,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 select-none
                 ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
               `}>
-                {typeof rank === 'number' ? rank : 'N/A'}
+                {actualRank}
               </div>
             </motion.div>
 
@@ -1453,8 +1455,8 @@ export default function DraftProspectsPage() {
       <ProspectFilter
         prospects={prospects}
         onFilteredProspectsChange={setFilteredProspects}
-        rank={{}} // You might want to create an actual ranking here
-        onViewModeChange={setViewMode} // New prop to handle view mode changes
+        rank={{}}
+        onViewModeChange={setViewMode}
       />
 
       {viewMode === 'card' ? (
@@ -1464,7 +1466,7 @@ export default function DraftProspectsPage() {
               key={prospect.Name}
               prospect={prospect}
               rank={index + 1}
-              filteredProspects={filteredProspects}
+              filteredProspects={sortedProspects}
             />
           ))}
         </div>
