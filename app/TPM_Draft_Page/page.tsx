@@ -1,15 +1,12 @@
 "use client";
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuGroup,
-//   DropdownMenuItem,
-//   DropdownMenuLabel,
-//   DropdownMenuSeparator,
-//   DropdownMenuTrigger,
-// } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
 import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal, BarChart as BarChartIcon } from 'lucide-react';
 import Papa from 'papaparse';
@@ -24,6 +21,7 @@ import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { TooltipProps } from 'recharts';
 import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
+import NavigationHeader from '@/components/NavigationHeader';
 
 
 export interface DraftProspect {
@@ -174,7 +172,7 @@ const EPMGraphModel: React.FC<EPMModelProps> = ({
   const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+        <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
           <p className="font-bold text-white">Year {label}</p>
           {payload.map((entry: PayloadItem) => (
             <p key={entry.dataKey} style={{ color: entry.color }}>
@@ -367,232 +365,6 @@ const EPMGraphModel: React.FC<EPMModelProps> = ({
 //   );
 // };
 
-interface NavigationHeaderProps {
-  activeTab?: string;
-}
-
-interface MenuItem {
-  name: string;
-  href: string;
-  available: boolean;
-  stage?: 'brainstorming' | 'development' | 'testing';
-}
-
-const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
-  const [DraftDropdownOpen, setTpmDropdownOpen] = useState(false);
-  const [NBADropdownOpen, setModelsDropdownOpen] = useState(false);
-  const DraftDropdownRef = useRef<HTMLDivElement>(null);
-  const NBADropdownRef = useRef<HTMLDivElement>(null);
-  const [showComingSoon, setShowComingSoon] = useState(false);
-  const [comingSoonFeature, setComingSoonFeature] = useState('');
-  const [developmentStage, setDevelopmentStage] = useState<'brainstorming' | 'development' | 'testing'>('development');
-
-  // Only Home as regular tab
-  const homeTab = { name: 'Home', href: '/' };
-
-  // TPM dropdown items
-  const DraftDropdownItems = [
-    { name: 'Max Savin', href: '/TPM_Draft_Page', available: true },
-    { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: true },
-  ];
-
-  // Models dropdown items
-  const NBADropdownItems = [
-    { name: 'Max Savin', href: '/TPM_FVC', available: false, stage: 'testing' as const },
-  ];
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (DraftDropdownRef.current && !DraftDropdownRef.current.contains(event.target as Node)) {
-        setTpmDropdownOpen(false);
-      }
-      if (NBADropdownRef.current && !NBADropdownRef.current.contains(event.target as Node)) {
-        setModelsDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const toggleTpmDropdown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setTpmDropdownOpen(!DraftDropdownOpen);
-    if (NBADropdownOpen) setModelsDropdownOpen(false);
-  };
-
-  const toggleModelsDropdown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setModelsDropdownOpen(!NBADropdownOpen);
-    if (DraftDropdownOpen) setTpmDropdownOpen(false);
-  };
-
-  const handleItemClick = (e: React.MouseEvent, item: MenuItem) => {
-    if (!item.available) {
-      e.preventDefault();
-      setComingSoonFeature(item.name);
-      if (item.stage) {
-        setDevelopmentStage(item.stage);
-      }
-      setShowComingSoon(true);
-      setTpmDropdownOpen(false);
-      setModelsDropdownOpen(false);
-    }
-  };
-
-  return (
-    <>
-      {/* Fixed header */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-[#19191A] border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Navigation Tabs */}
-            <div className="flex space-x-4">
-              {/* Home tab */}
-              <Link
-                href={homeTab.href}
-                className={`
-                  px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                  ${activeTab === homeTab.name
-                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                    : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                  }
-                `}
-              >
-                {homeTab.name}
-              </Link>
-
-              {/* Draft Dropdown */}
-              <div className="relative" ref={DraftDropdownRef}>
-                <button
-                  onClick={toggleTpmDropdown}
-                  className={`
-                    px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                    ${activeTab === 'Draft'
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                    }
-                    flex items-center
-                  `}
-                  type="button"
-                  aria-haspopup="true"
-                  aria-expanded={DraftDropdownOpen}
-                >
-                  Draft
-                  <svg className="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-
-                {/* Draft Dropdown menu */}
-                {DraftDropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
-                    <div className="py-1" role="menu" aria-orientation="vertical">
-                      {DraftDropdownItems.map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.available ? item.href : '#'}
-                          className={`
-                            block px-4 py-2 text-sm transition-colors duration-200
-                            ${item.available
-                              ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                              : 'text-gray-500 hover:bg-gray-700'
-                            }
-                          `}
-                          role="menuitem"
-                          onClick={(e) => handleItemClick(e, item)}
-                        >
-                          {item.name}
-                          {!item.available && (
-                            <span className="ml-2 text-xs text-gray-500"></span>
-                          )}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* NBA Dropdown */}
-              <div className="relative" ref={NBADropdownRef}>
-                <button
-                  onClick={toggleModelsDropdown}
-                  className={`
-                    px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                    ${activeTab === 'NBA'
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                    }
-                    flex items-center
-                  `}
-                  type="button"
-                  aria-haspopup="true"
-                  aria-expanded={NBADropdownOpen}
-                >
-                  NBA
-                  <svg className="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-
-                {/* NBA Dropdown menu */}
-                {NBADropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
-                    <div className="py-1" role="menu" aria-orientation="vertical">
-                      {NBADropdownItems.map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.available ? item.href : '#'}
-                          className={`
-                            block px-4 py-2 text-sm transition-colors duration-200
-                            ${item.available
-                              ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                              : 'text-gray-500 hover:bg-gray-700'
-                            }
-                          `}
-                          role="menuitem"
-                          onClick={(e) => handleItemClick(e, item)}
-                        >
-                          {item.name}
-                          {!item.available && (
-                            <span className="ml-2 text-xs text-gray-500"></span>
-                          )}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* TPM Logo on the right */}
-            <div className={`text-4xl font-bold text-white`}>
-              TPM
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Spacer div to prevent content from hiding behind fixed header */}
-      <div className="h-16"></div>
-
-      {/* Coming Soon overlay */}
-      {showComingSoon && (
-        <ComingSoon
-          feature={comingSoonFeature}
-          currentStage={developmentStage}
-          onClose={() => setShowComingSoon(false)}
-        />
-      )}
-    </>
-  );
-};
-
 interface TimelineFilterProps {
   selectedSortKey: string;
   setSelectedSortKey: (key: string) => void;
@@ -618,8 +390,7 @@ const TimelineFilter = ({
 }: TimelineFilterProps) => {
   const [showFilterSection, setShowFilterSection] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [isEPMModelOpen, setIsEPMModelOpen] = useState(false);
-
+  const [selectedYear, setSelectedYear] = useState('2024');
 
   //timeline labels
   const yearSortKeys = [
@@ -746,24 +517,63 @@ const TimelineFilter = ({
           )}
         </div>
 
-        {/* View mode toggle - always visible */}
-        <motion.button
-          onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
-          className={`
-            px-4 py-2 rounded-lg text-sm font-medium
-            flex items-center
-            transition-all duration-300
-            ${viewMode === 'table'
-              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-              : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-            }
-          `}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <TableIcon className="mr-2 h-4 w-4" />
-          {viewMode === 'cards' ? 'Table View' : 'Card View'}
-        </motion.button>
+        {/* View mode toggle and Year dropdown */}
+        <div className="flex items-center space-x-2">
+          {/* Year Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <motion.button
+                className={`
+                  px-3 py-2 rounded-lg text-sm font-medium
+                  transition-all duration-300
+                  bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700
+                  flex items-center gap-2
+                `}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {selectedYear}
+                <ChevronDown className="h-4 w-4" />
+              </motion.button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+              <DropdownMenuItem
+                className="text-gray-300 hover:bg-gray-800/50 cursor-pointer"
+                onClick={() => setSelectedYear('2024')}
+              >
+                2024
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-gray-600 hover:bg-gray-800/50 cursor-not-allowed"
+                disabled
+              >
+                2025
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Divider */}
+          <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+          {/* View mode toggle */}
+          <motion.button
+            onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
+            className={`
+              px-4 py-2 rounded-lg text-sm font-medium
+              flex items-center
+              transition-all duration-300
+              ${viewMode === 'table'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <TableIcon className="mr-2 h-4 w-4" />
+            {viewMode === 'cards' ? 'Table View' : 'Card View'}
+          </motion.button>
+        </div>
       </div>
 
       {/* Collapsible content */}
@@ -953,7 +763,7 @@ const TimelineFilter = ({
                   {/* Divider */}
                   <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
-                  {/* Graphs button */}
+                  {/* Graphs button
                   <motion.button
                     onClick={() => setIsEPMModelOpen(true)}
                     className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2
@@ -968,15 +778,15 @@ const TimelineFilter = ({
                   </motion.button>
 
                   {/* EPM Graph Model */}
-                  <EPMGraphModel
+                  {/* <EPMGraphModel
                     isOpen={isEPMModelOpen}
                     onClose={() => setIsEPMModelOpen(false)}
                     prospects={filteredProspects}
                     selectedPosition={selectedPosition}
                     allProspects={filteredProspects}
                     setGraphType={() => {}} // Add empty function since this component doesn't use it
-                  />
-
+                  /> */} 
+                  
                   {/* Divider */}
                   <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
@@ -1134,12 +944,11 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+        <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
           <p className="font-bold text-white">Year {label}</p>
           {payload.map((entry: PayloadItem) => (
             <p key={entry.dataKey} style={{ color: entry.color }}>
               {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-              {graphType === 'rankings' ? ' (rank)' : ' (EPM)'}
             </p>
           ))}
         </div>
@@ -1201,8 +1010,7 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
                   type="number"
                   stroke="#888"
                   domain={graphType === 'rankings' ? [-5, 5] : [-5, 5]}
-                // For rankings, you might want to invert the axis so lower (better) ranks are at the top
-                // Consider: reversed={graphType === 'rankings'}
+                  reversed={graphType === 'rankings'}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
@@ -1697,64 +1505,240 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
 {/* Player Tables */ }
 const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: Record<string, RankType> }) => {
-  // const [sortConfig, setSortConfig] = useState<{
-  //   key: keyof DraftProspect | 'Rank';
-  //   direction: 'ascending' | 'descending';
-  // } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof DraftProspect | 'Rank';
+    direction: 'ascending' | 'descending';
+  } | null>(null);
+
+  // Function to handle sorting
+  const handleSort = (key: keyof DraftProspect | 'Rank') => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    
+    // If already sorting by this key, toggle direction
+    if (sortConfig && sortConfig.key === key) {
+      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
+    }
+    
+    setSortConfig({ key, direction });
+  };
+
+  // Apply sorting to the filtered prospects
+  const sortedProspects = React.useMemo(() => {
+    const sortableProspects = [...prospects];
+    
+    if (!sortConfig) {
+      return sortableProspects;
+    }
+
+    sortableProspects.sort((a, b) => {
+      // Handle Rank column specially (it's not in the data)
+      if (sortConfig.key === 'Rank') {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      
+      let aValue = a[sortConfig.key as keyof DraftProspect];
+      let bValue = b[sortConfig.key as keyof DraftProspect];
+
+      // Handle specific columns
+      if (sortConfig.key === 'Actual Pick') {
+        // Convert to numbers for sorting
+        const aNum = parseInt(aValue as string) || 99; // Use 99 for undrafted
+        const bNum = parseInt(bValue as string) || 99;
+        return sortConfig.direction === 'ascending' 
+          ? aNum - bNum 
+          : bNum - aNum;
+      }
+      
+      // Handle Height (convert to inches)
+      if (sortConfig.key === 'Height') {
+        const aNum = parseFloat(aValue as string) || 0;
+        const bNum = parseFloat(bValue as string) || 0;
+        return sortConfig.direction === 'ascending' 
+          ? aNum - bNum 
+          : bNum - aNum;
+      }
+
+      // Handle Weight
+      if (sortConfig.key === 'Weight (lbs)') {
+        const aNum = parseInt(aValue as string) || 0;
+        const bNum = parseInt(bValue as string) || 0;
+        return sortConfig.direction === 'ascending' 
+          ? aNum - bNum 
+          : bNum - aNum;
+      }
+
+      // Default string comparison
+      if (aValue === undefined) aValue = '';
+      if (bValue === undefined) bValue = '';
+      
+      if (sortConfig.direction === 'ascending') {
+        return String(aValue).localeCompare(String(bValue));
+      } else {
+        return String(bValue).localeCompare(String(aValue));
+      }
+    });
+    
+    return sortableProspects;
+  }, [prospects, sortConfig]);
+
+  // Helper function to convert height to inches
+  const heightToInches = (height: string): number => {
+    if (!height) return 0;
+    
+    // Handle format like "6'8"
+    const parts = height.split("'");
+    if (parts.length === 2) {
+      const feet = parseInt(parts[0]) || 0;
+      const inches = parseInt(parts[1]) || 0;
+      return (feet * 12) + inches;
+    }
+    
+    return 0;
+  };
 
   return (
-    <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-gray-400">Rank</TableHead>
-            <TableHead className="text-gray-400">Name</TableHead>
-            <TableHead className="text-gray-400">Position</TableHead>
-            <TableHead className="text-gray-400">Pre-NBA</TableHead>
-            <TableHead className="text-gray-400">Draft Pick</TableHead>
-            <TableHead className="text-gray-400">NBA Team</TableHead>
-            <TableHead className="text-gray-400">Age</TableHead>
-            <TableHead className="text-gray-400">Height</TableHead>
-            <TableHead className="text-gray-400">Wingspan</TableHead>
-            <TableHead className="text-gray-400">Weight</TableHead>
-            <TableHead className="text-gray-400">Y1 Rank</TableHead>
-            <TableHead className="text-gray-400">Y2 Rank</TableHead>
-            <TableHead className="text-gray-400">Y3 Rank</TableHead>
-            <TableHead className="text-gray-400">3Y Avg</TableHead>
-            <TableHead className="text-gray-400">Y4 Rank</TableHead>
-            <TableHead className="text-gray-400">Y5 Rank</TableHead>
-            <TableHead className="text-gray-400">5Y Avg</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {prospects.map((prospect) => (
-            <TableRow
-              key={prospect.Name}
-              className="hover:bg-gray-800/20"
-            >
-              <TableCell className="text-gray-300">{rank[prospect.Name]}</TableCell>
-              <TableCell className="font-medium text-gray-300">{prospect.Name}</TableCell>
-              <TableCell className="text-gray-300">{prospect.Role}</TableCell>
-              <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
-              <TableCell className="text-gray-300">
-                {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
-              </TableCell>
-              <TableCell className="text-gray-300">{teamNames[prospect.NBA] || prospect.NBA}</TableCell>
-              <TableCell className="text-gray-300">{prospect.Age}</TableCell>
-              <TableCell className="text-gray-300">{prospect.Height}</TableCell>
-              <TableCell className="text-gray-300">{prospect.Wingspan}</TableCell>
-              <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
-              <TableCell className="text-gray-300">{prospect['Pred. Y1 Rank']}</TableCell>
-              <TableCell className="text-gray-300">{prospect['Pred. Y2 Rank']}</TableCell>
-              <TableCell className="text-gray-300">{prospect['Pred. Y3 Rank']}</TableCell>
-              <TableCell className="text-blue-400">{prospect['Avg. Rank Y1-Y3']}</TableCell>
-              <TableCell className="text-gray-300">{prospect['Pred. Y4 Rank']}</TableCell>
-              <TableCell className="text-gray-300">{prospect['Pred. Y5 Rank']}</TableCell>
-              <TableCell className="text-blue-400">{prospect['Avg. Rank Y1-Y5']}</TableCell>
+    <div className="max-w-6xl mx-auto px-4 pt-8">
+      <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead 
+                className={`text-gray-400 cursor-pointer hover:text-gray-200`}
+                onClick={() => handleSort('Rank')}
+              >
+                Rank
+                {sortConfig?.key === 'Rank' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead 
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('Name')}
+              >
+                Name
+                {sortConfig?.key === 'Name' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead 
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('Role')}
+              >
+                Position
+                {sortConfig?.key === 'Role' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead 
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('Pre-NBA')}
+              >
+                Pre-NBA
+                {sortConfig?.key === 'Pre-NBA' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead 
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('Actual Pick')}
+              >
+                Draft Pick
+                {sortConfig?.key === 'Actual Pick' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead 
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('NBA Team')}
+              >
+                NBA Team
+                {sortConfig?.key === 'NBA Team' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead 
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('Height')}
+              >
+                Height
+                {sortConfig?.key === 'Height' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead 
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('Weight (lbs)')}
+              >
+                Weight
+                {sortConfig?.key === 'Weight (lbs)' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead 
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('Wing - Height')}
+              >
+                Wing - Height
+                {sortConfig?.key === 'Wing - Height' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead 
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('Age')}
+              >
+                Age
+                {sortConfig?.key === 'Age' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {sortedProspects.map((prospect, index) => (
+              <TableRow
+                key={prospect.Name}
+                className="hover:bg-gray-800/20"
+              >
+                <TableCell className="text-gray-300">{index + 1}</TableCell>
+                <TableCell className="font-medium text-gray-300">{prospect.Name}</TableCell>
+                <TableCell className="text-gray-300">{prospect.Role}</TableCell>
+                <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
+                <TableCell className="text-gray-300">
+                  {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
+                </TableCell>
+                <TableCell className="text-gray-300">
+                  {teamNames[prospect['NBA Team']] || prospect['NBA Team']}
+                </TableCell>
+                <TableCell className="text-gray-300">{prospect.Height}</TableCell>
+                <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
+                <TableCell className="text-gray-300">{prospect['Wing - Height']}</TableCell>
+                <TableCell className="text-gray-300">{prospect.Age}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

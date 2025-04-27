@@ -1,238 +1,87 @@
 "use client";
-import React, { useEffect, useState, useRef } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import ComingSoon from '../components/ui/ComingSoon'; // Import the ComingSoon component
-
-interface NavigationHeaderProps {
-    activeTab?: string;
-}
-
-interface MenuItem {
-  name: string;
-  href: string;
-  available: boolean;
-  stage?: 'brainstorming' | 'development' | 'testing';
-}
-
-const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
-    const [DraftDropdownOpen, setTpmDropdownOpen] = useState(false);
-    const [NBADropdownOpen, setModelsDropdownOpen] = useState(false);
-    const DraftDropdownRef = useRef<HTMLDivElement>(null);
-    const NBADropdownRef = useRef<HTMLDivElement>(null);
-    const [showComingSoon, setShowComingSoon] = useState(false);
-    const [comingSoonFeature, setComingSoonFeature] = useState('');
-    const [developmentStage, setDevelopmentStage] = useState<'brainstorming' | 'development' | 'testing'>('development');
-    
-    // Only Home as regular tab
-    const homeTab = { name: 'Home', href: '/' };
-    
-    // TPM dropdown items
-    const DraftDropdownItems = [
-      { name: 'Max Savin', href: '/TPM_Draft_Page', available: true },
-      { name: 'Nick Kalinowski', href: '/Nick_Draft_Page', available: true},
-    ];
-    
-    // Models dropdown items
-    const NBADropdownItems = [
-      { name: 'Max Savin', href: '/TPM_FVC', available: false, stage: 'testing' as const },
-    ];
-  
-    // Close dropdowns when clicking outside
-    useEffect(() => {
-      function handleClickOutside(event: MouseEvent) {
-        if (DraftDropdownRef.current && !DraftDropdownRef.current.contains(event.target as Node)) {
-          setTpmDropdownOpen(false);
-        }
-        if (NBADropdownRef.current && !NBADropdownRef.current.contains(event.target as Node)) {
-          setModelsDropdownOpen(false);
-        }
-      }
-      
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }, []);
-  
-    const toggleTpmDropdown = (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setTpmDropdownOpen(!DraftDropdownOpen);
-      if (NBADropdownOpen) setModelsDropdownOpen(false);
-    };
-    
-    const toggleModelsDropdown = (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setModelsDropdownOpen(!NBADropdownOpen);
-      if (DraftDropdownOpen) setTpmDropdownOpen(false);
-    };
-
-    const handleItemClick = (e: React.MouseEvent, item: MenuItem) => {
-      if (!item.available) {
-        e.preventDefault();
-        setComingSoonFeature(item.name);
-        if (item.stage) {
-          setDevelopmentStage(item.stage);
-        }
-        setShowComingSoon(true);
-        setTpmDropdownOpen(false);
-        setModelsDropdownOpen(false);
-      }
-    };
-  
-    return (
-      <>
-        {/* Fixed header */}
-        <div className="fixed top-0 left-0 right-0 z-40 bg-[#19191A] border-b border-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              {/* Navigation Tabs */}
-              <div className="flex space-x-4">
-                {/* Home tab */}
-                <Link
-                  href={homeTab.href}
-                  className={`
-                    px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                    ${activeTab === homeTab.name 
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                    }
-                  `}
-                >
-                  {homeTab.name}
-                </Link>
-                
-                {/* Draft Dropdown */}
-                <div className="relative" ref={DraftDropdownRef}>
-                  <button 
-                    onClick={toggleTpmDropdown}
-                    className={`
-                      px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                      ${activeTab === 'Draft' 
-                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                      }
-                      flex items-center
-                    `}
-                    type="button"
-                    aria-haspopup="true"
-                    aria-expanded={DraftDropdownOpen}
-                  >
-                    Draft
-                    <svg className="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  
-                  {/* Draft Dropdown menu */}
-                  {DraftDropdownOpen && (
-                    <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
-                      <div className="py-1" role="menu" aria-orientation="vertical">
-                        {DraftDropdownItems.map((item) => (
-                          <Link
-                            key={item.name}
-                            href={item.available ? item.href : '#'}
-                            className={`
-                              block px-4 py-2 text-sm transition-colors duration-200
-                              ${item.available 
-                                ? 'text-gray-300 hover:bg-gray-700 hover:text-white' 
-                                : 'text-gray-500 hover:bg-gray-700'
-                              }
-                            `}
-                            role="menuitem"
-                            onClick={(e) => handleItemClick(e, item)}
-                          >
-                            {item.name}
-                            {!item.available && (
-                              <span className="ml-2 text-xs text-gray-500"></span>
-                            )}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                {/* NBA Dropdown */}
-                <div className="relative" ref={NBADropdownRef}>
-                  <button 
-                    onClick={toggleModelsDropdown}
-                    className={`
-                      px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                      ${activeTab === 'NBA' 
-                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                      }
-                      flex items-center
-                    `}
-                    type="button"
-                    aria-haspopup="true"
-                    aria-expanded={NBADropdownOpen}
-                  >
-                    NBA
-                    <svg className="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  
-                  {/* NBA Dropdown menu */}
-                  {NBADropdownOpen && (
-                    <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
-                      <div className="py-1" role="menu" aria-orientation="vertical">
-                        {NBADropdownItems.map((item) => (
-                          <Link
-                            key={item.name}
-                            href={item.available ? item.href : '#'}
-                            className={`
-                              block px-4 py-2 text-sm transition-colors duration-200
-                              ${item.available 
-                                ? 'text-gray-300 hover:bg-gray-700 hover:text-white' 
-                                : 'text-gray-500 hover:bg-gray-700'
-                              }
-                            `}
-                            role="menuitem"
-                            onClick={(e) => handleItemClick(e, item)}
-                          >
-                            {item.name}
-                            {!item.available && (
-                              <span className="ml-2 text-xs text-gray-500"></span>
-                            )}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-  
-              {/* TPM Logo on the right */}
-              <div className={`text-4xl font-bold text-white`}>
-                TPM
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Spacer div to prevent content from hiding behind fixed header */}
-        <div className="h-16"></div>
-
-        {/* Coming Soon overlay */}
-        {showComingSoon && (
-          <ComingSoon 
-            feature={comingSoonFeature}
-            currentStage={developmentStage}
-            onClose={() => setShowComingSoon(false)}
-          />
-        )}
-      </>
-    );
-  };
+import ComingSoon from '../components/ui/ComingSoon';
+import NavigationHeader from '@/components/NavigationHeader';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#19191A]">
-      <NavigationHeader activeTab="Home"/>
+      <NavigationHeader activeTab="Home" />
+      
+      {/* Hero Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <div className="text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+            Welcome to <span className="text-blue-400">TPM</span>
+          </h1>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
+            Your premier destination for NBA draft analysis and player metrics. Explore our comprehensive draft boards and advanced statistical models.
+          </p>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Draft Boards Card */}
+          <Link href="/TPM_Draft_Page" className="group">
+            <div className="bg-gray-800/20 border border-gray-800 rounded-xl p-6 hover:border-blue-500/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+              <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">
+                Draft Boards
+              </h2>
+              <p className="text-gray-400 mb-4">
+                Explore comprehensive draft boards from our expert analysts. Get detailed insights into the top prospects and their potential impact.
+              </p>
+              <div className="flex items-center text-blue-400">
+                <span className="text-sm font-medium">View Draft Boards</span>
+                <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </Link>
+
+          {/* NBA Models Card */}
+          <Link href="/TPM_FVC" className="group">
+            <div className="bg-gray-800/20 border border-gray-800 rounded-xl p-6 hover:border-blue-500/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+              <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">
+                NBA Models
+              </h2>
+              <p className="text-gray-400 mb-4">
+                Dive into our advanced statistical models and metrics. Understand player performance through cutting-edge analytics.
+              </p>
+              <div className="flex items-center text-blue-400">
+                <span className="text-sm font-medium">Explore Models</span>
+                <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* About Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="bg-gray-800/20 border border-gray-800 rounded-xl p-8">
+          <h2 className="text-3xl font-bold text-white mb-6">About TPM</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-4">Our Mission</h3>
+              <p className="text-gray-400">
+                TPM is dedicated to providing the most comprehensive and accurate NBA draft analysis and player metrics. We combine traditional scouting with advanced analytics to deliver unique insights into player potential and performance.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-4">Our Approach</h3>
+              <p className="text-gray-400">
+                We believe in a data-driven approach to basketball analysis, combining statistical models with expert insights to provide a complete picture of player development and team dynamics.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
