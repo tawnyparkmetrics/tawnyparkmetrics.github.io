@@ -18,6 +18,7 @@ export interface DraftProspect {
   'Pre-NBA': string;
 
   'Height': string;
+  'Height (in)': string;
   'Weight (lbs)': string;
   'Role': string;
   'Age': string;
@@ -742,10 +743,10 @@ export default function NickDraftPage() {
           : bNum - aNum;
       }
       
-      // Handle Height (convert to inches)
+      // Handle Height (use Height (in) for sorting)
       if (sortConfig.key === 'Height') {
-        const aInches = heightToInches(aValue as string);
-        const bInches = heightToInches(bValue as string);
+        const aInches = parseInt(a['Height (in)'] as string) || 0;
+        const bInches = parseInt(b['Height (in)'] as string) || 0;
         return sortConfig.direction === 'ascending' 
           ? aInches - bInches 
           : bInches - aInches;
@@ -773,21 +774,6 @@ export default function NickDraftPage() {
     
     return sortableProspects;
   }, [filteredProspects, sortConfig]);
-
-  // Helper function to convert height to inches
-  const heightToInches = (height: string): number => {
-    if (!height) return 0;
-    
-    // Handle format like "6'8"
-    const parts = height.split("'");
-    if (parts.length === 2) {
-      const feet = parseInt(parts[0]) || 0;
-      const inches = parseInt(parts[1]) || 0;
-      return (feet * 12) + inches;
-    }
-    
-    return 0;
-  };
 
   // Render the table with sorting functionality
   const ProspectTable = ({
