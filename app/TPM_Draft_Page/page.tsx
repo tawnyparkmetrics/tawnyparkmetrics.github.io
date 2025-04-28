@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   DropdownMenu,
@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
-import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal, BarChart as BarChartIcon } from 'lucide-react';
+import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal, } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -16,11 +16,11 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+// import Link from 'next/link';
 import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { TooltipProps } from 'recharts';
-import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
+// import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
 import NavigationHeader from '@/components/NavigationHeader';
 
 
@@ -143,88 +143,88 @@ type CustomTooltipProps = TooltipProps<number | string, string> & {
 //   return chartData;
 // };
 
-const EPMGraphModel: React.FC<EPMModelProps> = ({
-  isOpen,
-  onClose,
-  allProspects,
-}) => {
-  const filteredProspects = allProspects;
+// const EPMGraphModel: React.FC<EPMModelProps> = ({
+//   isOpen,
+//   onClose,
+//   allProspects,
+// }) => {
+//   const filteredProspects = allProspects;
 
-  const prepareChartData = () => {
-    const yearData: { year: string | number;[key: string]: string | number }[] = [];
+//   const prepareChartData = () => {
+//     const yearData: { year: string | number;[key: string]: string | number }[] = [];
 
-    for (let year = 1; year <= 5; year++) {
-      const yearObj: { year: string | number;[key: string]: string | number } = { year };
+//     for (let year = 1; year <= 5; year++) {
+//       const yearObj: { year: string | number;[key: string]: string | number } = { year };
 
-      filteredProspects.forEach((prospect) => {
-        const rankKey = `Pred. Y${year} EPM` as keyof DraftProspect;
-        yearObj[prospect.Name] = prospect[rankKey] ?? 0;
-      });
+//       filteredProspects.forEach((prospect) => {
+//         const rankKey = `Pred. Y${year} EPM` as keyof DraftProspect;
+//         yearObj[prospect.Name] = prospect[rankKey] ?? 0;
+//       });
 
-      yearData.push(yearObj);
-    }
+//       yearData.push(yearObj);
+//     }
 
-    return yearData;
-  };
+//     return yearData;
+//   };
 
-  const chartData = prepareChartData();
+//   const chartData = prepareChartData();
 
-  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
-          <p className="font-bold text-white">Year {label}</p>
-          {payload.map((entry: PayloadItem) => (
-            <p key={entry.dataKey} style={{ color: entry.color }}>
-              {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
+//   const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+//     if (active && payload && payload.length) {
+//       return (
+//         <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
+//           <p className="font-bold text-white">Year {label}</p>
+//           {payload.map((entry: PayloadItem) => (
+//             <p key={entry.dataKey} style={{ color: entry.color }}>
+//               {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
+//             </p>
+//           ))}
+//         </div>
+//       );
+//     }
+//     return null;
+//   };
 
-  return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        <AlertDialogHeader className="flex flex-row items-center justify-between">
-          <AlertDialogTitle className="text-xl">Prospect EPM Progression</AlertDialogTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
-        </AlertDialogHeader>
+//   return (
+//     <AlertDialog open={isOpen} onOpenChange={onClose}>
+//       <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+//         <AlertDialogHeader className="flex flex-row items-center justify-between">
+//           <AlertDialogTitle className="text-xl">Prospect EPM Progression</AlertDialogTitle>
+//           <Button variant="ghost" size="icon" onClick={onClose}>
+//             <X className="h-5 w-5" />
+//           </Button>
+//         </AlertDialogHeader>
 
-        <CardContent className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>EPM Progression By Player</CardTitle>
-              <CardDescription>Years on X-axis, EPM values on Y-axis</CardDescription>
-            </CardHeader>
-            <ResponsiveContainer width="100%" height={500}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} /> {/* X-axis domain */}
-                <YAxis type="number" stroke="#888" domain={[-5, 5]} /> {/* Y-axis domain */}
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                {filteredProspects.map((prospect) => (
-                  <Line
-                    key={prospect.Name}
-                    type="monotone"
-                    dataKey={prospect.Name}
-                    stroke={prospect['Team Color']}
-                    activeDot={{ r: 8 }}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
-        </CardContent>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-};
+//         <CardContent className="space-y-6">
+//           <Card>
+//             <CardHeader>
+//               <CardTitle>EPM Progression By Player</CardTitle>
+//               <CardDescription>Years on X-axis, EPM values on Y-axis</CardDescription>
+//             </CardHeader>
+//             <ResponsiveContainer width="100%" height={500}>
+//               <LineChart data={chartData}>
+//                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+//                 <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} /> {/* X-axis domain */}
+//                 <YAxis type="number" stroke="#888" domain={[-5, 5]} /> {/* Y-axis domain */}
+//                 <Tooltip content={<CustomTooltip />} />
+//                 <Legend />
+//                 {filteredProspects.map((prospect) => (
+//                   <Line
+//                     key={prospect.Name}
+//                     type="monotone"
+//                     dataKey={prospect.Name}
+//                     stroke={prospect['Team Color']}
+//                     activeDot={{ r: 8 }}
+//                   />
+//                 ))}
+//               </LineChart>
+//             </ResponsiveContainer>
+//           </Card>
+//         </CardContent>
+//       </AlertDialogContent>
+//     </AlertDialog>
+//   );
+// };
 
 // for individual player graphs
 // const EPMModel = (props: EPMModelProps) => {
@@ -382,7 +382,6 @@ const TimelineFilter = ({
   setSelectedSortKey,
   selectedPosition,
   setSelectedPosition,
-  filteredProspects,
   searchQuery,
   setSearchQuery,
   viewMode,
@@ -1582,19 +1581,19 @@ const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: 
   }, [prospects, sortConfig]);
 
   // Helper function to convert height to inches
-  const heightToInches = (height: string): number => {
-    if (!height) return 0;
+  // const heightToInches = (height: string): number => {
+  //   if (!height) return 0;
     
-    // Handle format like "6'8"
-    const parts = height.split("'");
-    if (parts.length === 2) {
-      const feet = parseInt(parts[0]) || 0;
-      const inches = parseInt(parts[1]) || 0;
-      return (feet * 12) + inches;
-    }
+  //   // Handle format like "6'8"
+  //   const parts = height.split("'");
+  //   if (parts.length === 2) {
+  //     const feet = parseInt(parts[0]) || 0;
+  //     const inches = parseInt(parts[1]) || 0;
+  //     return (feet * 12) + inches;
+  //   }
     
-    return 0;
-  };
+  //   return 0;
+  // };
 
   return (
     <div className="max-w-6xl mx-auto px-4 pt-8">

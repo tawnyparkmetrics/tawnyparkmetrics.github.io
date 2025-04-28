@@ -5,8 +5,7 @@ import { LucideUser, X, ChevronDown, Filter} from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
+// import Link from 'next/link';
 import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -85,12 +84,12 @@ const teamNames: { [key: string]: string } = {
   NCAA: "NC"
 }
 
-interface MenuItem {
-  name: string;
-  href: string;
-  available: boolean;
-  stage?: 'brainstorming' | 'development' | 'testing';
-}
+// interface MenuItem {
+//   name: string;
+//   href: string;
+//   available: boolean;
+//   stage?: 'brainstorming' | 'development' | 'testing';
+// }
 
 const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   const [logoError, setNBALogoError] = useState(false);
