@@ -677,6 +677,9 @@ export default function NickDraftPage() {
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';
   } | null>(null);
+  const [loadedProspects, setLoadedProspects] = useState<number>(5); // Start with 5 prospects
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchDraftProspects() {
@@ -916,6 +919,39 @@ export default function NickDraftPage() {
     );
   };
 
+  // Handle scroll event
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 100 &&
+        !isLoading &&
+        hasMore &&
+        viewMode === 'card'
+      ) {
+        setIsLoading(true);
+        // Simulate loading delay
+        setTimeout(() => {
+          setLoadedProspects(prev => {
+            const newCount = prev + 5;
+            setHasMore(newCount < sortedProspects.length);
+            return newCount;
+          });
+          setIsLoading(false);
+        }, 500);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLoading, hasMore, sortedProspects.length, viewMode]);
+
+  // Reset loaded prospects when filters change
+  useEffect(() => {
+    setLoadedProspects(5);
+    setHasMore(sortedProspects.length > 5);
+  }, [sortedProspects.length]);
+
   return (
     <div className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Nick Kalinowski" />
@@ -929,13 +965,23 @@ export default function NickDraftPage() {
 
       {viewMode === 'card' ? (
         <div className="max-w-6xl mx-auto px-4 pt-8">
-          {sortedProspects.map((prospect) => (
+          {sortedProspects.slice(0, loadedProspects).map((prospect) => (
             <ProspectCard
               key={prospect.Name}
               prospect={prospect}
               filteredProspects={sortedProspects}
             />
           ))}
+          {isLoading && (
+            <div className="flex justify-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+            </div>
+          )}
+          {!hasMore && loadedProspects > 5 && (
+            <div className="text-center py-4 text-gray-400">
+              No more prospects to load
+            </div>
+          )}
         </div>
       ) : (
         <ProspectTable

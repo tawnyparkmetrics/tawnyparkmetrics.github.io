@@ -1750,6 +1750,9 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [loadedProspects, setLoadedProspects] = useState<number>(5); // Start with 5 prospects
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
   const filteredProspects = useMemo(() => {
     // First, sort all prospects according to the selected sort key
@@ -1843,6 +1846,39 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
   }, [initialProspects, selectedSortKey, selectedPosition, searchQuery]);
 
+  // Handle scroll event
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 100 &&
+        !isLoading &&
+        hasMore &&
+        viewMode === 'cards'
+      ) {
+        setIsLoading(true);
+        // Simulate loading delay
+        setTimeout(() => {
+          setLoadedProspects(prev => {
+            const newCount = prev + 5;
+            setHasMore(newCount < filteredProspects.length);
+            return newCount;
+          });
+          setIsLoading(false);
+        }, 500);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLoading, hasMore, filteredProspects.length, viewMode]);
+
+  // Reset loaded prospects when filters change
+  useEffect(() => {
+    setLoadedProspects(5);
+    setHasMore(filteredProspects.length > 5);
+  }, [filteredProspects.length, selectedSortKey, selectedPosition, searchQuery]);
+
   return (
     <div className="bg-[#19191A] min-h-screen">
       {/* The NavigationHeader would be outside this component */}
@@ -1865,7 +1901,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         {filteredProspects.length > 0 ? (
           viewMode === 'cards' ? (
             <div className="space-y-4">
-              {filteredProspects.map(({ prospect, originalRank }) => (
+              {filteredProspects.slice(0, loadedProspects).map(({ prospect, originalRank }) => (
                 <ProspectCard
                   key={prospect.Name}
                   prospect={prospect}
@@ -1873,6 +1909,16 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
                   filteredProspects={filteredProspects.map(p => p.prospect)}
                 />
               ))}
+              {isLoading && (
+                <div className="flex justify-center py-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+                </div>
+              )}
+              {!hasMore && loadedProspects > 5 && (
+                <div className="text-center py-4 text-gray-400">
+                  No more prospects to load
+                </div>
+              )}
             </div>
           ) : (
             <ProspectTable
