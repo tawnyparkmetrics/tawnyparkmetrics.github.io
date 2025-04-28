@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { X, ChevronDown } from 'lucide-react';
+//import { X, ChevronDown } from 'lucide-react';
 import ComingSoon from '@/components/ui/ComingSoon';
 
 export interface NavigationHeaderProps {

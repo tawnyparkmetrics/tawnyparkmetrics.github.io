@@ -12,10 +12,10 @@ export default function TPMWriteUpPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-            Max Savin's <span className="text-blue-400">Write Up</span>
+            Max Savin&apos;s <span className="text-blue-400">Write Up</span>
           </h1>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
-            Coming soon: Detailed analysis and insights from Max Savin's draft board.
+            Coming soon: Detailed analysis and insights from Max Savin&apos;s draft board.
           </p>
           <Link 
             href="/TPM_Draft_Page"

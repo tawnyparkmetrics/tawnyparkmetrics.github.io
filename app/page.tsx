@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import ComingSoon from '../components/ui/ComingSoon';
+//import ComingSoon from '../components/ui/ComingSoon';
 import NavigationHeader from '@/components/NavigationHeader';
 
 export default function Home() {
