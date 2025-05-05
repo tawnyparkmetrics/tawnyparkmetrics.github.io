@@ -1066,7 +1066,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
   }, [isExpanded, isMobile]);
 
   const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
-  const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
+  // const playerSummary = prospect.Summary || "A detailed scouting report would go here, describing the player's strengths, weaknesses, and projected role in the NBA.";
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
@@ -1329,26 +1329,27 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
               <div className="text-gray-300">
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="font-semibold text-lg text-white">Skills Assessment</h3>
-                  {selectedForComparison ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-400">Comparing with {selectedForComparison.Name}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedForComparison(null)}
-                        className="text-gray-400 hover:text-white"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    {selectedForComparison ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-400">Comparing with {selectedForComparison.Name}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedForComparison(null)}
+                          className="text-gray-400 hover:text-white"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                   ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsCompareDialogOpen(true)}
-                    >
-                      Compare
-                    </Button>
+                        <motion.button
+                          onClick={() => setIsCompareDialogOpen(true)}
+                          className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 transition-all duration-300"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Compare
+                        </motion.button>
                   )}
                 </div>
                 <div className="h-[400px] w-full">
@@ -1497,7 +1498,7 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
                   >
                     EPM Graph
                   </motion.button>
-                </div>
+                      </div>
 
                 {/* Graph Modal */}
                 {isGraphModelOpen && (
@@ -1511,11 +1512,11 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
                     graphType={graphType}
                     setGraphType={setGraphType}
                   />
-                )}
-              </div>
+                    )}
+                  </div>
             </motion.div>
           )}
-        </div>
+                </div>
       </motion.div>
 
       {/* Divider - only show for desktop */}
@@ -1563,7 +1564,7 @@ interface ProspectTableProps {
   rank: Record<string, RankType>;
 }
 
-const ProspectTable: React.FC<ProspectTableProps> = ({ prospects, rank }) => {
+const ProspectTable: React.FC<ProspectTableProps> = ({ prospects }) => {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';
