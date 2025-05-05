@@ -12,7 +12,7 @@ import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal, } from 'lucid
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,12 @@ import { Input } from '@/components/ui/input';
 import { TooltipProps } from 'recharts';
 // import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
 import NavigationHeader from '@/components/NavigationHeader';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 
 export interface DraftProspect {
@@ -52,6 +58,16 @@ export interface DraftProspect {
   'Wing - Height': string;
   'Weight (lbs)': string;
   'Role': string;
+
+  // Skill attributes
+  Size: number;
+  Athleticism: number;
+  Defense: number;
+  Rebounding: number;
+  Scoring: number;
+  Passing: number;
+  Shooting: number;
+  Efficiency: number;
 
   Summary?: string;
   originalRank?: number;
@@ -1016,6 +1032,8 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
+  const [selectedForComparison, setSelectedForComparison] = useState<DraftProspect | null>(null);
+  const [isCompareDialogOpen, setIsCompareDialogOpen] = useState(false);
 
   const handleMouseEnter = () => {
     if (!isMobile) {
@@ -1052,16 +1070,17 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
-  // Update the position ranking calculations
-  // const calculatePositionRank = (year: string, prospect: DraftProspect): number => {
-  //   const samePositionProspects = initialProspects.filter((p: DraftProspect) => p.Role === prospect.Role);
-  //   const sortedByYear = samePositionProspects.sort((a: DraftProspect, b: DraftProspect) => {
-  //     const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
-  //     const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
-  //     return aRank - bRank;
-  //   });
-  //   return sortedByYear.findIndex((p: DraftProspect) => p.Name === prospect.Name) + 1;
-  // };
+  // Prepare data for spider chart
+  const spiderChartData = [
+    { subject: 'Size', A: Number(prospect.Size) || 0, B: selectedForComparison ? Number(selectedForComparison.Size) || 0 : 0 },
+    { subject: 'Athleticism', A: Number(prospect.Athleticism) || 0, B: selectedForComparison ? Number(selectedForComparison.Athleticism) || 0 : 0 },
+    { subject: 'Defense', A: Number(prospect.Defense) || 0, B: selectedForComparison ? Number(selectedForComparison.Defense) || 0 : 0 },
+    { subject: 'Rebounding', A: Number(prospect.Rebounding) || 0, B: selectedForComparison ? Number(selectedForComparison.Rebounding) || 0 : 0 },
+    { subject: 'Scoring', A: Number(prospect.Scoring) || 0, B: selectedForComparison ? Number(selectedForComparison.Scoring) || 0 : 0 },
+    { subject: 'Passing', A: Number(prospect.Passing) || 0, B: selectedForComparison ? Number(selectedForComparison.Passing) || 0 : 0 },
+    { subject: 'Shooting', A: Number(prospect.Shooting) || 0, B: selectedForComparison ? Number(selectedForComparison.Shooting) || 0 : 0 },
+    { subject: 'Efficiency', A: Number(prospect.Efficiency) || 0, B: selectedForComparison ? Number(selectedForComparison.Efficiency) || 0 : 0 },
+  ];
 
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
@@ -1203,11 +1222,6 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
                       </div>
                     </div>
                   </div>
-
-                  {/* NBA Team logo */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-                    <NBATeamLogo NBA={prospect['NBA Team']} />
-                  </div>
                 </div>
               </div>
             )}
@@ -1311,10 +1325,65 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
               `}
               style={{ backgroundColor: '#19191A' }}
             >
-              {/* Scouting Report Column */}
+              {/* Skills Spider Chart Column */}
               <div className="text-gray-300">
-                <h3 className="font-semibold text-lg mb-3 text-white">Scouting Report</h3>
-                <p className={`${isMobile ? 'text-xs' : 'text-sm'} leading-relaxed`}>{playerSummary}</p>
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-semibold text-lg text-white">Skills Assessment</h3>
+                  {selectedForComparison ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-400">Comparing with {selectedForComparison.Name}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedForComparison(null)}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsCompareDialogOpen(true)}
+                    >
+                      Compare
+                    </Button>
+                  )}
+                </div>
+                <div className="h-[400px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={spiderChartData}>
+                      <PolarGrid stroke="rgba(255, 255, 255, 0.1)" />
+                      <PolarAngleAxis 
+                        dataKey="subject" 
+                        tick={{ fill: 'white', fontSize: 12 }}
+                      />
+                      <PolarRadiusAxis 
+                        angle={30} 
+                        domain={[0, 100]} 
+                        tick={{ fill: 'white', fontSize: 10 }}
+                      />
+                      <Radar
+                        name={prospect.Name}
+                        dataKey="A"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                        fillOpacity={0.6}
+                      />
+                      {selectedForComparison && (
+                        <Radar
+                          name={selectedForComparison.Name}
+                          dataKey="B"
+                          stroke="#82ca9d"
+                          fill="#82ca9d"
+                          fillOpacity={0.6}
+                        />
+                      )}
+                      <Legend />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
 
               {/* Rankings Column */}
@@ -1457,12 +1526,44 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
           <div className="h-px w=3/4 bg-gray my-5" />
         </div>
       )}
+
+      {/* Compare Dialog */}
+      <Dialog open={isCompareDialogOpen} onOpenChange={setIsCompareDialogOpen}>
+        <DialogContent className="bg-gray-800 border-gray-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Select a prospect to compare</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto">
+            <div className="space-y-1">
+              {initialProspects
+                .filter(p => p.Name !== prospect.Name)
+                .map(p => (
+                  <button
+                    key={p.Name}
+                    className="w-full text-left px-3 py-2 text-gray-200 hover:bg-gray-700 rounded transition-colors"
+                    onClick={() => {
+                      setSelectedForComparison(p);
+                      setIsCompareDialogOpen(false);
+                    }}
+                  >
+                    {p.Name}
+                  </button>
+                ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 {/* Player Tables */ }
-const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record<string, RankType> }) => {
+interface ProspectTableProps {
+  prospects: DraftProspect[];
+  rank: Record<string, RankType>;
+}
+
+const ProspectTable: React.FC<ProspectTableProps> = ({ prospects, rank }) => {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';
