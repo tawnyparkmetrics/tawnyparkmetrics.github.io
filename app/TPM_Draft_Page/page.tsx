@@ -1053,15 +1053,15 @@ const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initial
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   // Update the position ranking calculations
-  const calculatePositionRank = (year: string, prospect: DraftProspect): number => {
-    const samePositionProspects = initialProspects.filter((p: DraftProspect) => p.Role === prospect.Role);
-    const sortedByYear = samePositionProspects.sort((a: DraftProspect, b: DraftProspect) => {
-      const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
-      const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
-      return aRank - bRank;
-    });
-    return sortedByYear.findIndex((p: DraftProspect) => p.Name === prospect.Name) + 1;
-  };
+  // const calculatePositionRank = (year: string, prospect: DraftProspect): number => {
+  //   const samePositionProspects = initialProspects.filter((p: DraftProspect) => p.Role === prospect.Role);
+  //   const sortedByYear = samePositionProspects.sort((a: DraftProspect, b: DraftProspect) => {
+  //     const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
+  //     const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
+  //     return aRank - bRank;
+  //   });
+  //   return sortedByYear.findIndex((p: DraftProspect) => p.Name === prospect.Name) + 1;
+  // };
 
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
