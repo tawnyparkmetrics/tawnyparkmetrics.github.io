@@ -157,7 +157,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                         <div key={item.name}>
                           {item.subItems ? (
                             // Main item with sub-items
-                            <div className="block px-4 py-2 text-sm font-semibold text-blue-400 border-b border-gray-700">
+                            <div className="block px-4 py-2 text-sm text-blue-400 border-b border-gray-700">
                               {item.name}
                               <div className="mt-1 space-y-1">
                                 {item.subItems.map((subItem) => (

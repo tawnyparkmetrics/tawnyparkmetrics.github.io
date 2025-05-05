@@ -90,7 +90,6 @@ const teamNames: { [key: string]: string } = {
   MEM: "Memphis Grizzlies",
   SAC: "Sacramento Kings",
   OKC: "Okhlahoma City Thunder",
-  NYK: "Brooklyn Nets",
   SAS: "San Antonio Spurs",
   IND: "Indiana Pacers",
   TOR: "Toronto Raptors",
@@ -104,6 +103,8 @@ const teamNames: { [key: string]: string } = {
   DEN: "Denver Nuggets",
   POR: "Portland Trailblazers",
   CLE: "Cleveland Cavaliers",
+  NYK: "New York Knicks",
+  BKN: "Brooklyn Nets",
 }
 
 // ALL GRAPHING NECESSITIES ARE HERE
@@ -725,9 +726,9 @@ const TimelineFilter = ({
                 )}
 
                 {/* Desktop filter bar - hidden on mobile */}
-                <div className="hidden md:flex justify-between items-center space-x-4 mt-4">
+                <div className="hidden md:flex justify-between items-center space-x-3 mt-4">
                   {/* Reset Button and Search Section */}
-                  <div className="relative flex items-center space-x-2 flex-grow max-w-md">
+                  <div className="relative flex items-center space-x-2 flex-grow max-w-2xl">
                     {/* Reset Button moved to the left of the Search Bar */}
                     <motion.button
                       onClick={resetFilters}
@@ -742,7 +743,7 @@ const TimelineFilter = ({
                       whileTap={{ scale: hasActiveFilters() ? 0.95 : 1 }}
                       disabled={!hasActiveFilters()}
                     >
-                      <X className="h-4 w-4" /> {/* w-10 is what we need */}
+                      <X className="h-4 w-4" />
                       Reset
                     </motion.button>
 
@@ -760,86 +761,54 @@ const TimelineFilter = ({
                   </div>
 
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-                  {/* Graphs button
-                  <motion.button
-                    onClick={() => setIsEPMModelOpen(true)}
-                    className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2
-                    transition-all duration-300
-                    bg-gray-800/20 text-gray-400 
-                    border border-gray-800 hover:border-gray-700"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <BarChartIcon className="h-4 w-4" />
-                    Graphs
-                  </motion.button>
-
-                  {/* EPM Graph Model */}
-                  {/* <EPMGraphModel
-                    isOpen={isEPMModelOpen}
-                    onClose={() => setIsEPMModelOpen(false)}
-                    prospects={filteredProspects}
-                    selectedPosition={selectedPosition}
-                    allProspects={filteredProspects}
-                    setGraphType={() => {}} // Add empty function since this component doesn't use it
-                  /> */} 
-                  
-                  {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+                  <div className="h-8 w-px bg-gray-700/30" />
 
                   {/* Position Filters */}
-                  {positions.map((position) => (
-                    <motion.button
-                      key={position.key}
-                      onClick={() => handlePositionClick(position.key)}
-                      className={`
-                        px-4 py-2 rounded-lg text-sm font-medium
-                        transition-all duration-300
-                        ${selectedPosition === position.key
-                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                          : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                        }
-                      `}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {position.label}
-                    </motion.button>
-                  ))}
+                  <div className="flex items-center space-x-2">
+                    {positions.map((position) => (
+                      <motion.button
+                        key={position.key}
+                        onClick={() => handlePositionClick(position.key)}
+                        className={`
+                          px-3 py-2 rounded-lg text-sm font-medium
+                          transition-all duration-300
+                          ${selectedPosition === position.key
+                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                          }
+                        `}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {position.label}
+                      </motion.button>
+                    ))}
+                  </div>
 
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+                  <div className="h-8 w-px bg-gray-700/30" />
 
                   {/* Average Filters */}
-                  {averageKeys.map((item) => (
-                    <motion.button
-                      key={item.key}
-                      onClick={() => setSelectedSortKey(item.key)}
-                      className={`
-                        px-4 py-2 rounded-lg text-sm font-medium
-                        transition-all duration-300
-                        ${selectedSortKey === item.key
-                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                          : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                        }
-                      `}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {item.label}
-                    </motion.button>
-                  ))}
-
-                  {/* EPM Model */}
-                  {/* <EPMModel
-                    isOpen={isGraphModelOpen}
-                    onClose={() => setIsGraphModelOpen(false)}
-                    prospects={filteredProspects}
-                    selectedPosition={selectedPosition}
-                    allProspects={filteredProspects}
-                  /> */}
+                  <div className="flex items-center space-x-2">
+                    {averageKeys.map((item) => (
+                      <motion.button
+                        key={item.key}
+                        onClick={() => setSelectedSortKey(item.key)}
+                        className={`
+                          px-3 py-2 rounded-lg text-sm font-medium
+                          transition-all duration-300
+                          ${selectedSortKey === item.key
+                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                          }
+                        `}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {item.label}
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1032,31 +1001,21 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   );
 };
 
-const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
+interface ProspectCardProps {
+  prospect: DraftProspect;
+  isMobile: boolean;
+  initialProspects: DraftProspect[];
+  rank: RankType;
+}
+
+const ProspectCard: React.FC<ProspectCardProps> = ({ prospect, isMobile, initialProspects, rank }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
-
-  // Check if device is mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    // Set initial value
-    checkMobile();
-
-    // Add event listener for window resize
-    window.addEventListener('resize', checkMobile);
-
-    // Cleanup
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
 
   const handleMouseEnter = () => {
     if (!isMobile) {
@@ -1093,6 +1052,17 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
+  // Update the position ranking calculations
+  const calculatePositionRank = (year: string, prospect: DraftProspect): number => {
+    const samePositionProspects = initialProspects.filter((p: DraftProspect) => p.Role === prospect.Role);
+    const sortedByYear = samePositionProspects.sort((a: DraftProspect, b: DraftProspect) => {
+      const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
+      const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
+      return aRank - bRank;
+    });
+    return sortedByYear.findIndex((p: DraftProspect) => p.Name === prospect.Name) + 1;
+  };
+
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
       <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
@@ -1117,7 +1087,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
               `}
             >
-              {/* Change here for rank number formating for mobile view */}
               <div className={`
                 ${barlow.className} 
                 ${isMobile ? 'text-1xl' : 'text-6xl'} 
@@ -1126,7 +1095,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 select-none
                 ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
               `}>
-                {typeof rank === 'number' ? rank : 'N/A'}
+                {rank}
               </div>
             </motion.div>
 
@@ -1361,18 +1330,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     </div>
                     <div className="space-y-2">
                       {['Y1', 'Y2', 'Y3'].map((year) => {
-                        // Get all prospects with the same role
-                        const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-
-                        // Sort them by the current year's rank
-                        const sortedByYear = samePositionProspects.sort((a, b) => {
+                        const samePositionProspects = initialProspects.filter((p: DraftProspect) => p.Role === prospect.Role);
+                        const sortedByYear = samePositionProspects.sort((a: DraftProspect, b: DraftProspect) => {
                           const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
                           const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
                           return aRank - bRank;
                         });
-
-                        // Find position rank
-                        const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
+                        const positionRank = sortedByYear.findIndex((p: DraftProspect) => p.Name === prospect.Name) + 1;
 
                         return (
                           <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
@@ -1389,31 +1353,26 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         <div className="text-center">{prospect['Avg. Rank Y1-Y3']}</div>
                         <div className="text-center">
                           {(() => {
-                            const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-                            const sortedBy3YAvg = samePositionProspects.sort((a, b) => {
+                            const samePositionProspects = initialProspects.filter((p: DraftProspect) => p.Role === prospect.Role);
+                            const sortedBy3YAvg = samePositionProspects.sort((a: DraftProspect, b: DraftProspect) => {
                               const aRank = Number(a['Avg. Rank Y1-Y3']);
                               const bRank = Number(b['Avg. Rank Y1-Y3']);
                               return aRank - bRank;
                             });
-                            const positionRank = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+                            const positionRank = sortedBy3YAvg.findIndex((p: DraftProspect) => p.Name === prospect.Name) + 1;
                             return positionRank === 0 ? 'N/A' : positionRank;
                           })()}
                         </div>
                       </div>
 
                       {['Y4', 'Y5'].map((year) => {
-                        // Get all prospects with the same role
-                        const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-
-                        // Sort them by the current year's rank
-                        const sortedByYear = samePositionProspects.sort((a, b) => {
+                        const samePositionProspects = initialProspects.filter((p: DraftProspect) => p.Role === prospect.Role);
+                        const sortedByYear = samePositionProspects.sort((a: DraftProspect, b: DraftProspect) => {
                           const aRank = Number(a[`Pred. ${year} Rank` as keyof DraftProspect]);
                           const bRank = Number(b[`Pred. ${year} Rank` as keyof DraftProspect]);
                           return aRank - bRank;
                         });
-
-                        // Find position rank
-                        const positionRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
+                        const positionRank = sortedByYear.findIndex((p: DraftProspect) => p.Name === prospect.Name) + 1;
 
                         return (
                           <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
@@ -1430,13 +1389,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         <div className="text-center">{prospect['Avg. Rank Y1-Y5']}</div>
                         <div className="text-center">
                           {(() => {
-                            const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
-                            const sortedBy5YAvg = samePositionProspects.sort((a, b) => {
+                            const samePositionProspects = initialProspects.filter((p: DraftProspect) => p.Role === prospect.Role);
+                            const sortedBy5YAvg = samePositionProspects.sort((a: DraftProspect, b: DraftProspect) => {
                               const aRank = Number(a['Avg. Rank Y1-Y5']);
                               const bRank = Number(b['Avg. Rank Y1-Y5']);
                               return aRank - bRank;
                             });
-                            const positionRank = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+                            const positionRank = sortedBy5YAvg.findIndex((p: DraftProspect) => p.Name === prospect.Name) + 1;
                             return positionRank === 0 ? 'N/A' : positionRank;
                           })()}
                         </div>
@@ -1476,10 +1435,10 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   <IndividualProspectGraphs
                     isOpen={isGraphModelOpen}
                     onClose={() => setIsGraphModelOpen(false)}
-                    prospects={filteredProspects}
+                    prospects={initialProspects}
                     selectedPosition={prospect.Role}
                     selectedProspect={prospect}
-                    allProspects={filteredProspects}
+                    allProspects={initialProspects}
                     graphType={graphType}
                     setGraphType={setGraphType}
                   />
@@ -1906,7 +1865,8 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
                   key={prospect.Name}
                   prospect={prospect}
                   rank={originalRank ?? 0}
-                  filteredProspects={filteredProspects.map(p => p.prospect)}
+                  isMobile={false}
+                  initialProspects={initialProspects}
                 />
               ))}
               {isLoading && (
