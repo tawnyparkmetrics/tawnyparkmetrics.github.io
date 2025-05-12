@@ -13,7 +13,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-            Welcome to <span className="text-blue-400">TPM</span>
+            Welcome to <span className="text-blue-400">Tawny Park Metrics</span>
           </h1>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
             Your premier destination for NBA draft analysis and player metrics. Explore our comprehensive draft boards and advanced statistical models.

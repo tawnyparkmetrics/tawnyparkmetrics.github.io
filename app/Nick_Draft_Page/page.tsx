@@ -176,11 +176,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
   // Handle card click for mobile
   const handleCardClick = () => {
     if (isMobile) {
-      if (isMobileInfoExpanded) {
-        setIsMobileInfoExpanded(false);
-      } else {
-        setIsExpanded(!isExpanded);
-      }
+      setIsExpanded(!isExpanded);
     }
   };
 
@@ -198,7 +194,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
       <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
         <div className="relative">
-          {/* Main card container - add mouse event handlers here */}
+          {/* Main card container */}
           <div
             className={`
               relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] 
@@ -218,7 +214,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
                 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
               `}
             >
-              {/* Change here for rank number formating for mobile view */}
               <div className={`
                 ${barlow.className} 
                 ${isMobile ? 'text-1xl' : 'text-6xl'} 
@@ -303,16 +298,10 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
             </motion.div>
 
             {/* Info panel - different for mobile/desktop */}
-            {isMobile ? (
-              // Mobile info panel (when expanded)
-              isExpanded && ( // Only render if isExpanded is true
-                <div style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}></div>
-              )
-            ) : (
+            {!isMobile && (
               // Desktop hover info panel
               <div
-                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-                  }`}
+                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'}`}
                 style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
               >
                 <div className="p-6 space-y-4 flex flex-col">
@@ -904,33 +893,32 @@ export default function NickDraftPage() {
       </div>
     );
   };
-
+  
   // Handle scroll event
   useEffect(() => {
     const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop >=
-        document.documentElement.offsetHeight - 100 &&
-        !isLoading &&
-        hasMore &&
-        viewMode === 'card'
-      ) {
+      if (viewMode !== 'card' || isLoading) return;
+
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Load more when user is near bottom (within 300px)
+      if (documentHeight - scrollPosition < 100) {
         setIsLoading(true);
         // Simulate loading delay
         setTimeout(() => {
-          setLoadedProspects(prev => {
-            const newCount = prev + 5;
-            setHasMore(newCount < sortedProspects.length);
-            return newCount;
-          });
+          setLoadedProspects(prev => prev + 5);
           setIsLoading(false);
         }, 500);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    // Add scroll event listener with passive option for better performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Clean up event listener
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isLoading, hasMore, sortedProspects.length, viewMode]);
+  }, [isLoading, sortedProspects.length, viewMode]);
 
   // Reset loaded prospects when filters change
   useEffect(() => {
