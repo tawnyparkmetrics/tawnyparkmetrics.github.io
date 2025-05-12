@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   DropdownMenu,
@@ -169,93 +169,93 @@ type CustomTooltipProps = TooltipProps<number | string, string> & {
 //   return chartData;
 // };
 
-const EPMGraphModel: React.FC<EPMModelProps> = ({
-  isOpen,
-  onClose,
-  allProspects,
-}) => {
-  const filteredProspects = allProspects;
+// const EPMGraphModel: React.FC<EPMModelProps> = ({
+//   isOpen,
+//   onClose,
+//   allProspects,
+// }) => {
+//   const filteredProspects = allProspects;
 
-  const prepareChartData = () => {
-    const yearData: { year: string | number;[key: string]: string | number }[] = [];
+//   const prepareChartData = () => {
+//     const yearData: { year: string | number;[key: string]: string | number }[] = [];
 
-    for (let year = 1; year <= 5; year++) {
-      const yearObj: { year: string | number;[key: string]: string | number } = { year };
+//     for (let year = 1; year <= 5; year++) {
+//       const yearObj: { year: string | number;[key: string]: string | number } = { year };
 
-      filteredProspects.forEach((prospect) => {
-        const rankKey = `Pred. Y${year} EPM` as keyof DraftProspect;
-        const value = prospect[rankKey];
-        if (typeof value === 'number') {
-          yearObj[prospect.Name] = value;
-        } else {
-          yearObj[prospect.Name] = 0;
-        }
-      });
+//       filteredProspects.forEach((prospect) => {
+//         const rankKey = `Pred. Y${year} EPM` as keyof DraftProspect;
+//         const value = prospect[rankKey];
+//         if (typeof value === 'number') {
+//           yearObj[prospect.Name] = value;
+//         } else {
+//           yearObj[prospect.Name] = 0;
+//         }
+//       });
 
-      yearData.push(yearObj);
-    }
+//       yearData.push(yearObj);
+//     }
 
-    return yearData;
-  };
+//     return yearData;
+//   };
 
-  const chartData = prepareChartData();
+//   const chartData = prepareChartData();
 
-  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
-          <p className="font-bold text-white">Year {label}</p>
-          {payload.map((entry: PayloadItem) => (
-            <p key={entry.dataKey} style={{ color: entry.color }}>
-              {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
+//   const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+//     if (active && payload && payload.length) {
+//       return (
+//         <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
+//           <p className="font-bold text-white">Year {label}</p>
+//           {payload.map((entry: PayloadItem) => (
+//             <p key={entry.dataKey} style={{ color: entry.color }}>
+//               {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
+//             </p>
+//           ))}
+//         </div>
+//       );
+//     }
+//     return null;
+//   };
 
-  return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        <AlertDialogHeader className="flex flex-row items-center justify-between">
-          <AlertDialogTitle className="text-xl">Prospect EPM Progression</AlertDialogTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
-        </AlertDialogHeader>
+//   return (
+//     <AlertDialog open={isOpen} onOpenChange={onClose}>
+//       <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+//         <AlertDialogHeader className="flex flex-row items-center justify-between">
+//           <AlertDialogTitle className="text-xl">Prospect EPM Progression</AlertDialogTitle>
+//           <Button variant="ghost" size="icon" onClick={onClose}>
+//             <X className="h-5 w-5" />
+//           </Button>
+//         </AlertDialogHeader>
 
-        <CardContent className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>EPM Progression By Player</CardTitle>
-              <CardDescription>Years on X-axis, EPM values on Y-axis</CardDescription>
-            </CardHeader>
-            <ResponsiveContainer width="100%" height={500}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} /> {/* X-axis domain */}
-                <YAxis type="number" stroke="#888" domain={[-5, 5]} /> {/* Y-axis domain */}
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                {filteredProspects.map((prospect) => (
-                  <Line
-                    key={prospect.Name}
-                    type="monotone"
-                    dataKey={prospect.Name}
-                    stroke={prospect['Team Color']}
-                    activeDot={{ r: 8 }}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
-        </CardContent>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-};
+//         <CardContent className="space-y-6">
+//           <Card>
+//             <CardHeader>
+//               <CardTitle>EPM Progression By Player</CardTitle>
+//               <CardDescription>Years on X-axis, EPM values on Y-axis</CardDescription>
+//             </CardHeader>
+//             <ResponsiveContainer width="100%" height={500}>
+//               <LineChart data={chartData}>
+//                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+//                 <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} /> {/* X-axis domain */}
+//                 <YAxis type="number" stroke="#888" domain={[-5, 5]} /> {/* Y-axis domain */}
+//                 <Tooltip content={<CustomTooltip />} />
+//                 <Legend />
+//                 {filteredProspects.map((prospect) => (
+//                   <Line
+//                     key={prospect.Name}
+//                     type="monotone"
+//                     dataKey={prospect.Name}
+//                     stroke={prospect['Team Color']}
+//                     activeDot={{ r: 8 }}
+//                   />
+//                 ))}
+//               </LineChart>
+//             </ResponsiveContainer>
+//           </Card>
+//         </CardContent>
+//       </AlertDialogContent>
+//     </AlertDialog>
+//   );
+// };
 
 // for individual player graphs
 // const EPMModel = (props: EPMModelProps) => {
@@ -413,7 +413,6 @@ const TimelineFilter = ({
   setSelectedSortKey,
   selectedPosition,
   setSelectedPosition,
-  filteredProspects,
   searchQuery,
   setSearchQuery,
   viewMode,
@@ -1144,15 +1143,32 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
     setCompData(sortedComps);
   }, [prospect]);
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  type TooltipProps = {
+    active?: boolean;
+    payload?: Array<{
+      name?: string | number | Date;
+      value?: number | string;
+      payload?: {
+        name: string;
+        similarity: number;
+      };
+      dataKey?: string;
+      formatter?: (value: any) => React.ReactNode;
+    }>;
+    label?: string | number | Date;
+  };
+  
+  const CustomTooltip: React.FC<TooltipProps> = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
-      return (
-        <div className="bg-white p-2 border border-gray-200 shadow-md rounded">
-          <p className="font-semibold">{data.name}</p>
-          <p className="text-gray-600">Similarity: {data.similarity}%</p>
-        </div>
-      );
+      if (data && typeof data.name === 'string' && typeof data.similarity === 'number') {
+        return (
+          <div className="bg-white p-2 border border-gray-200 shadow-md rounded">
+            <p className="font-semibold">{data.name}</p>
+            <p className="text-gray-600">Similarity: {data.similarity}%</p>
+          </div>
+        );
+      }
     }
     return null;
   };
@@ -1781,7 +1797,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 };
 
 {/* Player Tables */ }
-const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: Record<string, RankType> }) => {
+const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record<string, RankType> }) => {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';
@@ -1859,20 +1875,6 @@ const ProspectTable = ({ prospects, rank }: { prospects: DraftProspect[], rank: 
   }, [prospects, sortConfig]);
 
   // Helper function to convert height to inches
-  const heightToInches = (height: string): number => {
-    if (!height) return 0;
-
-    // Handle format like "6'8"
-    const parts = height.split("'");
-    if (parts.length === 2) {
-      const feet = parseInt(parts[0]) || 0;
-      const inches = parseInt(parts[1]) || 0;
-      return (feet * 12) + inches;
-    }
-
-    return 0;
-  };
-
   return (
     <div className="max-w-6xl mx-auto px-4 pt-8">
       <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
@@ -2030,7 +2032,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [displayedProspects, setDisplayedProspects] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [, setIsMobile] = useState(false);
 
   // Check if device is mobile
   useEffect(() => {

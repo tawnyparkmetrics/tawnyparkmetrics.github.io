@@ -124,7 +124,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: Draft
   const [imageError, setImageError] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [, setIsDropdownOpen] = useState(false);
   const DraftDropdownRef = useRef<HTMLDivElement>(null);
   const NBADropdownRef = useRef<HTMLDivElement>(null);
