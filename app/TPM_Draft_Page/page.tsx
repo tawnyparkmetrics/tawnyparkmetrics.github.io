@@ -1153,7 +1153,6 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
         similarity: number;
       };
       dataKey?: string;
-      formatter?: (value: any) => React.ReactNode;
     }>;
     label?: string | number | Date;
   };
