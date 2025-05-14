@@ -84,6 +84,16 @@ export interface DraftProspect {
   'Similarity5': number;
 }
 
+const tierColors: { [key: string]: string } = {
+  'All-Time Great': '#ffc0ff',
+  'All-NBA Caliber': '#d9d2e9',
+  'Fringe All Star': '#c9daf8',
+  'Quality Starter': '#d9ead3',
+  'Solid Rotation': '#fff2cc',
+  'Bench Reserve': '#fce5cd',
+  'Fringe NBA': '#f4cccc',
+};
+
 const barlow = Barlow({
   subsets: ['latin'],
   weight: ['700'], // Use 700 for bold text
@@ -116,7 +126,7 @@ const teamNames: { [key: string]: string } = {
   MEM: "Memphis Grizzlies",
   SAC: "Sacramento Kings",
   OKC: "Okhlahoma City Thunder",
-  NYK: "Brooklyn Nets",
+  NYK: "Brooklyn Knicks",
   SAS: "San Antonio Spurs",
   IND: "Indiana Pacers",
   TOR: "Toronto Raptors",
@@ -593,7 +603,7 @@ const TimelineFilter = ({
               flex items-center
               transition-all duration-300
               ${viewMode === 'table'
-                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                ? 'bg-blue-500/20 text-gray-400 border border-blue-500/30'
                 : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
               }
             `}
@@ -1121,14 +1131,19 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   );
 };
 
+type ComparisonPlayerData = {
+  Name: string;
+  Tier: string;
+};
+
 type ComparisonData = {
   name: string;
   similarity: number;
+  tier?: string;
 };
 
-const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
+const PlayerComparisonChart: React.FC<{ prospect: DraftProspect; comparisonPlayerData: ComparisonPlayerData[] }> = ({ prospect, comparisonPlayerData }) => {
   const [compData, setCompData] = useState<ComparisonData[]>([]);
-  const barColors = ["#3182CE", "#4299E1", "#63B3ED", "#90CDF4", "#BEE3F8"];
 
   useEffect(() => {
     const comps: ComparisonData[] = [];
@@ -1136,40 +1151,33 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
       const compName = prospect[`Comp${i}` as keyof DraftProspect] as string | undefined;
       const similarity = prospect[`Similarity${i}` as keyof DraftProspect] as number | undefined;
       if (compName && similarity !== undefined && compName !== '' && similarity > 0 && compName !== prospect.Name) {
-        comps.push({ name: compName, similarity: similarity });
+        // Find the tier of the comparison player
+        const comparisonPlayer = comparisonPlayerData.find(player => player.Name === compName);
+        const tier = comparisonPlayer ? comparisonPlayer.Tier : undefined;
+
+        comps.push({ name: compName, similarity: similarity, tier: tier });
       }
     }
     const sortedComps = comps.sort((a, b) => b.similarity - a.similarity).filter(comp => comp.name !== '');
     setCompData(sortedComps);
-  }, [prospect]);
+  }, [prospect, comparisonPlayerData]);
 
-  type TooltipProps = {
-    active?: boolean;
-    payload?: Array<{
-      name?: string | number | Date;
-      value?: number | string;
-      payload?: {
-        name: string;
-        similarity: number;
-      };
-      dataKey?: string;
-    }>;
-    label?: string | number | Date;
-  };
-  
-  const CustomTooltip: React.FC<TooltipProps> = ({ active, payload }) => {
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
-      if (data && typeof data.name === 'string' && typeof data.similarity === 'number') {
-        return (
-          <div className="bg-white p-2 border border-gray-200 shadow-md rounded">
-            <p className="font-semibold">{data.name}</p>
-            <p className="text-gray-600">Similarity: {data.similarity}%</p>
-          </div>
-        );
-      }
+      return (
+        <div className="bg-white p-2 border border-gray-200 shadow-md rounded">
+          <p className="font-semibold">{data.name}</p>
+          <p className="text-gray-600">Similarity: {data.similarity}%</p>
+          {data.tier && <p className="text-gray-600">Tier: {data.tier}</p>}
+        </div>
+      );
     }
     return null;
+  };
+
+  const getColorForTier = (tier?: string): string => {
+    return tier ? tierColors[tier] || 'gray' : 'gray'; // Default to gray if tier is not found
   };
 
   return (
@@ -1179,14 +1187,14 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
           <BarChart
             layout="vertical"
             data={compData}
-            margin={{ top: 5, right: 20, bottom: 5, left: 20 }} // Further reduced left margin
+            margin={{ top: 5, right: 20, bottom: 5, left: 100 }}
           >
             <XAxis type="number" domain={[0, 100]} tick={{ fill: '#999', fontSize: 10 }} axisLine={false} tickLine={false} />
-            <YAxis dataKey="name" type="category" hide /> {/* Hiding the Y-axis */}
+            <YAxis dataKey="name" type="category" hide />
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="similarity" radius={[0, 4, 4, 0]}>
               {compData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
+                <Cell key={`cell-${index}`} fill={getColorForTier(entry.tier)} />
               ))}
               <LabelList dataKey="name" position="insideLeft" style={{ fill: '#fff', fontSize: 12, fontWeight: 'bold' }} />
             </Bar>
@@ -1634,7 +1642,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   {activeChart === 'spider' ? (
                     <SpiderChart prospect={prospect} />
                   ) : (
-                    <PlayerComparisonChart prospect={prospect} />
+                    <PlayerComparisonChart prospect={prospect} comparisonPlayerData={[]} />
                   )}
                 </div>
 
