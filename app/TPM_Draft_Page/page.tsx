@@ -1265,7 +1265,7 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
 
   // Use the new CustomLabelProps interface
   const CustomLabel: React.FC<CustomLabelProps> = (props) => {
-    const { x, y, width, height, value, index } = props; // Props are now correctly typed
+    const { x, y, height, value, index } = props; // Props are now correctly typed
     const entry = compData[index]; // entry is ComparisonData
     const color = getColorForTier(entry?.tier); // Added optional chaining for safety if entry could be undefined
 
