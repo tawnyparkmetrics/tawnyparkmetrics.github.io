@@ -12,7 +12,7 @@ import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal } from 'lucide
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Cell, Bar, BarChart, LabelList } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Cell, Bar, BarChart, LabelList } from 'recharts';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -85,13 +85,13 @@ export interface DraftProspect {
 }
 
 const tierColors: { [key: string]: string } = {
-  'All-Time Great': '#ffc0ff',
-  'All-NBA Caliber': '#d9d2e9',
-  'Fringe All Star': '#c9daf8',
-  'Quality Starter': '#d9ead3',
-  'Solid Rotation': '#fff2cc',
-  'Bench Reserve': '#fce5cd',
-  'Fringe NBA': '#f4cccc',
+  'All-Time Great': '#ef17ef',
+  'All-NBA Caliber': '#9900ff',
+  'Fringe All-Star': '#0000ff',
+  'Quality Starter': '#00ff00',
+  'Solid Rotation': '#ffff00',
+  'Bench Reserve': '#ff9900',
+  'Fringe NBA': '#ff0000',
 };
 
 const barlow = Barlow({
@@ -1131,45 +1131,115 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   );
 };
 
-type ComparisonPlayerData = {
+interface ComparisonPlayerData {
   Name: string;
-  Tier: string;
-};
+  Tier?: string; // Tier is optional because it might be missing
+}
 
-type ComparisonData = {
+interface ComparisonData {
   name: string;
   similarity: number;
-  tier?: string;
-};
+  tier?: string; // Tier is optional
+}
 
-const PlayerComparisonChart: React.FC<{ prospect: DraftProspect; comparisonPlayerData: ComparisonPlayerData[] }> = ({ prospect, comparisonPlayerData }) => {
+interface CustomLabelProps {
+  x: number;         // X-coordinate provided by Recharts
+  y: number;         // Y-coordinate provided by Recharts
+  width: number;     // Width of the bar/area provided by Recharts
+  height: number;    // Height of the bar/area provided by Recharts
+  value: string;     // The value being displayed (in your case, dataKey="name")
+  index: number;     // The index of the data item in the compData array
+  // Recharts might pass other properties, but these are the ones you're using.
+}
+
+const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   const [compData, setCompData] = useState<ComparisonData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [comparisonPlayerData, setComparisonPlayerData] = useState<ComparisonPlayerData[]>([]);
+
+  const fetchCSVData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('NBA_Draft_EPM - NBA_Draft_Standardized.csv');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch CSV: ${response.status}`);
+      }
+      const text = await response.text();
+
+      const results = Papa.parse<ComparisonPlayerData>(text, {
+        header: true,
+        dynamicTyping: true,
+        skipEmptyLines: true,
+        transformHeader: (header) => header.trim()
+      });
+
+      if (results.errors.length) {
+        throw new Error(`CSV Parse Error: ${results.errors.map(e => e.message).join(', ')}`);
+      }
+
+      setComparisonPlayerData(results.data);
+      return results.data;
+    } catch (err: unknown) { // <-- Changed from 'any' to 'unknown'
+      console.error("Error fetching comparison data:", err);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else if (typeof err === 'string') {
+        setError(err);
+      } else {
+        setError("An unknown error occurred while fetching data.");
+      }
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
+    fetchCSVData();
+  }, []);
+
+  useEffect(() => {
+    if (comparisonPlayerData.length === 0 || !prospect) return;
+
     const comps: ComparisonData[] = [];
     for (let i = 1; i <= 5; i++) {
-      const compName = prospect[`Comp${i}` as keyof DraftProspect] as string | undefined;
-      const similarity = prospect[`Similarity${i}` as keyof DraftProspect] as number | undefined;
-      if (compName && similarity !== undefined && compName !== '' && similarity > 0 && compName !== prospect.Name) {
-        // Find the tier of the comparison player
-        const comparisonPlayer = comparisonPlayerData.find(player => player.Name === compName);
-        const tier = comparisonPlayer ? comparisonPlayer.Tier : undefined;
+      const compNameKey = `Comp${i}` as keyof DraftProspect;
+      const similarityKey = `Similarity${i}` as keyof DraftProspect;
 
-        comps.push({ name: compName, similarity: similarity, tier: tier });
+      const compName = prospect[compNameKey] as string | undefined;
+      const similarity = prospect[similarityKey] as number | undefined;
+
+      if (compName && similarity !== undefined && compName !== '' && similarity > 0 && compName !== prospect.Name) {
+        const comparisonPlayer = comparisonPlayerData.find(player =>
+          player.Name && player.Name.trim() === compName.trim());
+        const tier = comparisonPlayer?.Tier;
+
+        comps.push({
+          name: compName,
+          similarity: similarity,
+          tier: tier
+        });
       }
     }
-    const sortedComps = comps.sort((a, b) => b.similarity - a.similarity).filter(comp => comp.name !== '');
+
+    const sortedComps = comps
+      .sort((a, b) => b.similarity - a.similarity)
+      .filter(comp => comp.name !== '');
+
     setCompData(sortedComps);
   }, [prospect, comparisonPlayerData]);
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  // Use the new CustomTooltipProps interface
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
+      const data: ComparisonData = payload[0].payload; // data is now typed as ComparisonData
       return (
-        <div className="bg-white p-2 border border-gray-200 shadow-md rounded">
-          <p className="font-semibold">{data.name}</p>
-          <p className="text-gray-600">Similarity: {data.similarity}%</p>
-          {data.tier && <p className="text-gray-600">Tier: {data.tier}</p>}
+        <div className="bg-gray-800/90 p-3 rounded-lg shadow-lg border border-gray-700">
+          <p className="text-white font-semibold">{data.name}</p>
+          <p className="text-gray-300">Similarity: {data.similarity}%</p>
+          {data.tier && <p className="text-gray-300">Tier: {data.tier}</p>}
         </div>
       );
     }
@@ -1177,7 +1247,45 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect; comparisonPlaye
   };
 
   const getColorForTier = (tier?: string): string => {
-    return tier ? tierColors[tier] || 'gray' : 'gray'; // Default to gray if tier is not found
+    if (!tier) return tierColors['Default'] || '#808080'; // Default gray if no tier
+    return tierColors[tier] || tierColors['Default'] || '#808080'; // Use the tier color or default
+  };
+
+  if (loading) {
+    return <div className="text-center py-8 text-gray-400">Loading comparison data...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-4 text-red-400">Error: {error}</div>;
+  }
+
+  if (compData.length === 0) {
+    return <div className="text-gray-400 text-center py-4">No comparison data available</div>;
+  }
+
+  // Use the new CustomLabelProps interface
+  const CustomLabel: React.FC<CustomLabelProps> = (props) => {
+    const { x, y, width, height, value, index } = props; // Props are now correctly typed
+    const entry = compData[index]; // entry is ComparisonData
+    const color = getColorForTier(entry?.tier); // Added optional chaining for safety if entry could be undefined
+
+    // It's good practice to ensure x, y, width, height are defined before using them
+    // Recharts should provide them, but defensive checks can be useful.
+    // For simplicity here, we assume they are always provided as per the interface.
+
+    return (
+      <text
+        x={x + 10}
+        y={y + height / 2}
+        fill={color}
+        fontWeight="bold"
+        fontSize={12}
+        textAnchor="start"
+        dominantBaseline="central"
+      >
+        {value}
+      </text>
+    );
   };
 
   return (
@@ -1187,16 +1295,40 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect; comparisonPlaye
           <BarChart
             layout="vertical"
             data={compData}
-            margin={{ top: 5, right: 20, bottom: 5, left: 100 }}
+            margin={{ top: 5, right: 20, bottom: 5, left: 5 }}
           >
-            <XAxis type="number" domain={[0, 100]} tick={{ fill: '#999', fontSize: 10 }} axisLine={false} tickLine={false} />
-            <YAxis dataKey="name" type="category" hide />
+            <XAxis
+              type="number"
+              domain={[0, 100]}
+              hide={true}
+            />
+            <YAxis
+              dataKey="name"
+              type="category"
+              hide={true}
+            />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="similarity" radius={[0, 4, 4, 0]}>
-              {compData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={getColorForTier(entry.tier)} />
-              ))}
-              <LabelList dataKey="name" position="insideLeft" style={{ fill: '#fff', fontSize: 12, fontWeight: 'bold' }} />
+            <Bar
+              dataKey="similarity"
+              radius={[0, 4, 4, 0]}
+              strokeWidth={2}
+              isAnimationActive={false}
+            >
+              {compData.map((entry, index) => {
+                const color = getColorForTier(entry.tier);
+                return (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={color}
+                    fillOpacity={0.3}
+                    stroke={color}
+                  />
+                );
+              })}
+              <LabelList
+                dataKey="name" // This value will be passed as 'value' to CustomLabel
+                content={<CustomLabel x={0} y={0} width={0} height={0} value={''} index={0} />} // Pass the component itself
+              />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -1209,8 +1341,6 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect; comparisonPlaye
 const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   // Debug logging for Athleticism
   console.log('Prospect:', prospect.Name);
-  // console.log('Raw Athleticism value:', prospect.Athleticism);
-  // console.log('Athleticism type:', typeof prospect.Athleticism);
 
   // Add validation and ensure proper number conversion
   const getAttributeValue = (value: string | number | undefined): number => {
@@ -1266,44 +1396,21 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   console.log('Final attributes:', attributes);
 
   return (
-    <div className="w-full h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={attributes}>
-          <PolarGrid stroke="#333" />
-          <PolarAngleAxis
-            dataKey="name"
-            stroke="#666"
-            tick={{ fill: '#999', fontSize: 12 }}
-          />
-          <PolarRadiusAxis
-            angle={30}
-            domain={[0, 100]}
-            stroke="#666"
-            tick={{ fill: '#666', fontSize: 10 }}
-          />
-          <Radar
-            name={prospect.Name}
-            dataKey="value"
-            stroke={prospect['Team Color']}
-            fill={prospect['Team Color']}
-            fillOpacity={0.3}
-          />
-          <Tooltip
-            content={({ active, payload }) => {
-              if (active && payload && payload.length && typeof payload[0].value === 'number') {
-                return (
-                  <div className="bg-gray-800/90 p-3 rounded-lg shadow-lg border border-gray-700">
-                    <p className="text-white font-semibold">{payload[0].name}</p>
-                    <p className="text-gray-300">{Math.round(payload[0].value)}th percentile</p>
-                  </div>
-                );
-              }
-              return null;
-            }}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
-    </div>
+    <ResponsiveContainer width="100%" height="100%">
+      <RadarChart
+        data={attributes}
+        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+      >
+        <PolarGrid stroke="#999" /> {/* Changed stroke color here */}
+        <PolarAngleAxis dataKey="name" fontSize = {10} />
+        <Radar
+          name={prospect.Name}
+          dataKey="value"
+          fill="#8884d8"
+          fillOpacity={0.6}
+        />
+      </RadarChart>
+    </ResponsiveContainer>
   );
 };
 
@@ -1589,7 +1696,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                     <div>
                       <span className="font-bold text-white">Draft </span>
-                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect.NBA}`}
+                      {Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}{prospect.NBA}
                     </div>
                   </div>
                 </div>
@@ -1612,7 +1719,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             </motion.div>
           )}
 
-          {/* Expanded content */}
           {isExpanded && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
@@ -1620,140 +1726,129 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
               className={`
-                grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} 
-                gap-4 rounded-xl backdrop-blur-sm p-6 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]
-              `}
+      grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} 
+      gap-4 rounded-xl backdrop-blur-sm p-6 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]
+    `}
               style={{ backgroundColor: '#19191A' }}
             >
-              {/*Tier List */}
-              {/* <div>
-                <h3 className="font-semibold text-sm mb-3 text-white">Prospect Tier: {prospect.Tier}</h3>
-              </div> */}
-
-              {/* Spider and Bar Chart Column */}
+              {/* Left Column - Charts */}
               <div className="text-gray-300">
+                {/* Tier display with color border */}
                 <h3 className="font-semibold text-sm mb-3 text-white">Prospect Tier: {prospect.Tier}</h3>
+
                 <h3 className="font-semibold text-lg mb-3 text-white">
                   {activeChart === 'spider' ? 'Skills Chart' : 'Player Comparisons'}
                 </h3>
 
-                {/* Chart Container */}
-                <div className="mb-4">
+                {/* Fixed-height Chart Container to prevent size changes */}
+                <div className="h-64 mb-4">
                   {activeChart === 'spider' ? (
                     <SpiderChart prospect={prospect} />
                   ) : (
-                    <PlayerComparisonChart prospect={prospect} comparisonPlayerData={[]} />
+                    <PlayerComparisonChart prospect={prospect} />
                   )}
                 </div>
+              </div>
 
-                {/* Toggle Buttons */}
-                <div className="flex justify-center gap-2 mt-4">
+              {/* Right Column - Rankings */}
+              <div className="space-y-4">
+                <h3></h3>
+
+                <h3 className="font-semibold text-lg text-white mb-3">Projected EPM Rankings</h3>
+                {/* Rankings Table */}
+                <div className="w-full">
+                  <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
+                    <div>Year</div>
+                    <div className="text-center">Overall</div>
+                    <div className="text-center">Position</div>
+                  </div>
+                  <div className="space-y-2">
+                    {['Y1', 'Y2', 'Y3'].map((year) => (
+                      <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                        <div>Year {year.slice(1)}</div>
+                        <div className="text-center">
+                          {(() => {
+                            const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
+                            const rankValue = prospect[rankKey];
+                            // Convert to number and check if it's valid
+                            const numValue = Number(rankValue);
+                            return !isNaN(numValue) ? numValue : 'N/A';
+                          })()}
+                        </div>
+                        <div className="text-center">{getPositionRank(year)}</div>
+                      </div>
+                    ))}
+
+                    {/* 3 Year Average */}
+                    <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                      <div>{isMobile ? "3 Year Avg" : "3 Year Average"}</div>
+                      <div className="text-center">
+                        {(() => {
+                          const avgValue = prospect['Avg. Rank Y1-Y3'];
+                          const numValue = Number(avgValue);
+                          return !isNaN(numValue) ? numValue : 'N/A';
+                        })()}
+                      </div>
+                      <div className="text-center">{getPositionRank('Y1Y3')}</div>
+                    </div>
+
+                    {['Y4', 'Y5'].map((year) => (
+                      <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                        <div>Year {year.slice(1)}</div>
+                        <div className="text-center">
+                          {(() => {
+                            const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
+                            const rankValue = prospect[rankKey];
+                            const numValue = Number(rankValue);
+                            return !isNaN(numValue) ? numValue : 'N/A';
+                          })()}
+                        </div>
+                        <div className="text-center">{getPositionRank(year)}</div>
+                      </div>
+                    ))}
+
+                    {/* 5 Year Average */}
+                    <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                      <div>{isMobile ? "5 Year Avg" : "5 Year Average"}</div>
+                      <div className="text-center">
+                        {(() => {
+                          const avgValue = prospect['Avg. Rank Y1-Y5'];
+                          const numValue = Number(avgValue);
+                          return !isNaN(numValue) ? numValue : 'N/A';
+                        })()}
+                      </div>
+                      <div className="text-center">{getPositionRank('Y1Y5')}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* All buttons row - spans full width below both columns */}
+              <div className="col-span-2 mt-2">
+                <div className="grid grid-cols-4 gap-2">
+                  {/* Chart Toggle Buttons */}
                   <button
                     onClick={() => setActiveChart('spider')}
-                    className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
-                      activeChart === 'spider'
-                        ? 'flex-1 bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm'
-                        : 'flex-1 bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm'
-                    }`}
+                    className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'spider' ? 'border-blue-500/30' : ''
+                      }`}
                   >
                     Skills Chart
                   </button>
                   <button
                     onClick={() => setActiveChart('comparison')}
-                    className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
-                      activeChart === 'comparison'
-                        ? 'flex-1 bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm'
-                        : 'flex-1 bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm'
-                    }`}
+                    className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'comparison' ? 'border-blue-500/30' : ''
+                      }`}
                   >
                     Player Comps
                   </button>
-                </div>
-              </div>
 
-              {/*Player Comparison Column */}
-
-              {/* Rankings Column - Removed the blue background/border */}
-              <div className="space-y-4">
-                <div className="p-4 rounded-xs">
-                  <h3 className="font-semibold text-white mb-3"></h3>
-                  <h3 className="font-semibold text-white mb-3">Projected Rankings</h3>
-                  {/* Rankings Table */}
-                  <div className="w-full">
-                    <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
-                      <div>Year</div>
-                      <div className="text-center">Overall</div>
-                      <div className="text-center">Position</div>
-                    </div>
-                    <div className="space-y-2">
-                      {['Y1', 'Y2', 'Y3'].map((year) => (
-                        <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-                          <div>Year {year.slice(1)}</div>
-                          <div className="text-center">
-                            {(() => {
-                              const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
-                              const rankValue = prospect[rankKey];
-                              // Convert to number and check if it's valid
-                              const numValue = Number(rankValue);
-                              return !isNaN(numValue) ? numValue : 'N/A';
-                            })()}
-                          </div>
-                          <div className="text-center">{getPositionRank(year)}</div>
-                        </div>
-                      ))}
-
-                      {/* 3 Year Average */}
-                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                        <div>{isMobile ? "3 Year Avg" : "3 Year Average"}</div>
-                        <div className="text-center">
-                          {(() => {
-                            const avgValue = prospect['Avg. Rank Y1-Y3'];
-                            const numValue = Number(avgValue);
-                            return !isNaN(numValue) ? numValue : 'N/A';
-                          })()}
-                        </div>
-                        <div className="text-center">{getPositionRank('Y1Y3')}</div>
-                      </div>
-
-                      {['Y4', 'Y5'].map((year) => (
-                        <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-                          <div>Year {year.slice(1)}</div>
-                          <div className="text-center">
-                            {(() => {
-                              const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
-                              const rankValue = prospect[rankKey];
-                              const numValue = Number(rankValue);
-                              return !isNaN(numValue) ? numValue : 'N/A';
-                            })()}
-                          </div>
-                          <div className="text-center">{getPositionRank(year)}</div>
-                        </div>
-                      ))}
-
-                      {/* 5 Year Average */}
-                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                        <div>{isMobile ? "5 Year Avg" : "5 Year Average"}</div>
-                        <div className="text-center">
-                          {(() => {
-                            const avgValue = prospect['Avg. Rank Y1-Y5'];
-                            const numValue = Number(avgValue);
-                            return !isNaN(numValue) ? numValue : 'N/A';
-                          })()}
-                        </div>
-                        <div className="text-center">{getPositionRank('Y1Y5')}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Updated Graph buttons to match filter section style */}
-                <div className="flex space-x-2 mt-4">
+                  {/* Graph Buttons */}
                   <motion.button
                     onClick={() => {
                       setGraphType('rankings');
                       setIsGraphModelOpen(true);
                     }}
-                    className="flex-1 bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
+                    className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -1764,28 +1859,28 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       setGraphType('EPM');
                       setIsGraphModelOpen(true);
                     }}
-                    className="flex-1 bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
+                    className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     EPM Graph
                   </motion.button>
                 </div>
-
-                {/* Graph Model */}
-                {isGraphModelOpen && (
-                  <IndividualProspectGraphs
-                    isOpen={isGraphModelOpen}
-                    onClose={() => setIsGraphModelOpen(false)}
-                    prospects={filteredProspects}
-                    selectedPosition={prospect.Role}
-                    selectedProspect={prospect}
-                    allProspects={filteredProspects}
-                    graphType={graphType}
-                    setGraphType={setGraphType}
-                  />
-                )}
               </div>
+
+              {/* Graph Model */}
+              {isGraphModelOpen && (
+                <IndividualProspectGraphs
+                  isOpen={isGraphModelOpen}
+                  onClose={() => setIsGraphModelOpen(false)}
+                  prospects={filteredProspects}
+                  selectedPosition={prospect.Role}
+                  selectedProspect={prospect}
+                  allProspects={filteredProspects}
+                  graphType={graphType}
+                  setGraphType={setGraphType}
+                />
+              )}
             </motion.div>
           )}
         </div>
@@ -1831,9 +1926,14 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
     }
 
     sortableProspects.sort((a, b) => {
-      // Handle Rank column specially (it's not in the data)
+      // Handle Rank column specially (use the original index position)
       if (sortConfig.key === 'Rank') {
-        return sortConfig.direction === 'ascending' ? 1 : -1;
+        const aIndex = prospects.findIndex(p => p.Name === a.Name);
+        const bIndex = prospects.findIndex(p => p.Name === b.Name);
+        
+        return sortConfig.direction === 'ascending'
+          ? aIndex - bIndex  // Sort by original index (ascending)
+          : bIndex - aIndex; // Sort by original index (descending)
       }
 
       let aValue = a[sortConfig.key as keyof DraftProspect];
@@ -1881,7 +1981,11 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
     return sortableProspects;
   }, [prospects, sortConfig]);
 
-  // Helper function to convert height to inches
+  // Helper function to get the original rank of a prospect
+  const getOriginalRank = (prospect: DraftProspect): number => {
+    return prospects.findIndex(p => p.Name === prospect.Name) + 1;
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 pt-8">
       <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
@@ -2001,12 +2105,12 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedProspects.map((prospect, index) => (
+            {sortedProspects.map((prospect) => (
               <TableRow
                 key={prospect.Name}
                 className="hover:bg-gray-800/20"
               >
-                <TableCell className="text-gray-300">{index + 1}</TableCell>
+                <TableCell className="text-gray-300">{getOriginalRank(prospect)}</TableCell>
                 <TableCell className="font-medium text-gray-300">{prospect.Name}</TableCell>
                 <TableCell className="text-gray-300">{prospect.Role}</TableCell>
                 <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
