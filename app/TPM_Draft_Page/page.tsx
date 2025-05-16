@@ -992,7 +992,7 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
 
   const yAxisDomain = getYAxisDomain();
 
-  const CustomTooltip = ({ active, payload, label, coordinate }: CustomTooltipProps) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       // Find which point is actually being hovered by checking the activeDot state 
       // (usually that's the point actively being hovered)
