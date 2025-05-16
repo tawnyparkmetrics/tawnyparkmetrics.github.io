@@ -969,7 +969,6 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   const getYAxisDomain = () => {
     if (graphType === 'rankings') {
       // For rankings, lower is better (1 is best)
-      // Return [max, min] to invert the axis (1 at top, 60 at bottom)
       return [60, 1]; // Reversed domain for rankings (1 at top, 60 at bottom)
     } else {
       // For EPM, find min and max values with padding
@@ -987,25 +986,31 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
 
       // Add padding and make sure we include 0
       const padding = (max - min) * 0.1;
-      // For EPM, return normal orientation (min at bottom, max at top)
       return [Math.floor(Math.min(min - padding, -1)), Math.ceil(Math.max(max + padding, 3))];
     }
   };
 
   const yAxisDomain = getYAxisDomain();
 
-  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  const CustomTooltip = ({ active, payload, label, coordinate }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
+      // Find which point is actually being hovered by checking the activeDot state 
+      // (usually that's the point actively being hovered)
+      const activePointIndex = payload.findIndex(entry => entry.payload.activePayload);
+      // If we can't determine which one is active, use the last mouse event target
+      const activeEntry = activePointIndex >= 0 ? payload[activePointIndex] : payload[payload.length - 1];
+      
       return (
         <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
-          <p className="font-bold text-white">Year {label}</p>
-          {payload.map((entry: PayloadItem) => (
-            <p key={entry.dataKey} style={{ color: entry.color }} className="text-sm">
-              {entry.dataKey}: {typeof entry.value === 'number' ?
-                graphType === 'rankings' ? entry.value.toFixed(0) : entry.value.toFixed(2)
-                : 'N/A'}
-            </p>
-          ))}
+          <p className="font-bold text-white">{activeEntry.dataKey}</p>
+          <p className="text-white">Year {label}</p>
+          <p style={{ color: activeEntry.color }} className="text-sm font-bold">
+            {graphType === 'rankings' ? 'Rank' : 'EPM'}: {
+              typeof activeEntry.value === 'number' ?
+                graphType === 'rankings' ? activeEntry.value.toFixed(0) : activeEntry.value.toFixed(2)
+                : 'N/A'
+            }
+          </p>
         </div>
       );
     }
@@ -1096,13 +1101,14 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
                     domain={yAxisDomain}
                     tickCount={graphType === 'rankings' ? 6 : 8}
                     tickFormatter={(value) => Math.round(value).toString()}
+                    reversed={graphType === 'rankings'} // Set reversed to true for rankings chart
                     label={{
                       value: graphType === 'rankings' ? 'Ranking' : 'EPM Value',
                       angle: -90,
                       position: 'insideLeft'
                     }}
                   />
-                  <Tooltip content={<CustomTooltip />} />
+                  <Tooltip content={<CustomTooltip />} isAnimationActive={false} />
                   <Legend />
                   {sortedProspects.map((prospect) => (
                     <Line
@@ -1115,6 +1121,8 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
                       activeDot={{ r: 8 }}
                       // Ensure selected player has higher z-index
                       z={prospect.Name === selectedProspect?.Name ? 10 : 1}
+                      // Only show tooltip for this specific line
+                      isAnimationActive={false}
                     />
                   ))}
                 </LineChart>
@@ -1483,6 +1491,12 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
     return rank ? rank.toString() : 'N/A';
   };
 
+  // Helper function to format average rank display
+  const formatAvgRank = (avgRankStr: string): string => {
+    const numValue = Number(avgRankStr);
+    return !isNaN(numValue) ? Math.ceil(numValue).toString() : 'N/A';
+  };
+
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
       <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
@@ -1592,9 +1606,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             </motion.div>
 
             {/* Info panel - different for mobile/desktop */}
-            {isMobile ? (
-              // Mobile info panel (when expanded)
-              isExpanded && ( // Only render if isExpanded is true
+            {isMobile ? (isExpanded && ( 
                 <div style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}></div>
               )
             ) : (
@@ -1678,9 +1690,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
             >
               <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
-              {/* <div className="transform scale-50 origin-top-right">
-                <NBATeamLogo NBA={prospect['NBA Team']}/>
-              </div> */}
               <div className="grid grid-cols-2 gap-2">
                 {/* Draft Information Column */}
                 <div>
@@ -1714,158 +1723,196 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               </div>
               {/* Team Logo in Top Right */}
               <div className="absolute top-3.5 right-3.5 transform scale-50 origin-top-right">
-                <NBATeamLogo NBA={prospect['NBA Team']} /> {/* Adjust size as needed */}
+                <NBATeamLogo NBA={prospect['NBA Team']} />
               </div>
             </motion.div>
           )}
 
+          {/* Expanded View - Charts and Rankings */}
           {isExpanded && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className={`
-      grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} 
-      gap-4 rounded-xl backdrop-blur-sm p-6 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]
-    `}
+              className="rounded-xl backdrop-blur-sm p-4 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
               style={{ backgroundColor: '#19191A' }}
             >
-              {/* Left Column - Charts */}
-              <div className="text-gray-300">
-                {/* Tier display with color border */}
-                <h3 className="font-semibold text-sm mb-3 text-white">Prospect Tier: {prospect.Tier}</h3>
-
-                <h3 className="font-semibold text-lg mb-3 text-white">
-                  {activeChart === 'spider' ? 'Skills Chart' : 'Player Comparisons'}
-                </h3>
-
-                {/* Fixed-height Chart Container to prevent size changes */}
-                <div className="h-64 mb-4">
-                  {activeChart === 'spider' ? (
-                    <SpiderChart prospect={prospect} />
-                  ) : (
-                    <PlayerComparisonChart prospect={prospect} />
-                  )}
-                </div>
-              </div>
-
-              {/* Right Column - Rankings */}
-              <div className="space-y-4">
-                <h3></h3>
-
-                <h3 className="font-semibold text-lg text-white mb-3">Projected EPM Rankings</h3>
-                {/* Rankings Table */}
-                <div className="w-full">
-                  <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
-                    <div>Year</div>
-                    <div className="text-center">Overall</div>
-                    <div className="text-center">Position</div>
-                  </div>
-                  <div className="space-y-2">
-                    {['Y1', 'Y2', 'Y3'].map((year) => (
-                      <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-                        <div>Year {year.slice(1)}</div>
-                        <div className="text-center">
-                          {(() => {
-                            const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
-                            const rankValue = prospect[rankKey];
-                            // Convert to number and check if it's valid
-                            const numValue = Number(rankValue);
-                            return !isNaN(numValue) ? numValue : 'N/A';
-                          })()}
-                        </div>
-                        <div className="text-center">{getPositionRank(year)}</div>
-                      </div>
-                    ))}
-
-                    {/* 3 Year Average */}
-                    <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                      <div>{isMobile ? "3 Year Avg" : "3 Year Average"}</div>
-                      <div className="text-center">
-                        {(() => {
-                          const avgValue = prospect['Avg. Rank Y1-Y3'];
-                          const numValue = Number(avgValue);
-                          return !isNaN(numValue) ? numValue : 'N/A';
-                        })()}
-                      </div>
-                      <div className="text-center">{getPositionRank('Y1Y3')}</div>
-                    </div>
-
-                    {['Y4', 'Y5'].map((year) => (
-                      <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-                        <div>Year {year.slice(1)}</div>
-                        <div className="text-center">
-                          {(() => {
-                            const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
-                            const rankValue = prospect[rankKey];
-                            const numValue = Number(rankValue);
-                            return !isNaN(numValue) ? numValue : 'N/A';
-                          })()}
-                        </div>
-                        <div className="text-center">{getPositionRank(year)}</div>
-                      </div>
-                    ))}
-
-                    {/* 5 Year Average */}
-                    <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                      <div>{isMobile ? "5 Year Avg" : "5 Year Average"}</div>
-                      <div className="text-center">
-                        {(() => {
-                          const avgValue = prospect['Avg. Rank Y1-Y5'];
-                          const numValue = Number(avgValue);
-                          return !isNaN(numValue) ? numValue : 'N/A';
-                        })()}
-                      </div>
-                      <div className="text-center">{getPositionRank('Y1Y5')}</div>
-                    </div>
+              {/* Mobile - Chart Toggle tabs */}
+              {isMobile && (
+                <div className="mb-4 border-b border-gray-700">
+                  <div className="flex space-x-2 mb-2">
+                    <button
+                      onClick={() => setActiveChart('spider')}
+                      className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200 
+                        ${activeChart === 'spider' 
+                          ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
+                          : 'text-gray-400 hover:text-gray-300'}`}
+                    >
+                      Skills
+                    </button>
+                    <button
+                      onClick={() => setActiveChart('comparison')}
+                      className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200 
+                        ${activeChart === 'comparison' 
+                          ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
+                          : 'text-gray-400 hover:text-gray-300'}`}
+                    >
+                      Comps
+                    </button>
+                    <button
+                      onClick={() => {
+                        setGraphType('rankings');
+                        setIsGraphModelOpen(true);
+                      }}
+                      className="py-2 px-3 text-xs font-medium text-gray-400 hover:text-gray-300 transition-all duration-200"
+                    >
+                      Rankings
+                    </button>
+                    <button
+                      onClick={() => {
+                        setGraphType('EPM');
+                        setIsGraphModelOpen(true);
+                      }}
+                      className="py-2 px-3 text-xs font-medium text-gray-400 hover:text-gray-300 transition-all duration-200"
+                    >
+                      EPM
+                    </button>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* All buttons row - spans full width below both columns */}
-              <div className="col-span-2 mt-2">
-                <div className="grid grid-cols-4 gap-2">
-                  {/* Chart Toggle Buttons */}
-                  <button
-                    onClick={() => setActiveChart('spider')}
-                    className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'spider' ? 'border-blue-500/30' : ''
-                      }`}
-                  >
-                    Skills Chart
-                  </button>
-                  <button
-                    onClick={() => setActiveChart('comparison')}
-                    className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'comparison' ? 'border-blue-500/30' : ''
-                      }`}
-                  >
-                    Player Comps
-                  </button>
+              {/* Desktop - Two column layout */}
+              <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
+                {/* Charts Column */}
+                <div className="text-gray-300 mb-6">
+                  {/* Tier display with color border */}
+                  <h3 className="font-semibold text-sm mb-3 text-white">Prospect Tier: {prospect.Tier}</h3>
 
-                  {/* Graph Buttons */}
-                  <motion.button
-                    onClick={() => {
-                      setGraphType('rankings');
-                      setIsGraphModelOpen(true);
-                    }}
-                    className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Rankings Graph
-                  </motion.button>
-                  <motion.button
-                    onClick={() => {
-                      setGraphType('EPM');
-                      setIsGraphModelOpen(true);
-                    }}
-                    className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    EPM Graph
-                  </motion.button>
+                  <h3 className="font-semibold text-lg mb-3 text-white">
+                    {activeChart === 'spider' ? 'Skills Chart' : 'Player Comparisons'}
+                  </h3>
+
+                  {/* Fixed-height Chart Container to prevent size changes */}
+                  <div className={`${isMobile ? 'h-48' : 'h-64'} mb-4`}>
+                    {activeChart === 'spider' ? (
+                      <SpiderChart prospect={prospect} />
+                    ) : (
+                      <PlayerComparisonChart prospect={prospect} />
+                    )}
+                  </div>
                 </div>
+
+                {/* Rankings Column */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg text-white mb-3">Projected EPM Rankings</h3>
+                  {/* Rankings Table */}
+                  <div className="w-full">
+                    <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
+                      <div>Year</div>
+                      <div className="text-center">Overall</div>
+                      <div className="text-center">Position</div>
+                    </div>
+                    <div className="space-y-2">
+                      {['Y1', 'Y2', 'Y3'].map((year) => (
+                        <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                          <div>Year {year.slice(1)}</div>
+                          <div className="text-center">
+                            {(() => {
+                              const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
+                              const rankValue = prospect[rankKey];
+                              // Convert to number and check if it's valid
+                              const numValue = Number(rankValue);
+                              return !isNaN(numValue) ? numValue : 'N/A';
+                            })()}
+                          </div>
+                          <div className="text-center">{getPositionRank(year)}</div>
+                        </div>
+                      ))}
+
+                      {/* 3 Year Average - WITH ROUNDING */}
+                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                        <div>{isMobile ? "3 Year Avg" : "3 Year Average"}</div>
+                        <div className="text-center">
+                          {formatAvgRank(prospect['Avg. Rank Y1-Y3'])}
+                        </div>
+                        <div className="text-center">{getPositionRank('Y1Y3')}</div>
+                      </div>
+
+                      {/* Only show Y4 and Y5 on desktop */}
+                      {!isMobile && ['Y4', 'Y5'].map((year) => (
+                        <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                          <div>Year {year.slice(1)}</div>
+                          <div className="text-center">
+                            {(() => {
+                              const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
+                              const rankValue = prospect[rankKey];
+                              const numValue = Number(rankValue);
+                              return !isNaN(numValue) ? numValue : 'N/A';
+                            })()}
+                          </div>
+                          <div className="text-center">{getPositionRank(year)}</div>
+                        </div>
+                      ))}
+
+                      {/* 5 Year Average - only on desktop - WITH ROUNDING */}
+                      {!isMobile && (
+                        <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                          <div>{isMobile ? "5 Year Avg" : "5 Year Average"}</div>
+                          <div className="text-center">
+                            {formatAvgRank(prospect['Avg. Rank Y1-Y5'])}
+                          </div>
+                          <div className="text-center">{getPositionRank('Y1Y5')}</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Desktop - All buttons row - spans full width below both columns */}
+                {!isMobile && (
+                  <div className="col-span-2 mt-2">
+                    <div className="grid grid-cols-4 gap-2">
+                      {/* Chart Toggle Buttons */}
+                      <button
+                        onClick={() => setActiveChart('spider')}
+                        className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'spider' ? 'border-blue-500/30' : ''}`}
+                      >
+                        Skills Chart
+                      </button>
+                      <button
+                        onClick={() => setActiveChart('comparison')}
+                        className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'comparison' ? 'border-blue-500/30' : ''}`}
+                      >
+                        Player Comps
+                      </button>
+
+                      {/* Graph Buttons */}
+                      <motion.button
+                        onClick={() => {
+                          setGraphType('rankings');
+                          setIsGraphModelOpen(true);
+                        }}
+                        className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        Rankings Graph
+                      </motion.button>
+                      <motion.button
+                        onClick={() => {
+                          setGraphType('EPM');
+                          setIsGraphModelOpen(true);
+                        }}
+                        className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        EPM Graph
+                      </motion.button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Graph Model */}
