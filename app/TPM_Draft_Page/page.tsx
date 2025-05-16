@@ -85,13 +85,13 @@ export interface DraftProspect {
 }
 
 const tierColors: { [key: string]: string } = {
-  'All-Time Great': '#ef17ef',
-  'All-NBA Caliber': '#9900ff',
-  'Fringe All-Star': '#0000ff',
-  'Quality Starter': '#00ff00',
-  'Solid Rotation': '#ffff00',
-  'Bench Reserve': '#ff9900',
-  'Fringe NBA': '#ff0000',
+  'All-Time Great': '#FF66C4',
+  'All-NBA Caliber': '#E9A2FF',
+  'Fringe All-Star': '#5CE1E6',
+  'Quality Starter': '#7ED957',
+  'Solid Rotation': '#FFDE59',
+  'Bench Reserve': '#FFA455',
+  'Fringe NBA': '#FF5757',
 };
 
 const barlow = Barlow({
