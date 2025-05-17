@@ -17,7 +17,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 //import Link from 'next/link';
-import { Search, Table as TableIcon } from 'lucide-react';
+import { Search, Table as TableIcon, LockIcon, UnlockIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { TooltipProps } from 'recharts';
 //import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
@@ -836,46 +836,23 @@ const TimelineFilter = ({
                     </div>
                   </div>
 
-                    {/* Reset Button moved to the left of the Search Bar */}
-                    <motion.button
-                      onClick={resetFilters}
-                      className={`
+                  {/* Reset Button moved to the left of the Search Bar */}
+                  <motion.button
+                    onClick={resetFilters}
+                    className={`
                         flex items-center gap-1 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all duration-200
                         ${hasActiveFilters()
-                          ? 'bg-gray-800/20 text-red-400 hover:text-red-300 border border-gray-800 hover:border-red-700/30'
-                          : 'bg-gray-800/10 text-gray-500 border border-gray-800/50 opacity-60'
-                        }
+                        ? 'bg-gray-800/20 text-red-400 hover:text-red-300 border border-gray-800 hover:border-red-700/30'
+                        : 'bg-gray-800/10 text-gray-500 border border-gray-800/50 opacity-60'
+                      }
                       `}
-                      whileHover={{ scale: hasActiveFilters() ? 1.05 : 1 }}
-                      whileTap={{ scale: hasActiveFilters() ? 0.95 : 1 }}
-                      disabled={!hasActiveFilters()}
-                    >
-                      <X className="h-4 w-4" />
-                      Reset
-                    </motion.button>
-
-                  {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-                  {/* Position Filters - FIXED TO USE BLUE HIGHLIGHT */}
-                  {positions.map((position) => (
-                    <motion.button
-                      key={position.key}
-                      onClick={() => handlePositionClick(position.key)}
-                      className={`
-                        px-3 py-2 rounded-lg text-sm font-medium
-                        transition-all duration-300 justify-center
-                        ${selectedPosition === position.key
-                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                          : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                        }
-                      `}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {position.label}
-                    </motion.button>
-                  ))}
+                    whileHover={{ scale: hasActiveFilters() ? 1.05 : 1 }}
+                    whileTap={{ scale: hasActiveFilters() ? 0.95 : 1 }}
+                    disabled={!hasActiveFilters()}
+                  >
+                    <X className="h-4 w-4" />
+                    Reset
+                  </motion.button>
 
                   {/* Divider */}
                   <div className="h-8 w-px bg-gray-700/30 mx-2" />
@@ -884,15 +861,16 @@ const TimelineFilter = ({
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <motion.button
+                        onClick={() => setShowMobileFilters(true)} // Open mobile filters on click
                         className={`
-                          relative px-4 py-2 rounded-lg text-sm font-medium
-                          flex items-center gap-2
-                          transition-all duration-300
-                          ${selectedTier
+                      relative px-4 py-2 rounded-lg text-sm font-medium
+                      flex items-center gap-2
+                      transition-all duration-300
+                      ${selectedTier
                             ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
                             : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                           }
-                        `}
+                    `}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         style={selectedTier ? {
@@ -901,8 +879,8 @@ const TimelineFilter = ({
                           borderColor: `${tierColors[selectedTier]}4D`
                         } : {}}
                       >
+                        {selectedTier ? <LockIcon className="h-4 w-4" /> : <UnlockIcon className="h-4 w-4" />}
                         Tier
-                        <ChevronDown className="h-4 w-4" />
                       </motion.button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="bg-[#19191A] border-gray-700">
@@ -926,6 +904,29 @@ const TimelineFilter = ({
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
+
+                  {/* Divider */}
+                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+                  {/* Position Filters - FIXED TO USE BLUE HIGHLIGHT */}
+                  {positions.map((position) => (
+                    <motion.button
+                      key={position.key}
+                      onClick={() => handlePositionClick(position.key)}
+                      className={`
+                        px-3 py-2 rounded-lg text-sm font-medium
+                        transition-all duration-300 justify-center
+                        ${selectedPosition === position.key
+                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                        }
+                      `}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {position.label}
+                    </motion.button>
+                  ))}
 
                   {/* Divider */}
                   <div className="h-8 w-px bg-gray-700/30 mx-2" />
@@ -1103,7 +1104,7 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
       const activePointIndex = payload.findIndex(entry => entry.payload.activePayload);
       // If we can't determine which one is active, use the last mouse event target
       const activeEntry = activePointIndex >= 0 ? payload[activePointIndex] : payload[payload.length - 1];
-      
+
       return (
         <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
           <p className="font-bold text-white">{activeEntry.dataKey}</p>
@@ -1514,7 +1515,7 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
       >
         <PolarGrid stroke="#999" /> {/* Changed stroke color here */}
-        <PolarAngleAxis dataKey="name" fontSize = {10} />
+        <PolarAngleAxis dataKey="name" fontSize={10} />
         <Radar
           name={prospect.Name}
           dataKey="value"
@@ -1710,9 +1711,9 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             </motion.div>
 
             {/* Info panel - different for mobile/desktop */}
-            {isMobile ? (isExpanded && ( 
-                <div style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}></div>
-              )
+            {isMobile ? (isExpanded && (
+              <div style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}></div>
+            )
             ) : (
               // Desktop hover info panel
               <div
@@ -1849,8 +1850,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     <button
                       onClick={() => setActiveChart('spider')}
                       className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200 
-                        ${activeChart === 'spider' 
-                          ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
+                        ${activeChart === 'spider'
+                          ? 'bg-gray-800 text-white border-b-2 border-blue-500'
                           : 'text-gray-400 hover:text-gray-300'}`}
                     >
                       Skills
@@ -1858,8 +1859,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     <button
                       onClick={() => setActiveChart('comparison')}
                       className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200 
-                        ${activeChart === 'comparison' 
-                          ? 'bg-gray-800 text-white border-b-2 border-blue-500' 
+                        ${activeChart === 'comparison'
+                          ? 'bg-gray-800 text-white border-b-2 border-blue-500'
                           : 'text-gray-400 hover:text-gray-300'}`}
                     >
                       Comps
@@ -2081,7 +2082,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
       if (sortConfig.key === 'Rank') {
         const aIndex = prospects.findIndex(p => p.Name === a.Name);
         const bIndex = prospects.findIndex(p => p.Name === b.Name);
-        
+
         return sortConfig.direction === 'ascending'
           ? aIndex - bIndex  // Sort by original index (ascending)
           : bIndex - aIndex; // Sort by original index (descending)
@@ -2209,6 +2210,19 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                   </span>
                 )}
               </TableHead>
+
+              <TableHead
+                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                onClick={() => handleSort('Tier')}
+              >
+                Tier
+                {sortConfig?.key === 'Tier' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+
               <TableHead
                 className="text-gray-400 cursor-pointer hover:text-gray-200"
                 onClick={() => handleSort('Height')}
@@ -2271,6 +2285,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 <TableCell className="text-gray-300">
                   {teamNames[prospect['NBA Team']] || prospect['NBA Team']}
                 </TableCell>
+                <TableCell className="text-gray-300">{prospect['Tier']}</TableCell>
                 <TableCell className="text-gray-300">{prospect.Height}</TableCell>
                 <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
                 <TableCell className="text-gray-300">{prospect['Wing - Height']}</TableCell>
