@@ -406,12 +406,15 @@ type CustomTooltipProps = TooltipProps<number | string, string> & {
 //   );
 // };
 
+
 interface TimelineFilterProps {
   selectedSortKey: string;
   setSelectedSortKey: (key: string) => void;
   selectedPosition: string | null;
   setSelectedPosition: (position: string | null) => void;
-  filteredProspects: DraftProspect[]; // Replace 'any' with your actual prospect type
+  selectedTier: string | null;  // New prop for tier selection
+  setSelectedTier: (tier: string | null) => void;  // New prop for setting tier
+  filteredProspects: DraftProspect[];
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   viewMode: 'cards' | 'table';
@@ -423,6 +426,8 @@ const TimelineFilter = ({
   setSelectedSortKey,
   selectedPosition,
   setSelectedPosition,
+  selectedTier,
+  setSelectedTier,
   searchQuery,
   setSearchQuery,
   viewMode,
@@ -432,7 +437,7 @@ const TimelineFilter = ({
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [selectedYear, setSelectedYear] = useState('2024');
 
-  //timeline labels
+  // Timeline labels
   const yearSortKeys = [
     { key: 'Actual Pick', label: 'Draft' },
     { key: 'Pred. Y1 Rank', label: 'Y1' },
@@ -442,13 +447,13 @@ const TimelineFilter = ({
     { key: 'Pred. Y5 Rank', label: 'Y5' }
   ];
 
-  //button titles
+  // Button titles
   const averageKeys = [
     { key: 'Avg. Rank Y1-Y3', label: '3Y Avg' },
     { key: 'Avg. Rank Y1-Y5', label: '5Y Avg' }
   ];
 
-  //for the summary by the filters
+  // For the summary by the filters
   const summaryLabels: { [key: string]: string } = {
     'Actual Pick': 'Draft Order',
     'Pred. Y1 Rank': 'Year 1',
@@ -460,17 +465,29 @@ const TimelineFilter = ({
     'Avg. Rank Y1-Y5': '5 Year Average',
   };
 
-  //position labels
+  // Position labels
   const positions = [
     { key: 'Guard', label: 'Guards' },
     { key: 'Wing', label: 'Wings' },
     { key: 'Big', label: 'Bigs' }
   ];
 
+  // Tier labels - added new tier options
+  const tiers = [
+    { key: 'All-Time Great', label: 'All-Time Great' },
+    { key: 'All-NBA Caliber', label: 'All-NBA Caliber' },
+    { key: 'Fringe All-Star', label: 'Fringe All-Star' },
+    { key: 'Quality Starter', label: 'Quality Starter' },
+    { key: 'Solid Rotation', label: 'Solid Rotation' },
+    { key: 'Bench Reserve', label: 'Bench Reserve' },
+    { key: 'Fringe NBA', label: 'Fringe NBA' }
+  ];
+
   // Function to reset all filters
   const resetFilters = () => {
     setSelectedSortKey('Actual Pick'); // Reset to Draft Order
     setSelectedPosition(null); // Clear position filter
+    setSelectedTier(null); // Clear tier filter
     setSearchQuery(''); // Clear search
   };
 
@@ -492,6 +509,15 @@ const TimelineFilter = ({
     }
   };
 
+  // New handler for tier clicks
+  const handleTierClick = (tier: string) => {
+    if (selectedTier === tier) {
+      setSelectedTier(null);
+    } else {
+      setSelectedTier(tier);
+    }
+  };
+
   // Get active filter summary text
   const getFilterSummary = () => {
     const parts = [];
@@ -506,6 +532,11 @@ const TimelineFilter = ({
       parts.push(positions.find(p => p.key === selectedPosition)?.label || selectedPosition);
     }
 
+    // Add tier if selected
+    if (selectedTier) {
+      parts.push(`Tier ${selectedTier}`);
+    }
+
     // Add search query if present
     if (searchQuery) {
       parts.push(`"${searchQuery}"`);
@@ -517,7 +548,7 @@ const TimelineFilter = ({
   // Check if any filters are applied (for conditionally showing reset button)
   const hasActiveFilters = () => {
     // Check if any filter is different from default values
-    return selectedSortKey !== 'Actual Pick' || selectedPosition !== null || searchQuery.trim() !== '';
+    return selectedSortKey !== 'Actual Pick' || selectedPosition !== null || selectedTier !== null || searchQuery.trim() !== '';
   };
 
   return (
@@ -740,6 +771,29 @@ const TimelineFilter = ({
                       ))}
                     </div>
 
+                    {/* Tier Filters for Mobile - FIX APPLIED HERE */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <div className="w-full text-xs text-gray-400 mb-1">Tier:</div>
+                      {tiers.map((tier) => (
+                        <motion.button
+                          key={tier.key}
+                          onClick={() => handleTierClick(tier.key)}
+                          className={`
+                            px-3 py-1 rounded-full text-xs font-medium
+                            transition-all duration-300
+                            ${selectedTier === tier.key
+                              ? `bg-blue-500/20 text-blue-400 border border-blue-500/30`
+                              : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                            }
+                          `}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {tier.label}
+                        </motion.button>
+                      ))}
+                    </div>
+
                     {/* Average Filters for Mobile */}
                     <div className="flex flex-wrap gap-2">
                       <div className="w-full text-xs text-gray-400 mb-1">Average:</div>
@@ -769,6 +823,19 @@ const TimelineFilter = ({
                 <div className="hidden md:flex justify-between items-center space-x-4 mt-4">
                   {/* Reset Button and Search Section */}
                   <div className="relative flex items-center space-x-2 flex-grow max-w-md">
+                    {/* Search field */}
+                    <div className="relative flex-grow">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        type="text"
+                        placeholder="Search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+                      />
+                    </div>
+                  </div>
+
                     {/* Reset Button moved to the left of the Search Bar */}
                     <motion.button
                       onClick={resetFilters}
@@ -783,33 +850,20 @@ const TimelineFilter = ({
                       whileTap={{ scale: hasActiveFilters() ? 0.95 : 1 }}
                       disabled={!hasActiveFilters()}
                     >
-                      <X className="h-4 w-4" /> {/* w-10 is what we need */}
+                      <X className="h-4 w-4" />
                       Reset
                     </motion.button>
-
-                    {/* Search field */}
-                    <div className="relative flex-grow">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        type="text"
-                        placeholder="Search"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
-                      />
-                    </div>
-                  </div>
 
                   {/* Divider */}
                   <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
-                  {/* Position Filters */}
+                  {/* Position Filters - FIXED TO USE BLUE HIGHLIGHT */}
                   {positions.map((position) => (
                     <motion.button
                       key={position.key}
                       onClick={() => handlePositionClick(position.key)}
                       className={`
-                        px-10 py-2 rounded-lg text-sm font-medium
+                        px-3 py-2 rounded-lg text-sm font-medium
                         transition-all duration-300 justify-center
                         ${selectedPosition === position.key
                           ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
@@ -822,6 +876,56 @@ const TimelineFilter = ({
                       {position.label}
                     </motion.button>
                   ))}
+
+                  {/* Divider */}
+                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+                  {/* Tier Filters - FIXED TO USE CORRECT TIER COLOR WHEN SELECTED */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <motion.button
+                        className={`
+                          relative px-4 py-2 rounded-lg text-sm font-medium
+                          flex items-center gap-2
+                          transition-all duration-300
+                          ${selectedTier
+                            ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
+                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                          }
+                        `}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        style={selectedTier ? {
+                          backgroundColor: `${tierColors[selectedTier]}20`,
+                          color: tierColors[selectedTier],
+                          borderColor: `${tierColors[selectedTier]}4D`
+                        } : {}}
+                      >
+                        Tier
+                        <ChevronDown className="h-4 w-4" />
+                      </motion.button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                      {tiers.map((tier) => (
+                        <DropdownMenuItem
+                          key={tier.key}
+                          className={`
+                            relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
+                            ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
+                          `}
+                          onClick={() => handleTierClick(tier.key)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="w-4 h-4 rounded-sm"
+                              style={{ backgroundColor: tierColors[tier.key] }}
+                            ></span>
+                            {tier.label}
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
                   {/* Divider */}
                   <div className="h-8 w-px bg-gray-700/30 mx-2" />
@@ -2186,6 +2290,7 @@ type RankType = number | 'N/A';
 function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[] }) {
   const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
+  const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [displayedProspects, setDisplayedProspects] = useState<number>(5);
@@ -2314,13 +2419,17 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
       filteredProspects = filteredProspects.filter(prospect => prospect.Role === selectedPosition);
     }
 
+    if (selectedTier) {
+      filteredProspects = filteredProspects.filter(prospect => prospect.Tier === selectedTier);
+    }
+
     // Create array of ProspectWithRank objects
     return filteredProspects.map(prospect => ({
       prospect,
       originalRank: rankMap.get(prospect.Name)
     }));
 
-  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery]);
+  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier]);
 
   return (
     <div className="bg-[#19191A] min-h-screen">
@@ -2329,6 +2438,8 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         setSelectedSortKey={setSelectedSortKey}
         selectedPosition={selectedPosition}
         setSelectedPosition={setSelectedPosition}
+        selectedTier={selectedTier}
+        setSelectedTier={setSelectedTier}
         filteredProspects={filteredProspects.map(p => p.prospect)}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
