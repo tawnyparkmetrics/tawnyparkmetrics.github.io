@@ -450,7 +450,7 @@ const TimelineFilter = ({
   // Button titles
   const averageKeys = [
     { key: 'Avg. Rank Y1-Y3', label: '3Y Avg' },
-    { key: 'Avg. Rank Y1-Y5', label: '5Y Avg' }
+    { key: 'Avg. Rank Y1-Y5', label: '5Y Avg' },
   ];
 
   // For the summary by the filters
@@ -482,6 +482,8 @@ const TimelineFilter = ({
     { key: 'Bench Reserve', label: 'Bench Reserve' },
     { key: 'Fringe NBA', label: 'Fringe NBA' }
   ];
+
+  summaryLabels['Tier Ranked'] = 'Tier Ranking';
 
   // Function to reset all filters
   const resetFilters = () => {
@@ -794,6 +796,26 @@ const TimelineFilter = ({
                       ))}
                     </div>
 
+                    {/* Add Tier Ranked button in Mobile section */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <div className="w-full text-xs text-gray-400 mb-1">Sorting:</div>
+                      <motion.button
+                        onClick={() => setSelectedSortKey('Tier Ranked')}
+                        className={`
+                            px-3 py-1 rounded-lg text-xs font-medium
+                            transition-all duration-300
+                            ${selectedSortKey === 'Tier Ranked'
+                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                          }
+                        `}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Tier Ranked
+                      </motion.button>
+                    </div>
+
                     {/* Average Filters for Mobile */}
                     <div className="flex flex-wrap gap-2">
                       <div className="w-full text-xs text-gray-400 mb-1">Average:</div>
@@ -857,6 +879,25 @@ const TimelineFilter = ({
                   {/* Divider */}
                   <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
+                  {/* Add Tier Ranked button here, before the Tier dropdown */}
+                  <motion.button
+                    onClick={() => setSelectedSortKey('Tier Ranked')}
+                    className={`
+                        px-4 py-2 rounded-lg text-sm font-medium
+                        flex items-center gap-2
+                        transition-all duration-300
+                        ${selectedSortKey === 'Tier Ranked'
+                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                      }
+                    `}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {selectedSortKey === 'Tier Ranked' ? <LockIcon className="h-4 w-4" /> : <UnlockIcon className="h-4 w-4" />}
+                    Tiers Ranked
+                  </motion.button>
+
                   {/* Tier Filters - FIXED TO USE CORRECT TIER COLOR WHEN SELECTED */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -879,7 +920,6 @@ const TimelineFilter = ({
                           borderColor: `${tierColors[selectedTier]}4D`
                         } : {}}
                       >
-                        {selectedTier ? <LockIcon className="h-4 w-4" /> : <UnlockIcon className="h-4 w-4" />}
                         Tier
                       </motion.button>
                     </DropdownMenuTrigger>
@@ -1849,8 +1889,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   <div className="flex space-x-2 mb-2">
                     <button
                       onClick={() => setActiveChart('spider')}
-                      className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200 
-                        ${activeChart === 'spider'
+                      className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200
+                      ${activeChart === 'spider'
                           ? 'bg-gray-800 text-white border-b-2 border-blue-500'
                           : 'text-gray-400 hover:text-gray-300'}`}
                     >
@@ -1858,39 +1898,21 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     </button>
                     <button
                       onClick={() => setActiveChart('comparison')}
-                      className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200 
-                        ${activeChart === 'comparison'
+                      className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200
+                      ${activeChart === 'comparison'
                           ? 'bg-gray-800 text-white border-b-2 border-blue-500'
                           : 'text-gray-400 hover:text-gray-300'}`}
                     >
                       Comps
                     </button>
-                    <button
-                      onClick={() => {
-                        setGraphType('rankings');
-                        setIsGraphModelOpen(true);
-                      }}
-                      className="py-2 px-3 text-xs font-medium text-gray-400 hover:text-gray-300 transition-all duration-200"
-                    >
-                      Rankings
-                    </button>
-                    <button
-                      onClick={() => {
-                        setGraphType('EPM');
-                        setIsGraphModelOpen(true);
-                      }}
-                      className="py-2 px-3 text-xs font-medium text-gray-400 hover:text-gray-300 transition-all duration-200"
-                    >
-                      EPM
-                    </button>
                   </div>
                 </div>
               )}
 
-              {/* Desktop - Two column layout */}
+              {/* Expanded View Content */}
               <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
-                {/* Charts Column */}
-                <div className="text-gray-300 mb-6">
+                {/* Charts Column - Always show on mobile, above rankings */}
+                <div className="text-gray-300"> {/* Removed mb-6 here */}
                   {/* Tier display with color border */}
                   <h3 className="font-semibold text-sm mb-3 text-white">Prospect Tier: {prospect.Tier}</h3>
 
@@ -1898,8 +1920,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     {activeChart === 'spider' ? 'Skills Chart' : 'Player Comparisons'}
                   </h3>
 
-                  {/* Fixed-height Chart Container to prevent size changes */}
-                  <div className={`${isMobile ? 'h-48' : 'h-64'} mb-4`}>
+                  {/* Chart Container - Let it take natural height on desktop */}
+                  <div className="mb-4"> {/* Removed conditional height */}
                     {activeChart === 'spider' ? (
                       <SpiderChart prospect={prospect} />
                     ) : (
@@ -1909,7 +1931,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 </div>
 
                 {/* Rankings Column */}
-                <div className="space-y-4">
+                <div className="space-y-4 flex flex-col justify-start">
+                  <h3 className="font-semibold text-sm mb-5 text-white"></h3>
                   <h3 className="font-semibold text-lg text-white mb-3">Projected EPM Rankings</h3>
                   {/* Rankings Table */}
                   <div className="w-full">
@@ -1919,6 +1942,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       <div className="text-center">Position</div>
                     </div>
                     <div className="space-y-2">
+                      {/* Show individual years */}
                       {['Y1', 'Y2', 'Y3'].map((year) => (
                         <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
                           <div>Year {year.slice(1)}</div>
@@ -1926,7 +1950,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                             {(() => {
                               const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
                               const rankValue = prospect[rankKey];
-                              // Convert to number and check if it's valid
                               const numValue = Number(rankValue);
                               return !isNaN(numValue) ? numValue : 'N/A';
                             })()}
@@ -1935,17 +1958,17 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         </div>
                       ))}
 
-                      {/* 3 Year Average - WITH ROUNDING */}
+                      {/* 3 Year Average - Show after Y3 */}
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                        <div>{isMobile ? "3 Year Avg" : "3 Year Average"}</div>
+                        <div>3 Year Avg</div>
                         <div className="text-center">
                           {formatAvgRank(prospect['Avg. Rank Y1-Y3'])}
                         </div>
                         <div className="text-center">{getPositionRank('Y1Y3')}</div>
                       </div>
 
-                      {/* Only show Y4 and Y5 on desktop */}
-                      {!isMobile && ['Y4', 'Y5'].map((year) => (
+                      {/* Show remaining individual years */}
+                      {['Y4', 'Y5'].map((year) => (
                         <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
                           <div>Year {year.slice(1)}</div>
                           <div className="text-center">
@@ -1960,16 +1983,14 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         </div>
                       ))}
 
-                      {/* 5 Year Average - only on desktop - WITH ROUNDING */}
-                      {!isMobile && (
-                        <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                          <div>{isMobile ? "5 Year Avg" : "5 Year Average"}</div>
-                          <div className="text-center">
-                            {formatAvgRank(prospect['Avg. Rank Y1-Y5'])}
-                          </div>
-                          <div className="text-center">{getPositionRank('Y1Y5')}</div>
+                      {/* 5 Year Average - Show after Y5 */}
+                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                        <div>5 Year Avg</div>
+                        <div className="text-center">
+                          {formatAvgRank(prospect['Avg. Rank Y1-Y5'])}
                         </div>
-                      )}
+                        <div className="text-center">{getPositionRank('Y1Y5')}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2312,6 +2333,16 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   const [isLoading, setIsLoading] = useState(false);
   const [, setIsMobile] = useState(false);
 
+  const tierRankMap = {
+    'All-Time Great': 1,
+    'All-NBA Caliber': 2,
+    'Fringe All-Star': 3,
+    'Quality Starter': 4,
+    'Solid Rotation': 5,
+    'Bench Reserve': 6,
+    'Fringe NBA': 7
+  };
+
   // Check if device is mobile
   useEffect(() => {
     const checkMobile = () => {
@@ -2351,97 +2382,75 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   }, [selectedSortKey, selectedPosition, searchQuery]);
 
   const filteredProspects = useMemo(() => {
-    // First, sort all prospects according to the selected sort key
-    const allSortedProspects = [...initialProspects].sort((a, b) => {
-      // Special handling for 'Actual Pick'
-      if (selectedSortKey === 'Actual Pick') {
-        const aValue = a[selectedSortKey];
-        const bValue = b[selectedSortKey];
+    // Create a map of the initial draft order rank
+    const initialRankMap = new Map<string, RankType>(
+      initialProspects
+        .filter(prospect => prospect['Actual Pick'] && !isNaN(Number(prospect['Actual Pick'])) && Number(prospect['Actual Pick']) <= 58)
+        .sort((a, b) => Number(a['Actual Pick']) - Number(b['Actual Pick']))
+        .map((prospect, index) => [prospect.Name, index + 1])
+    );
 
-        // If either value is 'N/A' or empty, treat it as greater than draft picks
-        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
-          return 1;
-        }
-        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
-          return -1;
-        }
-
-        const aNum = Number(aValue);
-        const bNum = Number(bValue);
-
-        // If both are valid numbers
-        if (!isNaN(aNum) && !isNaN(bNum)) {
-          return aNum - bNum;
-        }
-        return 0;
-      } else {
-        // Regular sorting for other keys
-        const aValue = a[selectedSortKey as keyof DraftProspect];
-        const bValue = b[selectedSortKey as keyof DraftProspect];
-
-        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) {
-          return 1;
-        }
-        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) {
-          return -1;
-        }
-
-        return Number(aValue) - Number(bValue);
+    // Add ranks for undrafted players as 'N/A'
+    initialProspects.forEach(prospect => {
+      if (!initialRankMap.has(prospect.Name)) {
+        initialRankMap.set(prospect.Name, 'N/A');
       }
     });
 
-    // Create a map of rankings that preserves draft pick numbers
-    const rankMap = new Map<string, RankType>(
-      allSortedProspects.map((prospect, index) => {
-        if (selectedSortKey === 'Actual Pick') {
-          const actualPick = prospect['Actual Pick'];
-          // If it's a valid draft pick number and less than or equal to 58, use it
-          if (actualPick && !isNaN(Number(actualPick)) && Number(actualPick) <= 58) {
-            return [prospect.Name, Number(actualPick)];
-          }
-          // For undrafted players or invalid numbers, return N/A
-          return [prospect.Name, 'N/A'];
-        }
-        // For other sort keys, use the regular index + 1
-        return [prospect.Name, index + 1];
-      })
-    );
-
-    // Then apply filters while preserving the original ranking
-    let filteredProspects = [...allSortedProspects];
+    // Apply filters
+    let filtered = [...initialProspects];
 
     // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase().trim();
-      filteredProspects = filteredProspects.filter(prospect => {
-        //NEED TO FIX THIS ISSUE
-        // const nameParts = prospect.Name.toLowerCase().split(' ');
-        // const firstName = nameParts[0];
-        // const lastName = nameParts[nameParts.length - 1];
+      filtered = filtered.filter(prospect => {
         const fullName = prospect.Name.toLowerCase();
-        const nameMatch = fullName.includes(query)
+        const nameMatch = fullName.includes(query);
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
         const teamAbbrevMatch = prospect.NBA.toLowerCase().includes(query);
         const teamFullNameMatch = teamNames[prospect.NBA]?.toLowerCase().includes(query);
-        //^ this was an attempt to just add the full player name to the search
-
         return nameMatch || preNBAMatch || teamAbbrevMatch || teamFullNameMatch;
       });
     }
 
     // Apply position filter if selected
     if (selectedPosition) {
-      filteredProspects = filteredProspects.filter(prospect => prospect.Role === selectedPosition);
+      filtered = filtered.filter(prospect => prospect.Role === selectedPosition);
     }
 
     if (selectedTier) {
-      filteredProspects = filteredProspects.filter(prospect => prospect.Tier === selectedTier);
+      filtered = filtered.filter(prospect => prospect.Tier === selectedTier);
     }
 
-    // Create array of ProspectWithRank objects
-    return filteredProspects.map(prospect => ({
+    // Sort the filtered prospects based on the currently selected sort key
+    const sortedFiltered = [...filtered].sort((a, b) => {
+      if (selectedSortKey === 'Tier Ranked') {
+        const aTierRank = tierRankMap[a.Tier as keyof typeof tierRankMap] || 999;
+        const bTierRank = tierRankMap[b.Tier as keyof typeof tierRankMap] || 999;
+        return aTierRank - bTierRank;
+      }
+      if (selectedSortKey === 'Actual Pick') {
+        const aValue = a[selectedSortKey];
+        const bValue = b[selectedSortKey];
+        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) return 1;
+        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) return -1;
+        const aNum = Number(aValue);
+        const bNum = Number(bValue);
+        if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+        return 0;
+      } else {
+        const aValue = a[selectedSortKey as keyof DraftProspect];
+        const bValue = b[selectedSortKey as keyof DraftProspect];
+        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) return 1;
+        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) return -1;
+        return Number(aValue) - Number(bValue);
+      }
+    });
+
+    // Map the sorted and filtered prospects to include their original draft rank
+    return sortedFiltered.map(prospect => ({
       prospect,
-      originalRank: rankMap.get(prospect.Name)
+      originalRank: initialRankMap.get(prospect.Name)
     }));
 
   }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier]);
