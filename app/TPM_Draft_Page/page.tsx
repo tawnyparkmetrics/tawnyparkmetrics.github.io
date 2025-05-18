@@ -1559,7 +1559,7 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
         <Radar
           name={prospect.Name}
           dataKey="value"
-          fill="#8884d8"
+          fill="#3b82f6"
           fillOpacity={0.6}
         />
       </RadarChart>
@@ -1921,7 +1921,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   </h3>
 
                   {/* Chart Container - Let it take natural height on desktop */}
-                  <div className="mb-4"> {/* Removed conditional height */}
+                  <div className={`mb-4 ${!isMobile ? 'h-64' : ''}`}> {/* Added conditional h-64 */}
                     {activeChart === 'spider' ? (
                       <SpiderChart prospect={prospect} />
                     ) : (
@@ -1932,7 +1932,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
                 {/* Rankings Column */}
                 <div className="space-y-4 flex flex-col justify-start">
-                  <h3 className="font-semibold text-sm mb-5 text-white"></h3>
+                <h3 className="font-semibold text-sm mb-3 text-white"></h3>
                   <h3 className="font-semibold text-lg text-white mb-3">Projected EPM Rankings</h3>
                   {/* Rankings Table */}
                   <div className="w-full">
@@ -2004,7 +2004,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         onClick={() => setActiveChart('spider')}
                         className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'spider' ? 'border-blue-500/30' : ''}`}
                       >
-                        Skills Chart
+                        Spider Chart
                       </button>
                       <button
                         onClick={() => setActiveChart('comparison')}
