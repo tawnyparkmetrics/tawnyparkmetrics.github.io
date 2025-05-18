@@ -1929,6 +1929,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       {prospect.Tier}
                     </span>
                   </h3>
+
                   <h3 className="font-semibold text-lg mb-3 text-white">
                     {activeChart === 'spider' ? 'Skills Chart' : 'Player Comparisons'}
                   </h3>
@@ -2471,10 +2472,10 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
   }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive]); // Include tierRankActive
 
-  const handleTierRankClick = () => {
-    setTierRankActive(prev => !prev); // Toggle Tier Ranked state
-    setSelectedSortKey('Actual Pick'); // Keep sort key as Actual Pick.
-  };
+  // const handleTierRankClick = () => {
+  //   setTierRankActive(prev => !prev); // Toggle Tier Ranked state
+  //   setSelectedSortKey('Actual Pick'); // Keep sort key as Actual Pick.
+  // };
 
   return (
     <div className="bg-[#19191A] min-h-screen">
