@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 //import { X, ChevronDown } from 'lucide-react';
 import ComingSoon from '@/components/ui/ComingSoon';
 
@@ -30,18 +31,18 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
 
   // TPM dropdown items
   const DraftDropdownItems = [
-    { 
-      name: 'Max Savin', 
-      href: '#', 
+    {
+      name: 'Max Savin',
+      href: '#',
       available: true,
       subItems: [
         { name: 'Write Up', href: '/TPM_Write_Up', available: true },
         { name: 'Big Board', href: '/TPM_Draft_Page', available: true }
       ]
     },
-    { 
-      name: 'Nick Kalinowski', 
-      href: '#', 
+    {
+      name: 'Nick Kalinowski',
+      href: '#',
       available: true,
       subItems: [
         { name: 'Write Up', href: 'https://medium.com/@kalidrafts/modeling-the-draft-building-a-predictive-big-board-for-future-nba-prospects-75f3122f3300', available: true },
@@ -166,8 +167,8 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                                     href={subItem.available ? subItem.href : '#'}
                                     className={`
                                       block px-4 py-1 text-sm transition-colors duration-200
-                                      ${subItem.available 
-                                        ? 'text-gray-300 hover:bg-gray-700 hover:text-white' 
+                                      ${subItem.available
+                                        ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
                                         : 'text-gray-500 hover:bg-gray-700'
                                       }
                                     `}
@@ -185,8 +186,8 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                               href={item.available ? item.href : '#'}
                               className={`
                                 block px-4 py-2 text-sm transition-colors duration-200
-                                ${item.available 
-                                  ? 'text-gray-300 hover:bg-gray-700 hover:text-white' 
+                                ${item.available
+                                  ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
                                   : 'text-gray-500 hover:bg-gray-700'
                                 }
                               `}
@@ -256,8 +257,16 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
             </div>
 
             {/* TPM Logo on the right */}
-            <div className={`text-4xl font-bold text-white`}>
-              TPM
+            <div className="flex items-center">
+              <Image
+                src="/TPM_logo_designs/TPM Square (Dark with Map - no wordmark).png"
+                alt="TPM Logo"
+                width={60} // Adjust size as needed
+                height={60} // Adjust size as needed
+              />
+              <div className={`ml-2 text-4xl font-bold text-white`}>
+                TPM
+              </div>
             </div>
           </div>
         </div>
@@ -278,4 +287,4 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   );
 };
 
-export default NavigationHeader; 
+export default NavigationHeader;
