@@ -126,7 +126,7 @@ const teamNames: { [key: string]: string } = {
   MEM: "Memphis Grizzlies",
   SAC: "Sacramento Kings",
   OKC: "Okhlahoma City Thunder",
-  NYK: "Brooklyn Knicks",
+  NYK: "New York Knicks",
   SAS: "San Antonio Spurs",
   IND: "Indiana Pacers",
   TOR: "Toronto Raptors",
