@@ -1917,8 +1917,18 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 {/* Charts Column - Always show on mobile, above rankings */}
                 <div className="text-gray-300"> {/* Removed mb-6 here */}
                   {/* Tier display with color border */}
-                  <h3 className="font-semibold text-sm mb-3 text-white">Prospect Tier: {prospect.Tier}</h3>
-
+                  <h3 className="font-semibold text-sm mb-3 text-white">
+                    Prospect Tier: <span
+                      className="px-2 py-1 rounded"
+                      style={{
+                        backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
+                        color: tierColors[prospect.Tier] || 'inherit', // Set text color to the tier color
+                        border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`, // Add a solid border
+                      }}
+                    >
+                      {prospect.Tier}
+                    </span>
+                  </h3>
                   <h3 className="font-semibold text-lg mb-3 text-white">
                     {activeChart === 'spider' ? 'Skills Chart' : 'Player Comparisons'}
                   </h3>
@@ -1935,7 +1945,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
                 {/* Rankings Column */}
                 <div className="space-y-4 flex flex-col justify-start">
-                <h3 className="font-semibold text-sm mb-3 text-white"></h3>
+                  <h3 className="font-semibold text-sm mb-3 text-white"></h3>
                   <h3 className="font-semibold text-lg text-white mb-3">Projected EPM Rankings</h3>
                   {/* Rankings Table */}
                   <div className="w-full">
@@ -2381,85 +2391,85 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   }, [viewMode, isLoading]);
 
   // Reset displayed prospects when filters change
-    useEffect(() => {
-        setDisplayedProspects(5);
-    }, [selectedSortKey, selectedPosition, searchQuery, tierRankActive]); // Include tierRankActive
+  useEffect(() => {
+    setDisplayedProspects(5);
+  }, [selectedSortKey, selectedPosition, searchQuery, tierRankActive]); // Include tierRankActive
 
   const filteredProspects = useMemo(() => {
-        // Create a map of the initial draft order rank
-        const initialRankMap = new Map<string, RankType>(
-            initialProspects
-                .filter(prospect => prospect['Actual Pick'] && !isNaN(Number(prospect['Actual Pick'])) && Number(prospect['Actual Pick']) <= 58)
-                .sort((a, b) => Number(a['Actual Pick']) - Number(b['Actual Pick']))
-                .map((prospect, index) => [prospect.Name, index + 1])
-        );
+    // Create a map of the initial draft order rank
+    const initialRankMap = new Map<string, RankType>(
+      initialProspects
+        .filter(prospect => prospect['Actual Pick'] && !isNaN(Number(prospect['Actual Pick'])) && Number(prospect['Actual Pick']) <= 58)
+        .sort((a, b) => Number(a['Actual Pick']) - Number(b['Actual Pick']))
+        .map((prospect, index) => [prospect.Name, index + 1])
+    );
 
-        // Add ranks for undrafted players as 'N/A'
-        initialProspects.forEach(prospect => {
-            if (!initialRankMap.has(prospect.Name)) {
-                initialRankMap.set(prospect.Name, 'N/A');
-            }
-        });
+    // Add ranks for undrafted players as 'N/A'
+    initialProspects.forEach(prospect => {
+      if (!initialRankMap.has(prospect.Name)) {
+        initialRankMap.set(prospect.Name, 'N/A');
+      }
+    });
 
-        // Apply filters
-        let filtered = [...initialProspects];
+    // Apply filters
+    let filtered = [...initialProspects];
 
-        // Apply search filter
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase().trim();
-            filtered = filtered.filter(prospect => {
-                const fullName = prospect.Name.toLowerCase();
-                const nameMatch = fullName.includes(query);
-                const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
-                const teamAbbrevMatch = prospect.NBA.toLowerCase().includes(query);
-                const teamFullNameMatch = teamNames[prospect.NBA]?.toLowerCase().includes(query);
-                return nameMatch || preNBAMatch || teamAbbrevMatch || teamFullNameMatch;
-            });
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(prospect => {
+        const fullName = prospect.Name.toLowerCase();
+        const nameMatch = fullName.includes(query);
+        const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
+        const teamAbbrevMatch = prospect.NBA.toLowerCase().includes(query);
+        const teamFullNameMatch = teamNames[prospect.NBA]?.toLowerCase().includes(query);
+        return nameMatch || preNBAMatch || teamAbbrevMatch || teamFullNameMatch;
+      });
+    }
+
+    // Apply position filter if selected
+    if (selectedPosition) {
+      filtered = filtered.filter(prospect => prospect.Role === selectedPosition);
+    }
+
+    if (selectedTier) {
+      filtered = filtered.filter(prospect => prospect.Tier === selectedTier);
+    }
+
+    // Sort the filtered prospects
+    const sortedFiltered = [...filtered].sort((a, b) => {
+      if (tierRankActive) {
+        const aTierRank = tierRankMap[a.Tier as keyof typeof tierRankMap] || 999;
+        const bTierRank = tierRankMap[b.Tier as keyof typeof tierRankMap] || 999;
+        if (aTierRank !== bTierRank) { //important
+          return aTierRank - bTierRank;
         }
+        // If tiers are the same, maintain original order
+        const aPick = a['Actual Pick'];
+        const bPick = b['Actual Pick'];
+        if (aPick === 'N/A' || aPick === '' || aPick === null || aPick === undefined) return 1;
+        if (bPick === 'N/A' || bPick === '' || bPick === null || bPick === undefined) return -1;
+        const aNum = Number(aPick);
+        const bNum = Number(bPick);
+        if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+        return 0;
+      }
+      else {
+        const aValue = a[selectedSortKey as keyof DraftProspect];
+        const bValue = b[selectedSortKey as keyof DraftProspect];
+        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) return 1;
+        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) return -1;
+        return Number(aValue) - Number(bValue);
+      }
+    });
 
-        // Apply position filter if selected
-        if (selectedPosition) {
-            filtered = filtered.filter(prospect => prospect.Role === selectedPosition);
-        }
+    // Map the sorted and filtered prospects to include their original draft rank
+    return sortedFiltered.map(prospect => ({
+      prospect,
+      originalRank: initialRankMap.get(prospect.Name)
+    }));
 
-        if (selectedTier) {
-            filtered = filtered.filter(prospect => prospect.Tier === selectedTier);
-        }
-
-        // Sort the filtered prospects
-        const sortedFiltered = [...filtered].sort((a, b) => {
-          if (tierRankActive) {
-              const aTierRank = tierRankMap[a.Tier as keyof typeof tierRankMap] || 999;
-              const bTierRank = tierRankMap[b.Tier as keyof typeof tierRankMap] || 999;
-              if (aTierRank !== bTierRank) { //important
-                  return aTierRank - bTierRank;
-              }
-              // If tiers are the same, maintain original order
-              const aPick = a['Actual Pick'];
-              const bPick = b['Actual Pick'];
-              if (aPick === 'N/A' || aPick === '' || aPick === null || aPick === undefined) return 1;
-              if (bPick === 'N/A' || bPick === '' || bPick === null || bPick === undefined) return -1;
-              const aNum = Number(aPick);
-              const bNum = Number(bPick);
-              if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-              return 0;
-            } 
-            else {
-                const aValue = a[selectedSortKey as keyof DraftProspect];
-                const bValue = b[selectedSortKey as keyof DraftProspect];
-                if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) return 1;
-                if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) return -1;
-                return Number(aValue) - Number(bValue);
-            }
-        });
-
-        // Map the sorted and filtered prospects to include their original draft rank
-        return sortedFiltered.map(prospect => ({
-            prospect,
-            originalRank: initialRankMap.get(prospect.Name)
-        }));
-
-    }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive]); // Include tierRankActive
+  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive]); // Include tierRankActive
 
   const handleTierRankClick = () => {
     setTierRankActive(prev => !prev); // Toggle Tier Ranked state
@@ -2480,7 +2490,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         viewMode={viewMode}
         setViewMode={setViewMode}
         tierRankActive={tierRankActive}
-        setTierRankActive={setTierRankActive} filteredProspects={[]}      />
+        setTierRankActive={setTierRankActive} filteredProspects={[]} />
 
       <div className="max-w-6xl mx-auto px-4 pt-8">
         {filteredProspects.length > 0 ? (
