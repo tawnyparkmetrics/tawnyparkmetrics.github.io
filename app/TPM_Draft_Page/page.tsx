@@ -1559,8 +1559,9 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
         <Radar
           name={prospect.Name}
           dataKey="value"
+          stroke="#3b82f6"
           fill="#3b82f6"
-          fillOpacity={0.6}
+          fillOpacity={0.4}
         />
       </RadarChart>
     </ResponsiveContainer>
