@@ -783,7 +783,7 @@ const TimelineFilter = ({
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
+                    exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
                     className="md:hidden space-y-3 mb-4 p-3 bg-gray-800/10 rounded-lg border border-gray-800"
                   >
@@ -1918,7 +1918,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
           {/* Click to View Text - Now properly positioned under the card, desktop only */}
           {!isExpanded && !isMobile && (
             <div className="text-center mt-2">
-              <p className={`${barlow.className} text-gray-600 text-sm ${isHovered ? 'animate-pulse text-gray-400' : ''}`}>
+              <p className={`text-gray-500 text-sm font-bold ${isHovered ? 'animate-pulse' : ''}`}>
                 Click Card to View More Information
               </p>
             </div>
