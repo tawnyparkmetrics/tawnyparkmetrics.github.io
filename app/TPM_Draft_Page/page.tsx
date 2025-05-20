@@ -2014,7 +2014,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 {/* Charts Column - Always show on mobile, above rankings */}
                 <div className="text-gray-300 px-2"> {/* Added px-2 for side margins */}
                   {/* Tier display with color border */}
-                  <h3 className="font-semibold text-lg mb-3 text-white mt-2"> {/* Added mt-2 */}
+                  <h3 className="font-semibold text-lg mb-3 text-white mt-2">
                     Prospect Tier: <span
                       className="px-2 py-1 rounded text-sm"
                       style={{
@@ -2025,10 +2025,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                     >
                       {prospect.Tier}
                     </span>
-                  </h3>
-
-                  <h3 className="font-semibold text-lg mb-3 text-white mt-4"> {/* Added mt-4 */}
-                    {activeChart === 'spider' ? 'Skills Chart' : 'Player Comparisons'}
                   </h3>
 
                   {/* Chart Container */}
@@ -2042,11 +2038,10 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 </div>
 
                 {/* Rankings Column */}
-                <div className="space-y-4 flex flex-col justify-start px-2"> {/* Added px-2 */}
-                  <h3 className="font-semibold text-lg mb-3 text-white mt-2"> {/* Added mt-2 */}
+                <div className="space-y-4 flex flex-col justify-start px-2">
+                  <h3 className="font-semibold text-lg mb-3 text-white mt-2">
                     Projected EPM Rankings
                   </h3>
-                  <h3 className="font-semibold text-lg text-white mb-3"></h3>
                   {/* Rankings Table */}
                   <div className="w-full">
                     <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
@@ -2054,7 +2049,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       <div className="text-center">Overall</div>
                       <div className="text-center">Position</div>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-3"> {/* Increased space-y from 2 to 3 */}
                       {/* Show individual years */}
                       {['Y1', 'Y2', 'Y3'].map((year) => (
                         <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
@@ -2115,13 +2110,21 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                       {/* Chart Toggle Buttons */}
                       <button
                         onClick={() => setActiveChart('spider')}
-                        className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'spider' ? 'border-blue-500/30' : ''}`}
+                        className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${
+                          activeChart === 'spider' 
+                            ? 'text-blue-400 border-blue-500/30 bg-blue-500/20' 
+                            : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
+                        }`}
                       >
                         Skills Chart
                       </button>
                       <button
                         onClick={() => setActiveChart('comparison')}
-                        className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'comparison' ? 'border-blue-500/30' : ''}`}
+                        className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${
+                          activeChart === 'comparison' 
+                            ? 'text-blue-400 border-blue-500/30 bg-blue-500/20' 
+                            : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
+                        }`}
                       >
                         Player Comparisons
                       </button>
