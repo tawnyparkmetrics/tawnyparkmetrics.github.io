@@ -514,6 +514,7 @@ const TimelineFilter = ({
     setSelectedPosition(null); // Clear position filter
     setSelectedTier(null); // Clear tier filter
     setSearchQuery(''); // Clear search
+    setTierRankActive(false); // Reset tier ranking state
   };
 
   const shouldHighlight = (itemKey: string) => {
@@ -911,8 +912,8 @@ const TimelineFilter = ({
 
                 {/* Desktop filter bar - hidden on mobile */}
                 <div className="hidden md:flex justify-between items-center space-x-4 mt-4">
-                  {/* Reset Button and Search Section */}
-                  <div className="relative flex items-center space-x-2 flex-grow max-w-md">
+                  {/* Left section: Reset Button and Search */}
+                  <div className="flex items-center space-x-2 flex-grow max-w-md">
                     {/* Search field */}
                     <div className="relative flex-grow">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -926,16 +927,16 @@ const TimelineFilter = ({
                     </div>
                   </div>
 
-                  {/* Reset Button moved to the left of the Search Bar */}
+                  {/* Reset Button */}
                   <motion.button
                     onClick={resetFilters}
                     className={`
-                        flex items-center gap-1 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all duration-200
-                        ${hasActiveFilters()
+                      flex items-center gap-1 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all duration-200
+                      ${hasActiveFilters()
                         ? 'bg-gray-800/20 text-red-400 hover:text-red-300 border border-gray-800 hover:border-red-700/30'
                         : 'bg-gray-800/10 text-gray-500 border border-gray-800/50 opacity-60'
                       }
-                      `}
+                    `}
                     whileHover={{ scale: hasActiveFilters() ? 1.05 : 1 }}
                     whileTap={{ scale: hasActiveFilters() ? 0.95 : 1 }}
                     disabled={!hasActiveFilters()}
@@ -947,76 +948,7 @@ const TimelineFilter = ({
                   {/* Divider */}
                   <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
-                  {/* Add Tier Ranked button here, before the Tier dropdown */}
-                  <motion.button
-                    onClick={handleTierRankToggle}
-                    className={`
-                      px-4 py-2 rounded-lg text-sm font-medium
-                      flex items-center gap-2
-                      transition-all duration-300
-                      ${tierRankActive
-                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                      }
-                    `}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Tiers
-                    {tierRankActive ? <LockIcon className="h-4 w-4" /> : <UnlockIcon className="h-4 w-4" />}
-                  </motion.button>
-
-                  {/* Tier Filters - FIXED TO USE CORRECT TIER COLOR WHEN SELECTED */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <motion.button
-                        onClick={() => setShowMobileFilters(true)} // Open mobile filters on click
-                        className={`
-                      relative px-4 py-2 rounded-lg text-sm font-medium
-                      flex items-center gap-2
-                      transition-all duration-300
-                      ${selectedTier
-                            ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
-                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                          }
-                    `}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        style={selectedTier ? {
-                          backgroundColor: `${tierColors[selectedTier]}20`,
-                          color: tierColors[selectedTier],
-                          borderColor: `${tierColors[selectedTier]}4D`
-                        } : {}}
-                      >
-                        Filter Tiers
-                      </motion.button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                      {tiers.map((tier) => (
-                        <DropdownMenuItem
-                          key={tier.key}
-                          className={`
-                            relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
-                            ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
-                          `}
-                          onClick={() => handleTierClick(tier.key)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="w-4 h-4 rounded-sm"
-                              style={{ backgroundColor: tierColors[tier.key] }}
-                            ></span>
-                            {tier.label}
-                          </div>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-                  {/* Position Filters - FIXED TO USE BLUE HIGHLIGHT */}
+                  {/* Position Filters */}
                   {positions.map((position) => (
                     <motion.button
                       key={position.key}
@@ -1058,6 +990,78 @@ const TimelineFilter = ({
                       {item.label}
                     </motion.button>
                   ))}
+
+                  {/* Divider */}
+                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+                  {/* Right section: Tier buttons */}
+                  <div className="flex items-center space-x-2">
+                    {/* Tier Ranked button */}
+                    <motion.button
+                      onClick={handleTierRankToggle}
+                      className={`
+                        px-4 py-2 rounded-lg text-sm font-medium
+                        flex items-center gap-2
+                        transition-all duration-300
+                        ${tierRankActive
+                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                        }
+                      `}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Tiers
+                      {tierRankActive ? <LockIcon className="h-4 w-4" /> : <UnlockIcon className="h-4 w-4" />}
+                    </motion.button>
+
+                    {/* Tier Filters dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <motion.button
+                          className={`
+                            relative px-4 py-2 rounded-lg text-sm font-medium
+                            flex items-center gap-2
+                            transition-all duration-300
+                            ${selectedTier
+                              ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
+                              : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                            }
+                          `}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          style={selectedTier ? {
+                            backgroundColor: `${tierColors[selectedTier]}20`,
+                            color: tierColors[selectedTier],
+                            borderColor: `${tierColors[selectedTier]}4D`
+                          } : {}}
+                        >
+                          Filter Tiers
+                          <ChevronDown className="h-4 w-4" />
+                        </motion.button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                        {tiers.map((tier) => (
+                          <DropdownMenuItem
+                            key={tier.key}
+                            className={`
+                              relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
+                              ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
+                            `}
+                            onClick={() => handleTierClick(tier.key)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="w-4 h-4 rounded-sm"
+                                style={{ backgroundColor: tierColors[tier.key] }}
+                              ></span>
+                              {tier.label}
+                            </div>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1531,9 +1535,12 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
             <Tooltip content={<CustomTooltip />} />
             <Bar
               dataKey="similarity"
-              radius={[0, 4, 4, 0]}
+              radius={[4, 4, 4, 4]}
               strokeWidth={2}
-              isAnimationActive={false}
+              isAnimationActive={true}
+              animationDuration={500}
+              animationBegin={0}
+              animationEasing="ease-out"
             >
               {compData.map((entry, index) => {
                 const color = getColorForTier(entry.tier);
@@ -1547,8 +1554,8 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
                 );
               })}
               <LabelList
-                dataKey="name" // This value will be passed as 'value' to CustomLabel
-                content={<CustomLabel x={0} y={0} width={0} height={0} value={''} index={0} />} // Pass the component itself
+                dataKey="name"
+                content={<CustomLabel x={0} y={0} width={0} height={0} value={''} index={0} />}
               />
             </Bar>
           </BarChart>
@@ -2024,7 +2031,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 {/* Charts Column - Always show on mobile, above rankings */}
                 <div className="text-gray-300"> {/* Removed mb-6 here */}
                   {/* Tier display with color border */}
-                  <h3 className="font-semibold text-sm mb-3 text-white">
+                  <h3 className="font-semibold text-lg mb-3 text-white">
                     Prospect Tier: <span
                       className="px-2 py-1 rounded"
                       style={{
@@ -2053,8 +2060,8 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
                 {/* Rankings Column */}
                 <div className="space-y-4 flex flex-col justify-start">
-                  <h3 className="font-semibold text-sm mb-3 text-white"></h3>
-                  <h3 className="font-semibold text-lg text-white mb-3">Projected EPM Rankings</h3>
+                  <h3 className="font-semibold text-lg mb-3 text-white">Projected EPM Rankings</h3>
+                  <h3 className="font-semibold text-lg text-white mb-3"></h3>
                   {/* Rankings Table */}
                   <div className="w-full">
                     <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
