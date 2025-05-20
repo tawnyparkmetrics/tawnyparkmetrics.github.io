@@ -612,7 +612,7 @@ const TimelineFilter = ({
             <div className="text-sm text-gray-400 flex items-center ml-2">
               {getFilterSummary() || "No filters applied"}
 
-              {/* New reset button when filter is collapsed */}
+              {/* Reset button when filter is collapsed */}
               {hasActiveFilters() && (
                 <motion.button
                   onClick={resetFilters}
@@ -1188,9 +1188,9 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
       // For rankings, lower is better (1 is best)
       return [60, 1]; // Reversed domain for rankings (1 at top, 60 at bottom)
     } else {
-      // For EPM, find min and max values with padding
-      let min = 0;
-      let max = 0;
+      // For EPM, find min and max values with minimal padding
+      let min = Infinity;
+      let max = -Infinity;
 
       epmChartData.forEach(yearData => {
         Object.entries(yearData).forEach(([key, value]) => {
@@ -1201,9 +1201,15 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
         });
       });
 
-      // Add padding and make sure we include 0
-      const padding = (max - min) * 0.1;
-      return [Math.floor(Math.min(min - padding, -1)), Math.ceil(Math.max(max + padding, 3))];
+      // Add a small padding (5% of the range) to prevent points from touching the edges
+      const range = max - min;
+      const padding = range * 0.05;
+      
+      // Round to 1 decimal place for cleaner numbers
+      return [
+        Math.floor((min - padding) * 10) / 10,
+        Math.ceil((max + padding) * 10) / 10
+      ];
     }
   };
 
@@ -2029,27 +2035,27 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               {/* Expanded View Content */}
               <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
                 {/* Charts Column - Always show on mobile, above rankings */}
-                <div className="text-gray-300"> {/* Removed mb-6 here */}
+                <div className="text-gray-300 px-2"> {/* Added px-2 for side margins */}
                   {/* Tier display with color border */}
-                  <h3 className="font-semibold text-lg mb-3 text-white">
+                  <h3 className="font-semibold text-lg mb-3 text-white mt-2"> {/* Added mt-2 */}
                     Prospect Tier: <span
-                      className="px-2 py-1 rounded"
+                      className="px-2 py-1 rounded text-sm"
                       style={{
                         backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
-                        color: tierColors[prospect.Tier] || 'inherit', // Set text color to the tier color
-                        border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`, // Add a solid border
+                        color: tierColors[prospect.Tier] || 'inherit',
+                        border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
                       }}
                     >
                       {prospect.Tier}
                     </span>
                   </h3>
 
-                  <h3 className="font-semibold text-lg mb-3 text-white">
+                  <h3 className="font-semibold text-lg mb-3 text-white mt-4"> {/* Added mt-4 */}
                     {activeChart === 'spider' ? 'Skills Chart' : 'Player Comparisons'}
                   </h3>
 
-                  {/* Chart Container - Let it take natural height on desktop */}
-                  <div className={`mb-4 ${!isMobile ? 'h-64' : 'h-[300px]'}`}> {/* Updated height for mobile */}
+                  {/* Chart Container */}
+                  <div className={`mb-4 ${!isMobile ? 'h-64' : 'h-[300px]'}`}>
                     {activeChart === 'spider' ? (
                       <SpiderChart prospect={prospect} />
                     ) : (
@@ -2059,8 +2065,10 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 </div>
 
                 {/* Rankings Column */}
-                <div className="space-y-4 flex flex-col justify-start">
-                  <h3 className="font-semibold text-lg mb-3 text-white">Projected EPM Rankings</h3>
+                <div className="space-y-4 flex flex-col justify-start px-2"> {/* Added px-2 */}
+                  <h3 className="font-semibold text-lg mb-3 text-white mt-2"> {/* Added mt-2 */}
+                    Projected EPM Rankings
+                  </h3>
                   <h3 className="font-semibold text-lg text-white mb-3"></h3>
                   {/* Rankings Table */}
                   <div className="w-full">
@@ -2248,6 +2256,24 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
         return sortConfig.direction === 'ascending'
           ? aNum - bNum
           : bNum - aNum;
+      }
+
+      // Handle Tier sorting
+      if (sortConfig.key === 'Tier') {
+        const tierRankMap = {
+          'All-Time Great': 1,
+          'All-NBA Caliber': 2,
+          'Fringe All-Star': 3,
+          'Quality Starter': 4,
+          'Solid Rotation': 5,
+          'Bench Reserve': 6,
+          'Fringe NBA': 7
+        };
+        const aRank = tierRankMap[aValue as keyof typeof tierRankMap] || 999;
+        const bRank = tierRankMap[bValue as keyof typeof tierRankMap] || 999;
+        return sortConfig.direction === 'ascending'
+          ? aRank - bRank
+          : bRank - aRank;
       }
 
       // Handle Height (convert to inches)

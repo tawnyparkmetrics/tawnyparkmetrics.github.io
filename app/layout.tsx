@@ -13,8 +13,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NBA Draft Model - Tawny Park Metrics",
-  description: "NBA Draft Model - Tawny Park Metrics",
+  title: "Tawny Park Metrics",
+  description: "Tawny Park Metrics",
+  icons: {
+    icon: [
+      {
+        url: '/TPM_logo_designs/TPM wordmark (Dark with Map).png',
+        type: 'image/png',
+      }
+    ],
+    apple: [
+      {
+        url: '/TPM_logo_designs/TPM wordmark (Dark with Map).png',
+        type: 'image/png',
+      }
+    ],
+  },
 };
 
 export default function RootLayout({
