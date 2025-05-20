@@ -540,6 +540,15 @@ const TimelineFilter = ({
       setSelectedTier(null);
     } else {
       setSelectedTier(tier);
+      setTierRankActive(false); // Unselect tier ranking when a specific tier is selected
+    }
+  };
+
+  // Update the tier ranking toggle handler
+  const handleTierRankToggle = () => {
+    setTierRankActive(!tierRankActive);
+    if (!tierRankActive) {
+      setSelectedTier(null); // Unselect specific tier when tier ranking is activated
     }
   };
 
@@ -547,19 +556,24 @@ const TimelineFilter = ({
   const getFilterSummary = () => {
     const parts = [];
 
-    // Add sort method
-    if (selectedSortKey) {
+    // Add tier ranking status first if active
+    if (tierRankActive) {
+      parts.push('Tiers');
+    }
+
+    // Add selected tier if any
+    if (selectedTier) {
+      parts.push(`Tier: ${selectedTier}`);
+    }
+
+    // Add sort method if not tier-related
+    if (selectedSortKey && selectedSortKey !== 'Tier Ranked') {
       parts.push(summaryLabels[selectedSortKey] || selectedSortKey);
     }
 
     // Add position if selected
     if (selectedPosition) {
       parts.push(positions.find(p => p.key === selectedPosition)?.label || selectedPosition);
-    }
-
-    // Add tier if selected
-    if (selectedTier) {
-      parts.push(`Tier ${selectedTier}`);
     }
 
     // Add search query if present
@@ -773,6 +787,80 @@ const TimelineFilter = ({
                     transition={{ duration: 0.3 }}
                     className="md:hidden space-y-3 mb-4 p-3 bg-gray-800/10 rounded-lg border border-gray-800"
                   >
+                    {/* Tier Ranking Toggle for Mobile */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <div className="w-full text-xs text-gray-400 mb-1">Sorting:</div>
+                      <motion.button
+                        onClick={handleTierRankToggle}
+                        className={`
+                          px-3 py-1 rounded-lg text-xs font-medium
+                          transition-all duration-300
+                          ${tierRankActive
+                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                          }
+                        `}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {tierRankActive ? (
+                          <div className="flex items-center gap-1">
+                            <LockIcon className="h-3 w-3" />
+                            Tiers
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <UnlockIcon className="h-3 w-3" />
+                            Tiers
+                          </div>
+                        )}
+                      </motion.button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <motion.button
+                            className={`
+                              relative px-3 py-1 rounded-lg text-xs font-medium
+                              flex items-center gap-2
+                              transition-all duration-300
+                              ${selectedTier
+                                ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
+                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                              }
+                            `}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            style={selectedTier ? {
+                              backgroundColor: `${tierColors[selectedTier]}20`,
+                              color: tierColors[selectedTier],
+                              borderColor: `${tierColors[selectedTier]}4D`
+                            } : {}}
+                          >
+                            Filter Tiers
+                            <ChevronDown className="h-3 w-3" />
+                          </motion.button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                          {tiers.map((tier) => (
+                            <DropdownMenuItem
+                              key={tier.key}
+                              className={`
+                                relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
+                                ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
+                              `}
+                              onClick={() => handleTierClick(tier.key)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="w-3 h-3 rounded-sm"
+                                  style={{ backgroundColor: tierColors[tier.key] }}
+                                ></span>
+                                {tier.label}
+                              </div>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                     {/* Position Filters for Mobile */}
                     <div className="flex flex-wrap gap-2 mb-2">
                       <div className="w-full text-xs text-gray-400 mb-1">Position:</div>
@@ -794,49 +882,6 @@ const TimelineFilter = ({
                           {position.label}
                         </motion.button>
                       ))}
-                    </div>
-
-                    {/* Tier Filters for Mobile - FIX APPLIED HERE */}
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      <div className="w-full text-xs text-gray-400 mb-1">Tier:</div>
-                      {tiers.map((tier) => (
-                        <motion.button
-                          key={tier.key}
-                          onClick={() => handleTierClick(tier.key)}
-                          className={`
-                            px-3 py-1 rounded-full text-xs font-medium
-                            transition-all duration-300
-                            ${selectedTier === tier.key
-                              ? `bg-blue-500/20 text-blue-400 border border-blue-500/30`
-                              : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                            }
-                          `}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          {tier.label}
-                        </motion.button>
-                      ))}
-                    </div>
-
-                    {/* Add Tier Ranked button in Mobile section */}
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      <div className="w-full text-xs text-gray-400 mb-1">Sorting:</div>
-                      <motion.button
-                        onClick={() => setSelectedSortKey('Tier Ranked')}
-                        className={`
-                            px-3 py-1 rounded-lg text-xs font-medium
-                            transition-all duration-300
-                            ${selectedSortKey === 'Tier Ranked'
-                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                          }
-                        `}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Tier Ranked
-                      </motion.button>
                     </div>
 
                     {/* Average Filters for Mobile */}
@@ -904,7 +949,7 @@ const TimelineFilter = ({
 
                   {/* Add Tier Ranked button here, before the Tier dropdown */}
                   <motion.button
-                    onClick={() => setTierRankActive(!tierRankActive)}
+                    onClick={handleTierRankToggle}
                     className={`
                       px-4 py-2 rounded-lg text-sm font-medium
                       flex items-center gap-2
@@ -1572,22 +1617,28 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   console.log('Final attributes:', attributes);
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <RadarChart
-        data={attributes}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
-        <PolarGrid stroke="#999" /> {/* Changed stroke color here */}
-        <PolarAngleAxis dataKey="name" fontSize={10} />
-        <Radar
-          name={prospect.Name}
-          dataKey="value"
-          stroke="#3b82f6"
-          fill="#3b82f6"
-          fillOpacity={0.4}
-        />
-      </RadarChart>
-    </ResponsiveContainer>
+    <div className="w-full h-[300px]"> {/* Added fixed height container */}
+      <ResponsiveContainer width="100%" height="100%">
+        <RadarChart
+          data={attributes}
+          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        >
+          <PolarGrid stroke="#999" />
+          <PolarAngleAxis 
+            dataKey="name" 
+            fontSize={12}
+            tick={{ fill: '#fff' }}
+          />
+          <Radar
+            name={prospect.Name}
+            dataKey="value"
+            stroke="#3b82f6"
+            fill="#3b82f6"
+            fillOpacity={0.4}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
@@ -1696,6 +1747,12 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
     return rank ? rank.toString() : 'N/A';
   };
 
+  // Calculate the current rank based on the filtered and sorted prospects
+  const currentRank = useMemo(() => {
+    const index = filteredProspects.findIndex(p => p.Name === prospect.Name);
+    return index + 1; // Add 1 to make it 1-based indexing
+  }, [prospect.Name, filteredProspects]);
+
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
       <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
@@ -1711,7 +1768,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             onMouseLeave={handleMouseLeave}
             onClick={handleCardClick}
           >
-            {/* Rank Number - Now using the dynamic rank passed from parent component */}
+            {/* Rank Number - Now using the dynamic currentRank */}
             <motion.div
               layout="position"
               className={`
@@ -1720,7 +1777,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
               `}
             >
-              {/* Display the rank from the parent component, which now reflects current sorting */}
               <div className={`
                 ${barlow.className} 
                 ${isMobile ? 'text-1xl' : 'text-6xl'} 
@@ -1729,7 +1785,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 select-none
                 ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
               `}>
-                {typeof rank === 'number' ? rank : 'N/A'}
+                {currentRank}
               </div>
             </motion.div>
 
@@ -1986,7 +2042,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                   </h3>
 
                   {/* Chart Container - Let it take natural height on desktop */}
-                  <div className={`mb-4 ${!isMobile ? 'h-64' : ''}`}> {/* Added conditional h-64 */}
+                  <div className={`mb-4 ${!isMobile ? 'h-64' : 'h-[300px]'}`}> {/* Updated height for mobile */}
                     {activeChart === 'spider' ? (
                       <SpiderChart prospect={prospect} />
                     ) : (
