@@ -609,7 +609,7 @@ const TimelineFilter = ({
 
           {/* Filter summary text - shows when collapsed */}
           {!showFilterSection && (
-            <div className="text-sm text-gray-400 flex items-center ml-2">
+            <div className="hidden md:flex text-sm text-gray-400 items-center ml-2">
               {getFilterSummary() || "No filters applied"}
 
               {/* Reset button when filter is collapsed */}
@@ -769,18 +769,18 @@ const TimelineFilter = ({
                   {/* Mobile toggle button for filters - only shown in mobile view */}
                   <div className="flex md:hidden items-center">
                     <button
-                      onClick={() => setShowMobileFilters(!showMobileFilters)}
+                      onClick={() => setShowFilterSection(!showFilterSection)}
                       className="flex items-center gap-2 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 px-3 py-2 rounded-lg text-sm"
                     >
                       <SlidersHorizontal className="h-4 w-4" />
                       Filters
-                      {showMobileFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {showFilterSection ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
 
-                {/* Mobile filter drawer */}
-                {showMobileFilters && (
+                {/* Mobile filter content - now directly shown when main filter section is expanded */}
+                {showFilterSection && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
