@@ -1655,7 +1655,7 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   );
 };
 
-const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, rank, filteredProspects }) => {
+const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, filteredProspects }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -2635,7 +2635,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
       originalRank: initialRankMap.get(prospect.Name)
     }));
 
-  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive]); // Include tierRankActive
+  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive, tierRankMap]); // Include tierRankActive
 
   // const handleTierRankClick = () => {
   //   setTierRankActive(prev => !prev); // Toggle Tier Ranked state
