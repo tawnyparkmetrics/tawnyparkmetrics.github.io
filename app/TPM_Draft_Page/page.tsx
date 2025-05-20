@@ -1730,17 +1730,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
     }
   };
 
-  // Handle card click for mobile
-  const handleCardClick = () => {
-    if (isMobile) {
-      if (isMobileInfoExpanded) {
-        setIsMobileInfoExpanded(false);
-      } else {
-        setIsExpanded(!isExpanded);
-      }
-    }
-  };
-
   // Update hover state when dropdown is expanded
   useEffect(() => {
     if (isExpanded && !isMobile) {
@@ -1926,6 +1915,15 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             )}
           </div>
 
+          {/* Click to View Text - Now properly positioned under the card, desktop only */}
+          {!isExpanded && !isMobile && (
+            <div className="text-center mt-2">
+              <p className={`${barlow.className} text-gray-600 text-sm ${isHovered ? 'animate-pulse text-gray-400' : ''}`}>
+                Click Card to View More Information
+              </p>
+            </div>
+          )}
+
           {/* Mobile Info Dropdown */}
           {isMobile && isExpanded && (
             <motion.div
@@ -1933,7 +1931,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative" // Added 'relative' here
+              className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative"
               style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
             >
               <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
@@ -2174,7 +2172,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
         </div>
       </motion.div>
 
-      {/* Divider - only show for desktop */}
+      {/* Divider */}
       {!isMobile && (
         <div>
           <div className="h-px w=3/4 bg-gray my-5" />
@@ -2467,15 +2465,6 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   const [, setIsMobile] = useState(false);
   const [tierRankActive, setTierRankActive] = useState(false);
 
-  const tierRankMap = {
-    'All-Time Great': 1,
-    'All-NBA Caliber': 2,
-    'Fringe All-Star': 3,
-    'Quality Starter': 4,
-    'Solid Rotation': 5,
-    'Bench Reserve': 6,
-    'Fringe NBA': 7
-  };
 
   // Check if device is mobile
   useEffect(() => {
