@@ -18,13 +18,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/TPM_logo_designs/TPM wordmark (Dark with Map).png',
+        url: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
         type: 'image/png',
       }
     ],
     apple: [
       {
-        url: '/TPM_logo_designs/TPM wordmark (Dark with Map).png',
+        url: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
         type: 'image/png',
       }
     ],
