@@ -457,7 +457,6 @@ const TimelineFilter = ({
   setTierRankActive,
 }: TimelineFilterProps) => {
   const [showFilterSection, setShowFilterSection] = useState(false);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [selectedYear, setSelectedYear] = useState('2024');
 
   // Timeline labels
@@ -1774,13 +1773,19 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
           <div
             className={`
               relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] 
-              ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px]'}
+              ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px] cursor-pointer'}
             `}
             style={{ backgroundColor: '#19191A' }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={() => {
-              if (!isMobile) {
+              if (isMobile) {
+                if (isMobileInfoExpanded) {
+                  setIsMobileInfoExpanded(false);
+                } else {
+                  setIsExpanded(!isExpanded);
+                }
+              } else {
                 setIsExpanded(!isExpanded);
                 if (!isExpanded) {
                   setIsHovered(true);
@@ -2551,6 +2556,17 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
       filtered = filtered.filter(prospect => prospect.Tier === selectedTier);
     }
 
+    // Define tierRankMap inside useMemo
+    const tierRankMap = {
+      'All-Time Great': 1,
+      'All-NBA Caliber': 2,
+      'Fringe All-Star': 3,
+      'Quality Starter': 4,
+      'Solid Rotation': 5,
+      'Bench Reserve': 6,
+      'Fringe NBA': 7
+    };
+
     // Sort the filtered prospects
     const sortedFiltered = [...filtered].sort((a, b) => {
       // If tier ranking is active, always sort by tier first
@@ -2609,7 +2625,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
       originalRank: initialRankMap.get(prospect.Name)
     }));
 
-  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive, tierRankMap]); // Include tierRankActive
+  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive]); // Remove tierRankMap from dependencies
 
   // const handleTierRankClick = () => {
   //   setTierRankActive(prev => !prev); // Toggle Tier Ranked state
