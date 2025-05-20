@@ -1774,12 +1774,19 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
           <div
             className={`
               relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] 
-              ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50' : 'h-[100px]'}
+              ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px]'}
             `}
             style={{ backgroundColor: '#19191A' }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            onClick={handleCardClick}
+            onClick={() => {
+              if (!isMobile) {
+                setIsExpanded(!isExpanded);
+                if (!isExpanded) {
+                  setIsHovered(true);
+                }
+              }
+            }}
           >
             {/* Rank Number - Now using the dynamic currentRank */}
             <motion.div
@@ -1913,39 +1920,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
               </div>
             )}
           </div>
-
-          {/* Expand/collapse button - only show for desktop */}
-          {!isMobile && (
-            <div className="flex justify-center mt-2">
-              <motion.button
-                layout="position"
-                onClick={() => {
-                  setIsExpanded(!isExpanded);
-                  if (!isExpanded) {
-                    setIsHovered(true);
-                  }
-                }}
-                className={`
-                  w-10 h-10
-                  rounded-full
-                  flex items-center justify-center
-                  bg-gray-800/20
-                  hover:bg-gray-800/30
-                  transition-all duration-300
-                  border border-gray-700
-                  hover:border-gray-600
-                  ${isExpanded ? 'bg-gray-800/30 border-gray-600' : ''}
-                `}
-                aria-label={isExpanded ? "Collapse details" : "Expand details"}
-              >
-                {isExpanded ? (
-                  <ChevronUp className="text-white h-5 w-5" />
-                ) : (
-                  <ChevronDown className="text-white h-5 w-5 transition-all duration-300" />
-                )}
-              </motion.button>
-            </div>
-          )}
 
           {/* Mobile Info Dropdown */}
           {isMobile && isExpanded && (
