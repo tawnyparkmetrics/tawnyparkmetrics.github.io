@@ -54,6 +54,8 @@ export interface DraftProspect {
   'Pred. Y3 EPM': number;
   'Pred. Y4 EPM': number;
   'Pred. Y5 EPM': number;
+  'Avg. EPM Y1-Y3': number;
+  'Avg. EPM Y1-Y5': number;
   'Height': string;
   'Height (in)': string;
   'Wingspan': string;
@@ -70,7 +72,6 @@ export interface DraftProspect {
   Passing: number;
   Shooting: number;
   Efficiency: number;
-  positionRanks?: PositionRanks;
   'Tier': string;
   'Comp1': string;
   'Similarity1': number;
@@ -82,6 +83,24 @@ export interface DraftProspect {
   'Similarity4': number;
   'Comp5': string;
   'Similarity5': number;
+
+  positionRanks: {
+    Y1: number;
+    Y2: number;
+    Y3: number;
+    Y4: number;
+    Y5: number;
+    Y1Y3: number; // Position-specific 3-year average rank
+    Y1Y5: number; // Position-specific 5-year average rank
+  };
+  avg3YEPM: number; // Global 3-year average EPM value
+  avg5YEPM: number; // Global 5-year average EPM value
+  globalRank3Y: number; // Global 3-year average EPM rank
+  globalRank5Y: number; // Global 5-year average EPM rank
+
+  // These are the keys you're using for sorting and display
+  'Rank Y1-Y3': number; // Global 3-year average EPM rank
+  'Rank Y1-Y5': number; // Global 5-year average EPM rank
 }
 
 const tierColors: { [key: string]: string } = {
@@ -434,6 +453,8 @@ const TimelineFilter = ({
   setSearchQuery,
   viewMode,
   setViewMode,
+  tierRankActive,
+  setTierRankActive,
 }: TimelineFilterProps) => {
   const [showFilterSection, setShowFilterSection] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -883,12 +904,12 @@ const TimelineFilter = ({
 
                   {/* Add Tier Ranked button here, before the Tier dropdown */}
                   <motion.button
-                    onClick={() => setSelectedSortKey('Tier Ranked')}
+                    onClick={() => setTierRankActive(!tierRankActive)}
                     className={`
-                        px-4 py-2 rounded-lg text-sm font-medium
-                        flex items-center gap-2
-                        transition-all duration-300
-                        ${selectedSortKey === 'Tier Ranked'
+                      px-4 py-2 rounded-lg text-sm font-medium
+                      flex items-center gap-2
+                      transition-all duration-300
+                      ${tierRankActive
                         ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                         : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                       }
@@ -896,8 +917,8 @@ const TimelineFilter = ({
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    {selectedSortKey === 'Tier Ranked' ? <LockIcon className="h-4 w-4" /> : <UnlockIcon className="h-4 w-4" />}
-                    Tiers Ranked
+                    Tiers
+                    {tierRankActive ? <LockIcon className="h-4 w-4" /> : <UnlockIcon className="h-4 w-4" />}
                   </motion.button>
 
                   {/* Tier Filters - FIXED TO USE CORRECT TIER COLOR WHEN SELECTED */}
@@ -922,7 +943,7 @@ const TimelineFilter = ({
                           borderColor: `${tierColors[selectedTier]}4D`
                         } : {}}
                       >
-                        Tier
+                        Filter Tiers
                       </motion.button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="bg-[#19191A] border-gray-700">
@@ -1580,7 +1601,43 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [activeChart, setActiveChart] = useState('spider');
-
+  
+  // Calculate dynamic rankings based on the current filtered prospects
+  const dynamicRankings = useMemo(() => {
+    // Create sorted arrays of filtered prospects for 3-year and 5-year averages
+    const sortedBy3YAvg = [...filteredProspects].sort(
+      (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
+    );
+    
+    const sortedBy5YAvg = [...filteredProspects].sort(
+      (a, b) => Number(b['Avg. EPM Y1-Y5']) - Number(a['Avg. EPM Y1-Y5'])
+    );
+    
+    // Find the current prospect's position in these sorted arrays
+    const rank3Y = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+    const rank5Y = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+    
+    // Get position-specific rankings
+    const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+    
+    const sortedBy3YAvgPosition = [...samePositionProspects].sort(
+      (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
+    );
+    
+    const sortedBy5YAvgPosition = [...samePositionProspects].sort(
+      (a, b) => Number(b['Avg. EPM Y1-Y5']) - Number(a['Avg. EPM Y1-Y5'])
+    );
+    
+    const positionRank3Y = sortedBy3YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
+    const positionRank5Y = sortedBy5YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
+    
+    return {
+      overall3Y: rank3Y,
+      overall5Y: rank5Y,
+      position3Y: positionRank3Y,
+      position5Y: positionRank5Y
+    };
+  }, [prospect.Name, filteredProspects, prospect.Role]);
 
   // Check if device is mobile
   useEffect(() => {
@@ -1660,7 +1717,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
             onMouseLeave={handleMouseLeave}
             onClick={handleCardClick}
           >
-            {/* Rank Number */}
+            {/* Rank Number - Now using the dynamic rank passed from parent component */}
             <motion.div
               layout="position"
               className={`
@@ -1669,7 +1726,7 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
               `}
             >
-              {/* Change here for rank number formating for mobile view */}
+              {/* Display the rank from the parent component, which now reflects current sorting */}
               <div className={`
                 ${barlow.className} 
                 ${isMobile ? 'text-1xl' : 'text-6xl'} 
@@ -1972,13 +2029,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         </div>
                       ))}
 
-                      {/* 3 Year Average - Show after Y3 */}
+                      {/* 3 Year Average */}
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
                         <div>3 Year Avg</div>
                         <div className="text-center">
-                          {formatAvgRank(prospect['Avg. Rank Y1-Y3'])}
+                          {dynamicRankings.overall3Y}
                         </div>
-                        <div className="text-center">{getPositionRank('Y1Y3')}</div>
+                        <div className="text-center">{dynamicRankings.position3Y}</div>
                       </div>
 
                       {/* Show remaining individual years */}
@@ -1997,13 +2054,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         </div>
                       ))}
 
-                      {/* 5 Year Average - Show after Y5 */}
+                      {/* 5 Year Average */}
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
                         <div>5 Year Avg</div>
                         <div className="text-center">
-                          {formatAvgRank(prospect['Avg. Rank Y1-Y5'])}
+                          {dynamicRankings.overall5Y}
                         </div>
-                        <div className="text-center">{getPositionRank('Y1Y5')}</div>
+                        <div className="text-center">{dynamicRankings.position5Y}</div>
                       </div>
                     </div>
                   </div>
@@ -2018,13 +2075,13 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
                         onClick={() => setActiveChart('spider')}
                         className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'spider' ? 'border-blue-500/30' : ''}`}
                       >
-                        Spider Chart
+                        Skills Chart
                       </button>
                       <button
                         onClick={() => setActiveChart('comparison')}
                         className={`bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm ${activeChart === 'comparison' ? 'border-blue-500/30' : ''}`}
                       >
-                        Player Comps
+                        Player Comparisons
                       </button>
 
                       {/* Graph Buttons */}
@@ -2346,7 +2403,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   const [displayedProspects, setDisplayedProspects] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(false);
   const [, setIsMobile] = useState(false);
-  const [tierRankActive, setTierRankActive] = useState(false); // Add state for Tier Ranked toggle
+  const [tierRankActive, setTierRankActive] = useState(false);
 
   const tierRankMap = {
     'All-Time Great': 1,
@@ -2439,28 +2496,53 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
     // Sort the filtered prospects
     const sortedFiltered = [...filtered].sort((a, b) => {
+      // If tier ranking is active, always sort by tier first
       if (tierRankActive) {
         const aTierRank = tierRankMap[a.Tier as keyof typeof tierRankMap] || 999;
         const bTierRank = tierRankMap[b.Tier as keyof typeof tierRankMap] || 999;
-        if (aTierRank !== bTierRank) { //important
+        
+        // If tiers are different, sort by tier
+        if (aTierRank !== bTierRank) {
           return aTierRank - bTierRank;
         }
-        // If tiers are the same, maintain original order
-        const aPick = a['Actual Pick'];
-        const bPick = b['Actual Pick'];
-        if (aPick === 'N/A' || aPick === '' || aPick === null || aPick === undefined) return 1;
-        if (bPick === 'N/A' || bPick === '' || bPick === null || bPick === undefined) return -1;
-        const aNum = Number(aPick);
-        const bNum = Number(bPick);
-        if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-        return 0;
-      }
-      else {
-        const aValue = a[selectedSortKey as keyof DraftProspect];
-        const bValue = b[selectedSortKey as keyof DraftProspect];
-        if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) return 1;
-        if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) return -1;
-        return Number(aValue) - Number(bValue);
+        
+        // If tiers are the same, sort by the selected metric
+        if (selectedSortKey === 'Avg. Rank Y1-Y3' || selectedSortKey === 'Avg. EPM Y1-Y3') {
+          const aValue = Number(a['Avg. EPM Y1-Y3']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y3']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey === 'Avg. Rank Y1-Y5' || selectedSortKey === 'Avg. EPM Y1-Y5') {
+          const aValue = Number(a['Avg. EPM Y1-Y5']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y5']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else {
+          // For other metrics, maintain original order within tier
+          const aPick = a['Actual Pick'];
+          const bPick = b['Actual Pick'];
+          if (aPick === 'N/A' || aPick === '' || aPick === null || aPick === undefined) return 1;
+          if (bPick === 'N/A' || bPick === '' || bPick === null || bPick === undefined) return -1;
+          const aNum = Number(aPick);
+          const bNum = Number(bPick);
+          if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+          return 0;
+        }
+      } else {
+        // If tier ranking is not active, use normal sorting
+        if (selectedSortKey === 'Avg. Rank Y1-Y3' || selectedSortKey === 'Avg. EPM Y1-Y3') {
+          const aValue = Number(a['Avg. EPM Y1-Y3']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y3']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey === 'Avg. Rank Y1-Y5' || selectedSortKey === 'Avg. EPM Y1-Y5') {
+          const aValue = Number(a['Avg. EPM Y1-Y5']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y5']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else {
+          const aValue = a[selectedSortKey as keyof DraftProspect];
+          const bValue = b[selectedSortKey as keyof DraftProspect];
+          if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) return 1;
+          if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) return -1;
+          return Number(aValue) - Number(bValue);
+        }
       }
     });
 
@@ -2491,7 +2573,9 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         viewMode={viewMode}
         setViewMode={setViewMode}
         tierRankActive={tierRankActive}
-        setTierRankActive={setTierRankActive} filteredProspects={[]} />
+        setTierRankActive={setTierRankActive} 
+        filteredProspects={[]} 
+      />
 
       <div className="max-w-6xl mx-auto px-4 pt-8">
         {filteredProspects.length > 0 ? (
@@ -2564,35 +2648,83 @@ export default function DraftProspectsPage() {
 
               // Calculate position ranks for each year
               ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].forEach(year => {
-                const yearKey = `Pred. ${year} Rank` as keyof DraftProspect;
+                const yearKey = `Pred. ${year} EPM` as keyof DraftProspect; // Change to EPM
                 const sortedByYear = [...samePositionProspects].sort((a, b) => {
-                  const aRank = Number(a[yearKey]);
-                  const bRank = Number(b[yearKey]);
-                  return aRank - bRank;
+                  const aEPM = Number(a[yearKey]);
+                  const bEPM = Number(b[yearKey]);
+                  // Sort in descending order for EPM (higher is better)
+                  return bEPM - aEPM;
                 });
                 positionRanks[year as keyof typeof positionRanks] =
                   sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
               });
 
-              // Calculate 3-year average position rank
-              const sortedBy3YAvg = [...samePositionProspects].sort((a, b) => {
-                const aRank = Number(a['Avg. Rank Y1-Y3']);
-                const bRank = Number(b['Avg. Rank Y1-Y3']);
-                return aRank - bRank;
-              });
-              positionRanks.Y1Y3 = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+              // Calculate 3-year average EPM
+              const avg3YEPM = (
+                Number(prospect['Pred. Y1 EPM'] || 0) +
+                Number(prospect['Pred. Y2 EPM'] || 0) +
+                Number(prospect['Pred. Y3 EPM'] || 0)
+              ) / 3;
+              
+              // Calculate 5-year average EPM
+              const avg5YEPM = (
+                Number(prospect['Pred. Y1 EPM'] || 0) +
+                Number(prospect['Pred. Y2 EPM'] || 0) +
+                Number(prospect['Pred. Y3 EPM'] || 0) +
+                Number(prospect['Pred. Y4 EPM'] || 0) +
+                Number(prospect['Pred. Y5 EPM'] || 0)
+              ) / 5;
 
-              // Calculate 5-year average position rank
-              const sortedBy5YAvg = [...samePositionProspects].sort((a, b) => {
-                const aRank = Number(a['Avg. Rank Y1-Y5']);
-                const bRank = Number(b['Avg. Rank Y1-Y5']);
-                return aRank - bRank;
+              // Calculate 3-year average rankings
+              const allProspectsWith3YAvg = [...prospectData].map(p => {
+                const p3YAvg = (
+                  Number(p['Pred. Y1 EPM'] || 0) +
+                  Number(p['Pred. Y2 EPM'] || 0) +
+                  Number(p['Pred. Y3 EPM'] || 0)
+                ) / 3;
+                return { ...p, avg3YEPM: p3YAvg };
               });
-              positionRanks.Y1Y5 = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+
+              // Calculate 5-year average rankings
+              const allProspectsWith5YAvg = [...prospectData].map(p => {
+                const p5YAvg = (
+                  Number(p['Pred. Y1 EPM'] || 0) +
+                  Number(p['Pred. Y2 EPM'] || 0) +
+                  Number(p['Pred. Y3 EPM'] || 0) +
+                  Number(p['Pred. Y4 EPM'] || 0) +
+                  Number(p['Pred. Y5 EPM'] || 0)
+                ) / 5;
+                return { ...p, avg5YEPM: p5YAvg };
+              });
+
+              // Get global rankings (all positions)
+              const sortedBy3YAvgAll = [...allProspectsWith3YAvg].sort((a, b) => b.avg3YEPM - a.avg3YEPM);
+              const globalRank3Y = sortedBy3YAvgAll.findIndex(p => p.Name === prospect.Name) + 1;
+
+              const sortedBy5YAvgAll = [...allProspectsWith5YAvg].sort((a, b) => b.avg5YEPM - a.avg5YEPM);
+              const globalRank5Y = sortedBy5YAvgAll.findIndex(p => p.Name === prospect.Name) + 1;
+
+              // Get position-specific rankings
+              const samePositionProspectsWith3YAvg = allProspectsWith3YAvg.filter(p => p.Role === prospect.Role);
+              const sortedBy3YAvgPosition = [...samePositionProspectsWith3YAvg].sort((a, b) => b.avg3YEPM - a.avg3YEPM);
+              positionRanks.Y1Y3 = sortedBy3YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
+
+              const samePositionProspectsWith5YAvg = allProspectsWith5YAvg.filter(p => p.Role === prospect.Role);
+              const sortedBy5YAvgPosition = [...samePositionProspectsWith5YAvg].sort((a, b) => b.avg5YEPM - a.avg5YEPM);
+              positionRanks.Y1Y5 = sortedBy5YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
 
               return {
                 ...prospect,
-                positionRanks
+                positionRanks,
+                avg3YEPM,
+                avg5YEPM,
+                globalRank3Y,
+                globalRank5Y,
+                // Add these to be accessible for sorting
+                'Avg. EPM Y1-Y3': avg3YEPM,
+                'Avg. EPM Y1-Y5': avg5YEPM,
+                'Rank Y1-Y3': globalRank3Y,
+                'Rank Y1-Y5': globalRank5Y
               };
             });
 

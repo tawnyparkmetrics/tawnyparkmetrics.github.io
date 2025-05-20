@@ -12,12 +12,7 @@ export default function Home() {
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-            Welcome to <span className="text-blue-400">Tawny Park Metrics</span>
-          </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
-            Your premier destination for NBA draft analysis and player metrics. Explore our comprehensive draft boards and advanced statistical models.
-          </p>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">Tawny Park Metrics (TPM)</h1>
         </div>
       </div>
 
@@ -45,13 +40,13 @@ export default function Home() {
       </div>
 
       {/* About Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="bg-gray-800/20 border border-gray-800 rounded-xl p-8">
           <h2 className="text-3xl font-bold text-white mb-6">About TPM</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           </div>
         </div>
-      </div>
+      </div> */}
     </main>
   );
 }
