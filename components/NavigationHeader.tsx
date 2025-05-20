@@ -80,13 +80,6 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     if (NBADropdownOpen) setModelsDropdownOpen(false);
   };
 
-  const toggleModelsDropdown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setModelsDropdownOpen(!NBADropdownOpen);
-    if (DraftDropdownOpen) setTpmDropdownOpen(false);
-  };
-
   const handleItemClick = (e: React.MouseEvent, item: MenuItem) => {
     if (!item.available) {
       e.preventDefault();

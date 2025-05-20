@@ -1696,12 +1696,6 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
     return rank ? rank.toString() : 'N/A';
   };
 
-  // Helper function to format average rank display
-  const formatAvgRank = (avgRankStr: string): string => {
-    const numValue = Number(avgRankStr);
-    return !isNaN(numValue) ? Math.ceil(numValue).toString() : 'N/A';
-  };
-
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
       <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
