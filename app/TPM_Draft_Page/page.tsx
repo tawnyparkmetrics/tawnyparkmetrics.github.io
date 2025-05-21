@@ -12,7 +12,7 @@ import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal } from 'lucide
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Cell, Bar, BarChart, LabelList } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Cell, Bar, BarChart, LabelList } from 'recharts';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
