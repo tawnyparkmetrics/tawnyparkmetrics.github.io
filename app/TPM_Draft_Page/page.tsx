@@ -1331,7 +1331,6 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
                     }}
                   />
                   <Tooltip content={<CustomTooltip />} isAnimationActive={false} />
-                  <Legend />
                   {sortedProspects.map((prospect) => (
                     <Line
                       key={prospect.Name}
@@ -1572,67 +1571,126 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
 
 // Add this new component before the ProspectCard component
 const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
-  // Debug logging for Athleticism
-  console.log('Prospect:', prospect.Name);
+  const [showComparison, setShowComparison] = useState(false);
+  const [comparisonPlayer, setComparisonPlayer] = useState<DraftProspect | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [samePositionPlayers, setSamePositionPlayers] = useState<DraftProspect[]>([]);
 
-  // Add validation and ensure proper number conversion
+  // Get all players in the same position
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      try {
+        const response = await fetch('/2024_Draft_Class.csv');
+        const csvText = await response.text();
+        Papa.parse(csvText, {
+          header: true,
+          complete: (results) => {
+            const allPlayers = results.data as DraftProspect[];
+            const playersInSamePosition = allPlayers.filter(
+              p => p.Role === prospect.Role && p.Name !== prospect.Name
+            );
+            setSamePositionPlayers(playersInSamePosition);
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching players:', error);
+      }
+    };
+    fetchPlayers();
+  }, [prospect.Role, prospect.Name]);
+
   const getAttributeValue = (value: string | number | undefined): number => {
     if (value === undefined) return 0;
-    // Handle empty strings
     if (value === '') return 0;
-    // Handle string numbers with potential whitespace
     if (typeof value === 'string') {
       value = value.trim();
     }
     const numValue = Number(value);
-    // Debug logging for conversion
-    console.log('Converting value:', value, 'to number:', numValue);
     return !isNaN(numValue) ? numValue : 0;
   };
 
-  const attributes = [
-    {
-      name: 'Size',
-      value: getAttributeValue(prospect.Size)
-    },
-    {
-      name: 'Athleticism',
-      value: getAttributeValue(prospect.Athleticism)
-    },
-    {
-      name: 'Defense',
-      value: getAttributeValue(prospect.Defense)
-    },
-    {
-      name: 'Rebounding',
-      value: getAttributeValue(prospect.Rebounding)
-    },
-    {
-      name: 'Scoring',
-      value: getAttributeValue(prospect.Scoring)
-    },
-    {
-      name: 'Passing',
-      value: getAttributeValue(prospect.Passing)
-    },
-    {
-      name: 'Shooting',
-      value: getAttributeValue(prospect.Shooting)
-    },
-    {
-      name: 'Efficiency',
-      value: getAttributeValue(prospect.Efficiency)
-    }
-  ];
+  // Create combined data array for the radar chart
+  const chartData = useMemo(() => {
+    const attributes = [
+      { name: 'Size', value: getAttributeValue(prospect.Size) },
+      { name: 'Athleticism', value: getAttributeValue(prospect.Athleticism) },
+      { name: 'Defense', value: getAttributeValue(prospect.Defense) },
+      { name: 'Rebounding', value: getAttributeValue(prospect.Rebounding) },
+      { name: 'Scoring', value: getAttributeValue(prospect.Scoring) },
+      { name: 'Passing', value: getAttributeValue(prospect.Passing) },
+      { name: 'Shooting', value: getAttributeValue(prospect.Shooting) },
+      { name: 'Efficiency', value: getAttributeValue(prospect.Efficiency) }
+    ];
 
-  // Log the final attributes array
-  console.log('Final attributes:', attributes);
+    if (showComparison && comparisonPlayer) {
+      return attributes.map(attr => ({
+        name: attr.name,
+        [prospect.Name]: attr.value,
+        [comparisonPlayer.Name]: getAttributeValue(comparisonPlayer[attr.name as keyof DraftProspect] as string | number | undefined)
+      }));
+    }
+
+    return attributes.map(attr => ({
+      name: attr.name,
+      [prospect.Name]: attr.value
+    }));
+  }, [prospect, comparisonPlayer, showComparison]);
 
   return (
-    <div className="w-full h-[300px]"> {/* Added fixed height container */}
+    <div className="w-full h-[300px] relative">
+      <div className="absolute top-0 right-0 z-10">
+        <div className="relative flex items-center gap-2">
+          {showComparison && comparisonPlayer && (
+            <button
+              onClick={() => {
+                setShowComparison(false);
+                setComparisonPlayer(null);
+              }}
+              className="w-8 py-1.5 rounded-md border border-gray-800 hover:border-gray-700 bg-gray-800/20 text-gray-400 hover:text-gray-300 transition-all duration-200 flex items-center justify-center"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setIsDropdownOpen(!isDropdownOpen);
+            }}
+            className="px-3 py-1.5 text-sm font-medium rounded-md border transition-all duration-200 bg-gray-800/20 text-gray-400 border-gray-800 hover:border-gray-700"
+          >
+            Add Comparison
+          </button>
+          {isDropdownOpen && (
+            <div className="absolute top-full right-0 mt-1 w-48 bg-gray-800/90 border border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto">
+              {samePositionPlayers.map((player) => (
+                <button
+                  key={player.Name}
+                  onClick={() => {
+                    if (showComparison && comparisonPlayer?.Name === player.Name) {
+                      setShowComparison(false);
+                      setComparisonPlayer(null);
+                    } else {
+                      setComparisonPlayer(player);
+                      setShowComparison(true);
+                    }
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`w-full px-3 py-2 text-sm text-left ${
+                    showComparison && comparisonPlayer?.Name === player.Name
+                      ? 'bg-gray-700/50 text-gray-200'
+                      : 'text-gray-300 hover:bg-gray-700/50'
+                  }`}
+                >
+                  {player.Name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart
-          data={attributes}
+          data={chartData}
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
         >
           <PolarGrid stroke="#999" />
@@ -1643,11 +1701,20 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           />
           <Radar
             name={prospect.Name}
-            dataKey="value"
+            dataKey={prospect.Name}
             stroke="#3b82f6"
             fill="#3b82f6"
             fillOpacity={0.4}
           />
+          {showComparison && comparisonPlayer && (
+            <Radar
+              name={comparisonPlayer.Name}
+              dataKey={comparisonPlayer.Name}
+              stroke="#ef4444"
+              fill="#ef4444"
+              fillOpacity={0.2}
+            />
+          )}
         </RadarChart>
       </ResponsiveContainer>
     </div>
