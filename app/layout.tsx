@@ -16,18 +16,20 @@ export const metadata: Metadata = {
   title: "Tawny Park Metrics",
   description: "Tawny Park Metrics",
   icons: {
-    icon: [
-      {
-        url: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
-        type: 'image/png',
-      }
-    ],
-    apple: [
-      {
-        url: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
-        type: 'image/png',
-      }
-    ],
+    icon: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
+    shortcut: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
+    apple: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
+  },
+  openGraph: {
+    title: 'Tawny Park Metrics',
+    description: 'NBA Analytics and Draft Analysis',
+    images: ['/TPM_logo_designs/TPM Wordmark (Dark - No Map).png'],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Tawny Park Metrics',
+    description: 'NBA Analytics and Draft Analysis',
+    images: ['/TPM_logo_designs/TPM Wordmark (Dark - No Map).png'],
   },
 };
 

@@ -1263,7 +1263,7 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
         <AlertDialogHeader className="flex flex-row items-center justify-between">
           <AlertDialogTitle className="text-xl">
             {selectedProspect
-              ? `${selectedProspect.Name} ${graphType === 'rankings' ? 'Rankings' : 'EPM'} Comparison ${selectedProspect.Role ? `(${selectedProspect.Role} Comparison)` : ''}`
+              ? `${selectedProspect.Name} Projected ${graphType === 'rankings' ? 'Rank' : 'EPM'} vs ${selectedProspect.Role}s`
               : 'Select a Prospect'}
           </AlertDialogTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -1536,7 +1536,11 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
               type="category"
               hide={true}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip 
+              content={<CustomTooltip />} 
+              cursor={false}
+              isAnimationActive={false}
+            />
             <Bar
               dataKey="similarity"
               radius={[4, 4, 4, 4]}
@@ -1545,6 +1549,8 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
               animationDuration={500}
               animationBegin={0}
               animationEasing="ease-out"
+              activeBar={false}
+              cursor="default"
             >
               {compData.map((entry, index) => {
                 const color = getColorForTier(entry.tier);
@@ -1554,6 +1560,9 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
                     fill={color}
                     fillOpacity={0.3}
                     stroke={color}
+                    cursor="default"
+                    onMouseEnter={() => {}}
+                    onMouseLeave={() => {}}
                   />
                 );
               })}
@@ -1575,6 +1584,23 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   const [comparisonPlayer, setComparisonPlayer] = useState<DraftProspect | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [samePositionPlayers, setSamePositionPlayers] = useState<DraftProspect[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Set initial value
+    checkMobile();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Get all players in the same position
   useEffect(() => {
@@ -1638,8 +1664,16 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
 
   return (
     <div className="w-full h-[300px] relative">
-      <div className="absolute top-0 right-0 z-10">
+      <div className="absolute top-0 left-0 z-10">
         <div className="relative flex items-center gap-2">
+          <button
+            onClick={() => {
+              setIsDropdownOpen(!isDropdownOpen);
+            }}
+            className="px-3 py-1.5 text-sm font-medium rounded-md border transition-all duration-200 bg-gray-800/20 text-gray-400 border-gray-800 hover:border-gray-700"
+          >
+            {showComparison && comparisonPlayer ? comparisonPlayer.Name : 'Compare'}
+          </button>
           {showComparison && comparisonPlayer && (
             <button
               onClick={() => {
@@ -1651,16 +1685,8 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
               <X className="h-4 w-4" />
             </button>
           )}
-          <button
-            onClick={() => {
-              setIsDropdownOpen(!isDropdownOpen);
-            }}
-            className="px-3 py-1.5 text-sm font-medium rounded-md border transition-all duration-200 bg-gray-800/20 text-gray-400 border-gray-800 hover:border-gray-700"
-          >
-            Add Comparison
-          </button>
           {isDropdownOpen && (
-            <div className="absolute top-full right-0 mt-1 w-48 bg-gray-800/90 border border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute top-full left-0 mt-1 w-48 bg-gray-800/90 border border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto">
               {samePositionPlayers.map((player) => (
                 <button
                   key={player.Name}
@@ -1696,7 +1722,7 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           <PolarGrid stroke="#999" />
           <PolarAngleAxis 
             dataKey="name" 
-            fontSize={12}
+            fontSize={isMobile ? 10 : 12}
             tick={{ fill: '#fff' }}
           />
           <Radar
@@ -1721,7 +1747,12 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   );
 };
 
-const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filteredProspects: DraftProspect[] }> = ({ prospect, filteredProspects }) => {
+const ProspectCard: React.FC<{ 
+  prospect: DraftProspect; 
+  rank: RankType; 
+  filteredProspects: DraftProspect[];
+  selectedSortKey: string;
+}> = ({ prospect, filteredProspects, selectedSortKey }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -1817,9 +1848,27 @@ const ProspectCard: React.FC<{ prospect: DraftProspect; rank: RankType; filtered
 
   // Calculate the current rank based on the filtered and sorted prospects
   const currentRank = useMemo(() => {
-    const index = filteredProspects.findIndex(p => p.Name === prospect.Name);
-    return index + 1; // Add 1 to make it 1-based indexing
-  }, [prospect.Name, filteredProspects]);
+    if (selectedSortKey === 'Actual Pick') {
+      // For draft order, use the actual pick number
+      const pickNumber = Number(prospect['Actual Pick']);
+      if (!isNaN(pickNumber) && pickNumber <= 58) {
+        return pickNumber;
+      } else {
+        // For UDFAs, count only UDFAs up to this player
+        const udfaCount = filteredProspects
+          .filter(p => {
+            const pPick = Number(p['Actual Pick']);
+            return isNaN(pPick) || pPick > 58;
+          })
+          .findIndex(p => p.Name === prospect.Name);
+        return udfaCount + 59; // Start UDFA numbering from 59
+      }
+    } else {
+      // For other sorting methods, use the array index
+      const index = filteredProspects.findIndex(p => p.Name === prospect.Name);
+      return index + 1;
+    }
+  }, [prospect.Name, filteredProspects, selectedSortKey, prospect['Actual Pick']]);
 
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
@@ -2578,20 +2627,27 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
     // Create a map of the initial draft order rank
     const initialRankMap = new Map<string, RankType>(
       initialProspects
-        .filter(prospect => prospect['Actual Pick'] && !isNaN(Number(prospect['Actual Pick'])) && Number(prospect['Actual Pick']) <= 58)
+        .filter(prospect => 
+          prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
+          prospect['Actual Pick'] && 
+          !isNaN(Number(prospect['Actual Pick'])) && 
+          Number(prospect['Actual Pick']) <= 58
+        )
         .sort((a, b) => Number(a['Actual Pick']) - Number(b['Actual Pick']))
         .map((prospect, index) => [prospect.Name, index + 1])
     );
 
     // Add ranks for undrafted players as 'N/A'
-    initialProspects.forEach(prospect => {
-      if (!initialRankMap.has(prospect.Name)) {
-        initialRankMap.set(prospect.Name, 'N/A');
-      }
-    });
+    initialProspects
+      .filter(prospect => prospect.Name !== 'Ulrich Chomche') // Filter out Ulrich Chomche
+      .forEach(prospect => {
+        if (!initialRankMap.has(prospect.Name)) {
+          initialRankMap.set(prospect.Name, 'N/A');
+        }
+      });
 
     // Apply filters
-    let filtered = [...initialProspects];
+    let filtered = initialProspects.filter(prospect => prospect.Name !== 'Ulrich Chomche'); // Filter out Ulrich Chomche
 
     // Apply search filter
     if (searchQuery) {
@@ -2719,6 +2775,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
                   prospect={prospect}
                   rank={originalRank ?? 0}
                   filteredProspects={filteredProspects.map(p => p.prospect)}
+                  selectedSortKey={selectedSortKey}
                 />
               ))}
               {isLoading && (
