@@ -1221,18 +1221,21 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
     return Object.keys(yearData).some(key => key !== 'year');
   });
 
+  // Extract the complex expression to a variable
+  const prospectName = selectedProspect?.Name;
+
   // Sort prospects to ensure selected player is rendered last (appears on top)
   const sortedProspects = useMemo(() => {
     // Create a copy to avoid modifying the original array
     return [...filteredProspects].sort((a, b) => {
       // If a is the selected prospect, it should come last (after b)
-      if (a.Name === selectedProspect?.Name) return 1;
+      if (a.Name === prospectName) return 1;
       // If b is the selected prospect, it should come last (after a)
-      if (b.Name === selectedProspect?.Name) return -1;
+      if (b.Name === prospectName) return -1;
       // Otherwise, maintain original order
       return 0;
     });
-  }, [filteredProspects, selectedProspect]);
+  }, [filteredProspects, prospectName]); // Now includes the extracted variable
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
@@ -1313,12 +1316,12 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
                       key={prospect.Name}
                       type="monotone"
                       dataKey={prospect.Name}
-                      stroke={prospect.Name === selectedProspect?.Name ? (prospect['Team Color'] || '#ff0000') : '#cccccc'}
-                      strokeWidth={prospect.Name === selectedProspect?.Name ? 3 : 1.5}
+                      stroke={prospect.Name === prospectName ? (prospect['Team Color'] || '#ff0000') : '#cccccc'}
+                      strokeWidth={prospect.Name === prospectName ? 3 : 1.5}
                       dot={{ r: 4 }}
                       activeDot={{ r: 8 }}
                       // Ensure selected player has higher z-index
-                      z={prospect.Name === selectedProspect?.Name ? 10 : 1}
+                      z={prospect.Name === prospectName ? 10 : 1}
                       // Only show tooltip for this specific line
                       isAnimationActive={false}
                     />

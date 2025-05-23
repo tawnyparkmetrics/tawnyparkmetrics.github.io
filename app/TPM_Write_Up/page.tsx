@@ -100,11 +100,11 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            My "big board", developed in association with Tawny Park Metrics, analyzes NBA draft prospects via four distinct statistical outputs:
+            My &quot;big board&quot;, developed in association with Tawny Park Metrics, analyzes NBA draft prospects via four distinct statistical outputs:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-4">
             <li><strong className="text-blue-300">Expected EPM (Estimated Plus-Minus)</strong> across first five seasons in the NBA (regression)</li>
-            <li><strong className="text-blue-300">Predicted "tier"</strong> broken down into seven categories, ranging from All-Time Great to Fringe-NBA Player (classification)</li>
+            <li><strong className="text-blue-300">Predicted &quot;tier&quot;</strong> broken down into seven categories, ranging from All-Time Great to Fringe-NBA Player (classification)</li>
             <li><strong className="text-blue-300">Five closest player comps</strong> to previous draft prospects (statistical similarity)</li>
             <li><strong className="text-blue-3">Profiles contextualized</strong> as position-dependent percentiles (spider charts)</li>
           </ul>
@@ -126,10 +126,10 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            The basketballs represent a timeline. Clicking on each one allows you to see prospect rankings by that year. For instance, if you click on Y2, you'll see prospects ranked by expected EPM in their second season. Accordingly, if you click on "3Y Average" you'll see the Y1, Y2, and Y3 basketballs selected (prospects sorted by predicted EPM across their first three seasons).
+            The basketballs represent a timeline. Clicking on each one allows you to see prospect rankings by that year. For instance, if you click on Y2, you&apos;ll see prospects ranked by expected EPM in their second season. Accordingly, if you click on &quot;3Y Average&quot; you&apos;ll see the Y1, Y2, and Y3 basketballs selected (prospects sorted by predicted EPM across their first three seasons).
           </p>
           <p>
-            This works in tandem with the tiers filter. For example, if you click on the "Tiers" lock and then select Y4, you'll see prospects ranked by their predicted tier and then, within each tier, sorted by their expected Y4 EPM.
+            This works in tandem with the tiers filter. For example, if you click on the &quot;Tiers&quot; lock and then select Y4, you&apos;ll see prospects ranked by their predicted tier and then, within each tier, sorted by their expected Y4 EPM.
           </p>
         </div>
       )
@@ -141,7 +141,7 @@ export default function TPMWriteUpPage() {
         <div>
           <TierTable />
           <p className="mt-4">
-            While these tiers are subjective, they are closely correlated with players' EPM peaks and, if applicable, career longevity. More importantly, relative to the broader group(s) (Good/Decent/Rotation/Fringe-NBA) a player qualifies for, single tier differences (ex. Fringe All-Star vs Quality Starter) have a marginal impact on model performance.
+            While these tiers are subjective, they are closely correlated with players&apos; EPM peaks and, if applicable, career longevity. More importantly, relative to the broader group(s) (Good/Decent/Rotation/Fringe-NBA) a player qualifies for, single tier differences (ex. Fringe All-Star vs Quality Starter) have a marginal impact on model performance.
           </p>
           <p className="mt-4">
             By tying the tiers to player comps, I try to offer a realistic idea for each prospect&apos;s range of NBA outcomes (ex. What would success in the NBA roughly look like for Ja&apos;Kobe Walter? What kind of career impact should we expect?)
@@ -155,7 +155,7 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            Technically, to predict a prospect's tier, I use a position-specific multi-stage probabilistic classification model with optimized decision thresholds. Ok, so what does that mean?
+            Technically, to predict a prospect&apos;s tier, I use a position-specific multi-stage probabilistic classification model with optimized decision thresholds. Ok, so what does that mean?
           </p>
           <p className="mb-4">
             Let&apos;s start with the most intuitive part: <strong className="text-blue-300">&quot;position-specific.&quot;</strong> Across all my statistical outputs, I&apos;ve found it&apos;s best to project players as guards, wings, or bigs. This approach helps account for differences in which features are most predictive of NBA success, depending on role.
@@ -337,7 +337,7 @@ export default function TPMWriteUpPage() {
         <div className="mt-12 p-6 bg-gray-800/50 rounded-lg border border-gray-700">
           <h2 className="text-2xl font-bold text-white mb-4">About Tawny Park Metrics</h2>
           <p className="text-gray-300 leading-relaxed">
-            Tawny Park Metrics (TPM) is a platform for thoughtful and disruptive sports analysis. The name comes from the local park we&apos;ve hooped at almost all our lives. It&apos;s our way to put Tawny Park on the map. While "Metrics" implies a focus on data analysis, we are committed to offering a wide range of insights and plan to supplement our analysis with media content in the near future.
+            Tawny Park Metrics (TPM) is a platform for thoughtful and disruptive sports analysis. The name comes from the local park we&apos;ve hooped at almost all our lives. It&apos;s our way to put Tawny Park on the map. While &quot;Metrics&quot; implies a focus on data analysis, we are committed to offering a wide range of insights and plan to supplement our analysis with media content in the near future.
           </p>
         </div>
       </div>
