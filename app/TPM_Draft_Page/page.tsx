@@ -1203,7 +1203,7 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
         <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
           <p className="font-bold text-white">{activeEntry.dataKey}</p>
           <p className="text-white">Year {label}</p>
-          <p style={{ color: activeEntry.color }} className="text-sm font-bold">
+          <p className="text-white text-sm font-bold">
             {graphType === 'rankings' ? 'Rank' : 'EPM'}: {
               typeof activeEntry.value === 'number' ?
                 graphType === 'rankings' ? activeEntry.value.toFixed(0) : activeEntry.value.toFixed(2)
@@ -1728,8 +1728,9 @@ const ProspectCard: React.FC<{
   prospect: DraftProspect; 
   rank: RankType; 
   filteredProspects: DraftProspect[];
+  allProspects: DraftProspect[]; // Add allProspects prop
   selectedSortKey: string;
-}> = ({ prospect, filteredProspects, selectedSortKey }) => {
+}> = ({ prospect, filteredProspects, allProspects, selectedSortKey }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -1740,14 +1741,14 @@ const ProspectCard: React.FC<{
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [activeChart, setActiveChart] = useState('spider');
   
-  // Calculate dynamic rankings based on the current filtered prospects
-  const dynamicRankings = useMemo(() => {
-    // Create sorted arrays of filtered prospects for 3-year and 5-year averages
-    const sortedBy3YAvg = [...filteredProspects].sort(
+  // Calculate original rankings based on all prospects
+  const originalRankings = useMemo(() => {
+    // Create sorted arrays of all prospects for 3-year and 5-year averages
+    const sortedBy3YAvg = [...allProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
     );
     
-    const sortedBy5YAvg = [...filteredProspects].sort(
+    const sortedBy5YAvg = [...allProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y5']) - Number(a['Avg. EPM Y1-Y5'])
     );
     
@@ -1756,7 +1757,7 @@ const ProspectCard: React.FC<{
     const rank5Y = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
     
     // Get position-specific rankings
-    const samePositionProspects = filteredProspects.filter(p => p.Role === prospect.Role);
+    const samePositionProspects = allProspects.filter(p => p.Role === prospect.Role);
     
     const sortedBy3YAvgPosition = [...samePositionProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
@@ -1775,7 +1776,7 @@ const ProspectCard: React.FC<{
       position3Y: positionRank3Y,
       position5Y: positionRank5Y
     };
-  }, [prospect.Name, filteredProspects, prospect.Role]);
+  }, [prospect.Name, allProspects, prospect.Role]);
 
   // Check if device is mobile
   useEffect(() => {
@@ -2142,7 +2143,7 @@ const ProspectCard: React.FC<{
                       <div className="text-center">Overall</div>
                       <div className="text-center">Position</div>
                     </div>
-                    <div className="space-y-3"> {/* Increased space-y from 2 to 3 */}
+                    <div className="space-y-3">
                       {/* Show individual years */}
                       {['Y1', 'Y2', 'Y3'].map((year) => (
                         <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
@@ -2163,9 +2164,9 @@ const ProspectCard: React.FC<{
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
                         <div>3 Year Avg</div>
                         <div className="text-center">
-                          {dynamicRankings.overall3Y}
+                          {originalRankings.overall3Y}
                         </div>
-                        <div className="text-center">{dynamicRankings.position3Y}</div>
+                        <div className="text-center">{originalRankings.position3Y}</div>
                       </div>
 
                       {/* Show remaining individual years */}
@@ -2188,9 +2189,9 @@ const ProspectCard: React.FC<{
                       <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
                         <div>5 Year Avg</div>
                         <div className="text-center">
-                          {dynamicRankings.overall5Y}
+                          {originalRankings.overall5Y}
                         </div>
-                        <div className="text-center">{dynamicRankings.position5Y}</div>
+                        <div className="text-center">{originalRankings.position5Y}</div>
                       </div>
                     </div>
                   </div>
@@ -2752,6 +2753,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
                   prospect={prospect}
                   rank={originalRank ?? 0}
                   filteredProspects={filteredProspects.map(p => p.prospect)}
+                  allProspects={initialProspects} // Pass all prospects
                   selectedSortKey={selectedSortKey}
                 />
               ))}
