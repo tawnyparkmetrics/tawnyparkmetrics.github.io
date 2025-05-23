@@ -116,7 +116,7 @@ export default function TPMWriteUpPage() {
       title: 'What are your actual rankings?',
       content: (
         <p>
-          If I was sharing my board with an NBA team, I would click on the "Tiers (lock)" and then select the "5Y Avg" button. In doing so, you see prospects sorted, primarily, by their predicted tier and then sorted by expected Y1-Y5 EPM within each tier. This ranking offers the most accurate view of players' long term outlook, balancing anticipated opportunity with projected performance.
+          If I was sharing my board with an NBA team, I would click on the &quot;Tiers (lock)&quot; and then select the &quot;5Y Avg&quot; button. In doing so, you see prospects sorted, primarily, by their predicted tier and then sorted by expected Y1-Y5 EPM within each tier. This ranking offers the most accurate view of players&apos; long term outlook, balancing anticipated opportunity with projected performance.
         </p>
       )
     },
