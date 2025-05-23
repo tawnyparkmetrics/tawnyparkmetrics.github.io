@@ -48,6 +48,7 @@ const collegeNames: { [key: string]: string } = {
   "Ratiopharm Ulm": "Ulm",
   "Washington State": "Washington St.",
   "KK Mega Basket": "KK Mega",
+  "Melbourne United": "Melbourne Utd",
   "Eastern Kentucky": "EKU",
   "Western Carolina": "WCU"
 }
@@ -115,7 +116,12 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   );
 };
 
-const ProspectCard: React.FC<{ prospect: DraftProspect; filteredProspects: DraftProspect[] }> = ({ prospect, filteredProspects }) => {
+const ProspectCard: React.FC<{ 
+  prospect: DraftProspect; 
+  filteredProspects: DraftProspect[];
+  allProspects: DraftProspect[];
+  selectedSortKey: string;
+}> = ({ prospect, filteredProspects, allProspects, selectedSortKey }) => {
   // Find the actual rank of this prospect in the filtered and sorted list
   const actualRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
   
@@ -666,9 +672,27 @@ export default function NickDraftPage() {
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';
   } | null>(null);
-  const [loadedProspects, setLoadedProspects] = useState<number>(5); // Start with 5 prospects
+  const [loadedProspects, setLoadedProspects] = useState<number>(5);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Set initial value
+    checkMobile();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     async function fetchDraftProspects() {
@@ -893,37 +917,44 @@ export default function NickDraftPage() {
     );
   };
   
-  // Handle scroll event
+  // Handle scroll event for infinite loading - only on desktop
   useEffect(() => {
-    const handleScroll = () => {
-      if (viewMode !== 'card' || isLoading) return;
+    if (viewMode !== 'card' || isLoading || !hasMore || isMobile) return;
 
+    const handleScroll = () => {
       const scrollPosition = window.scrollY + window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
-      
-      // Load more when user is near bottom (within 300px)
+
       if (documentHeight - scrollPosition < 100) {
         setIsLoading(true);
-        // Simulate loading delay
-        setTimeout(() => {
-          setLoadedProspects(prev => prev + 5);
+        
+        requestAnimationFrame(() => {
+          setLoadedProspects(prev => {
+            const newCount = prev + 5;
+            setHasMore(newCount < filteredProspects.length);
+            return newCount;
+          });
           setIsLoading(false);
-        }, 500);
+        });
       }
     };
 
-    // Add scroll event listener with passive option for better performance
     window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // Clean up event listener
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isLoading, sortedProspects.length, viewMode]);
+  }, [viewMode, isLoading, hasMore, filteredProspects.length, isMobile]);
 
   // Reset loaded prospects when filters change
   useEffect(() => {
-    setLoadedProspects(5);
-    setHasMore(sortedProspects.length > 5);
-  }, [sortedProspects.length]);
+    if (isMobile) {
+      // On mobile, show all prospects
+      setLoadedProspects(filteredProspects.length);
+      setHasMore(false);
+    } else {
+      // On desktop, start with 5 prospects
+      setLoadedProspects(5);
+      setHasMore(filteredProspects.length > 5);
+    }
+  }, [filteredProspects, isMobile]);
 
   return (
     <div className="min-h-screen bg-[#19191A]">
@@ -936,32 +967,42 @@ export default function NickDraftPage() {
         onViewModeChange={setViewMode}
       />
 
-      {viewMode === 'card' ? (
-        <div className="max-w-6xl mx-auto px-4 pt-8">
-          {sortedProspects.slice(0, loadedProspects).map((prospect) => (
-            <ProspectCard
-              key={prospect.Name}
-              prospect={prospect}
-              filteredProspects={sortedProspects}
+      <div className="max-w-6xl mx-auto px-4 pt-8">
+        {filteredProspects.length > 0 ? (
+          viewMode === 'card' ? (
+            <div className="space-y-4">
+              {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
+                <ProspectCard
+                  key={prospect.Name}
+                  prospect={prospect}
+                  filteredProspects={filteredProspects}
+                  allProspects={prospects}
+                  selectedSortKey={selectedSortKey}
+                />
+              ))}
+              {isLoading && !isMobile && (
+                <div className="flex justify-center py-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <ProspectTable
+              prospects={filteredProspects}
+              rank={Object.fromEntries(
+                filteredProspects.map((prospect) => [
+                  prospect.Name,
+                  prospect.originalRank ?? 'N/A'
+                ])
+              )}
             />
-          ))}
-          {isLoading && (
-            <div className="flex justify-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
-            </div>
-          )}
-          {!hasMore && loadedProspects > 5 && (
-            <div className="text-center py-4 text-gray-400">
-              No more prospects to load
-            </div>
-          )}
-        </div>
-      ) : (
-        <ProspectTable
-          prospects={sortedProspects}
-          rank={{}}
-        />
-      )}
+          )
+        ) : (
+          <div className="text-center py-8 text-gray-400">
+            No prospects found matching your search criteria
+          </div>
+        )}
+      </div>
     </div>
   );
 }
