@@ -121,7 +121,7 @@ const ProspectCard: React.FC<{
   filteredProspects: DraftProspect[];
   allProspects: DraftProspect[];
   selectedSortKey: string;
-}> = ({ prospect, filteredProspects, allProspects, selectedSortKey }) => {
+}> = ({ prospect, filteredProspects, }) => {
   // Find the actual rank of this prospect in the filtered and sorted list
   const actualRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
   
@@ -676,7 +676,7 @@ export default function NickDraftPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
+  const [selectedSortKey, ] = useState<string>('Actual Pick');
 
   // Check if device is mobile
   useEffect(() => {
@@ -729,63 +729,63 @@ export default function NickDraftPage() {
   };
 
   // Apply sorting to the filtered prospects
-  const sortedProspects = React.useMemo(() => {
-    const sortableProspects = [...filteredProspects];
+  // const sortedProspects = React.useMemo(() => {
+  //   const sortableProspects = [...filteredProspects];
     
-    if (!sortConfig) {
-      return sortableProspects;
-    }
+  //   if (!sortConfig) {
+  //     return sortableProspects;
+  //   }
 
-    sortableProspects.sort((a, b) => {
-      // Handle Rank column specially (it's not in the data)
-      if (sortConfig.key === 'Rank') {
-        return sortConfig.direction === 'ascending' ? 1 : -1;
-      }
+  //   sortableProspects.sort((a, b) => {
+  //     // Handle Rank column specially (it's not in the data)
+  //     if (sortConfig.key === 'Rank') {
+  //       return sortConfig.direction === 'ascending' ? 1 : -1;
+  //     }
       
-      let aValue = a[sortConfig.key as keyof DraftProspect];
-      let bValue = b[sortConfig.key as keyof DraftProspect];
+  //     let aValue = a[sortConfig.key as keyof DraftProspect];
+  //     let bValue = b[sortConfig.key as keyof DraftProspect];
 
-      // Handle specific columns
-      if (sortConfig.key === 'Actual Pick') {
-        // Convert to numbers for sorting
-        const aNum = parseInt(aValue as string) || 99; // Use 99 for undrafted
-        const bNum = parseInt(bValue as string) || 99;
-        return sortConfig.direction === 'ascending' 
-          ? aNum - bNum 
-          : bNum - aNum;
-      }
+  //     // Handle specific columns
+  //     if (sortConfig.key === 'Actual Pick') {
+  //       // Convert to numbers for sorting
+  //       const aNum = parseInt(aValue as string) || 99; // Use 99 for undrafted
+  //       const bNum = parseInt(bValue as string) || 99;
+  //       return sortConfig.direction === 'ascending' 
+  //         ? aNum - bNum 
+  //         : bNum - aNum;
+  //     }
       
-      // Handle Height (use Height (in) for sorting)
-      if (sortConfig.key === 'Height') {
-        const aInches = parseInt(a['Height (in)'] as string) || 0;
-        const bInches = parseInt(b['Height (in)'] as string) || 0;
-        return sortConfig.direction === 'ascending' 
-          ? aInches - bInches 
-          : bInches - aInches;
-      }
+  //     // Handle Height (use Height (in) for sorting)
+  //     if (sortConfig.key === 'Height') {
+  //       const aInches = parseInt(a['Height (in)'] as string) || 0;
+  //       const bInches = parseInt(b['Height (in)'] as string) || 0;
+  //       return sortConfig.direction === 'ascending' 
+  //         ? aInches - bInches 
+  //         : bInches - aInches;
+  //     }
 
-      // Handle Weight
-      if (sortConfig.key === 'Weight (lbs)') {
-        const aNum = parseInt(aValue as string) || 0;
-        const bNum = parseInt(bValue as string) || 0;
-        return sortConfig.direction === 'ascending' 
-          ? aNum - bNum 
-          : bNum - aNum;
-      }
+  //     // Handle Weight
+  //     if (sortConfig.key === 'Weight (lbs)') {
+  //       const aNum = parseInt(aValue as string) || 0;
+  //       const bNum = parseInt(bValue as string) || 0;
+  //       return sortConfig.direction === 'ascending' 
+  //         ? aNum - bNum 
+  //         : bNum - aNum;
+  //     }
 
-      // Default string comparison
-      if (aValue === undefined) aValue = '';
-      if (bValue === undefined) bValue = '';
+  //     // Default string comparison
+  //     if (aValue === undefined) aValue = '';
+  //     if (bValue === undefined) bValue = '';
       
-      if (sortConfig.direction === 'ascending') {
-        return String(aValue).localeCompare(String(bValue));
-      } else {
-        return String(bValue).localeCompare(String(aValue));
-      }
-    });
+  //     if (sortConfig.direction === 'ascending') {
+  //       return String(aValue).localeCompare(String(bValue));
+  //     } else {
+  //       return String(bValue).localeCompare(String(aValue));
+  //     }
+  //   });
     
-    return sortableProspects;
-  }, [filteredProspects, sortConfig]);
+  //   return sortableProspects;
+  // }, [filteredProspects, sortConfig]);
 
   // Render the table with sorting functionality
   const ProspectTable = ({
