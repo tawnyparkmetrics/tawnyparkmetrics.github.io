@@ -403,7 +403,6 @@ export default function TPMWriteUpPage() {
         </div>
       )
     },
-
     {
       id: 'data-use',
       title: 'Can I see your data and use it for my own analysis?',
@@ -414,6 +413,32 @@ export default function TPMWriteUpPage() {
           </p>
           <p className="mb-4">
             Ideally, should Tawny Park Metrics achieve financial viability from other sources of revenue, we would eventually offer the data for free. However, for the foreseeable future, it will remain behind a paywall, enabling us to continue producing basketball analysis and content.
+          </p>
+          </div>
+      )
+    },
+    {
+      id: 'age',
+      title: 'How do you account for age disparities?',
+      content: (
+        <div>
+          <p className="mb-4">
+            It&apos;s important to account for differences in prospects&apos; draft age, since it is often indicative of different stages of development and maturity. Intuitively, an 18-year-old freshman's statistical production should be interpreted differently than that of a 22-year-old senior, as they are at different stages of development. Generally, the better you can contextualize your data, the clearer view you&apos;ll have of each entry.
+          </p>
+          <p className="mb-4">
+            To accomplish this, I use a similar <strong>linear standardization</strong> process to level of competition. In standardizing entries to the average draft age in my dataset (21.06), I produce stats that show no correlation with age. This process is straightforward, but it&apos;s worth noting that I only adjust the  dataset by age after having already standardized the data by level of competition (the latter being more complex).
+          </p>
+          </div>
+      )
+    },
+
+    {
+      id: 'predictor-models',
+      title: 'What kind of predictors do you use for your models?',
+      content: (
+        <div>
+          <p className="mb-4">
+            I use predictors (aka features) that fall into one of <strong>five categories: draft age, size, athleticism, statistical production, or consensus.</strong> Primarily, my size and athleticism predictors are derived from Nick Kalinowski&apos;s <a href="https://njk11.pythonanywhere.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">combine score</a> tool. All production features, meanwhile, are standardized and engineered from the raw stats you can find on sites like Sports Reference or RealGM. Consensus, lastly, is measured through binary (0/1) indicators, such as whether a prospect is a projected lottery pick.
           </p>
           </div>
       )
