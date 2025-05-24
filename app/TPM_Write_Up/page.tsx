@@ -423,7 +423,7 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            It&apos;s important to account for differences in prospects&apos; draft age, since it is often indicative of different stages of development and maturity. Intuitively, an 18-year-old freshman's statistical production should be interpreted differently than that of a 22-year-old senior, as they are at different stages of development. Generally, the better you can contextualize your data, the clearer view you&apos;ll have of each entry.
+            It&apos;s important to account for differences in prospects&apos; draft age, since it is often indicative of different stages of development and maturity. Intuitively, an 18-year-old freshman&apos;s statistical production should be interpreted differently than that of a 22-year-old senior, as they are at different stages of development. Generally, the better you can contextualize your data, the clearer view you&apos;ll have of each entry.
           </p>
           <p className="mb-4">
             To accomplish this, I use a similar <strong>linear standardization</strong> process to level of competition. In standardizing entries to the average draft age in my dataset (21.06), I produce stats that show no correlation with age. This process is straightforward, but it&apos;s worth noting that I only adjust the  dataset by age after having already standardized the data by level of competition (the latter being more complex).

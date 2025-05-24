@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 //import ComingSoon from '../components/ui/ComingSoon';
 import NavigationHeader from '@/components/NavigationHeader';
 
@@ -14,11 +15,14 @@ export default function Home() {
         <div className="bg-[#19191A] border border-white/20 rounded-xl p-8">
           <div className="flex flex-col md:flex-row items-center gap-12">
             {/* Logo */}
-            <div className="flex-shrink-0">
-              <img
+            <div className="flex-shrink-0 relative">
+              <Image
                 src="/TPM_logo_designs/TPM Square (Dark with Map).png"
                 alt="TPM Logo"
+                width={224}  // 56 * 4 for md size
+                height={224} // 56 * 4 for md size
                 className="w-40 h-40 md:w-56 md:h-56"
+                priority // Add priority since this is above the fold
               />
             </div>
             
