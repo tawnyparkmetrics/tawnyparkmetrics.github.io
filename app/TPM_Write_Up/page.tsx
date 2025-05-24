@@ -404,20 +404,6 @@ export default function TPMWriteUpPage() {
       )
     },
     {
-      id: 'data-use',
-      title: 'Can I see your data and use it for my own analysis?',
-      content: (
-        <div>
-          <p className="mb-4">
-            <strong>Hopefully in the near future, yes.</strong> We would like to offer access to the data I use for my models (except the EPM data, which is not mine to share) as part of an upcoming subscription service. In doing so, subscribers could pursue their own draft analysis without having to source, standardize, and clean the data themselves – often the most time-intensive and tedious part of the data science process. Specifically, this will include access to the international and g-league BPM&apos;s I&apos;ve calculated, features I&apos;ve engineered, a &quot;raw&quot; copy of the dataset, and a copy standardized by both age and strength of competition.
-          </p>
-          <p className="mb-4">
-            Ideally, should Tawny Park Metrics achieve financial viability from other sources of revenue, we would eventually offer the data for free. However, for the foreseeable future, it will remain behind a paywall, enabling us to continue producing basketball analysis and content.
-          </p>
-          </div>
-      )
-    },
-    {
       id: 'age',
       title: 'How do you account for age disparities?',
       content: (
@@ -439,6 +425,20 @@ export default function TPMWriteUpPage() {
         <div>
           <p className="mb-4">
             I use predictors (aka features) that fall into one of <strong>five categories: draft age, size, athleticism, statistical production, or consensus.</strong> Primarily, my size and athleticism predictors are derived from Nick Kalinowski&apos;s <a href="https://njk11.pythonanywhere.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">combine score</a> tool. All production features, meanwhile, are standardized and engineered from the raw stats you can find on sites like Sports Reference or RealGM. Consensus, lastly, is measured through binary (0/1) indicators, such as whether a prospect is a projected lottery pick.
+          </p>
+          </div>
+      )
+    },
+    {
+      id: 'data-use',
+      title: 'Can I see your data and use it for my own analysis?',
+      content: (
+        <div>
+          <p className="mb-4">
+            <strong>Hopefully in the near future, yes.</strong> We would like to offer access to the data I use for my models (except the EPM data, which is not mine to share) as part of an upcoming subscription service. In doing so, subscribers could pursue their own draft analysis without having to source, standardize, and clean the data themselves – often the most time-intensive and tedious part of the data science process. Specifically, this will include access to the international and g-league BPM&apos;s I&apos;ve calculated, features I&apos;ve engineered, a &quot;raw&quot; copy of the dataset, and a copy standardized by both age and strength of competition.
+          </p>
+          <p className="mb-4">
+            Ideally, should Tawny Park Metrics achieve financial viability from other sources of revenue, we would eventually offer the data for free. However, for the foreseeable future, it will remain behind a paywall, enabling us to continue producing basketball analysis and content.
           </p>
           </div>
       )
