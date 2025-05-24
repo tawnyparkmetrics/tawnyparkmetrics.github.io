@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import NavigationHeader from '@/components/NavigationHeader';
 
 interface DropdownSectionProps {
@@ -11,16 +11,16 @@ interface DropdownSectionProps {
 }
 
 const DropdownSection = ({ title, children, isOpen, onToggle }: DropdownSectionProps) => (
-  <div className="border border-gray-700 rounded-lg bg-gray-800/50 backdrop-blur-sm">
+  <div className="border border-white/20 rounded-lg bg-[#19191A]">
     <button
       onClick={onToggle}
-      className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-700/30 transition-colors duration-200"
+      className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-white/5 transition-colors duration-200"
     >
       <h3 className="text-xl font-semibold text-white">{title}</h3>
       {isOpen ? (
-        <ChevronDown className="h-5 w-5 text-blue-400" />
+        <ChevronUp className="h-5 w-5 text-white/60" />
       ) : (
-        <ChevronRight className="h-5 w-5 text-gray-400" />
+        <ChevronDown className="h-5 w-5 text-white/60" />
       )}
     </button>
     {isOpen && (
@@ -201,7 +201,7 @@ export default function TPMWriteUpPage() {
       title: 'What are the limitations or weaknesses of your tiers model?',
       content: (
         <p>
-        As mentioned in &quot;How accurate are your tier projections?&quot;, the classification model is <strong>less adept at differentiating between adjacent tiers.</strong> Specifically, the model performs worst when trying to classify bigs as &quot;Solid Rotation&quot; vs &quot;Bench Reserve.&quot; In future work, I&apos;ll look to refine the tier definitions and explore alternative or ensemble classification algorithms (currently, XGBoost) to improve general predictive power and address position-tier performance deviations (ex. falloff when classifying bigs as &quot;Solid Rotation&quot; vs &quot;Bench Reserve&quot;).      
+          As mentioned in &quot;How accurate are your tier projections?&quot;, the classification model is <strong>less adept at differentiating between adjacent tiers.</strong> Specifically, the model performs worst when trying to classify bigs as &quot;Solid Rotation&quot; vs &quot;Bench Reserve.&quot; In future work, I&apos;ll look to refine the tier definitions and explore alternative or ensemble classification algorithms (currently, XGBoost) to improve general predictive power and address position-tier performance deviations (ex. falloff when classifying bigs as &quot;Solid Rotation&quot; vs &quot;Bench Reserve&quot;).      
         </p>
       )
     },
@@ -226,13 +226,50 @@ export default function TPMWriteUpPage() {
           Ok, so what are these ensemble models and why fifteen of them? To start, the EPM models are position-specific (different models for guards, wings, and bigs). Within those three position groups, I <strong>predict EPM production for each draft prospect&apos;s first five seasons in the NBA</strong> (the Y1-Y5 basketballs timeline). For any mathematicians out there who can follow, three times five equals fifteen. Better put, I output EPM model predictions for fifteen position-year subsets (rookie year guards through fifth year bigs). The 3Y and 5Y averages displayed on my board are, intuitively, the average and concatenate of those position-year subsets.
         </p>
         <p className="mb-4">
-          But why though? Logically, it would be simpler to use three ensemble models (one for each position group) that directly predicts average EPM. However, when I initially began developing a draft model that predicts EPM (to my knowledge, <strong>the first in the public sphere</strong>) I was attracted to the idea of tracking prospects&apos; year-over-year development in the NBA. Using my individual year EPM predictions, an NBA team could, in theory, understand how a <strong>recently drafted player is progressing relative to their expected EPM production.</strong> Hence, the hope is not only that my EPM model would help better inform draft decisions, but also player development.
+          But why though? Logically, it would be simpler to use three ensemble models (one for each position group) that directly predicts average EPM. However, when I initially began developing a draft model that predicts EPM (to my knowledge, <strong>the first in the public sphere</strong>) I was attracted to the idea of tracking prospects&apos; year-over-year development in the NBA. Using my individual year EPM predictions, an NBA team could, in theory, understand how a <strong>recently drafted player is progressing relative to their expected EPM production.</strong> Hence, the hope is not only that my EPM model would help better inform draft decisions, but also player development and rookie extension; I am actively exploring the best way to tie a second contract projection to the EPM model in the near future.
         </p>
         <p className="mb-4">
-          What individual models make up the ensembles? 
+          What individual models make up the ensembles? <strong>The ensembles are each composed of up to five different machine learning models, three non-linear – a random forest regressor, an XGBoost regressor, and an MLP regressor (neural network) – and two linear – ridge regression and support vector regression (svr).</strong> Each of these models is trained with optimal hyperparameters discovered via Randomized Search, tested using five-fold cross-validation, and analyzed through feature importance and learning curves. Therefore, in total, I train, test, and analyze 75 models (five individual models times each of the fifteen ensembles) to produce my EPM predictions. However, the way an ensemble works, is you take the weighted average of multiple model predictions to land at final, typically more accurate, output. In practice, not all five individual models always contribute to the final EPM ensemble, as any that don&apos;t improve predictive performance are omitted.
         </p>
         <p className="mb-4">
           Note, in part, I predict EPM across a prospect&apos;s first five seasons since the average NBA career lasts 4.5 years. However, since first-round draft picks sign four-year rookie-scale contracts, it potentially makes sense to switch to only four year projections in future work. If you&apos;re interested in a draft model that predicts average EPM directly across the duration of a prospects four year rookie contract, I highly recommend checking out Nick Kalinowski&apos;s big board.
+        </p>
+        </div>
+      )
+    },
+    {
+      id: 'accurate-epm',
+      title: 'How accurate are your EPM projections? (more coming soon)',
+      content: (
+        <div>
+        <p className="mb-4">
+          Predicting exact NBA EPM performance, using only data available before the draft, is extremely difficult. Across the fifteen position-year subsets, the <strong>models can typically predict EPM with an RMSE between 1.5 and 2</strong> (for reference, the &quot;real-life&quot; average NBA EPM is around -1 and generally varies from -7 to 9 each season). Naturally, the models are better at predicting EPM earlier in a player's career (when the overall variation is smaller). Going forward, I will simply refer to a singular &quot;EPM model&quot; or &quot;the model&quot;; for clarity, this is the aggregate of the fifteen position-year subset ensemble models and their predictions.
+        </p>
+        <p className="mb-4">
+          All things considered, the model&apos;s EPM predictive performance is only fair (valuable but far from perfect). The order in which the model ranks prospects, by predicted EPM, is far more impressive. I am working on a test and accompanying graphic that illustrates model performance vs the NBA in recent draft classes. This will compare the correlation between player EPM performance and their draft position (ex. prospect was selected eleventh) against the correlation between their EPM performance and the model&apos;s predicted EPM rank (ex. model ranked the prospect 8th best in the class). 
+        </p>
+        <p className="mb-4">
+          Furthermore, I will also indicate the predictive power of the combined tier and EPM model outputs. This will highlight how the model performs when prospects are ranked primarily by their predicted tier, and then ordered by their projected EPM within each tier – identical to the joint &quot;Tiers [lock]&quot; and &quot;5Y Avg&quot; view on my board.
+        </p>
+        </div>
+      )
+    },
+    {
+      id: 'weakness-epm',
+      title: 'What are the limitations or weaknesses of your EPM model?',
+      content: (
+        <div>
+        <p className="mb-4">
+          As mentioned in &quot;How accurate are your EPM projections?&quot;, <strong>the order in which the EPM model ranks prospects is generally more insightful than the exact predicted EPM values.</strong> Moreover, I&apos;ve also found that EPM rankings within position groups are more predictive than the model&apos;s overall aggregate rankings across all positions. Put simply, the EPM model is <strong>better suited for comparing players of the same position than ranking players from different positions against each other.</strong> In part, that&apos;s why I include position-specific EPM rankings on my draft board (not just &quot;Overall&quot; EPM rankings).
+        </p>
+        <p className="mb-4">
+          Another clear flaw is that the EPM model <strong>relies on the assumption that all draft prospects will make it, at least, five years in the NBA.</strong> This goes hand in hand with the model&apos;s positional biases. For instance, the model tends to overvalue bigs in year four and year five. To its credit, big-men who reach their fifth season, on average, tend to outperform fifth-year guards and wings in EPM. However, in reality, a high number of players drafted each year, including bigs, fail to last five seasons in the NBA.
+        </p>
+        <p className="mb-4">
+          Fortunately, the predictable nature of the model&apos;s errors makes them easier to account for when interpreting its results. Additionally, <strong>in many ways, the tiers model helps account for the EPM model&apos;s weaknesses.</strong> In particular, the tiers model exhibits minimal positional bias and, since it is influenced more heavily by consensus, tends to better account for differences in anticipated opportunity. Therefore, the tiers and EPM models complement each other well, proving more predictive together than when interpreted separately. 
+        </p>
+        <p className="mb-4">
+          I also recognize that a myriad of factors, both quantitative and qualitative, factor into NBA teams&apos; draft processes and NBA player outcomes. Thus, I developed all my draft analysis, especially the EPM model, with the intention of informing better draft decisions, rather than outsourcing them to an algorithm. In other words, <strong>my work is not intended to replace existing models and scouting practices but rather to supplement them.</strong>
         </p>
         </div>
       )
@@ -263,7 +300,7 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-          To measure the statistical similarity between a draft prospect and all the NBA players in my dataset, I use <strong>Euclidean distance.</strong> Essentially, this calculates how &quot;far apart&quot; two players are based on their draft age, size, athleticism, and statistical production. I then convert the Euclidean distancesinto a more intuitive similarity percentage using an <strong>exponential decay</strong> function, ensuring that only truly close comparisons yield high similarity scores. For any data scientists or statisticians, I tested player-comps with Cosine similarity as well, but found the magnitude similarity in draft profiles more insightful than similarity in patterns or proportions.
+            To measure the statistical similarity between a draft prospect and all the NBA players in my dataset, I use <strong>Euclidean distance.</strong> Essentially, this calculates how &quot;far apart&quot; two players are based on their draft age, size, athleticism, and statistical production. I then convert the Euclidean distancesinto a more intuitive similarity percentage using an <strong>exponential decay</strong> function, ensuring that only truly close comparisons yield high similarity scores. For any data scientists or statisticians, I tested player-comps with Cosine similarity as well, but found the magnitude similarity in draft profiles more insightful than similarity in patterns or proportions.
           </p>
           <p className="mb-4">
             Ultimately, this process results in player-comparisons that are <strong>more indicative of prospect-caliber than style of play.</strong> While the comps can highlight a solid range of potential NBA outcomes, they don&apos;t necessarily reveal how each prospect will reach those levels. Take Stephon Castle, for example, who&apos;s most favorable player comp was Tyrese Maxey. While they bear some similarity as prospects and Maxey could represent a high percentile outcome, it doesn&apos;t ensure that Castle will play the same way as Maxey (i.e. Stephon could end up a similar caliber guard, but with noticeably different tendencies).
@@ -275,7 +312,7 @@ export default function TPMWriteUpPage() {
             Since my dataset only includes draft eligible players who&apos;ve entered the league since 2013, the potential player comps are constrained to that subset. Rather than offering historic comparisons from all players in NBA history, my board limits <strong>statistical similarity only to players from the &quot;modern&quot; era,</strong> credited as <a href="https://statds.org/events/ucsas2020/posters/ucsas-4-UCSAS_Poster_-_Joao_Vitor_Rocha_da_Silva_and_Paulo_Canas_Rodrigues.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">originating around the 2013-14 season.</a>
           </p>
           <p className="mb-4">
-          For further context, this era is often characterized by terms such as &quot;pace and space,&quot; high or constant &quot;motion,&quot; and &quot;small ball.&quot; Predominantly, this period was pioneered by the 2011-2014 Miami Heat, inspired by the 2004-2007 &quot;seven seconds or less&quot; Phoenix Suns, and evolved by the 2015-2019 Golden State Warriors.
+            For further context, this era is often characterized by terms such as &quot;pace and space,&quot; high or constant &quot;motion,&quot; and &quot;small ball.&quot; Predominantly, this period was pioneered by the 2011-2014 Miami Heat, inspired by the 2004-2007 &quot;seven seconds or less&quot; Phoenix Suns, and evolved by the 2015-2019 Golden State Warriors.
           </p>
         </div>
       )
@@ -468,8 +505,8 @@ export default function TPMWriteUpPage() {
         Lastly, thanks to <strong>Josh Lloyd</strong> (<a href="https://x.com/redrock_bball?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@redrock_bball on X</a>) who&apos;s draft content first inspired me to pursue my own.
       </p>
 
-      </div>
-    )
+        </div>
+      )
     },
     {
       id: 'about-max',
@@ -486,19 +523,12 @@ export default function TPMWriteUpPage() {
     <div className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="" />
       
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
             FAQs
           </h1>
           <p className="text-gray-300 mb-4">Learn about my draft model & analysis via frequently asked questions</p>
-          {/* <Link 
-            href="/TPM_Draft_Page"
-            className="inline-flex items-center px-6 py-3 text-lg font-medium text-white bg-blue-500/20 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition-colors duration-200"
-          >
-            See the Draft Board Here
-            <ChevronRight className="ml-2 h-5 w-5" />
-          </Link> */}
         </div>
 
         <div className="space-y-4">

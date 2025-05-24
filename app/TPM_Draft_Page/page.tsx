@@ -1837,21 +1837,15 @@ const ProspectCard: React.FC<{
       if (!isNaN(pickNumber) && pickNumber <= 58) {
         return pickNumber;
       } else {
-        // For UDFAs, count only UDFAs up to this player
-        const udfaCount = filteredProspects
-          .filter(p => {
-            const pPick = Number(p['Actual Pick']);
-            return isNaN(pPick) || pPick > 58;
-          })
-          .findIndex(p => p.Name === prospect.Name);
-        return udfaCount + 59; // Start UDFA numbering from 59
+        // For UDFAs, return "UDFA" instead of a number
+        return "UDFA";
       }
     } else {
       // For other sorting methods, use the array index
       const index = filteredProspects.findIndex(p => p.Name === prospect.Name);
       return index + 1;
     }
-  }, [prospect, filteredProspects, selectedSortKey, pickNumber]); // Remove prospect.Name and prospect['Actual Pick']
+  }, [prospect, filteredProspects, selectedSortKey, pickNumber]);
 
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
