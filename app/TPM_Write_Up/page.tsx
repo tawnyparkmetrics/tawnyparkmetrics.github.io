@@ -544,7 +544,7 @@ export default function TPMWriteUpPage() {
       title: 'Who is Max Savin and how can I contact him?',
       content: (
         <p>
-          I am a business and data science graduate from NYU Stern School of Business (class of 2024) looking to tie my obsession with sports to my profession. You can reach me at mes9950@stern.nyu.edu or find me on X <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@supersayansavin</a>.
+          I am a business and data science graduate from NYU Stern School of Business (class of 2024) looking to tie my obsession with sports to my profession. Before basketball, I honed my data science skills with NASA and <a href="https://www.chooselivin.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">Livin.</a> You can reach me at mes9950@stern.nyu.edu or find me on X <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@supersayansavin</a>.
         </p>
       )
     }
