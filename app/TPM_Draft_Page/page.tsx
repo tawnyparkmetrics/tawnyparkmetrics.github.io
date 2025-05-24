@@ -1849,7 +1849,7 @@ const ProspectCard: React.FC<{
       const index = filteredProspects.findIndex(p => p.Name === prospect.Name);
       return index + 1;
     }
-  }, [prospect.Name, filteredProspects, selectedSortKey, prospect['Actual Pick']]);
+  }, [prospect.Name, filteredProspects, selectedSortKey, prospect['Actual Pick'], prospect]);
 
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
