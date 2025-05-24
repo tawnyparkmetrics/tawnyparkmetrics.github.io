@@ -173,10 +173,10 @@ export default function TPMWriteUpPage() {
             Initially, I use an XGBoost (Extreme Gradient Boosting) model – a supervised machine learning algorithm – to predict the <strong>probability</strong> a prospect falls into each of the original tiers, (All-NBA, Fringe All-Star, Quality Starter, etc.). The XGBoost model is trained/tested using five fold cross-validation and its parameters are optimized through Randomized Search.
           </p>
           <p className="mb-4">
-            I then derive additional probabilities for the four broader tier groupings: Good, Decent, and Rotation (Fringe-NBA remains the same, of course). For instance, a player’s probability of being ‘Good’ is simply the sum of their probabilities for ‘All-Time Great,’ ‘All-NBA,’ ‘Fringe All-Star,’ and ‘Quality Starter.’ I find combining these results with the original tier probabilities, ultimately, best informs the final classification decisions. This combined approach of granular and aggregate probabilities forms the <strong>‘multi-stage’</strong> aspect of the probabilistic classifier. 
+            I then derive additional probabilities for the four broader tier groupings: Good, Decent, and Rotation (Fringe-NBA remains the same, of course). For instance, a player&apos;s probability of being &quot;Good&quot; is simply the sum of their probabilities for &quot;All-Time Great,&quot; &quot;All-NBA,&quot; &quot;Fringe All-Star,&quot; and &quot;Quality Starter.&quot; I find combining these results with the original tier probabilities, ultimately, best informs the final classification decisions. This combined approach of granular and aggregate probabilities forms the <strong>&apos;multi-stage&apos;</strong> aspect of the probabilistic classifier. 
           </p>
           <p className='mb-4'>
-            Notably, the XGBoost model results in a valuable intermediary output: the <strong>probability distribution of different player outcomes for each prospect</strong> – offering a view of risk versus reward. It’s like considering the floor/ceiling of prospects if you knew, roughly, how likely they were to reach that ceiling or fall to that floor. In future work, I will try to display these probabilities on the site as well.
+            Notably, the XGBoost model results in a valuable intermediary output: the <strong>probability distribution of different player outcomes for each prospect</strong> – offering a view of risk versus reward. It&apos;s like considering the floor/ceiling of prospects if you knew, roughly, how likely they were to reach that ceiling or fall to that floor. In future work, I will try to display these probabilities on the site as well.
           </p>
           <p className="mb-4">
             To determine final tier designations, I use the probability cutoffs that minimize error (&quot;optimal decision-thresholds&quot;). For instance, the model classifies wings with at least a 36% probability of being &quot;Good&quot; and a 10% chance of being &quot;All-NBA Caliber&quot; as All-NBA Caliber. While classifying a player as &quot;All-NBA Caliber&quot; when they supposedly only have a 10% chance seems counterintuitive, the probabilities are all relative. A 10% probability of being an &quot;All-NBA Caliber&quot; player is relatively high for wing prospects. 
@@ -201,7 +201,7 @@ export default function TPMWriteUpPage() {
       title: 'What are the limitations or weaknesses of your tiers model?',
       content: (
         <p>
-        As mentioned in &quot;How accurate are your tier projections?&quot;, the classification model is <strong>less adept at differentiating between adjacent tiers.</strong> Specifically, the model performs worst when trying to classify bigs as &quot;Solid Rotation&quot; vs &quot;Bench Reserve.&quot; In future work, I’ll look to refine the tier definitions and explore alternative or ensemble classification algorithms (currently, XGBoost) to improve general predictive power and address position-tier performance deviations (ex. falloff when classifying bigs as “Solid Rotation” vs “Bench Reserve”).        </p>
+        As mentioned in &quot;How accurate are your tier projections?&quot;, the classification model is <strong>less adept at differentiating between adjacent tiers.</strong> Specifically, the model performs worst when trying to classify bigs as &quot;Solid Rotation&quot; vs &quot;Bench Reserve.&quot; In future work, I&apos;ll look to refine the tier definitions and explore alternative or ensemble classification algorithms (currently, XGBoost) to improve general predictive power and address position-tier performance deviations (ex. falloff when classifying bigs as &quot;Solid Rotation&quot; vs &quot;Bench Reserve&quot;).        </p>
       )
     },
     {
@@ -222,30 +222,30 @@ export default function TPMWriteUpPage() {
           After standardizing my dataset by both age and level of competition, I then normalize features (predictor variables) into z-scores. With my data both standardized and normalized, I train and test the <strong>15 ensemble models</strong> that make up my EPM projections.
         </p>
         <p className="mb-4">
-          Ok, so what are these ensemble models and why fifteen of them? To start, the EPM models are position-specific (different models for guards, wings, and bigs). Within those three position groups, I <strong>predict EPM production for each draft prospect’s first five seasons in the NBA</strong> (the Y1-Y5 basketballs timeline). For any mathematicians out there who can follow, three times five equals fifteen. Better put, I output EPM model predictions for fifteen position-year subsets (rookie year guards through fifth year bigs). The 3Y and 5Y averages displayed on my board are, intuitively, the average and concatenate of those position-year subsets.
+          Ok, so what are these ensemble models and why fifteen of them? To start, the EPM models are position-specific (different models for guards, wings, and bigs). Within those three position groups, I <strong>predict EPM production for each draft prospect&apos;s first five seasons in the NBA</strong> (the Y1-Y5 basketballs timeline). For any mathematicians out there who can follow, three times five equals fifteen. Better put, I output EPM model predictions for fifteen position-year subsets (rookie year guards through fifth year bigs). The 3Y and 5Y averages displayed on my board are, intuitively, the average and concatenate of those position-year subsets.
         </p>
         <p>
-          But why though? Logically, it would be simpler to use three ensemble models (one for each position group) that directly predicts average EPM. However, when I initially began developing a draft model that predicts EPM (to my knowledge, <strong>the first in the public sphere</strong>) I was attracted to the idea of tracking prospects’ year-over-year development in the NBA. Using my individual year EPM predictions, an NBA team could, in theory, understand how a <strong>recently drafted player is progressing relative to their expected EPM production.</strong> Hence, the hope is not only that my EPM model would help better inform draft decisions, but also player development.
+          But why though? Logically, it would be simpler to use three ensemble models (one for each position group) that directly predicts average EPM. However, when I initially began developing a draft model that predicts EPM (to my knowledge, <strong>the first in the public sphere</strong>) I was attracted to the idea of tracking prospects&apos; year-over-year development in the NBA. Using my individual year EPM predictions, an NBA team could, in theory, understand how a <strong>recently drafted player is progressing relative to their expected EPM production.</strong> Hence, the hope is not only that my EPM model would help better inform draft decisions, but also player development.
         </p>
         </div>
       )
     },
     {
       id: 'position',
-      title: "How do you determine a prospect's position/role?",
+      title: "How do you determine a prospect&apos;s position/role?",
       content: (
         <div>
           <p className="mb-4">
-            When Brad Stephens coached the Boston Celtics, he helped popularize a shift from the traditional five positions to three: <a href="http://basketballgrowthmindset.com/brad-stevens-3-position-lineup-philosophy/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">ball-handlers, wings, and bigs.</a> While that framework isn’t perfect, it does better align with a game that is increasingly “positionless.” Unlike other sports, basketball players don’t always occupy a predetermined spot or role – there’s no perfect equivalent to playing, for example, catcher in baseball or tight end in football. Inevitably, that makes designations for position-specific projections difficult and unstandardized. Two scouts can, reasonably, each project the same prospect to play different positions in the NBA.
+            When Brad Stephens coached the Boston Celtics, he helped popularize a shift from the traditional five positions to three: <a href="http://basketballgrowthmindset.com/brad-stevens-3-position-lineup-philosophy/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">ball-handlers, wings, and bigs.</a> While that framework isn&apos;t perfect, it does better align with a game that is increasingly &quot;positionless.&quot; Unlike other sports, basketball players don&apos;t always occupy a predetermined spot or role – there&apos;s no perfect equivalent to playing, for example, catcher in baseball or tight end in football. Inevitably, that makes designations for position-specific projections difficult and unstandardized. Two scouts can, reasonably, each project the same prospect to play different positions in the NBA.
           </p>
           <p className="mb-4">
-            Following the trend, I too designate players as guards (primary ball-handlers), wings, or bigs. For clear point guards, small-forwards, and centers, that’s fairly straightforward. However, for shooting-guards and power forwards, where you see greater variation, I try to use a “rounding” approach. <strong>If a prospect is primarily a shooting guard, will they play secondarily as (i.e. are they closer to) a point guard (guard) or a small forward (wing)? Similarly, if a prospect is primarily a power forward, will they play secondarily as (i.e. are they closer to) a small forward (wing) or a center (big)?</strong> More often than not, this approach results in “rounding-up” (shooting guards classified as wings and power forwards classified as bigs). 
+            Following the trend, I too designate players as guards (primary ball-handlers), wings, or bigs. For clear point guards, small-forwards, and centers, that&apos;s fairly straightforward. However, for shooting-guards and power forwards, where you see greater variation, I try to use a &quot;rounding&quot; approach. <strong>If a prospect is primarily a shooting guard, will they play secondarily as (i.e. are they closer to) a point guard (guard) or a small forward (wing)? Similarly, if a prospect is primarily a power forward, will they play secondarily as (i.e. are they closer to) a small forward (wing) or a center (big)?</strong> More often than not, this approach results in &quot;rounding-up&quot; (shooting guards classified as wings and power forwards classified as bigs). 
           </p>
           <p className="mb-4">
-            While, by now, this is a widespread concept, I find it’s still worth reiterating. Moreover, <strong>designating prospects as guards, wings, and bigs (rather than 1-5) yields larger training sets for position-specific models which, in turn, produces better test performance.</strong> Generally, the more data you can use to train your model the better it will predict.
+            While, by now, this is a widespread concept, I find it&apos;s still worth reiterating. Moreover, <strong>designating prospects as guards, wings, and bigs (rather than 1-5) yields larger training sets for position-specific models which, in turn, produces better test performance.</strong> Generally, the more data you can use to train your model the better it will predict.
           </p>
           <p className="mb-4">
-            However, if there is a specific prospect who’s position designation you disagree with, feel free to reach out to me, and I will do my best to let you know how they project in an alternative role.
+            However, if there is a specific prospect who&apos;s position designation you disagree with, feel free to reach out to me, and I will do my best to let you know how they project in an alternative role.
           </p>
         </div>
       )
@@ -256,16 +256,16 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-          To measure the statistical similarity between a draft prospect and all the NBA players in my dataset, I use <strong>Euclidean distance.</strong> Essentially, this calculates how “far apart” two players are based on their draft age, size, athleticism, and statistical production. I then convert the Euclidean distancesinto a more intuitive similarity percentage using an <strong>exponential decay</strong> function, ensuring that only truly close comparisons yield high similarity scores. For any data scientists or statisticians, I tested player-comps with Cosine similarity as well, but found the magnitude similarity in draft profiles more insightful than similarity in patterns or proportions.
+          To measure the statistical similarity between a draft prospect and all the NBA players in my dataset, I use <strong>Euclidean distance.</strong> Essentially, this calculates how &quot;far apart&quot; two players are based on their draft age, size, athleticism, and statistical production. I then convert the Euclidean distancesinto a more intuitive similarity percentage using an <strong>exponential decay</strong> function, ensuring that only truly close comparisons yield high similarity scores. For any data scientists or statisticians, I tested player-comps with Cosine similarity as well, but found the magnitude similarity in draft profiles more insightful than similarity in patterns or proportions.
           </p>
           <p className="mb-4">
-            Ultimately, this process results in player-comparisons that are <strong>more indicative of prospect-caliber than style of play.</strong> While the comps can highlight a solid range of potential NBA outcomes, they don’t necessarily reveal how each prospect will reach those levels. Take Stephon Castle, for example, who’s most favorable player comp was Tyrese Maxey. While they bear some similarity as prospects and Maxey could represent a high percentile outcome, it doesn’t ensure that Castle will play the same way as Maxey (i.e. Stephon could end up a similar caliber guard, but with noticeably different tendencies).
+            Ultimately, this process results in player-comparisons that are <strong>more indicative of prospect-caliber than style of play.</strong> While the comps can highlight a solid range of potential NBA outcomes, they don&apos;t necessarily reveal how each prospect will reach those levels. Take Stephon Castle, for example, who&apos;s most favorable player comp was Tyrese Maxey. While they bear some similarity as prospects and Maxey could represent a high percentile outcome, it doesn&apos;t ensure that Castle will play the same way as Maxey (i.e. Stephon could end up a similar caliber guard, but with noticeably different tendencies).
           </p>
           <p className="mb-4">
-            Frankly, I find the traditional “style of play” comps more intriguing (ex. who will Donovan Clingan’s NBA game mirror?). However, those typically lend themselves better to a more film-reliant approach (ex. who does Clingan remind you of when you watch him at UConn). Whereas, data helps discern just how similar a draft prospect is to a possible NBA comp. (ex. about how similar is Clingan to, say, Walker Kessler?). In future work, I’ll consider pairing these two concepts – style of play comps contextualized using percentage similarity.
+            Frankly, I find the traditional &quot;style of play&quot; comps more intriguing (ex. who will Donovan Clingan&apos;s NBA game mirror?). However, those typically lend themselves better to a more film-reliant approach (ex. who does Clingan remind you of when you watch him at UConn). Whereas, data helps discern just how similar a draft prospect is to a possible NBA comp. (ex. about how similar is Clingan to, say, Walker Kessler?). In future work, I&apos;ll consider pairing these two concepts – style of play comps contextualized using percentage similarity.
           </p>
           <p className="mb-4">
-            Since my dataset only includes draft eligible players who’ve entered the league since 2013, the potential player comps are constrained to that subset. Rather than offering historic comparisons from all players in NBA history, my board limits <strong>statistical similarity only to players from the &quot;modern&quot; era,</strong> credited as <a href="https://statds.org/events/ucsas2020/posters/ucsas-4-UCSAS_Poster_-_Joao_Vitor_Rocha_da_Silva_and_Paulo_Canas_Rodrigues.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">originating around the 2013-14 season.</a>
+            Since my dataset only includes draft eligible players who&apos;ve entered the league since 2013, the potential player comps are constrained to that subset. Rather than offering historic comparisons from all players in NBA history, my board limits <strong>statistical similarity only to players from the &quot;modern&quot; era,</strong> credited as <a href="https://statds.org/events/ucsas2020/posters/ucsas-4-UCSAS_Poster_-_Joao_Vitor_Rocha_da_Silva_and_Paulo_Canas_Rodrigues.pdf" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">originating around the 2013-14 season.</a>
           </p>
           <p className="mb-4">
           For further context, this era is often characterized by terms such as &quot;pace and space,&quot; high or constant &quot;motion,&quot; and &quot;small ball.&quot; Predominantly, this period was pioneered by the 2011-2014 Miami Heat, inspired by the 2004-2007 &quot;seven seconds or less&quot; Phoenix Suns, and evolved by the 2015-2019 Golden State Warriors.
@@ -279,10 +279,10 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            The skills graphs are a visual representation of different aspects of prospect profiles. Specifically, they include size, athleticism, defense, rebounding, scoring, passing, shooting, and efficiency. These “skills” are <strong>data values converted to 0-100 percentiles,</strong> by role. 
+            The skills graphs are a visual representation of different aspects of prospect profiles. Specifically, they include size, athleticism, defense, rebounding, scoring, passing, shooting, and efficiency. These &quot;skills&quot; are <strong>data values converted to 0-100 percentiles,</strong> by role. 
           </p>
           <p className="mb-4">
-            Therefore, the skills graphs are <strong>not comparable across different positions.</strong> For instance, while Quentin Post profiled as a 99th percentile shooter relative to all bigs in my dataset, he is not quite a 99th percentile shooter relative to all draft prospects of any position. Similarly, while Tyler Smith profiled as a 28th percentile big in size, at 6'9" without shoes, he’s obviously better than 28th percentile in size relative to all draft prospects of any position.
+            Therefore, the skills graphs are <strong>not comparable across different positions.</strong> For instance, while Quentin Post profiled as a 99th percentile shooter relative to all bigs in my dataset, he is not quite a 99th percentile shooter relative to all draft prospects of any position. Similarly, while Tyler Smith profiled as a 28th percentile big in size, at 6&apos;9&quot; without shoes, he&apos;s obviously better than 28th percentile in size relative to all draft prospects of any position.
           </p>
           <p className="mb-4">
             In almost all cases, these &quot;skills&quot; are a compilation of multiple stats and measurements. Additionally, <strong>if applicable, each individual stat that composes these aggregate skill ratings are standardized by age and level of competition.</strong>
@@ -295,7 +295,7 @@ export default function TPMWriteUpPage() {
     },
     {
       id: 'limitations',
-      title: "Are there any prospects you can't project?",
+      title: "Are there any prospects you can&apos;t project?",
       content: (
         <p>
           Unfortunately, <strong>yes; in rare cases, model projections for certain prospects are largely uninformative.</strong> For example, last year we only had access to data for Ulrich Chomche – selected 57th in the 2024 draft – from three games in NBA Academy Africa. While Chomche showcased tons of promise in these games, <strong>a stats-based model is not the best approach for evaluating prospects with an abnormally small sample size.</strong> This extends to all prospects with severe data limitations due to league type (ex. Overtime Elite) or injury (ex. Michael Porter Jr.).
@@ -308,7 +308,7 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            <strong>Hopefully in the near future, yes.</strong> We would like to offer access to the data I use for my models (except the EPM data, which is not mine to share) as part of an upcoming subscription service. In doing so, subscribers could pursue their own draft analysis without having to source, standardize, and clean the data themselves – often the most time-intensive and tedious part of the data science process. Specifically, this will include access to the international and g-league BPM’s I’ve calculated, features I’ve engineered, a &quot;raw&quot; copy of the dataset, and a copy standardized by both age and strength of competition.
+            <strong>Hopefully in the near future, yes.</strong> We would like to offer access to the data I use for my models (except the EPM data, which is not mine to share) as part of an upcoming subscription service. In doing so, subscribers could pursue their own draft analysis without having to source, standardize, and clean the data themselves – often the most time-intensive and tedious part of the data science process. Specifically, this will include access to the international and g-league BPM&apos;s I&apos;ve calculated, features I&apos;ve engineered, a &quot;raw&quot; copy of the dataset, and a copy standardized by both age and strength of competition.
           </p>
           <p className="mb-4">
             Ideally, should Tawny Park Metrics achieve financial viability from other sources of revenue, we would eventually offer the data for free. However, for the foreseeable future, it will remain behind a paywall, enabling us to continue producing basketball analysis and content.
@@ -328,7 +328,7 @@ export default function TPMWriteUpPage() {
             <strong>The rankings you see on my page are not a perfect reflection of my personal opinion of prospects.</strong> While there are certain instances in which my tier and/or EPM model align with my subjective view of a player, there are plenty of cases in which they differ. For instance, in the 2024 draft I felt more confident than the EPM model on Stephon Castle, Rob Dillingham, & Tyler Smith, and less so on Zach Edey, Donovan Clingan, & Devin Carter.
           </p>
           <p className="mb-4">
-            However, if either the tier or EPM model (or their aggregate) differ dramatically from your own perspective and you would like to better understand why, reach out to me <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@supersayansavin on X</a> and I can try to offer a reasonable explanation. <strong>The skills graphs</strong> (spider charts), in particular, can also <strong>help reveal where my data might be under/over-rating a prospect’s skill set</strong> relative to general consensus.
+            However, if either the tier or EPM model (or their aggregate) differ dramatically from your own perspective and you would like to better understand why, reach out to me <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@supersayansavin on X</a> and I can try to offer a reasonable explanation. <strong>The skills graphs</strong> (spider charts), in particular, can also <strong>help reveal where my data might be under/over-rating a prospect&apos;s skill set</strong> relative to general consensus.
           </p>
           <p className="mb-4">
             <strong>In future work, I hope to add a write-up to each prospect card that will help contextualize model results,</strong> addressing the reasoning behind a projection and ways it could be wrong.
@@ -342,16 +342,16 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            <strong>Yes,</strong> I try to watch and learn as much about each prospect – qualitatively – as I can, <strong>but it does not factor into any of my models’ output</strong> (i.e. what you see on my big board). While I love watching college, international, g-league, and NBA hoops, I don’t, yet, feel compelled to publish my own personal opinion on prospects. 
+            <strong>Yes,</strong> I try to watch and learn as much about each prospect – qualitatively – as I can, <strong>but it does not factor into any of my models&apos; output</strong> (i.e. what you see on my big board). While I love watching college, international, g-league, and NBA hoops, I don&apos;t, yet, feel compelled to publish my own personal opinion on prospects. 
           </p>
           <p className="mb-4">
-            For one, there is already a plethora of high quality, more conventional, scouting published online. Moreover, while I’ve followed the NBA and college basketball my whole life, <strong>there’s still a lot I have to learn.</strong> It’s remarkable how much transpires possession to possession, that if you’re not watching closely, completely flies over your head. 
+            For one, there is already a plethora of high quality, more conventional, scouting published online. Moreover, while I&apos;ve followed the NBA and college basketball my whole life, <strong>there&apos;s still a lot I have to learn.</strong> It&apos;s remarkable how much transpires possession to possession, that if you&apos;re not watching closely, completely flies over your head. 
           </p>
           <p className="mb-4">
             Nevertheless, I do recognize the value of &quot;watching games.&quot; And, therefore, possibly in the future I will put out a more hybrid board that balances model output with my own opinion (objectivity with subjectivity – quantitative with qualitative).
           </p>
           <p className="mb-4">
-            Certainly, <strong>I encourage you <a className="underline">not</a> to take my pure-model board as definitive and, instead, simply consider where it differs/aligns with your own perspective and – more importantly – why.</strong> Additionally, if model or “stats-heavy” draft boards are just not for you, I can respect that; we are actively looking to add more qualitative (film-reliant) draft boards to the site as well.
+            Certainly, <strong>I encourage you <a className="underline">not</a> to take my pure-model board as definitive and, instead, simply consider where it differs/aligns with your own perspective and – more importantly – why.</strong> Additionally, if model or &quot;stats-heavy&quot; draft boards are just not for you, I can respect that; we are actively looking to add more qualitative (film-reliant) draft boards to the site as well.
           </p>
         </div>
       )
@@ -362,7 +362,7 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            I began working on the original EPM draft model two years ago and have since spent at least <strong>1000 hours</strong>1 developing and iterating all that constitutes my board. If you know what you&apos;re doing, it doesn&apos;t take too much time to build a draft model. But it takes a mind-boggling amount of time to build one well.
+            I began working on the original EPM draft model two years ago and have since spent at least <strong>1000 hours</strong> developing and iterating all that constitutes my board. If you know what you&apos;re doing, it doesn&apos;t take too much time to build a draft model. But it takes a mind-boggling amount of time to build one well.
           </p>
           <p className="mb-4">
             Despite my efforts, only additional time will tell if the resources I&apos;ve built are all that predictive. You can&apos;t truly prove model efficacy or performance until deployment. And, naturally, as basketball evolves so should the tools you use to evaluate it. With that in mind, I expect to always be developing and iterating my approach to the draft, including statistical models, for as long as I can.
@@ -375,7 +375,7 @@ export default function TPMWriteUpPage() {
       title: 'Why does your board look so nice visually?',
       content: (
         <p className="mb-4">
-          The one-and-only, <strong>Bala Ravikumar</strong> is responsible for programming all the visually striking draft boards across the site, including my own. We have worked extensively together to “get the design right” and iron out small details, leading to draft boards that we hope you will enjoy browsing. Please let us know if you have any design feedback or suggestions. While we are pleased with the current look of the site, we’re always trying to make improvements.
+          The one-and-only, <strong>Bala Ravikumar</strong> is responsible for programming all the visually striking draft boards across the site, including my own. We have worked extensively together to &quot;get the design right&quot; and iron out small details, leading to draft boards that we hope you will enjoy browsing. Please let us know if you have any design feedback or suggestions. While we are pleased with the current look of the site, we&apos;re always trying to make improvements.
         </p>
       )
     },
@@ -394,10 +394,10 @@ export default function TPMWriteUpPage() {
         Moreover, my models heavily rely on the work of <strong>Taylor Snarr,</strong> the creator of EPM and formerly with the Utah Jazz, and <strong>Layne Varsho,</strong> who published his research on <a href="https://fansided.com/2015/11/06/deep-dives-measuring-level-of-competition-around-the-world/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">how production from leagues around the world translates to the NBA,</a> currently with the Denver Nuggets.  
       </p>
       <p className="mb-4">
-        Thank you to <strong>Mike Gribanov</strong> (<a href="https://x.com/mikegrib8?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@mikegrib8 on X</a>) for his feedback and input, as well as all the members of the NBA draft group chat he added me to (ifykyk). It’s hard not to learn more about basketball when you’re spammed with hundreds of messages a day about the sport. 
+        Thank you to <strong>Mike Gribanov</strong> (<a href="https://x.com/mikegrib8?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@mikegrib8 on X</a>) for his feedback and input, as well as all the members of the NBA draft group chat he added me to (ifykyk). It&apos;s hard not to learn more about basketball when you&apos;re spammed with hundreds of messages a day about the sport. 
       </p>
       <p className="mb-4">
-        Lastly, thanks to <strong>Josh Lloyd</strong> (<a href="https://x.com/redrock_bball?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@redrock_bball on X</a>) who’s draft content first inspired me to pursue my own.
+        Lastly, thanks to <strong>Josh Lloyd</strong> (<a href="https://x.com/redrock_bball?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@redrock_bball on X</a>) who&apos;s draft content first inspired me to pursue my own.
       </p>
 
       </div>
