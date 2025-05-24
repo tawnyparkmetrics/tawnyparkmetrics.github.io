@@ -66,7 +66,7 @@ export default function Home() {
             <p className="text-gray-400 mb-4">
               Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" className="text-blue-400 hover:text-blue-300 transition-colors">@kalidrafts</a>&apos;s model, which ranks prospects by predicted EPM across the length of their rookie contract using up to 535 unique predictors.
             </p>
-            <Link href="/TPM_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
+            <Link href="/Nick_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
               <span className="text-sm font-medium">View Draft Board</span>
               <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
