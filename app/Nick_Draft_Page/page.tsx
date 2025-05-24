@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { LucideUser, X, ChevronDown, Filter} from 'lucide-react';
+import { LucideUser, X, ChevronDown, SlidersHorizontal} from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
@@ -480,21 +480,42 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
   return (
     <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
-      {/* Mobile Filter Toggle Button */}
+      {/* Mobile Initial Filter Section */}
       <div className="sm:hidden px-4 py-3">
-        <motion.button
-          onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-          className="w-full flex items-center justify-center bg-gray-800/20 text-gray-300 border border-gray-800 rounded-lg py-2"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Filter className="mr-2 h-5 w-5" />
-          {isMobileFilterOpen ? 'Close Filters' : 'Open Filters'}
-          <ChevronDown className={`ml-2 h-5 w-5 transform transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`} />
-        </motion.button>
+        <div className="flex items-center justify-between gap-2">
+          {/* Filter Toggle Button - Left Side */}
+          <motion.button
+            onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+            className="flex items-center bg-gray-800/20 text-gray-300 border border-gray-800 rounded-lg px-3 py-2 text-sm"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <SlidersHorizontal className="mr-1 h-4 w-4" />
+            Filters
+            <ChevronDown className={`ml-1 h-4 w-4 transform transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`} />
+          </motion.button>
+
+          {/* View Mode Toggle - Right Side */}
+          <motion.button
+            onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
+            className={`
+              px-3 py-2 rounded-lg text-sm font-medium flex items-center
+              transition-all duration-300
+              ${viewMode === 'table'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <TableIcon className="mr-1 h-4 w-4" />
+            {viewMode === 'card' ? 'Table View' : 'Card View'}
+          </motion.button>
+        </div>
       </div>
 
-      {/* Filter Content (Desktop and Mobile) */}
+      {/* Filter Content (Desktop and Mobile Dropdown) */}
       <div className={`
         px-4 py-3 
         sm:grid sm:grid-cols-[1fr_auto] sm:gap-4 
@@ -532,11 +553,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
         <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
           {/* Mobile Only: League Section */}
           <div className="w-full sm:hidden mb-4">
-            <div className="text-sm text-gray-400 mb-2">League:</div>
-            <div className="flex items-center space-x-2">
+            <div className="text-sm text-gray-400 mb-3 pl-2.5">League:</div>
+            <div className="flex items-center gap-2">
               <motion.button
                 onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                className={`ml-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -555,8 +576,8 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
           {/* Mobile Only: Position Section */}
           <div className="w-full sm:hidden mb-4">
-            <div className="text-sm text-gray-400 mb-2">Positions:</div>
-            <div className="flex items-center space-x-2">
+            <div className="text-sm text-gray-400 mb-3">Positions:</div>
+            <div className="flex items-center gap-2">
               <motion.button
                 onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
@@ -639,25 +660,25 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
             {/* Divider */}
             <div className="h-8 w-px bg-gray-700/30 mx-2" />
-          </div>
 
-          {/* View Mode Toggle */}
-          <motion.button
-            onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
-            className={`
-              px-3 py-2 rounded-lg text-sm font-medium flex items-center
-              transition-all duration-300
-              ${viewMode === 'table'
-                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-              }
-            `}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <TableIcon className="mr-2 h-4 w-4" />
-            {viewMode === 'card' ? 'Table View' : 'Card View'}
-          </motion.button>
+            {/* Desktop View Mode Toggle */}
+            <motion.button
+              onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
+              className={`
+                px-3 py-2 rounded-lg text-sm font-medium flex items-center
+                transition-all duration-300
+                ${viewMode === 'table'
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                  : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                }
+              `}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <TableIcon className="mr-2 h-4 w-4" />
+              {viewMode === 'card' ? 'Table View' : 'Card View'}
+            </motion.button>
+          </div>
         </div>
       </div>
     </div>

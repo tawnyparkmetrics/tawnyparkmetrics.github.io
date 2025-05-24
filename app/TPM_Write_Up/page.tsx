@@ -493,13 +493,13 @@ export default function TPMWriteUpPage() {
             FAQs
           </h1>
           <p className="text-gray-300 mb-4">Learn about my draft model & analysis via frequently asked questions</p>
-          <Link 
+          {/* <Link 
             href="/TPM_Draft_Page"
             className="inline-flex items-center px-6 py-3 text-lg font-medium text-white bg-blue-500/20 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition-colors duration-200"
           >
             See the Draft Board Here
             <ChevronRight className="ml-2 h-5 w-5" />
-          </Link>
+          </Link> */}
         </div>
 
         <div className="space-y-4">

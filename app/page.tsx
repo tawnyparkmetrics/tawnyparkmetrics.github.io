@@ -12,7 +12,7 @@ export default function Home() {
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">Tawny Park Metrics (TPM)</h1>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">Tawny Park Metrics</h1>
           <div className="max-w-4xl mx-auto text-gray-300 text-lg leading-relaxed">
             <p className="mb-4">
               <strong className="text-white">Tawny Park Metrics (TPM)</strong> is a platform for thoughtful and disruptive sports analysis. The name comes from the local park we&apos;ve hooped at almost all our lives. It&apos;s our way to put Tawny Park on the map. Accordingly, almost everyone involved with TPM&apos;s inception has known each other, at least, since middle school.
