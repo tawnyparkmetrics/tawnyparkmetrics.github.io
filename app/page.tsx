@@ -10,26 +10,37 @@ export default function Home() {
       <NavigationHeader activeTab="Home" />
       
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-        <div className="text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">Tawny Park Metrics</h1>
-          <div className="max-w-4xl mx-auto text-gray-300 text-lg leading-relaxed">
-            <p className="mb-4">
-              <strong className="text-white">Tawny Park Metrics (TPM)</strong> is a platform for thoughtful and disruptive sports analysis. The name comes from the local park we&apos;ve hooped at almost all our lives. It&apos;s our way to put Tawny Park on the map. Accordingly, almost everyone involved with TPM&apos;s inception has known each other, at least, since middle school.
-            </p>
-            <p className="mb-6">
-              While &quot;Metrics&quot; implies a focus on data analysis, we are committed to offering a wide range of insights. Moreover, we intend to supplement our analysis with media content in the near future.
-            </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8">
+        <div className="bg-[#19191A] border border-white/20 rounded-xl p-8">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              <img
+                src="/TPM_logo_designs/TPM Square (Dark with Map).png"
+                alt="TPM Logo"
+                className="w-40 h-40 md:w-56 md:h-56"
+              />
+            </div>
+            
+            {/* Text Content */}
+            <div className="flex-grow text-gray-300 text-lg leading-relaxed">
+              <p className="mb-4">
+                <strong className="text-white">Tawny Park Metrics (TPM)</strong> is a platform for thoughtful and disruptive sports analysis. The name comes from the local park we&apos;ve hooped at almost all our lives. It&apos;s our way to put Tawny Park on the map. Accordingly, almost everyone involved with TPM&apos;s inception has known each other, at least, since middle school.
+              </p>
+              <p>
+                While &quot;Metrics&quot; implies a focus on data analysis, we are committed to offering a wide range of insights. Moreover, we intend to supplement our analysis with media content in the near future.
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Draft Boards Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {/* Max Savin's Draft Board Card */}
-          <div className="bg-gray-800/20 border border-gray-800 rounded-xl p-6 hover:border-blue-500/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] group">
-            <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">
+          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
+            <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
               Max Savin&apos;s Draft Board
             </h2>
             <p className="text-gray-400 mb-4">
@@ -44,12 +55,12 @@ export default function Home() {
           </div>
 
           {/* Nick Kalinowski's Draft Board Card */}
-          <div className="bg-gray-800/20 border border-gray-800 rounded-xl p-6 hover:border-blue-500/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] group">
-            <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">
+          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
+            <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
               Nick Kalinowski&apos;s Draft Board
             </h2>
             <p className="text-gray-400 mb-4">
-              Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" className="text-blue-400 hover:text-blue-300 transition-colors">@kalidrafts</a>&apos;s model, which ranks prospects by their predicted EPM across the length of their rookie contract using up to 535 unique predictors.
+              Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" className="text-blue-400 hover:text-blue-300 transition-colors">@kalidrafts</a>&apos;s model, which ranks prospects by predicted EPM across the length of their rookie contract using up to 535 unique predictors.
             </p>
             <Link href="/TPM_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
               <span className="text-sm font-medium">View Draft Board</span>
