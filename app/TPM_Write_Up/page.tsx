@@ -10,6 +10,16 @@ interface DropdownSectionProps {
   onToggle: () => void;
 }
 
+const tierColors: { [key: string]: string } = {
+  'All-Time Great': '#FF66C4',
+  'All-NBA Caliber': '#E9A2FF',
+  'Fringe All-Star': '#5CE1E6',
+  'Quality Starter': '#7ED957',
+  'Solid Rotation': '#FFDE59',
+  'Bench Reserve': '#FFA455',
+  'Fringe NBA': '#FF5757',
+};
+
 const DropdownSection = ({ title, children, isOpen, onToggle }: DropdownSectionProps) => (
   <div className="border border-white/20 rounded-lg bg-[#19191A]">
     <button
@@ -33,7 +43,7 @@ const DropdownSection = ({ title, children, isOpen, onToggle }: DropdownSectionP
 
 const TierTable = () => (
   <div className="overflow-x-auto my-4">
-    <table className="w-full border-collapse border border-gray-600">
+    <table className="w-full border-collapse">
       <thead>
         <tr className="bg-gray-700">
           <th className="border border-gray-600 px-4 py-2 text-left text-white">Tier</th>
@@ -42,41 +52,37 @@ const TierTable = () => (
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td className="border border-gray-600 px-4 py-2 text-blue-300">All Time Great</td>
-          <td className="border border-gray-600 px-4 py-2">Luka Dončić</td>
-          <td className="border border-gray-600 px-4 py-2">Good/Decent/Rotation</td>
-        </tr>
-        <tr className="bg-gray-800/30">
-          <td className="border border-gray-600 px-4 py-2 text-blue-300">All-NBA Caliber</td>
-          <td className="border border-gray-600 px-4 py-2">Devin Booker</td>
-          <td className="border border-gray-600 px-4 py-2">Good/Decent/Rotation</td>
-        </tr>
-        <tr>
-          <td className="border border-gray-600 px-4 py-2 text-blue-300">Fringe All-Star</td>
-          <td className="border border-gray-600 px-4 py-2">Jamal Murray</td>
-          <td className="border border-gray-600 px-4 py-2">Good/Decent/Rotation</td>
-        </tr>
-        <tr className="bg-gray-800/30">
-          <td className="border border-gray-600 px-4 py-2 text-blue-300">Quality Starter</td>
-          <td className="border border-gray-600 px-4 py-2">Jalen Suggs</td>
-          <td className="border border-gray-600 px-4 py-2">Good/Decent/Rotation</td>
-        </tr>
-        <tr>
-          <td className="border border-gray-600 px-4 py-2 text-blue-300">Solid Rotation</td>
-          <td className="border border-gray-600 px-4 py-2">Dennis Schröder</td>
-          <td className="border border-gray-600 px-4 py-2">Decent/Rotation</td>
-        </tr>
-        <tr className="bg-gray-800/30">
-          <td className="border border-gray-600 px-4 py-2 text-blue-300">Bench Reserve</td>
-          <td className="border border-gray-600 px-4 py-2">Ben McLemore</td>
-          <td className="border border-gray-600 px-4 py-2">Rotation</td>
-        </tr>
-        <tr>
-          <td className="border border-gray-600 px-4 py-2 text-blue-300">Fringe NBA</td>
-          <td className="border border-gray-600 px-4 py-2">Markus Howard</td>
-          <td className="border border-gray-600 px-4 py-2">Fringe NBA</td>
-        </tr>
+        {Object.entries(tierColors).map(([tier, color], index) => (
+          <tr key={tier} className={index % 2 === 0 ? '' : 'bg-gray-800/30'}>
+            <td className="border border-gray-600 px-4 py-2">
+              <div 
+                className="inline-block px-3 py-1 rounded"
+                style={{
+                  color: color,
+                  border: `1px solid ${color}`,
+                  backgroundColor: `${color}30` // 30 is hex for 0.3 opacity
+                }}
+              >
+                {tier}
+              </div>
+            </td>
+            <td className="border border-gray-600 px-4 py-2 text-white">
+              {tier === 'All-Time Great' ? 'Luka Dončić' :
+               tier === 'All-NBA Caliber' ? 'Devin Booker' :
+               tier === 'Fringe All-Star' ? 'Jamal Murray' :
+               tier === 'Quality Starter' ? 'Jalen Suggs' :
+               tier === 'Solid Rotation' ? 'Dennis Schröder' :
+               tier === 'Bench Reserve' ? 'Ben McLemore' :
+               'Markus Howard'}
+            </td>
+            <td className="border border-gray-600 px-4 py-2 text-white">
+              {tier === 'Fringe NBA' ? 'Fringe NBA' :
+               tier === 'Bench Reserve' ? 'Rotation' :
+               tier === 'Solid Rotation' ? 'Decent/Rotation' :
+               'Good/Decent/Rotation'}
+            </td>
+          </tr>
+        ))}
       </tbody>
     </table>
   </div>
@@ -232,7 +238,7 @@ export default function TPMWriteUpPage() {
           What individual models make up the ensembles? <strong>The ensembles are each composed of up to five different machine learning models, three non-linear – a random forest regressor, an XGBoost regressor, and an MLP regressor (neural network) – and two linear – ridge regression and support vector regression (svr).</strong> Each of these models is trained with optimal hyperparameters discovered via Randomized Search, tested using five-fold cross-validation, and analyzed through feature importance and learning curves. Therefore, in total, I train, test, and analyze 75 models (five individual models times each of the fifteen ensembles) to produce my EPM predictions. However, the way an ensemble works, is you take the weighted average of multiple model predictions to land at final, typically more accurate, output. In practice, not all five individual models always contribute to the final EPM ensemble, as any that don&apos;t improve predictive performance are omitted.
         </p>
         <p className="mb-4">
-          Note, in part, I predict EPM across a prospect&apos;s first five seasons since the average NBA career lasts 4.5 years. However, since first-round draft picks sign four-year rookie-scale contracts, it potentially makes sense to switch to only four year projections in future work. If you&apos;re interested in a draft model that predicts average EPM directly across the duration of a prospects four year rookie contract, I highly recommend checking out Nick Kalinowski&apos;s big board.
+          Note, in part, I predict EPM across a prospect&apos;s first five seasons since the average NBA career lasts 4.5 years. However, since first-round draft picks sign four-year rookie-scale contracts, it potentially makes sense to switch to only four year projections in future work. If you&apos;re interested in a draft model that predicts average EPM directly across the duration of a prospects four year rookie contract, I highly recommend checking out <a href="https://tawnyparkmetrics.com/Nick_Draft_Page" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">Nick Kalinowski&apos;s big board.</a>
         </p>
         </div>
       )
@@ -513,7 +519,7 @@ export default function TPMWriteUpPage() {
       title: 'Who is Max Savin and how can I contact him?',
       content: (
         <p>
-          I am a business and data science graduate from NYU Stern School of Business (class of 2024) looking to tie my obsession with sports to my profession. You can reach me at<a href="mes9950@stern.nyu.edu" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline"> mes9950@stern.nyu.edu</a> or find me on X <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@supersayansavin</a>.
+          I am a business and data science graduate from NYU Stern School of Business (class of 2024) looking to tie my obsession with sports to my profession. You can reach me at mes9950@stern.nyu.edu or find me on X <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@supersayansavin</a>.
         </p>
       )
     }
