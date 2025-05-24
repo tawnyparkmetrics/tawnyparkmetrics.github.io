@@ -1827,11 +1827,13 @@ const ProspectCard: React.FC<{
     return rank ? rank.toString() : 'N/A';
   };
 
-  // Calculate the current rank based on the filtered and sorted prospects
+  // First, extract the complex expression to a variable
+  const pickNumber = Number(prospect['Actual Pick']);
+
+  // Then modify the useMemo hook
   const currentRank = useMemo(() => {
     if (selectedSortKey === 'Actual Pick') {
       // For draft order, use the actual pick number
-      const pickNumber = Number(prospect['Actual Pick']);
       if (!isNaN(pickNumber) && pickNumber <= 58) {
         return pickNumber;
       } else {
@@ -1849,7 +1851,7 @@ const ProspectCard: React.FC<{
       const index = filteredProspects.findIndex(p => p.Name === prospect.Name);
       return index + 1;
     }
-  }, [prospect.Name, filteredProspects, selectedSortKey, prospect['Actual Pick'], prospect]);
+  }, [prospect, filteredProspects, selectedSortKey, pickNumber]); // Remove prospect.Name and prospect['Actual Pick']
 
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
