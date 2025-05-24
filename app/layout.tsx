@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Barlow } from 'next/font/google';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const barlow = Barlow({
+  subsets: ['latin'],
+  weight: ['700'], // Use 700 for bold text
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Tawny Park Metrics",
   description: "Tawny Park Metrics",
   icons: {
-    icon: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
+    icon: [
+      { url: '/TPM_logo_designs/TPM Circle.png', sizes: '16x16', type: 'image/png' },
+      { url: '/TPM_logo_designs/TPM Circle.png', sizes: '32x32', type: 'image/png' },
+      { url: '/TPM_logo_designs/TPM Circle.png', sizes: '192x192', type: 'image/png' },
+    ],
     shortcut: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
     apple: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
   },
@@ -41,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${barlow.className} antialiased`}
       >
         {children}
       </body>
