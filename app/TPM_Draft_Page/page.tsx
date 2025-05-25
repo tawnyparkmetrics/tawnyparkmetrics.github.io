@@ -2672,43 +2672,39 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         }
         
         // If tiers are the same, sort by the selected metric
-        if (selectedSortKey === 'Avg. Rank Y1-Y3' || selectedSortKey === 'Avg. EPM Y1-Y3') {
-          const aValue = Number(a['Avg. EPM Y1-Y3']) || 0;
-          const bValue = Number(b['Avg. EPM Y1-Y3']) || 0;
-          return bValue - aValue; // Higher EPM is better
-        } else if (selectedSortKey === 'Avg. Rank Y1-Y5' || selectedSortKey === 'Avg. EPM Y1-Y5') {
-          const aValue = Number(a['Avg. EPM Y1-Y5']) || 0;
-          const bValue = Number(b['Avg. EPM Y1-Y5']) || 0;
-          return bValue - aValue; // Higher EPM is better
-        } else {
-          // For other metrics, maintain original order within tier
-          const aPick = a['Actual Pick'];
-          const bPick = b['Actual Pick'];
-          if (aPick === 'N/A' || aPick === '' || aPick === null || aPick === undefined) return 1;
-          if (bPick === 'N/A' || bPick === '' || bPick === null || bPick === undefined) return -1;
-          const aNum = Number(aPick);
-          const bNum = Number(bPick);
-          if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-          return 0;
+        if (selectedSortKey.includes('EPM')) {
+          // For EPM values, higher is better
+          const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 0;
+          const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 0;
+          return bValue - aValue;
+        } else if (selectedSortKey.includes('Rank')) {
+          // For Rank values, lower is better
+          const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 999;
+          const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 999;
+          return aValue - bValue;
+        } else if (selectedSortKey === 'Actual Pick') {
+          // For draft order
+          const aPick = Number(a['Actual Pick']) || 999;
+          const bPick = Number(b['Actual Pick']) || 999;
+          return aPick - bPick;
         }
       } else {
         // If tier ranking is not active, use normal sorting
-        if (selectedSortKey === 'Avg. Rank Y1-Y3' || selectedSortKey === 'Avg. EPM Y1-Y3') {
-          const aValue = Number(a['Avg. EPM Y1-Y3']) || 0;
-          const bValue = Number(b['Avg. EPM Y1-Y3']) || 0;
-          return bValue - aValue; // Higher EPM is better
-        } else if (selectedSortKey === 'Avg. Rank Y1-Y5' || selectedSortKey === 'Avg. EPM Y1-Y5') {
-          const aValue = Number(a['Avg. EPM Y1-Y5']) || 0;
-          const bValue = Number(b['Avg. EPM Y1-Y5']) || 0;
-          return bValue - aValue; // Higher EPM is better
-        } else {
-          const aValue = a[selectedSortKey as keyof DraftProspect];
-          const bValue = b[selectedSortKey as keyof DraftProspect];
-          if (aValue === 'N/A' || aValue === '' || aValue === null || aValue === undefined) return 1;
-          if (bValue === 'N/A' || bValue === '' || bValue === null || bValue === undefined) return -1;
-          return Number(aValue) - Number(bValue);
+        if (selectedSortKey.includes('EPM')) {
+          const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 0;
+          const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 0;
+          return bValue - aValue;
+        } else if (selectedSortKey.includes('Rank')) {
+          const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 999;
+          const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 999;
+          return aValue - bValue;
+        } else if (selectedSortKey === 'Actual Pick') {
+          const aPick = Number(a['Actual Pick']) || 999;
+          const bPick = Number(b['Actual Pick']) || 999;
+          return aPick - bPick;
         }
       }
+      return 0;
     });
 
     // Map the sorted and filtered prospects to include their original draft rank
