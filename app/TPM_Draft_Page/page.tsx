@@ -127,6 +127,7 @@ const collegeNames: { [key: string]: string } = {
   "Ratiopharm Ulm": "Ulm",
   "Washington State": "Washington St.",
   "KK Mega Basket": "KK Mega",
+  "Melbourne United": "Melbourne Utd",
 }
 
 const teamNames: { [key: string]: string } = {
@@ -2672,25 +2673,38 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         }
         
         // If tiers are the same, sort by the selected metric
-        if (selectedSortKey.includes('EPM')) {
-          // For EPM values, higher is better
+        if (selectedSortKey === 'Avg. Rank Y1-Y3') {
+          const aValue = Number(a['Avg. EPM Y1-Y3']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y3']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey === 'Avg. Rank Y1-Y5') {
+          const aValue = Number(a['Avg. EPM Y1-Y5']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y5']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey.includes('EPM')) {
           const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 0;
           const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 0;
           return bValue - aValue;
         } else if (selectedSortKey.includes('Rank')) {
-          // For Rank values, lower is better
           const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 999;
           const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 999;
           return aValue - bValue;
         } else if (selectedSortKey === 'Actual Pick') {
-          // For draft order
           const aPick = Number(a['Actual Pick']) || 999;
           const bPick = Number(b['Actual Pick']) || 999;
           return aPick - bPick;
         }
       } else {
         // If tier ranking is not active, use normal sorting
-        if (selectedSortKey.includes('EPM')) {
+        if (selectedSortKey === 'Avg. Rank Y1-Y3') {
+          const aValue = Number(a['Avg. EPM Y1-Y3']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y3']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey === 'Avg. Rank Y1-Y5') {
+          const aValue = Number(a['Avg. EPM Y1-Y5']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y5']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey.includes('EPM')) {
           const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 0;
           const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 0;
           return bValue - aValue;

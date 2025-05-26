@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   description: "Tawny Park Metrics",
   icons: {
     icon: [
-      { url: '/TPM_logo_designs/TPM Circle.png', sizes: '16x16', type: 'image/png' },
-      { url: '/TPM_logo_designs/TPM Circle.png', sizes: '32x32', type: 'image/png' },
-      { url: '/TPM_logo_designs/TPM Circle.png', sizes: '192x192', type: 'image/png' },
+      { url: '/TPM_logo_designs/TPM Wordmark (Dark - No Map)', sizes: '16x16', type: 'image/png' },
+      { url: '/TPM_logo_designs/TPM Wordmark (Dark - No Map)', sizes: '32x32', type: 'image/png' },
+      { url: '/TPM_logo_designs/TPM Wordmark (Dark - No Map)', sizes: '192x192', type: 'image/png' },
     ],
     shortcut: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
     apple: '/TPM_logo_designs/TPM Wordmark (Dark - No Map).png',
