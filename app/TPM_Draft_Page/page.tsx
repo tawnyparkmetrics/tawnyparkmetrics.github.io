@@ -1090,10 +1090,11 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
   selectedProspect,
-  allProspects,
+  allProspects, // This should be the initial unfiltered prospects
   graphType = 'rankings',
   setGraphType,
 }) => {
+  // Use allProspects instead of filteredProspects for graph data
   const filteredProspects = useMemo(() => {
     if (!selectedProspect) return [];
     // Filter prospects with the same position as the selected prospect
@@ -2256,10 +2257,10 @@ const ProspectCard: React.FC<{
                 <IndividualProspectGraphs
                   isOpen={isGraphModelOpen}
                   onClose={() => setIsGraphModelOpen(false)}
-                  prospects={filteredProspects}
+                  prospects={allProspects}
                   selectedPosition={prospect.Role}
                   selectedProspect={prospect}
-                  allProspects={filteredProspects}
+                  allProspects={allProspects}
                   graphType={graphType}
                   setGraphType={setGraphType}
                 />

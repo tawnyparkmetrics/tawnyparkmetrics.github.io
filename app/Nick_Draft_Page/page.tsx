@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import { LucideUser, X, ChevronDown, SlidersHorizontal} from 'lucide-react';
 import Papa from 'papaparse';
@@ -750,63 +750,56 @@ export default function NickDraftPage() {
   };
 
   // Apply sorting to the filtered prospects
-  // const sortedProspects = React.useMemo(() => {
-  //   const sortableProspects = [...filteredProspects];
+  const sortedProspects = useMemo(() => {
+    const sortableProspects = [...filteredProspects];
     
-  //   if (!sortConfig) {
-  //     return sortableProspects;
-  //   }
+    if (!sortConfig) {
+      return sortableProspects;
+    }
 
-  //   sortableProspects.sort((a, b) => {
-  //     // Handle Rank column specially (it's not in the data)
-  //     if (sortConfig.key === 'Rank') {
-  //       return sortConfig.direction === 'ascending' ? 1 : -1;
-  //     }
+    sortableProspects.sort((a, b) => {
+      // Handle Rank column specially
+      if (sortConfig.key === 'Rank') {
+        const aIndex = filteredProspects.findIndex(p => p.Name === a.Name);
+        const bIndex = filteredProspects.findIndex(p => p.Name === b.Name);
+        return sortConfig.direction === 'ascending' ? aIndex - bIndex : bIndex - aIndex;
+      }
+
+      let aValue = a[sortConfig.key as keyof DraftProspect];
+      let bValue = b[sortConfig.key as keyof DraftProspect];
+
+      // Handle specific columns
+      if (sortConfig.key === 'Actual Pick') {
+        const aNum = parseInt(aValue as string) || 99;
+        const bNum = parseInt(bValue as string) || 99;
+        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+      }
+
+      if (sortConfig.key === 'Height') {
+        const aNum = parseFloat(aValue as string) || 0;
+        const bNum = parseFloat(bValue as string) || 0;
+        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+      }
+
+      if (sortConfig.key === 'Weight (lbs)') {
+        const aNum = parseInt(aValue as string) || 0;
+        const bNum = parseInt(bValue as string) || 0;
+        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+      }
+
+      // Default string comparison
+      if (aValue === undefined) aValue = '';
+      if (bValue === undefined) bValue = '';
       
-  //     let aValue = a[sortConfig.key as keyof DraftProspect];
-  //     let bValue = b[sortConfig.key as keyof DraftProspect];
-
-  //     // Handle specific columns
-  //     if (sortConfig.key === 'Actual Pick') {
-  //       // Convert to numbers for sorting
-  //       const aNum = parseInt(aValue as string) || 99; // Use 99 for undrafted
-  //       const bNum = parseInt(bValue as string) || 99;
-  //       return sortConfig.direction === 'ascending' 
-  //         ? aNum - bNum 
-  //         : bNum - aNum;
-  //     }
-      
-  //     // Handle Height (use Height (in) for sorting)
-  //     if (sortConfig.key === 'Height') {
-  //       const aInches = parseInt(a['Height (in)'] as string) || 0;
-  //       const bInches = parseInt(b['Height (in)'] as string) || 0;
-  //       return sortConfig.direction === 'ascending' 
-  //         ? aInches - bInches 
-  //         : bInches - aInches;
-  //     }
-
-  //     // Handle Weight
-  //     if (sortConfig.key === 'Weight (lbs)') {
-  //       const aNum = parseInt(aValue as string) || 0;
-  //       const bNum = parseInt(bValue as string) || 0;
-  //       return sortConfig.direction === 'ascending' 
-  //         ? aNum - bNum 
-  //         : bNum - aNum;
-  //     }
-
-  //     // Default string comparison
-  //     if (aValue === undefined) aValue = '';
-  //     if (bValue === undefined) bValue = '';
-      
-  //     if (sortConfig.direction === 'ascending') {
-  //       return String(aValue).localeCompare(String(bValue));
-  //     } else {
-  //       return String(bValue).localeCompare(String(aValue));
-  //     }
-  //   });
+      if (sortConfig.direction === 'ascending') {
+        return String(aValue).localeCompare(String(bValue));
+      } else {
+        return String(bValue).localeCompare(String(aValue));
+      }
+    });
     
-  //   return sortableProspects;
-  // }, [filteredProspects, sortConfig]);
+    return sortableProspects;
+  }, [filteredProspects, sortConfig]);
 
   // Render the table with sorting functionality
   const ProspectTable = ({
@@ -912,7 +905,7 @@ export default function NickDraftPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {prospects.map((prospect, index) => (
+              {sortedProspects.map((prospect, index) => (
                 <TableRow
                   key={prospect.Name}
                   className="hover:bg-gray-800/20"
