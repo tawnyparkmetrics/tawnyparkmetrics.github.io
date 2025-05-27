@@ -803,7 +803,6 @@ export default function NickDraftPage() {
 
   // Render the table with sorting functionality
   const ProspectTable = ({
-    prospects,
   }: {
     prospects: DraftProspect[],
     rank: Record<string, RankType>
