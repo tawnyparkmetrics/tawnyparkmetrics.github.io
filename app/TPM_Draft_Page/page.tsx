@@ -1533,6 +1533,7 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
               animationEasing="ease-out"
               activeBar={false}
               cursor="default"
+              barSize={20}
             >
               {compData.map((entry, index) => {
                 const color = getColorForTier(entry.tier);
@@ -2353,8 +2354,8 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
 
       // Handle Height (convert to inches)
       if (sortConfig.key === 'Height') {
-        const aNum = parseFloat(aValue as string) || 0;
-        const bNum = parseFloat(bValue as string) || 0;
+        const aNum = parseFloat(a['Height (in)'] as string) || 0;
+        const bNum = parseFloat(b['Height (in)'] as string) || 0;
         return sortConfig.direction === 'ascending'
           ? aNum - bNum
           : bNum - aNum;
