@@ -1476,13 +1476,26 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
 
   // Use the new CustomLabelProps interface
   const CustomLabel: React.FC<CustomLabelProps> = (props) => {
-    const { x, y, height, value, index } = props; // Props are now correctly typed
-    const entry = compData[index]; // entry is ComparisonData
-    const color = getColorForTier(entry?.tier); // Added optional chaining for safety if entry could be undefined
+    const { x, y, height, value, index } = props;
+    const entry = compData[index];
+    const color = getColorForTier(entry?.tier);
+    const [isMobile, setIsMobile] = useState(false);
 
-    // It's good practice to ensure x, y, width, height are defined before using them
-    // Recharts should provide them, but defensive checks can be useful.
-    // For simplicity here, we assume they are always provided as per the interface.
+    // Check if device is mobile
+    useEffect(() => {
+      const checkMobile = () => {
+        setIsMobile(window.innerWidth < 768);
+      };
+
+      // Set initial value
+      checkMobile();
+
+      // Add event listener for window resize
+      window.addEventListener('resize', checkMobile);
+
+      // Cleanup
+      return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     return (
       <text
@@ -1494,7 +1507,7 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
         textAnchor="start"
         dominantBaseline="central"
       >
-        {value}
+        {isMobile ? `${value} (${entry?.similarity}%)` : value}
       </text>
     );
   };
@@ -1506,7 +1519,7 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
           <BarChart
             layout="vertical"
             data={compData}
-            margin={{ top: 5, right: 20, bottom: 5, left: 5 }}
+            margin={{ top: 15, right: 20, bottom: -5, left: 5 }}
           >
             <XAxis
               type="number"
@@ -1533,7 +1546,7 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
               animationEasing="ease-out"
               activeBar={false}
               cursor="default"
-              barSize={20}
+              barSize={40}
             >
               {compData.map((entry, index) => {
                 const color = getColorForTier(entry.tier);
