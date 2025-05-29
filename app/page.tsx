@@ -96,7 +96,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-white mb-6">Join TPM</h2>
           <div className="text-gray-300 text-lg leading-relaxed space-y-4">
             <p>
-              <strong className="text-white">We are actively seeking other draft boards to host on the site</strong>. If you have your own draft analysis – it does not have to be a draft model – hit us up via mes9950@stern.nyu.edu or direct message <a href="https://x.com/supersayansavin" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>. Your board will not be exclusive to TPM in any way; you are absolutely welcome to display it via other means as well. <strong className="text-white">Our goal is to create a platform where it's easy to share your work for no cost, very limited additional effort, and as close to no downside as possible.</strong>
+              <strong className="text-white">We are actively seeking other draft boards to host on the site</strong>. If you have your own draft analysis – it does not have to be a draft model – hit us up via mes9950@stern.nyu.edu or direct message <a href="https://x.com/supersayansavin" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>. Your board will not be exclusive to TPM in any way; you are absolutely welcome to display it via other means as well. <strong className="text-white">Our goal is to create a platform where it&apos;s easy to share your work for no cost, very limited additional effort, and as close to no downside as possible.</strong>
             </p>
           </div>
         </div>
