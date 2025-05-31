@@ -1839,7 +1839,7 @@ const ProspectCard: React.FC<{
 
   const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
   const playerImageUrl2024 = `/player_images2024/${prospect.Name} BG Removed.png`;
-  const playerImageUrl2025 = `/player_images2025/${prospect.Name} BG Removed.png`;
+  // const playerImageUrl2025 = `/player_images2025/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   const getPositionRank = (year: string): string => {
