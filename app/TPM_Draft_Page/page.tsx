@@ -461,14 +461,28 @@ const TimelineFilter = ({
   const [selectedYear, setSelectedYear] = useState('2024');
 
   // Timeline labels
-  const yearSortKeys = [
-    { key: 'Actual Pick', label: 'Draft' },
-    { key: 'Pred. Y1 Rank', label: 'Y1' },
-    { key: 'Pred. Y2 Rank', label: 'Y2' },
-    { key: 'Pred. Y3 Rank', label: 'Y3' },
-    { key: 'Pred. Y4 Rank', label: 'Y4' },
-    { key: 'Pred. Y5 Rank', label: 'Y5' }
-  ];
+  const getYearSortKeys = () => {
+    if (selectedYear === '2025') {
+      return [
+        { key: 'Rank', label: 'Rank' }, // Changed from 'Actual Pick' to 'Rank' for 2025
+        { key: 'Pred. Y1 Rank', label: 'Y1' },
+        { key: 'Pred. Y2 Rank', label: 'Y2' },
+        { key: 'Pred. Y3 Rank', label: 'Y3' },
+        { key: 'Pred. Y4 Rank', label: 'Y4' },
+        { key: 'Pred. Y5 Rank', label: 'Y5' }
+      ];
+    } else {
+      return [
+        { key: 'Actual Pick', label: 'Draft' },
+        { key: 'Pred. Y1 Rank', label: 'Y1' },
+        { key: 'Pred. Y2 Rank', label: 'Y2' },
+        { key: 'Pred. Y3 Rank', label: 'Y3' },
+        { key: 'Pred. Y4 Rank', label: 'Y4' },
+        { key: 'Pred. Y5 Rank', label: 'Y5' }
+      ];
+    }
+  };
+
 
   // Button titles
   const averageKeys = [
@@ -1519,7 +1533,12 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
           <BarChart
             layout="vertical"
             data={compData}
-            margin={{ top: 15, right: 20, bottom: -5, left: 5 }}
+            margin={{ 
+              top: 15,
+              right: 20, 
+              bottom: -5, 
+              left: 5 
+            }}
           >
             <XAxis
               type="number"
@@ -1833,7 +1852,8 @@ const ProspectCard: React.FC<{
   }, [isExpanded, isMobile]);
 
   const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
-  const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
+  const playerImageUrl2024 = `/player_images2024/${prospect.Name} BG Removed.png`;
+  const playerImageUrl2025 = `/player_images2025/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   const getPositionRank = (year: string): string => {
@@ -1941,7 +1961,7 @@ const ProspectCard: React.FC<{
                 {!imageError ? (
                   <div className="relative w-full h-full flex items-end justify-center">
                     <Image
-                      src={playerImageUrl}
+                      src={playerImageUrl2024}
                       alt={prospect.Name}
                       fill
                       className={`
@@ -2934,7 +2954,9 @@ export default function DraftProspectsPage() {
   return (
     <div className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Max Savin" />
-      <TimelineSlider initialProspects={prospects} />
+      <TimelineSlider 
+        initialProspects={prospects}
+      />
     </div>
   );
 }
