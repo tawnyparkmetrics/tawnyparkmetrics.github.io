@@ -461,28 +461,14 @@ const TimelineFilter = ({
   const [selectedYear, setSelectedYear] = useState('2024');
 
   // Timeline labels
-  const getYearSortKeys = () => {
-    if (selectedYear === '2025') {
-      return [
-        { key: 'Rank', label: 'Rank' }, // Changed from 'Actual Pick' to 'Rank' for 2025
-        { key: 'Pred. Y1 Rank', label: 'Y1' },
-        { key: 'Pred. Y2 Rank', label: 'Y2' },
-        { key: 'Pred. Y3 Rank', label: 'Y3' },
-        { key: 'Pred. Y4 Rank', label: 'Y4' },
-        { key: 'Pred. Y5 Rank', label: 'Y5' }
-      ];
-    } else {
-      return [
-        { key: 'Actual Pick', label: 'Draft' },
-        { key: 'Pred. Y1 Rank', label: 'Y1' },
-        { key: 'Pred. Y2 Rank', label: 'Y2' },
-        { key: 'Pred. Y3 Rank', label: 'Y3' },
-        { key: 'Pred. Y4 Rank', label: 'Y4' },
-        { key: 'Pred. Y5 Rank', label: 'Y5' }
-      ];
-    }
-  };
-
+  const yearSortKeys = [
+    { key: 'Actual Pick', label: 'Draft' },
+    { key: 'Pred. Y1 Rank', label: 'Y1' },
+    { key: 'Pred. Y2 Rank', label: 'Y2' },
+    { key: 'Pred. Y3 Rank', label: 'Y3' },
+    { key: 'Pred. Y4 Rank', label: 'Y4' },
+    { key: 'Pred. Y5 Rank', label: 'Y5' }
+  ];
 
   // Button titles
   const averageKeys = [
