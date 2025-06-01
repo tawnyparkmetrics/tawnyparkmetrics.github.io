@@ -2132,16 +2132,19 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
     }
 
     sortableProspects.sort((a, b) => {
-      // Handle Rank column specially (use the original index position)
+      // Handle Rank column specially
       if (sortConfig.key === 'Rank') {
         const aIndex = prospects.findIndex(p => p.Name === a.Name);
         const bIndex = prospects.findIndex(p => p.Name === b.Name);
-
+        
+        // For ascending order (1 to 75), use the original index
+        // For descending order (75 to 1), reverse the order
         return sortConfig.direction === 'ascending'
-          ? aIndex - bIndex  // Sort by original index (ascending)
-          : bIndex - aIndex; // Sort by original index (descending)
+          ? aIndex - bIndex
+          : bIndex - aIndex;
       }
 
+      // Rest of the sorting logic for other columns...
       let aValue = a[sortConfig.key as keyof DraftProspect];
       let bValue = b[sortConfig.key as keyof DraftProspect];
 
@@ -2378,7 +2381,8 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   selectedYear: number; 
   setSelectedYear: (year: number) => void; 
 }) {
-  const [selectedSortKey, setSelectedSortKey] = useState<string>(selectedYear === 2025 ? 'Rank' : 'Actual Pick');
+  // Update the initial state to use the correct default sort key and tier rank
+  const [selectedSortKey, setSelectedSortKey] = useState<string>('Avg. Rank Y1-Y5');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -2386,12 +2390,12 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   const [displayedProspects, setDisplayedProspects] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(false);
   const [, setIsMobile] = useState(false);
-  // Set initial tierRankActive based on selected year
-  const [tierRankActive, setTierRankActive] = useState(selectedYear === 2025);
+  const [tierRankActive, setTierRankActive] = useState(true); // Set to true by default
 
-  // Add an effect to update tierRankActive when year changes
+  // Update the effect to maintain these defaults when year changes
   useEffect(() => {
-    setTierRankActive(selectedYear === 2025);
+    setSelectedSortKey('Avg. Rank Y1-Y5');
+    setTierRankActive(true);
   }, [selectedYear]);
 
   // Check if device is mobile

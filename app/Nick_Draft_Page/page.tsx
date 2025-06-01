@@ -904,25 +904,30 @@ export default function NickDraftPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedProspects.map((prospect, index) => (
-                <TableRow
-                  key={prospect.Name}
-                  className="hover:bg-gray-800/20"
-                >
-                  <TableCell className="text-gray-300">{index + 1}</TableCell>
-                  <TableCell className="font-medium text-gray-300">{prospect.Name}</TableCell>
-                  <TableCell className="text-gray-300">{prospect.Role}</TableCell>
-                  <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
-                  <TableCell className="text-gray-300">
-                    {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {teamNames[prospect['NBA Team']] || prospect['NBA Team']}
-                  </TableCell>
-                  <TableCell className="text-gray-300">{prospect.Height}</TableCell>
-                  <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
-                </TableRow>
-              ))}
+              {sortedProspects.map((prospect) => {
+                // Find the original rank of the prospect in the filtered prospects array
+                const originalRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
+                
+                return (
+                  <TableRow
+                    key={prospect.Name}
+                    className="hover:bg-gray-800/20"
+                  >
+                    <TableCell className="text-gray-300">{originalRank}</TableCell>
+                    <TableCell className="font-medium text-gray-300">{prospect.Name}</TableCell>
+                    <TableCell className="text-gray-300">{prospect.Role}</TableCell>
+                    <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
+                    <TableCell className="text-gray-300">
+                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
+                    </TableCell>
+                    <TableCell className="text-gray-300">
+                      {teamNames[prospect['NBA Team']] || prospect['NBA Team']}
+                    </TableCell>
+                    <TableCell className="text-gray-300">{prospect.Height}</TableCell>
+                    <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
