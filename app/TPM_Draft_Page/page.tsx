@@ -2378,7 +2378,6 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   selectedYear: number; 
   setSelectedYear: (year: number) => void; 
 }) {
-  // Update the initial state to use the correct default sort key based on year
   const [selectedSortKey, setSelectedSortKey] = useState<string>(selectedYear === 2025 ? 'Rank' : 'Actual Pick');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
@@ -2387,11 +2386,12 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   const [displayedProspects, setDisplayedProspects] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(false);
   const [, setIsMobile] = useState(false);
-  const [tierRankActive, setTierRankActive] = useState(false);
+  // Set initial tierRankActive based on selected year
+  const [tierRankActive, setTierRankActive] = useState(selectedYear === 2025);
 
-  // Add an effect to update the sort key when the year changes
+  // Add an effect to update tierRankActive when year changes
   useEffect(() => {
-    setSelectedSortKey(selectedYear === 2025 ? 'Rank' : 'Actual Pick');
+    setTierRankActive(selectedYear === 2025);
   }, [selectedYear]);
 
   // Check if device is mobile
