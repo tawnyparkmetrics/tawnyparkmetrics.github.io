@@ -42,13 +42,13 @@ export interface DraftProspect {
   Position: string;
   Age: string;
   'Team Color': string;
-  'Pred. Y1 Rank': number;
-  'Pred. Y2 Rank': number;
-  'Pred. Y3 Rank': number;
-  'Avg. Rank Y1-Y3': string;
-  'Pred. Y4 Rank': number;
-  'Pred. Y5 Rank': number;
-  'Avg. Rank Y1-Y5': string;
+  // 'Pred. Y1 Rank': number;
+  // 'Pred. Y2 Rank': number;
+  // 'Pred. Y3 Rank': number;
+  // 'Avg. Rank Y1-Y3': string;
+  // 'Pred. Y4 Rank': number;
+  // 'Pred. Y5 Rank': number;
+  // 'Avg. Rank Y1-Y5': string;
   'Pred. Y1 EPM': number;
   'Pred. Y2 EPM': number;
   'Pred. Y3 EPM': number;
@@ -186,254 +186,13 @@ type CustomTooltipProps = TooltipProps<number | string, string> & {
   label?: string;
 };
 
-// const prepareChartData = (prospects: DraftProspect[]) => {
-//   const years = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'];
-//   const chartData: Record<string, number>[] = years.map(year => ({ year }));
-
-//   prospects.forEach(prospect => {
-//     chartData.forEach(yearData => {
-//       yearData[prospect.Name] = prospect[`Pred. ${year.split(' ')[1]} Rank`];
-//     });
-//   });
-
-//   return chartData;
-// };
-
-// const EPMGraphModel: React.FC<EPMModelProps> = ({
-//   isOpen,
-//   onClose,
-//   allProspects,
-// }) => {
-//   const filteredProspects = allProspects;
-
-//   const prepareChartData = () => {
-//     const yearData: { year: string | number;[key: string]: string | number }[] = [];
-
-//     for (let year = 1; year <= 5; year++) {
-//       const yearObj: { year: string | number;[key: string]: string | number } = { year };
-
-//       filteredProspects.forEach((prospect) => {
-//         const rankKey = `Pred. Y${year} EPM` as keyof DraftProspect;
-//         const value = prospect[rankKey];
-//         if (typeof value === 'number') {
-//           yearObj[prospect.Name] = value;
-//         } else {
-//           yearObj[prospect.Name] = 0;
-//         }
-//       });
-
-//       yearData.push(yearObj);
-//     }
-
-//     return yearData;
-//   };
-
-//   const chartData = prepareChartData();
-
-//   const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
-//     if (active && payload && payload.length) {
-//       return (
-//         <div className="bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-700">
-//           <p className="font-bold text-white">Year {label}</p>
-//           {payload.map((entry: PayloadItem) => (
-//             <p key={entry.dataKey} style={{ color: entry.color }}>
-//               {entry.dataKey}: {typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-//             </p>
-//           ))}
-//         </div>
-//       );
-//     }
-//     return null;
-//   };
-
-//   return (
-//     <AlertDialog open={isOpen} onOpenChange={onClose}>
-//       <AlertDialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-//         <AlertDialogHeader className="flex flex-row items-center justify-between">
-//           <AlertDialogTitle className="text-xl">Prospect EPM Progression</AlertDialogTitle>
-//           <Button variant="ghost" size="icon" onClick={onClose}>
-//             <X className="h-5 w-5" />
-//           </Button>
-//         </AlertDialogHeader>
-
-//         <CardContent className="space-y-6">
-//           <Card>
-//             <CardHeader>
-//               <CardTitle>EPM Progression By Player</CardTitle>
-//               <CardDescription>Years on X-axis, EPM values on Y-axis</CardDescription>
-//             </CardHeader>
-//             <ResponsiveContainer width="100%" height={500}>
-//               <LineChart data={chartData}>
-//                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-//                 <XAxis dataKey="year" type="number" stroke="#888" domain={[1, 5]} /> {/* X-axis domain */}
-//                 <YAxis type="number" stroke="#888" domain={[-5, 5]} /> {/* Y-axis domain */}
-//                 <Tooltip content={<CustomTooltip />} />
-//                 <Legend />
-//                 {filteredProspects.map((prospect) => (
-//                   <Line
-//                     key={prospect.Name}
-//                     type="monotone"
-//                     dataKey={prospect.Name}
-//                     stroke={prospect['Team Color']}
-//                     activeDot={{ r: 8 }}
-//                   />
-//                 ))}
-//               </LineChart>
-//             </ResponsiveContainer>
-//           </Card>
-//         </CardContent>
-//       </AlertDialogContent>
-//     </AlertDialog>
-//   );
-// };
-
-// for individual player graphs
-// const EPMModel = (props: EPMModelProps) => {
-//   const { isOpen, onClose, selectedPosition, allProspects, focusedProspect } = props;
-
-//   const graphData = React.useMemo(() => {
-//     // Create data points for years 1-5
-//     return [1, 2, 3, 4, 5].map(year => {
-//       const dataPoint: Record<string, number | string> = { name: `Year ${year}` };
-
-//       // Add background comparison lines data
-//       allProspects.forEach(prospect => {
-//         const rankValue = prospect[`Pred. Y${year} Rank` as keyof DraftProspect];
-//         if (rankValue && !isNaN(parseFloat(rankValue as string))) {
-//           dataPoint[prospect.Name] = parseFloat(rankValue as string);
-//         }
-//       });
-
-//       return dataPoint;
-//     });
-//   }, [allProspects]);
-
-//   interface TooltipPayload {
-//     dataKey: string;
-//     value: number;
-//     stroke: string;
-//   }
-
-//   // Custom tooltip component
-//   const CustomTooltip: React.FC<{ active?: boolean; payload?: TooltipPayload[]; label?: string }> = ({ active, payload, label }) => {
-//     if (active && payload && payload.length) {
-//       return (
-//         <div className="bg-[#19191A] border border-gray-700 p-3 rounded-lg">
-//           <p className="text-gray-400 mb-2">{label}</p>
-//           {payload.map((entry) => (
-//             entry.value && (
-//               <div
-//                 key={entry.dataKey}
-//                 className="flex items-center gap-2"
-//               >
-//                 <div
-//                   className="w-2 h-2 rounded-full"
-//                   style={{
-//                     backgroundColor: entry.stroke,
-//                     opacity: entry.dataKey === focusedProspect?.Name ? 1 : 0.4
-//                   }}
-//                 />
-//                 <span className="text-white">{entry.dataKey}</span>
-//                 <span className="text-gray-400">Rank {entry.value}</span>
-//               </div>
-//             )
-//           ))}
-//         </div>
-//       );
-//     }
-//     return null;
-//   };
-
-//   return (
-//     <Dialog open={isOpen} onOpenChange={onClose}>
-//       <DialogContent className="bg-[#19191A] text-white max-w-4xl">
-//         <DialogHeader>
-//           <DialogTitle className="text-xl font-bold text-white">
-//             {focusedProspect
-//               ? `${focusedProspect.Name} - Projected Rankings`
-//               : 'Projected Rankings Comparison'}
-//             {selectedPosition && ` - ${selectedPosition}s`}
-//           </DialogTitle>
-//           <button
-//             onClick={onClose}
-//             className="absolute right-4 top-4 text-gray-400 hover:text-white"
-//           >
-//             <X size={20} />
-//           </button>
-//         </DialogHeader>
-
-//         <div className="mt-4 p-4 bg-gray-800/20 rounded-lg">
-//           <LineChart
-//             width={800}
-//             height={400}
-//             data={graphData}
-//             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-//           >
-//             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-//             <XAxis
-//               dataKey="name"
-//               stroke="#666"
-//             />
-//             <YAxis
-//               stroke="#666"
-//               domain={[0, 'dataMax']}
-//               reversed={true}
-//               label={{
-//                 value: 'Rank',
-//                 angle: -90,
-//                 position: 'insideLeft',
-//                 style: { fill: '#666' }
-//               }}
-//             />
-//             <Tooltip content={<CustomTooltip />} />
-
-//             {/* Background comparison lines */}
-//             {allProspects.map((prospect) => {
-//               if (focusedProspect && prospect.Name === focusedProspect.Name) return null;
-//               return (
-//                 <Line
-//                   key={prospect.Name}
-//                   type="monotone"
-//                   dataKey={prospect.Name}
-//                   stroke={`#444444`}
-//                   strokeWidth={1}
-//                   dot={false}
-//                   opacity={0.2}
-//                   activeDot={false}
-//                 />
-//               );
-//             })}
-
-//             {/* Focused player line */}
-//             {focusedProspect && (
-//               <Line
-//                 key={focusedProspect.Name}
-//                 type="monotone"
-//                 dataKey={focusedProspect.Name}
-//                 stroke={`#${focusedProspect['Team Color']}`} // Make sure this matches your CSV column name exactly
-//                 strokeWidth={3}
-//                 dot={{
-//                   r: 4,
-//                   fill: `#${focusedProspect['Team Color']}`,
-//                   strokeWidth: 0
-//                 }}
-//               />
-//             )}
-//           </LineChart>
-//         </div>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// };
-
-
 interface TimelineFilterProps {
   selectedSortKey: string;
   setSelectedSortKey: (key: string) => void;
   selectedPosition: string | null;
   setSelectedPosition: (position: string | null) => void;
-  selectedTier: string | null;  // New prop for tier selection
-  setSelectedTier: (tier: string | null) => void;  // New prop for setting tier
+  selectedTier: string | null;
+  setSelectedTier: (tier: string | null) => void;
   tierRankActive: boolean;
   setTierRankActive: (active: boolean) => void;
   filteredProspects: DraftProspect[];
@@ -441,6 +200,8 @@ interface TimelineFilterProps {
   setSearchQuery: (query: string) => void;
   viewMode: 'cards' | 'table';
   setViewMode: (mode: 'cards' | 'table') => void;
+  selectedYear: number;
+  setSelectedYear: (year: number) => void;
 }
 
 const TimelineFilter = ({
@@ -456,19 +217,35 @@ const TimelineFilter = ({
   setViewMode,
   tierRankActive,
   setTierRankActive,
+  selectedYear,
+  setSelectedYear,
 }: TimelineFilterProps) => {
   const [showFilterSection, setShowFilterSection] = useState(false);
-  const [selectedYear, setSelectedYear] = useState('2024');
 
-  // Timeline labels
-  const yearSortKeys = [
-    { key: 'Actual Pick', label: 'Draft' },
-    { key: 'Pred. Y1 Rank', label: 'Y1' },
-    { key: 'Pred. Y2 Rank', label: 'Y2' },
-    { key: 'Pred. Y3 Rank', label: 'Y3' },
-    { key: 'Pred. Y4 Rank', label: 'Y4' },
-    { key: 'Pred. Y5 Rank', label: 'Y5' }
-  ];
+  const getYearSortKeys = () => {
+    if (selectedYear === 2025) {
+      return [
+        { key: 'Rank', label: 'Rank' },
+        { key: 'Pred. Y1 Rank', label: 'Y1' },
+        { key: 'Pred. Y2 Rank', label: 'Y2' },
+        { key: 'Pred. Y3 Rank', label: 'Y3' },
+        { key: 'Pred. Y4 Rank', label: 'Y4' },
+        { key: 'Pred. Y5 Rank', label: 'Y5' }
+      ];
+    } else {
+      return [
+        { key: 'Actual Pick', label: 'Draft' },
+        { key: 'Pred. Y1 Rank', label: 'Y1' },
+        { key: 'Pred. Y2 Rank', label: 'Y2' },
+        { key: 'Pred. Y3 Rank', label: 'Y3' },
+        { key: 'Pred. Y4 Rank', label: 'Y4' },
+        { key: 'Pred. Y5 Rank', label: 'Y5' }
+      ];
+    }
+  };
+
+  const yearSortKeys = getYearSortKeys();
+
 
   // Button titles
   const averageKeys = [
@@ -476,17 +253,28 @@ const TimelineFilter = ({
     { key: 'Avg. Rank Y1-Y5', label: '5Y Avg' },
   ];
 
-  // For the summary by the filters
-  const summaryLabels: { [key: string]: string } = {
-    'Actual Pick': 'Draft Order',
-    'Pred. Y1 Rank': 'Year 1',
-    'Pred. Y2 Rank': 'Year 2',
-    'Pred. Y3 Rank': 'Year 3',
-    'Pred. Y4 Rank': 'Year 4',
-    'Pred. Y5 Rank': 'Year 5',
-    'Avg. Rank Y1-Y3': '3 Year Average',
-    'Avg. Rank Y1-Y5': '5 Year Average',
+  // For the summary by the filters - updated to handle both years
+  const getSummaryLabels = () => {
+    const baseLabels: { [key: string]: string } = {
+      'Pred. Y1 Rank': 'Year 1',
+      'Pred. Y2 Rank': 'Year 2',
+      'Pred. Y3 Rank': 'Year 3',
+      'Pred. Y4 Rank': 'Year 4',
+      'Pred. Y5 Rank': 'Year 5',
+      'Avg. Rank Y1-Y3': '3 Year Average',
+      'Avg. Rank Y1-Y5': '5 Year Average',
+    };
+
+    if (selectedYear === 2025) {
+      baseLabels['Rank'] = 'Rank';
+    } else {
+      baseLabels['Actual Pick'] = 'Draft Order';
+    }
+
+    return baseLabels;
   };
+
+  const summaryLabels = getSummaryLabels();
 
   // Position labels
   const positions = [
@@ -508,13 +296,29 @@ const TimelineFilter = ({
 
   summaryLabels['Tier Ranked'] = 'Tier Ranking';
 
+  const getDefaultSortKey = () => {
+    return selectedYear === 2025 ? 'Rank' : 'Actual Pick';
+  };
+
   // Function to reset all filters
   const resetFilters = () => {
-    setSelectedSortKey('Actual Pick'); // Reset to Draft Order
+    // Set the default sort key based on the selected year
+    setSelectedSortKey(selectedYear === 2025 ? 'Rank' : 'Actual Pick');
     setSelectedPosition(null); // Clear position filter
     setSelectedTier(null); // Clear tier filter
     setSearchQuery(''); // Clear search
     setTierRankActive(false); // Reset tier ranking state
+  };
+
+  // Handle year change - reset sort key to appropriate default
+  const handleYearChange = (year: number) => {
+    setSelectedYear(year);
+    // Reset sort key to the appropriate default for the new year
+    if (year === 2025) {
+      setSelectedSortKey('Rank');
+    } else {
+      setSelectedSortKey('Actual Pick');
+    }
   };
 
   const shouldHighlight = (itemKey: string) => {
@@ -587,8 +391,9 @@ const TimelineFilter = ({
 
   // Check if any filters are applied (for conditionally showing reset button)
   const hasActiveFilters = () => {
+    const defaultSortKey = getDefaultSortKey();
     // Check if any filter is different from default values
-    return selectedSortKey !== 'Actual Pick' || selectedPosition !== null || selectedTier !== null || searchQuery.trim() !== '';
+    return selectedSortKey !== defaultSortKey || selectedPosition !== null || selectedTier !== null || searchQuery.trim() !== '';
   };
 
   return (
@@ -650,13 +455,13 @@ const TimelineFilter = ({
             <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
               <DropdownMenuItem
                 className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
-                onClick={() => setSelectedYear('2024')}
+                onClick={() => handleYearChange(2024)}
               >
                 2024
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-gray-600 hover:bg-gray-800/50 cursor-not-allowed"
-                disabled
+                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                onClick={() => handleYearChange(2025)}
               >
                 2025
               </DropdownMenuItem>
@@ -1084,8 +889,6 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   );
 };
 
-// const [graphType, setGraphType] = useState('rankings');
-
 const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
@@ -1182,7 +985,7 @@ const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
       // Add a small padding (5% of the range) to prevent points from touching the edges
       const range = max - min;
       const padding = range * 0.05;
-      
+
       // Round to 1 decimal place for cleaner numbers
       return [
         Math.floor((min - padding) * 10) / 10,
@@ -1519,11 +1322,11 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
           <BarChart
             layout="vertical"
             data={compData}
-            margin={{ 
+            margin={{
               top: 15,
-              right: 20, 
-              bottom: -5, 
-              left: 5 
+              right: 20,
+              bottom: -5,
+              left: 5
             }}
           >
             <XAxis
@@ -1536,8 +1339,8 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
               type="category"
               hide={true}
             />
-            <Tooltip 
-              content={<CustomTooltip />} 
+            <Tooltip
+              content={<CustomTooltip />}
               cursor={false}
               isAnimationActive={false}
             />
@@ -1562,8 +1365,8 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
                     fillOpacity={0.3}
                     stroke={color}
                     cursor="default"
-                    onMouseEnter={() => {}}
-                    onMouseLeave={() => {}}
+                    onMouseEnter={() => { }}
+                    onMouseLeave={() => { }}
                   />
                 );
               })}
@@ -1579,35 +1382,23 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
   );
 };
 
-// Add this new component before the ProspectCard component
-const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
+// First, update the SpiderChart component props to include selectedYear
+const SpiderChart: React.FC<{ 
+  prospect: DraftProspect;
+  selectedYear: number;  // Add this prop
+}> = ({ prospect, selectedYear }) => {
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonPlayer, setComparisonPlayer] = useState<DraftProspect | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [samePositionPlayers, setSamePositionPlayers] = useState<DraftProspect[]>([]);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check if device is mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    // Set initial value
-    checkMobile();
-
-    // Add event listener for window resize
-    window.addEventListener('resize', checkMobile);
-
-    // Cleanup
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Get all players in the same position
+  // Update the useEffect to fetch players from the correct year
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const response = await fetch('/2024_Draft_Class.csv');
+        const csvFile = selectedYear === 2025 ? '/2025_Draft_Class.csv' : '/2024_Draft_Class.csv';
+        const response = await fetch(csvFile);
         const csvText = await response.text();
         Papa.parse(csvText, {
           header: true,
@@ -1624,7 +1415,7 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
       }
     };
     fetchPlayers();
-  }, [prospect.Role, prospect.Name]);
+  }, [prospect.Role, prospect.Name, selectedYear]); // Add selectedYear to dependencies
 
   const getAttributeValue = (value: string | number | undefined): number => {
     if (value === undefined) return 0;
@@ -1701,11 +1492,10 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
                     }
                     setIsDropdownOpen(false);
                   }}
-                  className={`w-full px-3 py-2 text-sm text-left ${
-                    showComparison && comparisonPlayer?.Name === player.Name
+                  className={`w-full px-3 py-2 text-sm text-left ${showComparison && comparisonPlayer?.Name === player.Name
                       ? 'bg-gray-700/50 text-gray-200'
                       : 'text-gray-300 hover:bg-gray-700/50'
-                  }`}
+                    }`}
                 >
                   {player.Name}
                 </button>
@@ -1721,8 +1511,8 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
         >
           <PolarGrid stroke="#999" />
-          <PolarAngleAxis 
-            dataKey="name" 
+          <PolarAngleAxis
+            dataKey="name"
             fontSize={isMobile ? 10 : 12}
             tick={{ fill: '#fff' }}
           />
@@ -1748,13 +1538,14 @@ const SpiderChart: React.FC<{ prospect: DraftProspect }> = ({ prospect }) => {
   );
 };
 
-const ProspectCard: React.FC<{ 
-  prospect: DraftProspect; 
-  rank: RankType; 
+const ProspectCard: React.FC<{
+  prospect: DraftProspect;
+  rank: RankType;
   filteredProspects: DraftProspect[];
-  allProspects: DraftProspect[]; // Add allProspects prop
+  allProspects: DraftProspect[];
   selectedSortKey: string;
-}> = ({ prospect, filteredProspects, allProspects, selectedSortKey }) => {
+  selectedYear: number;
+}> = ({ prospect, filteredProspects, allProspects, selectedSortKey, selectedYear }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -1764,36 +1555,37 @@ const ProspectCard: React.FC<{
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [activeChart, setActiveChart] = useState('spider');
-  
+  // Remove duplicate selectedYear state since it's already passed as a prop
+
   // Calculate original rankings based on all prospects
   const originalRankings = useMemo(() => {
     // Create sorted arrays of all prospects for 3-year and 5-year averages
     const sortedBy3YAvg = [...allProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
     );
-    
+
     const sortedBy5YAvg = [...allProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y5']) - Number(a['Avg. EPM Y1-Y5'])
     );
-    
+
     // Find the current prospect's position in these sorted arrays
     const rank3Y = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
     const rank5Y = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
-    
+
     // Get position-specific rankings
     const samePositionProspects = allProspects.filter(p => p.Role === prospect.Role);
-    
+
     const sortedBy3YAvgPosition = [...samePositionProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
     );
-    
+
     const sortedBy5YAvgPosition = [...samePositionProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y5']) - Number(a['Avg. EPM Y1-Y5'])
     );
-    
+
     const positionRank3Y = sortedBy3YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
     const positionRank5Y = sortedBy5YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
-    
+
     return {
       overall3Y: rank3Y,
       overall5Y: rank5Y,
@@ -1838,8 +1630,11 @@ const ProspectCard: React.FC<{
   }, [isExpanded, isMobile]);
 
   const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
-  const playerImageUrl2024 = `/player_images2024/${prospect.Name} BG Removed.png`;
-  // const playerImageUrl2025 = `/player_images2025/${prospect.Name} BG Removed.png`;
+
+  const playerImageUrl = selectedYear === 2025
+    ? `/player_images2025/${prospect.Name} BG Removed.png`
+    : `/player_images2024/${prospect.Name} BG Removed.png`;
+
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   const getPositionRank = (year: string): string => {
@@ -1947,7 +1742,7 @@ const ProspectCard: React.FC<{
                 {!imageError ? (
                   <div className="relative w-full h-full flex items-end justify-center">
                     <Image
-                      src={playerImageUrl2024}
+                      src={playerImageUrl}  // Use the dynamic playerImageUrl instead of hardcoded path
                       alt={prospect.Name}
                       fill
                       className={`
@@ -2016,7 +1811,10 @@ const ProspectCard: React.FC<{
                       <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
-                        {Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}{draftedTeam}
+                        {selectedYear === 2025 
+                          ? teamNames[prospect['NBA Team']] || prospect['NBA Team']
+                          : `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}${draftedTeam}`
+                        }
                       </div>
                     </div>
                   </div>
@@ -2065,7 +1863,10 @@ const ProspectCard: React.FC<{
                     <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                     <div>
                       <span className="font-bold text-white">Draft </span>
-                      {Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}{prospect.NBA}
+                      {selectedYear === 2025 
+                        ? teamNames[prospect['NBA Team']] || prospect['NBA Team']
+                        : `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}${prospect.NBA}`
+                      }
                     </div>
                   </div>
                 </div>
@@ -2145,7 +1946,10 @@ const ProspectCard: React.FC<{
                   {/* Chart Container */}
                   <div className={`mb-4 ${!isMobile ? 'h-64' : 'h-[300px]'}`}>
                     {activeChart === 'spider' ? (
-                      <SpiderChart prospect={prospect} />
+                      <SpiderChart 
+                        prospect={prospect} 
+                        selectedYear={selectedYear}  // Pass the selectedYear prop
+                      />
                     ) : (
                       <PlayerComparisonChart prospect={prospect} />
                     )}
@@ -2225,21 +2029,19 @@ const ProspectCard: React.FC<{
                       {/* Chart Toggle Buttons */}
                       <button
                         onClick={() => setActiveChart('spider')}
-                        className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${
-                          activeChart === 'spider' 
-                            ? 'text-blue-400 border-blue-500/30 bg-blue-500/20' 
+                        className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${activeChart === 'spider'
+                            ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
                             : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
-                        }`}
+                          }`}
                       >
                         Skills Chart
                       </button>
                       <button
                         onClick={() => setActiveChart('comparison')}
-                        className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${
-                          activeChart === 'comparison' 
-                            ? 'text-blue-400 border-blue-500/30 bg-blue-500/20' 
+                        className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${activeChart === 'comparison'
+                            ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
                             : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
-                        }`}
+                          }`}
                       >
                         Player Comparisons
                       </button>
@@ -2570,10 +2372,14 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
 };
 
 type RankType = number | 'N/A';
-
-{/* Filters */ }
-function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[] }) {
-  const [selectedSortKey, setSelectedSortKey] = useState<string>('Actual Pick');
+{/* Filters */}
+function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: { 
+  initialProspects: DraftProspect[]; 
+  selectedYear: number; 
+  setSelectedYear: (year: number) => void; 
+}) {
+  // Update the initial state to use the correct default sort key based on year
+  const [selectedSortKey, setSelectedSortKey] = useState<string>(selectedYear === 2025 ? 'Rank' : 'Actual Pick');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -2583,6 +2389,10 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
   const [, setIsMobile] = useState(false);
   const [tierRankActive, setTierRankActive] = useState(false);
 
+  // Add an effect to update the sort key when the year changes
+  useEffect(() => {
+    setSelectedSortKey(selectedYear === 2025 ? 'Rank' : 'Actual Pick');
+  }, [selectedYear]);
 
   // Check if device is mobile
   useEffect(() => {
@@ -2626,10 +2436,10 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
     // Create a map of the initial draft order rank
     const initialRankMap = new Map<string, RankType>(
       initialProspects
-        .filter(prospect => 
+        .filter(prospect =>
           prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
-          prospect['Actual Pick'] && 
-          !isNaN(Number(prospect['Actual Pick'])) && 
+          prospect['Actual Pick'] &&
+          !isNaN(Number(prospect['Actual Pick'])) &&
           Number(prospect['Actual Pick']) <= 58
         )
         .sort((a, b) => Number(a['Actual Pick']) - Number(b['Actual Pick']))
@@ -2687,12 +2497,12 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
       if (tierRankActive) {
         const aTierRank = tierRankMap[a.Tier as keyof typeof tierRankMap] || 999;
         const bTierRank = tierRankMap[b.Tier as keyof typeof tierRankMap] || 999;
-        
+
         // If tiers are different, sort by tier
         if (aTierRank !== bTierRank) {
           return aTierRank - bTierRank;
         }
-        
+
         // If tiers are the same, sort by the selected metric
         if (selectedSortKey === 'Avg. Rank Y1-Y3') {
           const aValue = Number(a['Avg. EPM Y1-Y3']) || 0;
@@ -2769,8 +2579,10 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
         viewMode={viewMode}
         setViewMode={setViewMode}
         tierRankActive={tierRankActive}
-        setTierRankActive={setTierRankActive} 
-        filteredProspects={[]} 
+        setTierRankActive={setTierRankActive}
+        filteredProspects={filteredProspects.map(p => p.prospect)} // Fix this
+        selectedYear={selectedYear} // Fix this
+        setSelectedYear={setSelectedYear} // Fix this
       />
 
       <div className="max-w-6xl mx-auto px-4 pt-8">
@@ -2785,6 +2597,7 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
                   filteredProspects={filteredProspects.map(p => p.prospect)}
                   allProspects={initialProspects} // Pass all prospects
                   selectedSortKey={selectedSortKey}
+                  selectedYear={selectedYear}                  //selectedYear={} // Convert selectedTier to number
                 />
               ))}
               {isLoading && (
@@ -2816,11 +2629,14 @@ function TimelineSlider({ initialProspects }: { initialProspects: DraftProspect[
 
 export default function DraftProspectsPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);
+  // Change the initial state from 2024 to 2025
+  const [selectedYear, setSelectedYear] = useState(2025);
 
   useEffect(() => {
     async function fetchDraftProspects() {
       try {
-        const response = await fetch('/2024_Draft_Class.csv');
+        const csvFile = selectedYear === 2025 ? '/2025_Draft_Class.csv' : '/2024_Draft_Class.csv';
+        const response = await fetch(csvFile);
         const csvText = await response.text();
 
         Papa.parse(csvText, {
@@ -2846,11 +2662,10 @@ export default function DraftProspectsPage() {
 
               // Calculate position ranks for each year
               ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].forEach(year => {
-                const yearKey = `Pred. ${year} EPM` as keyof DraftProspect; // Change to EPM
+                const yearKey = `Pred. ${year} EPM` as keyof DraftProspect;
                 const sortedByYear = [...samePositionProspects].sort((a, b) => {
-                  const aEPM = Number(a[yearKey]);
-                  const bEPM = Number(b[yearKey]);
-                  // Sort in descending order for EPM (higher is better)
+                  const aEPM = Number(a[yearKey]) || 0;
+                  const bEPM = Number(b[yearKey]) || 0;
                   return bEPM - aEPM;
                 });
                 positionRanks[year as keyof typeof positionRanks] =
@@ -2863,7 +2678,7 @@ export default function DraftProspectsPage() {
                 Number(prospect['Pred. Y2 EPM'] || 0) +
                 Number(prospect['Pred. Y3 EPM'] || 0)
               ) / 3;
-              
+
               // Calculate 5-year average EPM
               const avg5YEPM = (
                 Number(prospect['Pred. Y1 EPM'] || 0) +
@@ -2911,14 +2726,29 @@ export default function DraftProspectsPage() {
               const sortedBy5YAvgPosition = [...samePositionProspectsWith5YAvg].sort((a, b) => b.avg5YEPM - a.avg5YEPM);
               positionRanks.Y1Y5 = sortedBy5YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
 
+              // For 2025 prospects, calculate individual year rankings
+              const yearRankings: { [key: string]: number } = {};
+              if (selectedYear === 2025) {
+                ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].forEach(year => {
+                  const yearKey = `Pred. ${year} EPM` as keyof DraftProspect;
+                  const sortedByYear = [...prospectData].sort((a, b) => {
+                    const aEPM = Number(a[yearKey]) || 0;
+                    const bEPM = Number(b[yearKey]) || 0;
+                    return bEPM - aEPM;
+                  });
+                  const yearRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
+                  yearRankings[`Pred. ${year} Rank`] = yearRank;
+                });
+              }
+
               return {
                 ...prospect,
+                ...yearRankings,
                 positionRanks,
                 avg3YEPM,
                 avg5YEPM,
                 globalRank3Y,
                 globalRank5Y,
-                // Add these to be accessible for sorting
                 'Avg. EPM Y1-Y3': avg3YEPM,
                 'Avg. EPM Y1-Y5': avg5YEPM,
                 'Rank Y1-Y3': globalRank3Y,
@@ -2935,13 +2765,15 @@ export default function DraftProspectsPage() {
     }
 
     fetchDraftProspects();
-  }, []);
+  }, [selectedYear]); // This dependency ensures we refetch when year changes
 
   return (
     <div className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Max Savin" />
-      <TimelineSlider 
+      <TimelineSlider
         initialProspects={prospects}
+        selectedYear={selectedYear}
+        setSelectedYear={setSelectedYear}
       />
     </div>
   );
