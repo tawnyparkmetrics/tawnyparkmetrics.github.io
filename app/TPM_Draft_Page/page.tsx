@@ -1391,7 +1391,7 @@ const SpiderChart: React.FC<{
   const [comparisonPlayer, setComparisonPlayer] = useState<DraftProspect | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [samePositionPlayers, setSamePositionPlayers] = useState<DraftProspect[]>([]);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, ] = useState(false);
 
   // Update the useEffect to fetch players from the correct year
   useEffect(() => {
