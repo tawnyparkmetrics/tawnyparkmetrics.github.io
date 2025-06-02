@@ -1632,8 +1632,8 @@ const ProspectCard: React.FC<{
   const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
 
   const playerImageUrl = selectedYear === 2025
-    ? `/player_images2025/${prospect.Name} BG Removed.png`
-    : `/player_images2024/${prospect.Name} BG Removed.png`;
+      ? `/player_images2025/${prospect.Name.replace('Bg', 'BG')} Removed.png` // Or however prospect.Name is handled
+      : `/player_images2024/${prospect.Name.replace('Bg', 'BG')} Removed.png`;
 
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
