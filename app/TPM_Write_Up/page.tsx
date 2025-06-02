@@ -511,7 +511,7 @@ export default function TPMWriteUpPage() {
       title: 'Why does your board look so nice visually?',
       content: (
         <p className="mb-4">
-          The one-and-only, <strong>Bala Ravikumar</strong> is responsible for programming all the visually striking draft boards across the site, including my own. We have worked extensively together to &quot;get the design right&quot; and iron out small details, leading to draft boards that we hope you will enjoy browsing. Please let us know if you have any design feedback or suggestions. While we are pleased with the current look of the site, we&apos;re always trying to make improvements.
+          The one-and-only, <strong>Bala Ravikumar</strong> is responsible for programming all of the visually striking draft boards across the site, including my own. We have worked extensively together to &quot;get the design right&quot; and iron out small details, leading to draft boards that we hope you will enjoy browsing. Please let us know if you have any design feedback or suggestions. While we are pleased with the current look of the site, we&apos;re always trying to make improvements.
         </p>
       )
     },
