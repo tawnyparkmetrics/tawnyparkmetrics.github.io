@@ -2637,6 +2637,10 @@ export default function DraftProspectsPage() {
   const [selectedYear, setSelectedYear] = useState(2025);
 
   useEffect(() => {
+    document.title = '2025 Draft Board - Max';
+  }, []);
+
+  useEffect(() => {
     async function fetchDraftProspects() {
       try {
         const csvFile = selectedYear === 2025 ? '/2025_Draft_Class.csv' : '/2024_Draft_Class.csv';
@@ -2769,7 +2773,7 @@ export default function DraftProspectsPage() {
     }
 
     fetchDraftProspects();
-  }, [selectedYear]); // This dependency ensures we refetch when year changes
+  }, [selectedYear]); 
 
   return (
     <>

@@ -699,6 +699,10 @@ export default function NickDraftPage() {
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [selectedSortKey, ] = useState<string>('Actual Pick');
 
+  useEffect(() => {
+    document.title = '2024 Draft Board - Nick';
+  }, []);
+
   // Check if device is mobile
   useEffect(() => {
     const checkMobile = () => {
