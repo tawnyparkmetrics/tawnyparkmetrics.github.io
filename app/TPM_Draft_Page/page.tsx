@@ -1386,13 +1386,23 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
 // First, update the SpiderChart component props to include selectedYear
 const SpiderChart: React.FC<{ 
   prospect: DraftProspect;
-  selectedYear: number;  // Add this prop
+  selectedYear: number;
 }> = ({ prospect, selectedYear }) => {
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonPlayer, setComparisonPlayer] = useState<DraftProspect | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [samePositionPlayers, setSamePositionPlayers] = useState<DraftProspect[]>([]);
-  const [isMobile, ] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Add useEffect to check for mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Update the useEffect to fetch players from the correct year
   useEffect(() => {
@@ -1455,6 +1465,20 @@ const SpiderChart: React.FC<{
     }));
   }, [prospect, comparisonPlayer, showComparison]);
 
+  // Add custom tick formatter for mobile
+  const customTickFormatter = (value: string) => {
+    if (!isMobile) return value;
+    
+    // Adjust positioning for specific labels on mobile
+    if (value === 'Shooting') {
+      return '  Shooting'; // Add extra space at the start
+    }
+    if (value === 'Defense') {
+      return '  Defense'; // Add extra space at the start
+    }
+    return value;
+  };
+
   return (
     <div className="w-full h-[300px] relative">
       <div className="absolute top-0 left-0 z-10">
@@ -1516,6 +1540,7 @@ const SpiderChart: React.FC<{
             dataKey="name"
             fontSize={isMobile ? 10 : 12}
             tick={{ fill: '#fff' }}
+            tickFormatter={customTickFormatter}
           />
           <Radar
             name={prospect.Name}
@@ -2382,8 +2407,10 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   selectedYear: number; 
   setSelectedYear: (year: number) => void; 
 }) {
-  // Update the initial state to use the correct default sort key and tier rank
-  const [selectedSortKey, setSelectedSortKey] = useState<string>('Avg. Rank Y1-Y5');
+  // Update initial state based on selected year
+  const [selectedSortKey, setSelectedSortKey] = useState<string>(
+    selectedYear === 2025 ? 'Avg. Rank Y1-Y5' : 'Actual Pick'
+  );
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -2391,12 +2418,17 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   const [displayedProspects, setDisplayedProspects] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(false);
   const [, setIsMobile] = useState(false);
-  const [tierRankActive, setTierRankActive] = useState(true); // Set to true by default
+  const [tierRankActive, setTierRankActive] = useState(selectedYear === 2025); // Set based on year
 
-  // Update the effect to maintain these defaults when year changes
+  // Update the effect to set different defaults based on year
   useEffect(() => {
-    setSelectedSortKey('Avg. Rank Y1-Y5');
-    setTierRankActive(true);
+    if (selectedYear === 2025) {
+      setSelectedSortKey('Avg. Rank Y1-Y5');
+      setTierRankActive(true);
+    } else {
+      setSelectedSortKey('Actual Pick');
+      setTierRankActive(false);
+    }
   }, [selectedYear]);
 
   // Check if device is mobile
@@ -2637,7 +2669,7 @@ export default function DraftProspectsPage() {
   const [selectedYear, setSelectedYear] = useState(2025);
 
   useEffect(() => {
-    document.title = '2025 Draft Board - Max';
+    document.title = 'Draft Board - Max';
   }, []);
 
   useEffect(() => {
@@ -2778,7 +2810,7 @@ export default function DraftProspectsPage() {
   return (
     <>
       <Head>
-        <title>2025 Draft Board - Max</title>
+        <title>Draft Board - Max</title>
       </Head>
       <div className="min-h-screen bg-[#19191A]">
         <NavigationHeader activeTab="Max Savin" />
