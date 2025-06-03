@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { TooltipProps } from 'recharts';
 //import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
 import NavigationHeader from '@/components/NavigationHeader';
+import Head from 'next/head';
 
 type PositionRanks = {
   Y1: number;
@@ -2633,7 +2634,6 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
 
 export default function DraftProspectsPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);
-  // Change the initial state from 2024 to 2025
   const [selectedYear, setSelectedYear] = useState(2025);
 
   useEffect(() => {
@@ -2772,13 +2772,18 @@ export default function DraftProspectsPage() {
   }, [selectedYear]); // This dependency ensures we refetch when year changes
 
   return (
-    <div className="min-h-screen bg-[#19191A]">
-      <NavigationHeader activeTab="Max Savin" />
-      <TimelineSlider
-        initialProspects={prospects}
-        selectedYear={selectedYear}
-        setSelectedYear={setSelectedYear}
-      />
-    </div>
+    <>
+      <Head>
+        <title>2025 Draft Board - Max</title>
+      </Head>
+      <div className="min-h-screen bg-[#19191A]">
+        <NavigationHeader activeTab="Max Savin" />
+        <TimelineSlider
+          initialProspects={prospects}
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+        />
+      </div>
+    </>
   );
 }
