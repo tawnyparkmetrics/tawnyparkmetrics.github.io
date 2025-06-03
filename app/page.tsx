@@ -10,8 +10,8 @@ export default function Home() {
     <main className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Home" />
       
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8">
+      {/* Hero Section - Reduced top padding from pt-20 to pt-12 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
         <div className="bg-[#19191A] border border-white/20 rounded-xl p-8">
           <div className="flex flex-col md:flex-row items-center gap-12">
             {/* Logo */}
@@ -39,9 +39,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Draft Boards Section */}
+      {/* Draft Boards Section - Reduced top padding */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"> {/* Reduced gap and margin */}
           {/* Max Savin's Draft Board Card */}
           <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
             <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
@@ -91,9 +91,11 @@ export default function Home() {
           </div>
         </div> */}
 
-        {/* Join TPM Section */}
-        <div className="bg-[#19191A] border border-white/20 rounded-xl p-8">
-          <h2 className="text-3xl font-bold text-white mb-6">Join TPM</h2>
+        {/* Join TPM Section - Adjusted spacing */}
+        <div className="bg-[#19191A] border border-white/20 rounded-xl p-6"> {/* Reduced padding from p-8 to p-6 */}
+          <h2 className="text-3xl font-bold text-white mb-4"> {/* Reduced margin from mb-6 to mb-4 */}
+            Join TPM
+          </h2>
           <div className="text-gray-300 text-base leading-relaxed space-y-4">
             <p>
               <strong className="text-white">We are actively seeking other draft boards to host on the site</strong>. If you have your own draft analysis – it does not have to be a draft model – hit us up via mes9950@stern.nyu.edu or direct message <a href="https://x.com/supersayansavin" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>. Your board will not be exclusive to TPM in any way; you are absolutely welcome to display it via other means as well. <strong className="text-white">Our goal is to create a platform where it&apos;s easy to share your work for no cost, very limited additional effort, and as close to no downside as possible.</strong>
