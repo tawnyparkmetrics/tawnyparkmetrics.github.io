@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import NavigationHeader from '@/components/NavigationHeader';
 
@@ -97,6 +97,10 @@ export default function TPMWriteUpPage() {
       [sectionId]: !prev[sectionId]
     }));
   };
+
+  useEffect(() => {
+    document.title = 'Draft Model Write Up - Max';
+  }, []);
 
   const sections = [
     {
