@@ -226,7 +226,7 @@ const TimelineFilter = ({
   const getYearSortKeys = () => {
     if (selectedYear === 2025) {
       return [
-        { key: 'Rank', label: 'Rank' },
+        { key: 'Rank', label: 'Consensus' }, // Changed from 'Rank' to 'Consensus'
         { key: 'Pred. Y1 Rank', label: 'Y1' },
         { key: 'Pred. Y2 Rank', label: 'Y2' },
         { key: 'Pred. Y3 Rank', label: 'Y3' },
@@ -267,7 +267,7 @@ const TimelineFilter = ({
     };
 
     if (selectedYear === 2025) {
-      baseLabels['Rank'] = 'Rank';
+      baseLabels['Rank'] = 'Consensus';
     } else {
       baseLabels['Actual Pick'] = 'Draft Order';
     }
@@ -1838,7 +1838,9 @@ const ProspectCard: React.FC<{
                       <div>
                         <span className="font-bold text-white">Draft  </span>
                         {selectedYear === 2025 
-                          ? teamNames[prospect['NBA Team']] || prospect['NBA Team']
+                          ? prospect.Name === 'Cooper Flagg'
+                            ? '1 - Dallas Mavericks'
+                            : teamNames[prospect['NBA Team']] || prospect['NBA Team']
                           : `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}${draftedTeam}`
                         }
                       </div>
@@ -1890,7 +1892,9 @@ const ProspectCard: React.FC<{
                     <div>
                       <span className="font-bold text-white">Draft </span>
                       {selectedYear === 2025 
-                        ? teamNames[prospect['NBA Team']] || prospect['NBA Team']
+                        ? prospect.Name === 'Cooper Flagg'
+                          ? '1 - Dallas Mavericks'
+                          : teamNames[prospect['NBA Team']] || prospect['NBA Team']
                         : `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}${prospect.NBA}`
                       }
                     </div>
