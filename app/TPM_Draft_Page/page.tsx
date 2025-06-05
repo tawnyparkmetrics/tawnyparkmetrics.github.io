@@ -413,6 +413,18 @@ const TimelineFilter = ({
             {showFilterSection ? <ChevronUp className="h-4 w-4 ml-1" /> : <ChevronDown className="h-4 w-4 ml-1" />}
           </motion.button>
 
+          {/* Mobile Reset Button - only show when filters are active */}
+          {hasActiveFilters() && (
+            <motion.button
+              onClick={resetFilters}
+              className="md:hidden flex items-center text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30 p-1.5 rounded-lg -mr-2" // Changed p-2 to p-1.5 and -mr-1 to -mr-2
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X className="h-3.5 w-3.5" /> {/* Changed h-4 w-4 to h-3.5 w-3.5 */}
+            </motion.button>
+          )}
+
           {/* Filter summary text - shows when collapsed */}
           {!showFilterSection && (
             <div className="hidden md:flex text-sm text-gray-400 items-center ml-2">
