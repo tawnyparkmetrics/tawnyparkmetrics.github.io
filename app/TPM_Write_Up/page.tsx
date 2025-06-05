@@ -112,7 +112,7 @@ export default function TPMWriteUpPage() {
             My &quot;big board&quot;, developed in association with Tawny Park Metrics, analyzes NBA draft prospects via four distinct statistical outputs:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-4">
-            <li><strong>Expected <a href="https://dunksandthrees.com/about/epm" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 underline">EPM</a> (Estimated Plus-Minus)</strong> across first five seasons in the NBA (regression)</li>
+            <li><strong>Expected <a href="https://dunksandthrees.com/about/epm" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">EPM</a> (Estimated Plus-Minus)</strong> across first five seasons in the NBA (regression)</li>
             <li><strong>Predicted &quot;tier&quot;</strong> broken down into seven categories, ranging from All-Time Great to Fringe-NBA (classification)</li>
             <li>Five closest <strong>player comps</strong> to previous draft prospects (statistical similarity)</li>
             <li>Profiles contextualized as position-dependent percentiles (<strong>spider charts</strong>)</li>

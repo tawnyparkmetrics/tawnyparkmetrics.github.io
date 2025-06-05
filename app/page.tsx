@@ -48,7 +48,7 @@ export default function Home() {
               Max Savin&apos;s Draft Board
             </h2>
             <p className="text-gray-400 mb-4">
-              Explore <a href="https://x.com/supersayansavin" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>&apos;s model, featuring EPM projections, prospect tiers, skills graphs, and player comps.
+              Explore <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>&apos;s model, featuring EPM projections, prospect tiers, skills graphs, and player comps.
             </p>
             <Link href="/TPM_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
               <span className="text-sm font-medium">View Draft Board</span>
@@ -64,7 +64,7 @@ export default function Home() {
               Nick Kalinowski&apos;s Draft Board
             </h2>
             <p className="text-gray-400 mb-4">
-              Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" className="text-blue-400 hover:text-blue-300 transition-colors">@kalidrafts</a>&apos; model, which ranks prospects by predicted EPM across the length of their rookie contract using up to 535 unique predictors.
+              Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@kalidrafts</a>&apos;s model, which ranks prospects by predicted EPM across the length of their rookie contract using up to 535 unique predictors.
             </p>
             <Link href="/Nick_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
               <span className="text-sm font-medium">View Draft Board</span>
@@ -82,7 +82,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-white mb-4">Support TPM</h2>
             <div className="text-gray-300 text-base leading-relaxed space-y-4">
               <p>
-                You can first support TPM by donating <a href="https://buymeacoffee.com/tawnypark" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold underline">here</a>. Up to this point, <strong className="text-white">all the work you see on the site has been unpaid</strong>. Any donations are tremendously appreciated – we can&apos;t overstate enough how much they&apos;ll mean to us – and will <strong className="text-white">enable our growth</strong>. However, <strong className="text-white">foremost, we are grateful that you are even visiting and engaging with the site to begin with</strong>. Sharing TPM with anyone who might be interested is another incredibly helpful way to support our work.
+                You can first support TPM by donating <a href="https://buymeacoffee.com/tawnypark" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold underline">here</a>. Up to this point, <strong className="text-white">all the work you see on the site has been unpaid</strong>. Any donations are tremendously appreciated – we can&apos;t overstate enough how much they&apos;ll mean to us – and will <strong className="text-white">enable our growth</strong>. However, <strong className="text-white">foremost, we are grateful that you are even visiting and engaging with the site to begin with</strong>. Sharing TPM with anyone who might be interested is another incredibly helpful way to support our work.
               </p>
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-white mb-4">Join TPM</h2>
             <div className="text-gray-300 text-base leading-relaxed space-y-4">
               <p>
-                <strong className="text-white">We are actively seeking other draft boards to host on the site</strong>. If you have your own draft analysis – it does not have to be a draft model – hit us up via mes9950@stern.nyu.edu or direct message <a href="https://x.com/supersayansavin" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>. Your board will not be exclusive to TPM in any way; you are absolutely welcome to display it via other means as well. <strong className="text-white">Our goal is to create a platform where it&apos;s easy to share your work for no cost, very limited additional effort, and as close to no downside as possible.</strong>
+                <strong className="text-white">We are actively seeking other draft boards to host on the site</strong>. If you have your own draft analysis – it does not have to be a draft model – hit us up via mes9950@stern.nyu.edu or direct message <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>. Your board will not be exclusive to TPM in any way; you are absolutely welcome to display it via other means as well. <strong className="text-white">Our goal is to create a platform where it&apos;s easy to share your work for no cost, very limited additional effort, and as close to no downside as possible.</strong>
               </p>
             </div>
           </div>
