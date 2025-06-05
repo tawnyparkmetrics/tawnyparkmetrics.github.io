@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
-import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal, LayoutGrid } from 'lucide-react';
+import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal,} from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
