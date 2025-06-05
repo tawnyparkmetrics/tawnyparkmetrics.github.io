@@ -404,75 +404,105 @@ const TimelineFilter = ({
         <div className="flex items-center space-x-2">
           <motion.button
             onClick={() => setShowFilterSection(!showFilterSection)}
-            className="flex items-center gap-2 bg-gray-800/20 hover:bg-gray-800/40 text-gray-300 border border-gray-800 hover:border-gray-700 px-2 py-1.5 md:px-3 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200"
+            className="flex items-center gap-2 bg-gray-800/20 hover:bg-gray-800/40 text-gray-300 border border-gray-800 hover:border-gray-700 px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <SlidersHorizontal className="h-3.5 w-3.5 md:h-4 md:w-4" />
-            Filters
-            {showFilterSection ? <ChevronUp className="h-3.5 w-3.5 md:h-4 md:w-4 ml-1" /> : <ChevronDown className="h-3.5 w-3.5 md:h-4 md:w-4 ml-1" />}
+            <SlidersHorizontal className="h-3 w-3 md:h-4 md:w-4" />
+            <span>Filter</span>
+            {showFilterSection ? <ChevronUp className="h-3 w-3 md:h-4 md:w-4 ml-1" /> : <ChevronDown className="h-3 w-3 md:h-4 md:w-4 ml-1" />}
           </motion.button>
 
-          {/* Mobile Reset Button */}
+          {/* Mobile Reset Button - only show when filters are active */}
           {hasActiveFilters() && (
             <motion.button
               onClick={resetFilters}
-              className="md:hidden flex items-center text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30 p-1 rounded-lg mx-2"
+              className="md:hidden flex items-center text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30 p-1.5 rounded-lg"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <X className="h-3 w-3" />
             </motion.button>
           )}
+
+          {/* Filter summary text - shows when collapsed */}
+          {!showFilterSection && (
+            <div className="hidden md:flex text-sm text-gray-400 items-center ml-2">
+              {getFilterSummary() || "No filters applied"}
+
+              {/* Reset button when filter is collapsed */}
+              {hasActiveFilters() && (
+                <motion.button
+                  onClick={resetFilters}
+                  className="ml-2 flex items-center text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30 px-3 py-2 rounded-lg text-xs"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <X className="h-4 w-4" />
+                  Reset
+                </motion.button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* View mode toggle and Year dropdown */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 md:space-x-2">
+          {/* Year Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <motion.button
+                className={`
+                  px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium
+                  transition-all duration-300
+                  bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700
+                  flex items-center gap-1 md:gap-2
+                `}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {selectedYear}
+                <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
+              </motion.button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+              <DropdownMenuItem
+                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                onClick={() => handleYearChange(2024)}
+              >
+                2024
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                onClick={() => handleYearChange(2025)}
+              >
+                2025
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Divider */}
+          <div className="h-6 md:h-8 w-px bg-gray-700/30 mx-1 md:mx-2" />
+
           {/* View mode toggle */}
           <motion.button
             onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
-            className="flex items-center gap-2 bg-gray-800/20 hover:bg-gray-800/40 text-gray-300 border border-gray-800 hover:border-gray-700 px-2 py-1.5 md:px-3 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className={`
+              px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium
+              flex items-center
+              transition-all duration-300
+              ${viewMode === 'table'
+                ? 'bg-blue-500/20 text-gray-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
+            `}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            {viewMode === 'cards' ? (
-              <>
-                <TableIcon className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                <span className="hidden md:inline">Table View</span>
-                <span className="md:hidden">Table</span>
-              </>
-            ) : (
-              <>
-                <LayoutGrid className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                <span className="hidden md:inline">Card View</span>
-                <span className="md:hidden">Cards</span>
-              </>
-            )}
+            <TableIcon className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">{viewMode === 'cards' ? 'Table View' : 'Card View'}</span>
+            <span className="sm:hidden">{viewMode === 'cards' ? 'Table' : 'Cards'}</span>
           </motion.button>
-
-          {/* Year selection buttons */}
-          <div className="flex space-x-1 md:space-x-2">
-            <button
-              onClick={() => handleYearChange(2024)}
-              className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg transition-colors text-xs md:text-sm border ${
-                selectedYear === 2024
-                  ? 'bg-blue-500 text-white border-blue-500 bg-opacity-30'
-                  : 'bg-transparent text-gray-300 border-gray-800 hover:border-gray-700 hover:bg-gray-800/20'
-              }`}
-            >
-              2024
-            </button>
-            <button
-              onClick={() => handleYearChange(2025)}
-              className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg transition-colors text-xs md:text-sm border ${
-                selectedYear === 2025
-                  ? 'bg-blue-500 text-white border-blue-500 bg-opacity-30'
-                  : 'bg-transparent text-gray-300 border-gray-800 hover:border-gray-700 hover:bg-gray-800/20'
-              }`}
-            >
-              2025
-            </button>
-          </div>
         </div>
       </div>
 
