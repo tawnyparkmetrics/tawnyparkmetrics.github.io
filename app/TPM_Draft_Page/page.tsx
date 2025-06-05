@@ -1196,7 +1196,7 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
 
       setComparisonPlayerData(results.data);
       return results.data;
-    } catch (err: unknown) { // <-- Changed from 'any' to 'unknown'
+    } catch (err: unknown) {
       console.error("Error fetching comparison data:", err);
       if (err instanceof Error) {
         setError(err.message);
@@ -1280,26 +1280,8 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
 
   // Use the new CustomLabelProps interface
   const CustomLabel: React.FC<CustomLabelProps> = (props) => {
-    const { x, y, height, value, index } = props;
-    const entry = compData[index];
-    const color = getColorForTier(entry?.tier);
-    const [isMobile, setIsMobile] = useState(false);
-
-    // Check if device is mobile
-    useEffect(() => {
-      const checkMobile = () => {
-        setIsMobile(window.innerWidth < 768);
-      };
-
-      // Set initial value
-      checkMobile();
-
-      // Add event listener for window resize
-      window.addEventListener('resize', checkMobile);
-
-      // Cleanup
-      return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    const { x, y, height, value } = props;
+    const color = getColorForTier(compData[props.index]?.tier);
 
     return (
       <text
@@ -1311,7 +1293,7 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
         textAnchor="start"
         dominantBaseline="central"
       >
-        {isMobile ? `${value} (${entry?.similarity}%)` : value}
+        {value}
       </text>
     );
   };

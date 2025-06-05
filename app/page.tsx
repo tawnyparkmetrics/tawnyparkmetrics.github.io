@@ -39,9 +39,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Draft Boards Section - Reduced top padding */}
+      {/* Draft Boards Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"> {/* Reduced gap and margin */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Max Savin's Draft Board Card */}
           <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
             <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
@@ -75,31 +75,29 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Support TPM Section */}
-        {/* <div className="bg-gray-800/20 border border-gray-800 rounded-xl p-8 mb-8">
-          <h2 className="text-3xl font-bold text-white mb-6">Support TPM</h2>
-          <div className="text-gray-300 text-lg leading-relaxed space-y-4">
-            <p>
-              You can first support TPM by donating <a href="" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold">here</a>. Up to this point, <strong className="text-white">all the work you see on the site has been unpaid</strong>. As an aspiring venture, we need to fundraise to support the site, expand, and continue producing high-level analysis.
-            </p>
-            <p>
-              Any donations are tremendously appreciated – we can't overstate enough how much they'll mean to us – and will <strong className="text-white">enable our growth</strong>. Moreover, anyone who contributes will receive that donation value as a discount off an upcoming subscription service we hope to implement in the coming months (note, any donations that exceed the yearly cost of the subscription will simply result in a free service – i.e. 100% off). The primary benefit of this subscription will be access to the dataset Max uses for his draft model, uniquely standardized by age and level of competition.
-            </p>
-            <p>
-              However, <strong className="text-white">foremost, we are grateful that you are even visiting and engaging with the site to begin with</strong>. Sharing TPM with anyone who might be interested is another incredibly helpful way to support our work.
-            </p>
+        {/* Support TPM and Join TPM Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Support TPM Section */}
+          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6">
+            <h2 className="text-3xl font-bold text-white mb-4">Support TPM</h2>
+            <div className="text-gray-300 text-base leading-relaxed space-y-4">
+              <p>
+                You can first support TPM by donating <a href="https://buymeacoffee.com/tawnypark" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold underline">here</a>. Up to this point, <strong className="text-white">all the work you see on the site has been unpaid</strong>. As an aspiring venture, we need to fundraise to support the site, expand, and continue producing high-level analysis.
+              </p>
+              <p>
+                Any donations are tremendously appreciated – we can't overstate enough how much they'll mean to us – and will <strong className="text-white">enable our growth</strong>. However, <strong className="text-white">foremost, we are grateful that you are even visiting and engaging with the site to begin with</strong>. Sharing TPM with anyone who might be interested is another incredibly helpful way to support our work.
+              </p>
+            </div>
           </div>
-        </div> */}
 
-        {/* Join TPM Section - Adjusted spacing */}
-        <div className="bg-[#19191A] border border-white/20 rounded-xl p-6"> {/* Reduced padding from p-8 to p-6 */}
-          <h2 className="text-3xl font-bold text-white mb-4"> {/* Reduced margin from mb-6 to mb-4 */}
-            Join TPM
-          </h2>
-          <div className="text-gray-300 text-base leading-relaxed space-y-4">
-            <p>
-              <strong className="text-white">We are actively seeking other draft boards to host on the site</strong>. If you have your own draft analysis – it does not have to be a draft model – hit us up via mes9950@stern.nyu.edu or direct message <a href="https://x.com/supersayansavin" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>. Your board will not be exclusive to TPM in any way; you are absolutely welcome to display it via other means as well. <strong className="text-white">Our goal is to create a platform where it&apos;s easy to share your work for no cost, very limited additional effort, and as close to no downside as possible.</strong>
-            </p>
+          {/* Join TPM Section */}
+          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6">
+            <h2 className="text-3xl font-bold text-white mb-4">Join TPM</h2>
+            <div className="text-gray-300 text-base leading-relaxed space-y-4">
+              <p>
+                <strong className="text-white">We are actively seeking other draft boards to host on the site</strong>. If you have your own draft analysis – it does not have to be a draft model – hit us up via mes9950@stern.nyu.edu or direct message <a href="https://x.com/supersayansavin" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>. Your board will not be exclusive to TPM in any way; you are absolutely welcome to display it via other means as well. <strong className="text-white">Our goal is to create a platform where it&apos;s easy to share your work for no cost, very limited additional effort, and as close to no downside as possible.</strong>
+              </p>
+            </div>
           </div>
         </div>
       </div>
