@@ -82,10 +82,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-white mb-4">Support TPM</h2>
             <div className="text-gray-300 text-base leading-relaxed space-y-4">
               <p>
-                You can first support TPM by donating <a href="https://buymeacoffee.com/tawnypark" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold underline">here</a>. Up to this point, <strong className="text-white">all the work you see on the site has been unpaid</strong>. As an aspiring venture, we need to fundraise to support the site, expand, and continue producing high-level analysis.
-              </p>
-              <p>
-                Any donations are tremendously appreciated – we can&apos;t overstate enough how much they&apos;ll mean to us – and will <strong className="text-white">enable our growth</strong>. However, <strong className="text-white">foremost, we are grateful that you are even visiting and engaging with the site to begin with</strong>. Sharing TPM with anyone who might be interested is another incredibly helpful way to support our work.
+                You can first support TPM by donating <a href="https://buymeacoffee.com/tawnypark" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold underline">here</a>. Up to this point, <strong className="text-white">all the work you see on the site has been unpaid</strong>. Any donations are tremendously appreciated – we can&apos;t overstate enough how much they&apos;ll mean to us – and will <strong className="text-white">enable our growth</strong>. However, <strong className="text-white">foremost, we are grateful that you are even visiting and engaging with the site to begin with</strong>. Sharing TPM with anyone who might be interested is another incredibly helpful way to support our work.
               </p>
             </div>
           </div>

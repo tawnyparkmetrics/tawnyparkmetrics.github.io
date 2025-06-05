@@ -99,6 +99,11 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     }
   };
 
+  const handleSupportClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open('https://buymeacoffee.com/tawnypark', '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <>
       {/* Fixed header */}
@@ -249,16 +254,24 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
               </div>
             </div>
 
-            {/* TPM Logo on the right */}
-            <div className="flex items-center">
-              <Image
-                src="/TPM_logo_designs/TPM Square (Dark with Map - no wordmark).png"
-                alt="TPM Logo"
-                width={60} // Adjust size as needed
-                height={60} // Adjust size as needed
-              />
-              <div className={`ml-2 text-4xl font-bold text-white`}>
-                TPM
+            {/* TPM Logo and Support button on the right */}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={handleSupportClick}
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
+              >
+                Support
+              </button>
+              <div className="flex items-center">
+                <Image
+                  src="/TPM_logo_designs/TPM Square (Dark with Map - no wordmark).png"
+                  alt="TPM Logo"
+                  width={60} // Adjust size as needed
+                  height={60} // Adjust size as needed
+                />
+                <div className={`ml-2 text-4xl font-bold text-white`}>
+                  TPM
+                </div>
               </div>
             </div>
           </div>

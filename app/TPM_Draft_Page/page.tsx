@@ -883,7 +883,7 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
         src={teamLogoUrl}
         alt={`${NBA} logo`}
         fill
-        className="object-contain"
+        className={`object-contain ${NBA === 'Duke' ? 'brightness-125' : ''}`}
         onError={() => setNBALogoError(true)}
       />
     </div>
