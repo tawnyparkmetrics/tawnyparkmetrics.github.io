@@ -269,7 +269,8 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                   width={60} // Adjust size as needed
                   height={60} // Adjust size as needed
                 />
-                <div className={`ml-2 text-4xl font-bold text-white`}>
+                {/* Hide TPM text on mobile, show on larger screens */}
+                <div className={`ml-2 text-4xl font-bold text-white hidden sm:block`}>
                   TPM
                 </div>
               </div>
