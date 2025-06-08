@@ -70,7 +70,13 @@ const collegeNames: { [key: string]: string } = {
     "Western Carolina": "WCU",
     "KK Cedevita Olimpija": "KK C. Olimpija",
     "North Dakota State": "NDSU",
-    "Delaware Blue Coats": "Del. Blue Coats"
+    "Delaware Blue Coats": "Del. Blue Coats",
+    "Pallacanestro Reggiana": "Reggiana"
+}
+
+const draftShort: { [key: string]: string } = {
+    "G League Elite Camp": "G League Elite",
+    "Portsmouth Invitational": "P.I.T."
 }
 
 const teamNames: { [key: string]: string } = {
@@ -103,7 +109,7 @@ const teamNames: { [key: string]: string } = {
     DEN: "Denver Nuggets",
     POR: "Portland Trailblazers",
     CLE: "Cleveland Cavaliers",
-    NCAA: "NC"
+    NCAA: "NC",
 }
 
 const NBATeamLogo = ({ NBA }: { NBA: string }) => {
@@ -433,6 +439,21 @@ const ProspectCard: React.FC<{
         }
     }, [prospect, filteredProspects, selectedSortKey, pickNumber]);
 
+    // Helper function to get draft display text
+    const getDraftDisplayText = (isMobileView: boolean = false) => {
+        if (selectedYear === 2025) {
+            if (prospect.Name === 'Cooper Flagg') {
+                return '1 - Dallas Mavericks';
+            } else {
+                return teamNames.hasOwnProperty(prospect['NBA Team']) ? teamNames.DAL : prospect['NBA Team'];
+            }
+        } else {
+            const teamName = prospect['NBA Team'];
+            const displayName = isMobileView && draftShort.hasOwnProperty(teamName) ? draftShort[teamName] : teamName;
+            return `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${displayName} `}`;
+        }
+    };
+
     // Data for the new table (example values)
     const tableData = useMemo(() => ([
         { label: 'Cumulative', value: prospect['Cumulative PS/1000'] || 'N/A' },
@@ -596,12 +617,7 @@ const ProspectCard: React.FC<{
                                             <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                                             <div>
                                                 <span className="font-bold text-white">Draft  </span>
-                                                {selectedYear === 2025
-                                                    ? prospect.Name === 'Cooper Flagg'
-                                                        ? '1 - Dallas Mavericks'
-                                                        : teamNames.hasOwnProperty(prospect['NBA Team']) ? teamNames.DAL : prospect['NBA Team']
-                                                    : `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['NBA Team']} `}`
-                                                }
+                                                {getDraftDisplayText(false)}
                                             </div>
                                         </div>
                                     </div>
@@ -650,12 +666,7 @@ const ProspectCard: React.FC<{
                                         <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                                         <div>
                                             <span className="font-bold text-white">Draft </span>
-                                            {selectedYear === 2025
-                                                ? prospect.Name === 'Cooper Flagg'
-                                                    ? '1 - Dallas Mavericks'
-                                                    : teamNames.hasOwnProperty(prospect['NBA Team']) ? teamNames.DAL : prospect['NBA Team']
-                                                : `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['NBA Team']} `}`
-                                            }
+                                            {getDraftDisplayText(true)}
                                         </div>
                                     </div>
                                 </div>

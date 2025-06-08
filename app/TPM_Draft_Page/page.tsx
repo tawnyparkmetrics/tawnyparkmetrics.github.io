@@ -134,6 +134,12 @@ const collegeNames: { [key: string]: string } = {
   "KK Cedevita Olimpija": "KK C. Olimpija",
   "North Dakota State": "NDSU",
   "Delaware Blue Coats": "Del. Blue Coats",
+  "Pallacanestro Reggiana": "Reggiana"
+}
+
+const draftShort: { [key: string]: string } = {
+  "G League Elite Camp": "G League Elite",
+  "Portsmouth Invitational": "P.I.T."
 }
 
 const teamNames: { [key: string]: string } = {
@@ -1583,6 +1589,12 @@ const ProspectCard: React.FC<{
   const [activeChart, setActiveChart] = useState('spider');
   // Remove duplicate selectedYear state since it's already passed as a prop
 
+  // Dictionary for shortening long draft team names on mobile
+  const draftShort: { [key: string]: string } = {
+    "G League Elite Camp": "G League Elite",
+    "P.I.T.": "Portsmouth Invitational"
+  };
+
   // Calculate original rankings based on all prospects
   const originalRankings = useMemo(() => {
     // Create sorted arrays of all prospects for 3-year and 5-year averages
@@ -1668,6 +1680,34 @@ const ProspectCard: React.FC<{
     const yearKey = year as keyof PositionRanks;
     const rank = prospect.positionRanks[yearKey];
     return rank ? rank.toString() : 'N/A';
+  };
+
+  // Helper function to get draft team name (shortened for mobile)
+  const getDraftTeamName = (isMobileView: boolean) => {
+    if (selectedYear === 2025) {
+      const teamName = prospect.Name === 'Cooper Flagg'
+        ? '1 - Dallas Mavericks'
+        : teamNames[prospect['NBA Team']] || prospect['NBA Team'];
+      
+      if (isMobileView) {
+        // Check if any part of the team name needs shortening
+        return Object.keys(draftShort).reduce((name, longName) => {
+          return name.replace(longName, draftShort[longName]);
+        }, teamName);
+      }
+      return teamName;
+    } else {
+      const pickPrefix = Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `;
+      const teamName = pickPrefix + (isMobileView ? prospect.NBA : draftedTeam);
+      
+      if (isMobileView) {
+        // Check if any part of the team name needs shortening
+        return Object.keys(draftShort).reduce((name, longName) => {
+          return name.replace(longName, draftShort[longName]);
+        }, teamName);
+      }
+      return teamName;
+    }
   };
 
   // First, extract the complex expression to a variable
@@ -1837,12 +1877,7 @@ const ProspectCard: React.FC<{
                       <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
-                        {selectedYear === 2025 
-                          ? prospect.Name === 'Cooper Flagg'
-                            ? '1 - Dallas Mavericks'
-                            : teamNames[prospect['NBA Team']] || prospect['NBA Team']
-                          : `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}${draftedTeam}`
-                        }
+                        {getDraftTeamName(false)}
                       </div>
                     </div>
                   </div>
@@ -1891,12 +1926,7 @@ const ProspectCard: React.FC<{
                     <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                     <div>
                       <span className="font-bold text-white">Draft </span>
-                      {selectedYear === 2025 
-                        ? prospect.Name === 'Cooper Flagg'
-                          ? '1 - Dallas Mavericks'
-                          : teamNames[prospect['NBA Team']] || prospect['NBA Team']
-                        : `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `}${prospect.NBA}`
-                      }
+                      {getDraftTeamName(true)}
                     </div>
                   </div>
                 </div>
