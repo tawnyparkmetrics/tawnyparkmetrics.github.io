@@ -1587,13 +1587,6 @@ const ProspectCard: React.FC<{
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [activeChart, setActiveChart] = useState('spider');
-  // Remove duplicate selectedYear state since it's already passed as a prop
-
-  // Dictionary for shortening long draft team names on mobile
-  const draftShort: { [key: string]: string } = {
-    "G League Elite Camp": "G League Elite",
-    "P.I.T.": "Portsmouth Invitational"
-  };
 
   // Calculate original rankings based on all prospects
   const originalRankings = useMemo(() => {

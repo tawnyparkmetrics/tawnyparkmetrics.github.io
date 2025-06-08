@@ -57,11 +57,6 @@ const collegeNames: { [key: string]: string } = {
   "Pallacanestro Reggiana": "Reggiana"
 }
 
-const draftShort: { [key: string]: string } = {
-  "G League Elite Camp": "G League Elite",
-  "Portsmouth Invitational": "P.I.T."
-}
-
 const teamNames: { [key: string]: string } = {
   CHA: "Charlotte Hornets",
   GSW: "Golden State Warriors",
