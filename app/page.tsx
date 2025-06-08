@@ -41,14 +41,14 @@ export default function Home() {
 
       {/* Draft Boards Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           {/* Max Savin's Draft Board Card */}
           <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
             <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
-              Max Savin&apos;s Draft Board
+              Max&apos;s Draft Board
             </h2>
             <p className="text-gray-400 mb-4">
-              Explore <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>&apos;s model, featuring EPM projections, prospect tiers, skills graphs, and player comps.
+              Explore <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>&apos;s model featuring EPM projections, prospect tiers, skills graphs, and player comps.
             </p>
             <Link href="/TPM_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
               <span className="text-sm font-medium">View Draft Board</span>
@@ -61,12 +61,28 @@ export default function Home() {
           {/* Nick Kalinowski's Draft Board Card */}
           <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
             <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
-              Nick Kalinowski&apos;s Draft Board
+              Nick&apos;s Draft Board
             </h2>
             <p className="text-gray-400 mb-4">
-              Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@kalidrafts</a>&apos;s model, which ranks prospects by predicted EPM across the length of their rookie contract using up to 535 unique predictors.
+              Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@kalidrafts</a>&apos;s model ranking prospects by predicted EPM using up to 535 unique predictors.
             </p>
             <Link href="/Nick_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
+              <span className="text-sm font-medium">View Draft Board</span>
+              <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Andre Liu's Draft Board Card */}
+          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
+            <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
+              Andre&apos;s Draft Board
+            </h2>
+            <p className="text-gray-400 mb-4">
+              Dive into <a href="https://x.com/undraliu?s=11&t=aZX-xts5orQ1PkjaZOO7FQ" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@undraliu</a>&apos;s &quot;Flagg Plant Score,&quot; which analyzes prospects via original metrics and clustered tiers.
+            </p>
+            <Link href="/Andre_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
               <span className="text-sm font-medium">View Draft Board</span>
               <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

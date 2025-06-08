@@ -129,6 +129,11 @@ const collegeNames: { [key: string]: string } = {
   "Washington State": "Washington St.",
   "KK Mega Basket": "KK Mega",
   "Melbourne United": "Melbourne Utd",
+  "Eastern Kentucky": "EKU",
+  "Western Carolina": "WCU",
+  "KK Cedevita Olimpija": "KK C. Olimpija",
+  "North Dakota State": "NDSU",
+  "Delaware Blue Coats": "Del. Blue Coats",
 }
 
 const teamNames: { [key: string]: string } = {

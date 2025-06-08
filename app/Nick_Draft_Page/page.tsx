@@ -50,7 +50,10 @@ const collegeNames: { [key: string]: string } = {
   "KK Mega Basket": "KK Mega",
   "Melbourne United": "Melbourne Utd",
   "Eastern Kentucky": "EKU",
-  "Western Carolina": "WCU"
+  "Western Carolina": "WCU",
+  "KK Cedevita Olimpija": "KK C. Olimpija",
+  "North Dakota State": "NDSU",
+  "Delaware Blue Coats": "Del. Blue Coats"
 }
 
 const teamNames: { [key: string]: string } = {
@@ -779,7 +782,7 @@ export default function NickDraftPage() {
         return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
       }
 
-      if (sortConfig.key === 'Height') {
+      if (sortConfig.key === 'Height (in)') {
         const aNum = parseFloat(aValue as string) || 0;
         const bNum = parseFloat(bValue as string) || 0;
         return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;

@@ -48,6 +48,15 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
         { name: 'Write Up', href: 'https://medium.com/@kalidrafts/modeling-the-draft-building-a-predictive-big-board-for-future-nba-prospects-75f3122f3300', available: true },
         { name: 'Big Board', href: '/Nick_Draft_Page', available: true }
       ]
+    },
+    {
+      name: 'Andre Liu',
+      href: '#',
+      available: true,
+      subItems: [
+        { name: 'Write Up', href: 'https://medium.com/@andrelliu1/the-flagg-plant-score-a-predictive-evaluation-of-nba-prospects-42e8dd56cc9b', available: true },
+        { name: 'Big Board', href: '/Andre_Draft_Page', available: true }
+      ]
     }
   ];
 
