@@ -365,6 +365,7 @@ const SpiderChart: React.FC<{
     );
 };
 
+
 const ProspectCard: React.FC<{
     prospect: DraftProspect;
     rank: RankType;
@@ -659,7 +660,7 @@ const ProspectCard: React.FC<{
                                         <div>
                                             <span className="font-bold text-white">Pre-NBA </span>
                                             {collegeNames.hasOwnProperty(prospect['Pre-NBA'])
-                                                ? collegeNames.Duke
+                                                ? collegeNames[prospect['Pre-NBA']]  // Fixed: Use dynamic key instead of hardcoded 'Duke'
                                                 : prospect['Pre-NBA']}
                                         </div>
                                         <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>

@@ -1675,6 +1675,11 @@ const ProspectCard: React.FC<{
     return rank ? rank.toString() : 'N/A';
   };
 
+  // Helper function to get shortened college name
+  const getShortenedCollegeName = (collegeName: string): string => {
+    return collegeNames[collegeName] || collegeName;
+  };
+
   // Helper function to get draft team name (shortened for mobile)
   const getDraftTeamName = (isMobileView: boolean) => {
     if (selectedYear === 2025) {
@@ -1911,9 +1916,7 @@ const ProspectCard: React.FC<{
                   <div className="space-y-1 text-xs text-gray-300">
                     <div>
                       <span className="font-bold text-white">Pre-NBA </span>
-                      {collegeNames[prospect['Pre-NBA']]
-                        ? collegeNames[prospect['Pre-NBA']]
-                        : prospect['Pre-NBA']}
+                      {getShortenedCollegeName(prospect['Pre-NBA'])}
                     </div>
                     <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
                     <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
