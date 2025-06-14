@@ -5,6 +5,7 @@ import Image from 'next/image';
 //import ComingSoon from '../components/ui/ComingSoon';
 import NavigationHeader from '@/components/NavigationHeader';
 
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#19191A]">
