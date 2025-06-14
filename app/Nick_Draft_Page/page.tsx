@@ -439,7 +439,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
   const [, setLocalFilteredProspects] = useState(prospects);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (onViewModeChange) {
@@ -845,9 +845,6 @@ export default function NickDraftPage() {
             setProspects(prospectData);
             setFilteredProspects(prospectData);
           },
-          error: (error: any) => {
-            console.error('CSV parsing error:', error);
-          }
         });
       } catch (error) {
         console.error(`Error fetching ${draftYear} draft prospects:`, error);
