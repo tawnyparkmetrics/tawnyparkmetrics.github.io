@@ -10,6 +10,7 @@ import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NavigationHeader from '@/components/NavigationHeader';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export interface DraftProspect {
   Name: string;
@@ -90,6 +91,11 @@ const teamNames: { [key: string]: string } = {
   NCAA: "NC"
 }
 
+const draftShort: { [key: string]: string } = {
+  "G League Elite Camp": "G League Elite",
+  "Portsmouth Invitational": "P.I.T."
+}
+
 // interface MenuItem {
 //   name: string;
 //   href: string;
@@ -120,12 +126,14 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   );
 };
 
+
 const ProspectCard: React.FC<{ 
   prospect: DraftProspect; 
   filteredProspects: DraftProspect[];
   allProspects: DraftProspect[];
   selectedSortKey: string;
-}> = ({ prospect, filteredProspects, }) => {
+  draftYear: '2024' | '2025'; // Add this prop
+}> = ({ prospect, filteredProspects, draftYear }) => {
   // Find the actual rank of this prospect in the filtered and sorted list
   const actualRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
   
@@ -196,7 +204,8 @@ const ProspectCard: React.FC<{
     }
   }, [isExpanded, isMobile]);
 
-  const playerImageUrl = `/player_images2024/${prospect.Name} BG Removed.png`;
+  // Dynamic image path based on draft year
+  const playerImageUrl = `/player_images${draftYear}/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
   return (
@@ -329,7 +338,7 @@ const ProspectCard: React.FC<{
                       <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
-                        {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect['NBA Team'] !== 'NCAA' ? prospect['NBA Team'] : 'Unsigned'}`}
+                        {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : `${prospect['Actual Pick']} ${prospect['NBA Team'] !== 'NCAA' ? (draftShort[prospect['NBA Team']] || prospect['NBA Team']) : 'Unsigned'}`}
                       </div>
                     </div>
                   </div>
@@ -369,7 +378,7 @@ const ProspectCard: React.FC<{
                     <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                     <div>
                       <span className="font-bold text-white">Draft </span>
-                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted - " : `${prospect['Actual Pick']} - ${prospect['ABV'] !== 'NCAA' ? prospect['ABV'] : 'Unsigned'}`}
+                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : `${prospect['Actual Pick']} ${prospect['NBA Team'] !== 'NCAA' ? (draftShort[prospect['NBA Team']] || prospect['NBA Team']) : 'Unsigned'}`}
                     </div>
                   </div>
                 </div>
@@ -413,12 +422,16 @@ interface ProspectFilterProps {
   onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
   rank: Record<string, RankType>;
   onViewModeChange?: (mode: 'card' | 'table') => void; // New prop
+  draftYear: '2024' | '2025';
+  onDraftYearChange: (year: '2024' | '2025') => void;
 }
 
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
   prospects,
   onFilteredProspectsChange,
-  onViewModeChange
+  onViewModeChange,
+  draftYear,
+  onDraftYearChange
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filter, setFilter] = useState<'NCAA' | 'Int'>('NCAA');
@@ -426,6 +439,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
   const [, setLocalFilteredProspects] = useState(prospects);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (onViewModeChange) {
@@ -482,6 +496,10 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     }
   }, [prospects, filter, searchQuery, roleFilter, onFilteredProspectsChange]);
 
+  function handleYearChange(year: '2024' | '2025'): void {
+    onDraftYearChange(year);
+  }
+
   return (
     <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
       {/* Mobile Initial Filter Section */}
@@ -499,23 +517,59 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             <ChevronDown className={`ml-1 h-4 w-4 transform transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`} />
           </motion.button>
 
-          {/* View Mode Toggle - Right Side */}
-          <motion.button
-            onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
-            className={`
-              px-3 py-2 rounded-lg text-sm font-medium flex items-center
-              transition-all duration-300
-              ${viewMode === 'table'
-                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-              }
-            `}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <TableIcon className="mr-1 h-4 w-4" />
-            {viewMode === 'card' ? 'Table View' : 'Card View'}
-          </motion.button>
+          {/* Year Dropdown and View Mode Toggle Container */}
+          <div className="flex items-center gap-2">
+            {/* Year Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <motion.button
+                  className={`
+                    px-2 py-2 rounded-lg text-sm font-medium
+                    transition-all duration-300
+                    bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700
+                    flex items-center gap-1
+                  `}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {draftYear}
+                  <ChevronDown className="h-4 w-4" />
+                </motion.button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+                <DropdownMenuItem
+                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                  onClick={() => handleYearChange('2024')}
+                >
+                  2024
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                  onClick={() => handleYearChange('2025')}
+                >
+                  2025
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* View Mode Toggle */}
+            <motion.button
+              onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
+              className={`
+                px-3 py-2 rounded-lg text-sm font-medium flex items-center
+                transition-all duration-300
+                ${viewMode === 'table'
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                  : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                }
+              `}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <TableIcon className="mr-1 h-4 w-4" />
+              {viewMode === 'card' ? 'Table View' : 'Card View'}
+            </motion.button>
+          </div>
         </div>
       </div>
 
@@ -539,18 +593,24 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             />
           </div>
 
-          {/* Reset button */}
-          {hasActiveFilters() && (
-            <motion.button
-              onClick={resetFilters}
-              className="ml-2 flex items-center text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30 px-3 py-2 rounded-lg text-xs"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <X className="h-4 w-4" />
-              Reset
-            </motion.button>
-          )} 
+          {/* Reset button - always visible */}
+          <motion.button
+            onClick={resetFilters}
+            className={`
+              ml-2 flex items-center px-3 py-2 rounded-lg text-xs
+              transition-all duration-300
+              ${hasActiveFilters()
+                ? 'text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30'
+                : 'text-gray-500 bg-gray-800/10 border border-gray-800/50 cursor-not-allowed'
+              }
+            `}
+            whileHover={{ scale: hasActiveFilters() ? 1.05 : 1 }}
+            whileTap={{ scale: hasActiveFilters() ? 0.95 : 1 }}
+            disabled={!hasActiveFilters()}
+          >
+            <X className="h-4 w-4" />
+            Reset
+          </motion.button>
         </div>
 
         {/* Filters and View Mode Container */}
@@ -580,7 +640,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
           {/* Mobile Only: Position Section */}
           <div className="w-full sm:hidden mb-4">
-            <div className="text-sm text-gray-400 mb-3">Positions:</div>
+            <div className="text-sm text-gray-400 mb-3 pl-2.5">Positions:</div>
             <div className="flex items-center gap-2">
               <motion.button
                 onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
@@ -665,6 +725,43 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             {/* Divider */}
             <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
+            {/* Draft Year Dropdown */}
+            {/* Year Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <motion.button
+                  className={`
+                    px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium
+                    transition-all duration-300
+                    bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700
+                    flex items-center gap-1 md:gap-2
+                  `}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {draftYear}
+                  <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
+                </motion.button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+                <DropdownMenuItem
+                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                  onClick={() => handleYearChange('2024')}
+                >
+                  2024
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                  onClick={() => handleYearChange('2025')}
+                >
+                  2025
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Divider */}
+            <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
             {/* Desktop View Mode Toggle */}
             <motion.button
               onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
@@ -693,6 +790,7 @@ export default function NickDraftPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);
   const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  const [draftYear, setDraftYear] = useState<'2024' | '2025'>('2024');
   const [sortConfig, setSortConfig] = useState<{
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';
@@ -704,8 +802,8 @@ export default function NickDraftPage() {
   const [selectedSortKey, ] = useState<string>('Actual Pick');
 
   useEffect(() => {
-    document.title = '2024 Draft Board - Nick';
-  }, []);
+    document.title = `${draftYear} Draft Board - Nick`;
+  }, [draftYear]);
 
   // Check if device is mobile
   useEffect(() => {
@@ -726,24 +824,38 @@ export default function NickDraftPage() {
   useEffect(() => {
     async function fetchDraftProspects() {
       try {
-        const response = await fetch('/Nick Kalinowski 2024 NBA Draft Results.csv');
+        // Reset state when switching years
+        setLoadedProspects(5);
+        setHasMore(true);
+        
+        const response = await fetch(`/Nick Kalinowski ${draftYear} NBA Draft Results.csv`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const csvText = await response.text();
-
+  
         Papa.parse(csvText, {
           header: true,
+          skipEmptyLines: true,
           complete: (results) => {
             const prospectData = results.data as DraftProspect[];
+            console.log(`Loaded ${prospectData.length} prospects for ${draftYear}`);
             setProspects(prospectData);
             setFilteredProspects(prospectData);
+          },
+          error: (error: any) => {
+            console.error('CSV parsing error:', error);
           }
         });
       } catch (error) {
-        console.error('Error fetching draft prospects:', error);
+        console.error(`Error fetching ${draftYear} draft prospects:`, error);
       }
     }
-
+  
     fetchDraftProspects();
-  }, []);
+  }, [draftYear]);
 
   // Function to handle sorting
   const handleSort = (key: keyof DraftProspect | 'Rank') => {
@@ -991,6 +1103,8 @@ export default function NickDraftPage() {
         onFilteredProspectsChange={setFilteredProspects}
         rank={{}}
         onViewModeChange={setViewMode}
+        draftYear={draftYear}
+        onDraftYearChange={setDraftYear}
       />
 
       <div className="max-w-6xl mx-auto px-4 pt-8">
@@ -1003,8 +1117,9 @@ export default function NickDraftPage() {
                   prospect={prospect}
                   filteredProspects={filteredProspects}
                   allProspects={prospects}
-                  selectedSortKey={selectedSortKey}
-                />
+                  selectedSortKey={selectedSortKey} 
+                  draftYear={draftYear}                
+                  />
               ))}
               {isLoading && !isMobile && (
                 <div className="flex justify-center py-4">
