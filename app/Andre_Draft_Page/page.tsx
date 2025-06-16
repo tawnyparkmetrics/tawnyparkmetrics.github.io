@@ -583,8 +583,8 @@ const ProspectCard: React.FC<{
                 text-white
                 uppercase
                 tracking-wider
-                [_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
-              `}>
+                [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
+              `}> 
                                     {prospect.Name}
                                 </h2>
                             </div>
@@ -1265,8 +1265,9 @@ export default function AndreDraftPage() {
             }
 
             if (sortConfig.key === 'Height') {
-                const aNum = parseFloat(aValue as string) || 0;
-                const bNum = parseFloat(bValue as string) || 0;
+                // Use Height (in) for sorting instead of Height
+                const aNum = parseFloat(a['Height (in)'] as string) || 0;
+                const bNum = parseFloat(b['Height (in)'] as string) || 0;
                 return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
             }
 

@@ -892,11 +892,12 @@ export default function NickDraftPage() {
         return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
       }
 
-      if (sortConfig.key === 'Height (in)') {
-        const aNum = parseFloat(aValue as string) || 0;
-        const bNum = parseFloat(bValue as string) || 0;
+      if (sortConfig.key === 'Height') {
+        // Use Height (in) for sorting instead of Height
+        const aNum = parseFloat(a['Height (in)'] as string) || 0;
+        const bNum = parseFloat(b['Height (in)'] as string) || 0;
         return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-      }
+    }
 
       if (sortConfig.key === 'Weight (lbs)') {
         const aNum = parseInt(aValue as string) || 0;
