@@ -10,7 +10,6 @@ import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NavigationHeader from '@/components/NavigationHeader';
-import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -173,7 +172,6 @@ const ProspectCard: React.FC<{
     const [logoError, setLogoError] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
-    const [activeChart] = useState('spider');
 
     // Check if device is mobile
     useEffect(() => {
