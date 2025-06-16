@@ -2,7 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-//import { X, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { motion } from 'framer-motion';
 import ComingSoon from '@/components/ui/ComingSoon';
 
 export interface NavigationHeaderProps {
@@ -20,6 +21,7 @@ export interface MenuItem {
 const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   const [DraftDropdownOpen, setTpmDropdownOpen] = useState(false);
   const [NBADropdownOpen, setModelsDropdownOpen] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const DraftDropdownRef = useRef<HTMLDivElement>(null);
   const NBADropdownRef = useRef<HTMLDivElement>(null);
   const [showComingSoon, setShowComingSoon] = useState(false);
@@ -70,6 +72,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     function handleClickOutside(event: MouseEvent) {
       if (DraftDropdownRef.current && !DraftDropdownRef.current.contains(event.target as Node)) {
         setTpmDropdownOpen(false);
+        setExpandedSection(null);
       }
       if (NBADropdownRef.current && !NBADropdownRef.current.contains(event.target as Node)) {
         setModelsDropdownOpen(false);
@@ -86,7 +89,14 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     e.preventDefault();
     e.stopPropagation();
     setTpmDropdownOpen(!DraftDropdownOpen);
+    setExpandedSection(null);
     if (NBADropdownOpen) setModelsDropdownOpen(false);
+  };
+
+  const toggleSection = (sectionName: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExpandedSection(expandedSection === sectionName ? null : sectionName);
   };
 
   const handleItemClick = (e: React.MouseEvent, item: MenuItem) => {
@@ -103,6 +113,10 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       // For external links, open in new tab
       e.preventDefault();
       window.open(item.href, '_blank', 'noopener,noreferrer');
+      setTpmDropdownOpen(false);
+      setModelsDropdownOpen(false);
+    } else {
+      // For internal links, close dropdown
       setTpmDropdownOpen(false);
       setModelsDropdownOpen(false);
     }
@@ -124,85 +138,68 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
               {/* Home tab */}
               <Link
                 href={homeTab.href}
-                className={`
-                  px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                  ${activeTab === homeTab.name
-                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                    : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                  }
-                `}
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
               >
                 {homeTab.name}
               </Link>
 
               {/* Draft Dropdown */}
               <div className="relative" ref={DraftDropdownRef}>
-                <button
+                <motion.button
                   onClick={toggleTpmDropdown}
                   className={`
-                    px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
+                    px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium
+                    transition-all duration-300
                     ${activeTab === 'Draft'
                       ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                      : 'bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700'
                     }
-                    flex items-center
+                    flex items-center gap-1 md:gap-2
                   `}
                   type="button"
                   aria-haspopup="true"
                   aria-expanded={DraftDropdownOpen}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   Draft
-                  <svg className="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
+                  <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
+                </motion.button>
 
                 {/* Draft Dropdown menu */}
                 {DraftDropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+                  <div className="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-[#19191A] border border-gray-700 z-50">
                     <div className="py-1" role="menu" aria-orientation="vertical">
                       {DraftDropdownItems.map((item) => (
                         <div key={item.name}>
-                          {item.subItems ? (
-                            // Main item with sub-items
-                            <div className="block px-4 py-2 text-sm text-blue-400 border-b border-gray-700">
-                              {item.name}
-                              <div className="mt-1 space-y-1">
-                                {item.subItems.map((subItem) => (
-                                  <Link
-                                    key={subItem.name}
-                                    href={subItem.available ? subItem.href : '#'}
-                                    className={`
-                                      block px-4 py-1 text-sm transition-colors duration-200
-                                      ${subItem.available
-                                        ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                                        : 'text-gray-500 hover:bg-gray-700'
-                                      }
-                                    `}
-                                    role="menuitem"
-                                    onClick={(e) => handleItemClick(e, subItem)}
-                                  >
-                                    {subItem.name}
-                                  </Link>
-                                ))}
-                              </div>
+                          {/* Main section header */}
+                          <button
+                            className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-400 hover:bg-gray-800/50 transition-colors duration-200"
+                            onClick={(e) => toggleSection(item.name, e)}
+                          >
+                            <span>{item.name}</span>
+                            <ChevronDown
+                              className={`h-4 w-4 transition-transform duration-200 ${
+                                expandedSection === item.name ? 'rotate-180' : ''
+                              }`} 
+                            />
+                          </button>
+                          
+                          {/* Expanded sub-items */}
+                          {expandedSection === item.name && item.subItems && (
+                            <div className="bg-gray-800/30 border-t border-gray-700">
+                              {item.subItems.map((subItem) => (
+                                <Link
+                                  key={subItem.name}
+                                  href={subItem.available ? subItem.href : '#'}
+                                  className="block px-8 py-2 text-sm text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors duration-200"
+                                  role="menuitem"
+                                  onClick={(e) => handleItemClick(e, subItem)}
+                                >
+                                  {subItem.name}
+                                </Link>
+                              ))}
                             </div>
-                          ) : (
-                            // Regular item without sub-items
-                            <Link
-                              href={item.available ? item.href : '#'}
-                              className={`
-                                block px-4 py-2 text-sm transition-colors duration-200
-                                ${item.available
-                                  ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                                  : 'text-gray-500 hover:bg-gray-700'
-                                }
-                              `}
-                              role="menuitem"
-                              onClick={(e) => handleItemClick(e, item)}
-                            >
-                              {item.name}
-                            </Link>
                           )}
                         </div>
                       ))}
@@ -211,31 +208,11 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                 )}
               </div>
 
-              {/* NBA Dropdown */}
+              {/* NBA Dropdown - keeping the same structure for consistency */}
               <div className="relative" ref={NBADropdownRef}>
-                {/* <button
-                  onClick={toggleModelsDropdown}
-                  className={`
-                    px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                    ${activeTab === 'NBA'
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                    }
-                    flex items-center
-                  `}
-                  type="button"
-                  aria-haspopup="true"
-                  aria-expanded={NBADropdownOpen}
-                >
-                  NBA
-                  <svg className="ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button> */}
-
-                {/* NBA Dropdown menu */}
+                {/* NBA button is commented out in original, keeping it that way */}
                 {NBADropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-[#19191A] border border-gray-700 z-50">
                     <div className="py-1" role="menu" aria-orientation="vertical">
                       {NBADropdownItems.map((item) => (
                         <Link
@@ -244,8 +221,8 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                           className={`
                             block px-4 py-2 text-sm transition-colors duration-200
                             ${item.available
-                              ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                              : 'text-gray-500 hover:bg-gray-700'
+                              ? 'text-gray-300 hover:bg-gray-800/50 hover:text-white'
+                              : 'text-gray-500 hover:bg-gray-800/50'
                             }
                           `}
                           role="menuitem"
@@ -275,10 +252,9 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                 <Image
                   src="/TPM_logo_designs/TPM Square (Dark with Map - no wordmark).png"
                   alt="TPM Logo"
-                  width={60} // Adjust size as needed
-                  height={60} // Adjust size as needed
+                  width={60}
+                  height={60}
                 />
-                {/* Hide TPM text on mobile, show on larger screens */}
                 <div className={`ml-2 text-4xl font-bold text-white hidden sm:block`}>
                   TPM
                 </div>
