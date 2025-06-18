@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
+import { motion } from 'framer-motion';
 import ComingSoon from '@/components/ui/ComingSoon';
 
 export interface NavigationHeaderProps {
@@ -142,7 +143,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
               {/* Home tab */}
               <Link
                 href={homeTab.href}
-                className={`${buttonBaseClasses} ${activeTab === 'Home' ? buttonActiveClasses : buttonInactiveClasses}`}
+                className={`${buttonBaseClasses} ${buttonInactiveClasses}`}
               >
                 {homeTab.name}
               </Link>
