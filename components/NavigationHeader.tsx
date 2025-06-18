@@ -67,6 +67,11 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     { name: 'Max Savin', href: '/TPM_FVC', available: false, stage: 'testing' as const },
   ];
 
+  // Unified button styling classes
+  const buttonBaseClasses = "px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-300";
+  const buttonInactiveClasses = "bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700";
+  const buttonActiveClasses = "bg-blue-500/20 text-blue-400 border border-blue-500/30";
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -138,33 +143,27 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
               {/* Home tab */}
               <Link
                 href={homeTab.href}
-                className="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
+                className={`${buttonBaseClasses} ${activeTab === 'Home' ? buttonActiveClasses : buttonInactiveClasses}`}
               >
                 {homeTab.name}
               </Link>
 
               {/* Draft Dropdown */}
               <div className="relative" ref={DraftDropdownRef}>
-                <motion.button
+                <button
                   onClick={toggleTpmDropdown}
                   className={`
-                    px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium
-                    transition-all duration-300
-                    ${activeTab === 'Draft'
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700'
-                    }
+                    ${buttonBaseClasses}
+                    ${activeTab === 'Draft' ? buttonActiveClasses : buttonInactiveClasses}
                     flex items-center gap-1 md:gap-2
                   `}
                   type="button"
                   aria-haspopup="true"
                   aria-expanded={DraftDropdownOpen}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                 >
                   Draft
                   <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
-                </motion.button>
+                </button>
 
                 {/* Draft Dropdown menu */}
                 {DraftDropdownOpen && (
@@ -244,7 +243,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
             <div className="flex items-center space-x-4">
               <button
                 onClick={handleSupportClick}
-                className="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
+                className={`${buttonBaseClasses} ${buttonInactiveClasses}`}
               >
                 Support
               </button>

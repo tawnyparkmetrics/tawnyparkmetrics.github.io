@@ -132,7 +132,7 @@ const ProspectCard: React.FC<{
   filteredProspects: DraftProspect[];
   allProspects: DraftProspect[];
   selectedSortKey: string;
-  draftYear: '2024' | '2025'; // Add this prop
+  draftYear: '2025' | '2024'; // Add this prop
 }> = ({ prospect, filteredProspects, draftYear }) => {
   // Find the actual rank of this prospect in the filtered and sorted list
   const actualRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
@@ -422,8 +422,8 @@ interface ProspectFilterProps {
   onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
   rank: Record<string, RankType>;
   onViewModeChange?: (mode: 'card' | 'table') => void; // New prop
-  draftYear: '2024' | '2025';
-  onDraftYearChange: (year: '2024' | '2025') => void;
+  draftYear: '2025' | '2024';
+  onDraftYearChange: (year: '2025' | '2024') => void;
 }
 
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
@@ -496,7 +496,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     }
   }, [prospects, filter, searchQuery, roleFilter, onFilteredProspectsChange]);
 
-  function handleYearChange(year: '2024' | '2025'): void {
+  function handleYearChange(year: '2025' | '2024'): void {
     onDraftYearChange(year);
   }
 
@@ -526,7 +526,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                   className={`
                     px-2 py-2 rounded-lg text-sm font-medium
                     transition-all duration-300
-                    bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700
+                    bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
                     flex items-center gap-1
                   `}
                   whileHover={{ scale: 1.05 }}
@@ -537,17 +537,17 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                 </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+              <DropdownMenuItem
+                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                  onClick={() => handleYearChange('2025')}
+                >
+                  2025
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                   onClick={() => handleYearChange('2024')}
                 >
                   2024
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
-                  onClick={() => handleYearChange('2025')}
-                >
-                  2025
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -733,7 +733,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                   className={`
                     px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium
                     transition-all duration-300
-                    bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700
+                    bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
                     flex items-center gap-1 md:gap-2
                   `}
                   whileHover={{ scale: 1.05 }}
@@ -744,17 +744,17 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                 </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+              <DropdownMenuItem
+                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                  onClick={() => handleYearChange('2025')}
+                >
+                  2025
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                   onClick={() => handleYearChange('2024')}
                 >
                   2024
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
-                  onClick={() => handleYearChange('2025')}
-                >
-                  2025
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -790,7 +790,7 @@ export default function NickDraftPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);
   const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
-  const [draftYear, setDraftYear] = useState<'2024' | '2025'>('2024');
+  const [draftYear, setDraftYear] = useState<'2025' | '2024'>('2025');
   const [sortConfig, setSortConfig] = useState<{
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';

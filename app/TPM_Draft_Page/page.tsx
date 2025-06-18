@@ -415,7 +415,7 @@ const TimelineFilter = ({
         <div className="flex items-center space-x-2">
           <motion.button
             onClick={() => setShowFilterSection(!showFilterSection)}
-            className="flex items-center gap-2 bg-gray-800/20 hover:bg-gray-800/40 text-gray-300 border border-gray-800 hover:border-gray-700 px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200"
+            className="flex items-center gap-2 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -466,7 +466,7 @@ const TimelineFilter = ({
                 className={`
                   px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium
                   transition-all duration-300
-                  bg-gray-800/20 text-gray-300 border border-gray-800 hover:border-gray-700
+                  bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
                   flex items-center gap-1 md:gap-2
                 `}
                 whileHover={{ scale: 1.05 }}
