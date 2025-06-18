@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
-import { motion } from 'framer-motion';
 import ComingSoon from '@/components/ui/ComingSoon';
 
 export interface NavigationHeaderProps {
