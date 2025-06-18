@@ -614,14 +614,12 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
         </div>
 
         {/* Filters and View Mode Container */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
-          {/* Mobile Only: League Section */}
-          <div className="w-full sm:hidden mb-4">
-            <div className="text-sm text-gray-400 mb-3 pl-2.5">League:</div>
-            <div className="flex items-center gap-2">
+        <div className="w-full sm:hidden mb-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* League Filters */}
               <motion.button
                 onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
-                className={`ml-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -633,15 +631,13 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Int. & G League
+                Int.+
               </motion.button>
-            </div>
-          </div>
 
-          {/* Mobile Only: Position Section */}
-          <div className="w-full sm:hidden mb-4">
-            <div className="text-sm text-gray-400 mb-3 pl-2.5">Positions:</div>
-            <div className="flex items-center gap-2">
+              {/* Divider */}
+              <div className="h-6 w-px bg-gray-700/30 mx-1" />
+
+              {/* Position Filters */}
               <motion.button
                 onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
@@ -782,7 +778,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
