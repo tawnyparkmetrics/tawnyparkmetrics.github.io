@@ -158,7 +158,7 @@ const teamNames: { [key: string]: string } = {
   HOU: "Houston Rockets",
   MEM: "Memphis Grizzlies",
   SAC: "Sacramento Kings",
-  OKC: "Okhlahoma City Thunder",
+  OKC: "Oklahoma City Thunder",
   NYK: "New York Knicks",
   SAS: "San Antonio Spurs",
   IND: "Indiana Pacers",

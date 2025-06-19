@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
-import { LucideUser, X, ChevronDown, SlidersHorizontal} from 'lucide-react';
+import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
@@ -74,7 +74,7 @@ const teamNames: { [key: string]: string } = {
   HOU: "Houston Rockets",
   MEM: "Memphis Grizzlies",
   SAC: "Sacramento Kings",
-  OKC: "Okhlahoma City Thunder",
+  OKC: "Oklahoma City Thunder",
   NYK: "Brooklyn Nets",
   SAS: "San Antonio Spurs",
   IND: "Indiana Pacers",
@@ -128,8 +128,8 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
 };
 
 
-const ProspectCard: React.FC<{ 
-  prospect: DraftProspect; 
+const ProspectCard: React.FC<{
+  prospect: DraftProspect;
   filteredProspects: DraftProspect[];
   allProspects: DraftProspect[];
   selectedSortKey: string;
@@ -137,7 +137,7 @@ const ProspectCard: React.FC<{
 }> = ({ prospect, filteredProspects, draftYear }) => {
   // Find the actual rank of this prospect in the filtered and sorted list
   const actualRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
-  
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -339,7 +339,9 @@ const ProspectCard: React.FC<{
                       <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
-                        {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : `${prospect['Actual Pick']} ${prospect['NBA Team'] !== 'NCAA' ? (draftShort[prospect['NBA Team']] || prospect['NBA Team']) : 'Unsigned'}`}
+                        {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" :
+                          `${prospect['Actual Pick']}${draftYear === '2024' ? ' - ' : ' '}${prospect['NBA Team'] !== 'NCAA' ? (draftShort[prospect['NBA Team']] || prospect['NBA Team']) : 'Unsigned'}`
+                        }
                       </div>
                     </div>
                   </div>
@@ -378,8 +380,14 @@ const ProspectCard: React.FC<{
                     <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
                     <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                     <div>
-                      <span className="font-bold text-white">Draft </span>
-                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : `${prospect['Actual Pick']} ${prospect['NBA Team'] !== 'NCAA' ? (draftShort[prospect['NBA Team']] || prospect['NBA Team']) : 'Unsigned'}`}
+                      <span className="font-bold text-white">Draft  </span>
+                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" :
+                        `${prospect['Actual Pick']}${draftYear === '2024' ? ' - ' : ' '}${prospect['NBA Team'] !== 'NCAA' ?
+                          (draftYear === '2024' ?
+                            (teamNames[prospect['NBA Team']] ? prospect['NBA Team'] : prospect['ABV']) :
+                            (draftShort[prospect['NBA Team']] || prospect['NBA Team'])
+                          ) : 'Unsigned'}`
+                      }
                     </div>
                   </div>
                 </div>
@@ -538,7 +546,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                 </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
-              <DropdownMenuItem
+                <DropdownMenuItem
                   className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                   onClick={() => handleYearChange('2025')}
                 >
@@ -616,169 +624,169 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
         {/* Filters and View Mode Container */}
         <div className="w-full sm:hidden mb-4">
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* League Filters */}
-              <motion.button
-                onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                NCAA
-              </motion.button>
-              <motion.button
-                onClick={() => setFilter(filter === 'Int' ? 'NCAA' : 'Int')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'Int' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Int.+
-              </motion.button>
-
-              {/* Divider */}
-              <div className="h-6 w-px bg-gray-700/30 mx-1" />
-
-              {/* Position Filters */}
-              <motion.button
-                onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Guards
-              </motion.button>
-              <motion.button
-                onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Wings
-              </motion.button>
-              <motion.button
-                onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Bigs
-              </motion.button>
-            </div>
-          </div>
-
-          {/* Desktop Filters (unchanged) */}
-          <div className="hidden sm:flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* League Filters */}
-            <div className="flex items-center space-x-2 mb-2 sm:mb-0">
-              <motion.button
-                onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                NCAA
-              </motion.button>
-              <motion.button
-                onClick={() => setFilter(filter === 'Int' ? 'NCAA' : 'Int')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'Int' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Int. & G League
-              </motion.button>
-            </div>
+            <motion.button
+              onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              NCAA
+            </motion.button>
+            <motion.button
+              onClick={() => setFilter(filter === 'Int' ? 'NCAA' : 'Int')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'Int' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Int.+
+            </motion.button>
 
             {/* Divider */}
-            <div className="h-8 w-px bg-gray-700/30 mx-2" />
+            <div className="h-6 w-px bg-gray-700/30 mx-1" />
 
             {/* Position Filters */}
-            <div className="flex items-center space-x-2 mb-2 sm:mb-0">
-              <motion.button
-                onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Guards
-              </motion.button>
-              <motion.button
-                onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Wings
-              </motion.button>
-              <motion.button
-                onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Bigs
-              </motion.button>
-            </div>
+            <motion.button
+              onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Guards
+            </motion.button>
+            <motion.button
+              onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Wings
+            </motion.button>
+            <motion.button
+              onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Bigs
+            </motion.button>
+          </div>
+        </div>
 
-            {/* Divider */}
-            <div className="h-8 w-px bg-gray-700/30 mx-2" />
+        {/* Desktop Filters (unchanged) */}
+        <div className="hidden sm:flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
+          {/* League Filters */}
+          <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+            <motion.button
+              onClick={() => setFilter(filter === 'NCAA' ? 'Int' : 'NCAA')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'NCAA' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              NCAA
+            </motion.button>
+            <motion.button
+              onClick={() => setFilter(filter === 'Int' ? 'NCAA' : 'Int')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === 'Int' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Int. & G League
+            </motion.button>
+          </div>
 
-            {/* Draft Year Dropdown */}
-            {/* Year Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <motion.button
-                  className={`
+          {/* Divider */}
+          <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+          {/* Position Filters */}
+          <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+            <motion.button
+              onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Guards
+            </motion.button>
+            <motion.button
+              onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Wings
+            </motion.button>
+            <motion.button
+              onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Bigs
+            </motion.button>
+          </div>
+
+          {/* Divider */}
+          <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+          {/* Draft Year Dropdown */}
+          {/* Year Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <motion.button
+                className={`
                     px-2 md:px-3 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium
                     transition-all duration-300
                     bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
                     flex items-center gap-1 md:gap-2
                   `}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {draftYear}
-                  <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
-                </motion.button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {draftYear}
+                <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
+              </motion.button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
               <DropdownMenuItem
-                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
-                  onClick={() => handleYearChange('2025')}
-                >
-                  2025
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
-                  onClick={() => handleYearChange('2024')}
-                >
-                  2024
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                onClick={() => handleYearChange('2025')}
+              >
+                2025
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                onClick={() => handleYearChange('2024')}
+              >
+                2024
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-            {/* Divider */}
-            <div className="h-8 w-px bg-gray-700/30 mx-2" />
+          {/* Divider */}
+          <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
-            {/* Desktop View Mode Toggle */}
-            <motion.button
-              onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
-              className={`
+          {/* Desktop View Mode Toggle */}
+          <motion.button
+            onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
+            className={`
                 px-3 py-2 rounded-lg text-sm font-medium flex items-center
                 transition-all duration-300
                 ${viewMode === 'table'
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                  : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                }
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+              }
               `}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <TableIcon className="mr-2 h-4 w-4" />
-              {viewMode === 'card' ? 'Table View' : 'Card View'}
-            </motion.button>
-          </div>
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <TableIcon className="mr-2 h-4 w-4" />
+            {viewMode === 'card' ? 'Table View' : 'Card View'}
+          </motion.button>
         </div>
       </div>
+    </div>
   );
 };
 
@@ -795,7 +803,7 @@ export default function NickDraftPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [selectedSortKey, ] = useState<string>('Actual Pick');
+  const [selectedSortKey,] = useState<string>('Actual Pick');
 
   useEffect(() => {
     document.title = `${draftYear} Draft Board - Nick`;
@@ -823,15 +831,15 @@ export default function NickDraftPage() {
         // Reset state when switching years
         setLoadedProspects(5);
         setHasMore(true);
-        
+
         const response = await fetch(`/Nick Kalinowski ${draftYear} NBA Draft Results.csv`);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const csvText = await response.text();
-  
+
         Papa.parse(csvText, {
           header: true,
           skipEmptyLines: true,
@@ -846,26 +854,26 @@ export default function NickDraftPage() {
         console.error(`Error fetching ${draftYear} draft prospects:`, error);
       }
     }
-  
+
     fetchDraftProspects();
   }, [draftYear]);
 
   // Function to handle sorting
   const handleSort = (key: keyof DraftProspect | 'Rank') => {
     let direction: 'ascending' | 'descending' = 'ascending';
-    
+
     // If already sorting by this key, toggle direction
     if (sortConfig && sortConfig.key === key) {
       direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
     }
-    
+
     setSortConfig({ key, direction });
   };
 
   // Apply sorting to the filtered prospects
   const sortedProspects = useMemo(() => {
     const sortableProspects = [...filteredProspects];
-    
+
     if (!sortConfig) {
       return sortableProspects;
     }
@@ -893,7 +901,7 @@ export default function NickDraftPage() {
         const aNum = parseFloat(a['Height (in)'] as string) || 0;
         const bNum = parseFloat(b['Height (in)'] as string) || 0;
         return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-    }
+      }
 
       if (sortConfig.key === 'Weight (lbs)') {
         const aNum = parseInt(aValue as string) || 0;
@@ -904,14 +912,14 @@ export default function NickDraftPage() {
       // Default string comparison
       if (aValue === undefined) aValue = '';
       if (bValue === undefined) bValue = '';
-      
+
       if (sortConfig.direction === 'ascending') {
         return String(aValue).localeCompare(String(bValue));
       } else {
         return String(bValue).localeCompare(String(aValue));
       }
     });
-    
+
     return sortableProspects;
   }, [filteredProspects, sortConfig]);
 
@@ -927,7 +935,7 @@ export default function NickDraftPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead 
+                <TableHead
                   className={`text-gray-400 cursor-pointer hover:text-gray-200`}
                   onClick={() => handleSort('Rank')}
                 >
@@ -938,7 +946,7 @@ export default function NickDraftPage() {
                     </span>
                   )}
                 </TableHead>
-                <TableHead 
+                <TableHead
                   className="text-gray-400 cursor-pointer hover:text-gray-200"
                   onClick={() => handleSort('Name')}
                 >
@@ -949,7 +957,7 @@ export default function NickDraftPage() {
                     </span>
                   )}
                 </TableHead>
-                <TableHead 
+                <TableHead
                   className="text-gray-400 cursor-pointer hover:text-gray-200"
                   onClick={() => handleSort('Role')}
                 >
@@ -960,7 +968,7 @@ export default function NickDraftPage() {
                     </span>
                   )}
                 </TableHead>
-                <TableHead 
+                <TableHead
                   className="text-gray-400 cursor-pointer hover:text-gray-200"
                   onClick={() => handleSort('Pre-NBA')}
                 >
@@ -971,7 +979,7 @@ export default function NickDraftPage() {
                     </span>
                   )}
                 </TableHead>
-                <TableHead 
+                <TableHead
                   className="text-gray-400 cursor-pointer hover:text-gray-200"
                   onClick={() => handleSort('Actual Pick')}
                 >
@@ -982,7 +990,7 @@ export default function NickDraftPage() {
                     </span>
                   )}
                 </TableHead>
-                <TableHead 
+                <TableHead
                   className="text-gray-400 cursor-pointer hover:text-gray-200"
                   onClick={() => handleSort('NBA Team')}
                 >
@@ -993,7 +1001,7 @@ export default function NickDraftPage() {
                     </span>
                   )}
                 </TableHead>
-                <TableHead 
+                <TableHead
                   className="text-gray-400 cursor-pointer hover:text-gray-200"
                   onClick={() => handleSort('Height')}
                 >
@@ -1004,7 +1012,7 @@ export default function NickDraftPage() {
                     </span>
                   )}
                 </TableHead>
-                <TableHead 
+                <TableHead
                   className="text-gray-400 cursor-pointer hover:text-gray-200"
                   onClick={() => handleSort('Weight (lbs)')}
                 >
@@ -1021,7 +1029,7 @@ export default function NickDraftPage() {
               {sortedProspects.map((prospect) => {
                 // Find the original rank of the prospect in the filtered prospects array
                 const originalRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
-                
+
                 return (
                   <TableRow
                     key={prospect.Name}
@@ -1048,7 +1056,7 @@ export default function NickDraftPage() {
       </div>
     );
   };
-  
+
   // Handle scroll event for infinite loading - only on desktop
   useEffect(() => {
     if (viewMode !== 'card' || isLoading || !hasMore || isMobile) return;
@@ -1059,7 +1067,7 @@ export default function NickDraftPage() {
 
       if (documentHeight - scrollPosition < 100) {
         setIsLoading(true);
-        
+
         requestAnimationFrame(() => {
           setLoadedProspects(prev => {
             const newCount = prev + 5;
@@ -1111,9 +1119,9 @@ export default function NickDraftPage() {
                   prospect={prospect}
                   filteredProspects={filteredProspects}
                   allProspects={prospects}
-                  selectedSortKey={selectedSortKey} 
-                  draftYear={draftYear}                
-                  />
+                  selectedSortKey={selectedSortKey}
+                  draftYear={draftYear}
+                />
               ))}
               {isLoading && !isMobile && (
                 <div className="flex justify-center py-4">
