@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { TooltipProps } from 'recharts';
 //import ComingSoon from '@/components/ui/ComingSoon'; // Import the ComingSoon component
 import NavigationHeader from '@/components/NavigationHeader';
-// import DraftPageHeader from '@/components/DraftPageHeader';
+import DraftPageHeader from '@/components/DraftPageHeader';
 import Head from 'next/head';
 
 type PositionRanks = {
@@ -2845,7 +2845,7 @@ export default function DraftProspectsPage() {
       </Head>
       <div className="min-h-screen bg-[#19191A]">
         <NavigationHeader activeTab="Max Savin" />
-        {/* <DraftPageHeader author="Max Savin" /> */}
+        <DraftPageHeader author="Max Savin" />
         <TimelineSlider
           initialProspects={prospects}
           selectedYear={selectedYear}

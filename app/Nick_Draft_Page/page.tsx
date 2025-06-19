@@ -10,7 +10,7 @@ import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NavigationHeader from '@/components/NavigationHeader';
-// import DraftPageHeader from '@/components/DraftPageHeader';
+import DraftPageHeader from '@/components/DraftPageHeader';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export interface DraftProspect {
@@ -1091,7 +1091,7 @@ export default function NickDraftPage() {
   return (
     <div className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Nick Kalinowski" />
-      {/* <DraftPageHeader author="Nick Kalinowski" /> */}
+      <DraftPageHeader author="Nick Kalinowski" />
       <ProspectFilter
         prospects={prospects}
         onFilteredProspectsChange={setFilteredProspects}
