@@ -199,18 +199,6 @@ type CustomTooltipProps = TooltipProps<number | string, string> & {
   label?: string;
 };
 
-const DraftBoardHeader = () => {
-  return (
-    <div className="sticky top-0 z-40 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
-      <div className="px-4 py-6 md:py-8">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center text-white tracking-tight">
-          Max's Draft Board
-        </h1>
-      </div>
-    </div>
-  );
-};
-
 interface TimelineFilterProps {
   selectedSortKey: string;
   setSelectedSortKey: (key: string) => void;
