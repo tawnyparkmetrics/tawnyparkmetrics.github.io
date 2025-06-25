@@ -585,7 +585,7 @@ const ProspectCard: React.FC<{
                 uppercase
                 tracking-wider
                 [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
-              `}> 
+              `}>
                                     {prospect.Name}
                                 </h2>
                             </div>
@@ -987,20 +987,103 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
 
                             {/* Divider */}
-                    <div className="h-8 w-px bg-gray-700/30 mx-2" />
+                            <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
                             <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <motion.button
-                                    className={`
+                                <DropdownMenuTrigger asChild>
+                                    <motion.button
+                                        className={`
                   relative px-3 py-2 rounded-lg text-sm font-medium
                   flex items-center gap-2 w-fit
                   transition-all duration-300
                   ${selectedTier
+                                                ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
+                                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                            }
+                `}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        style={selectedTier ? {
+                                            backgroundColor: `${tierColors[selectedTier]}20`,
+                                            color: tierColors[selectedTier],
+                                            borderColor: `${tierColors[selectedTier]}4D`
+                                        } : {}}
+                                    >
+                                        Filter Tiers
+                                        <ChevronDown className="h-4 w-4" />
+                                    </motion.button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    {tiers.map((tier) => (
+                                        <DropdownMenuItem
+                                            key={tier.key}
+                                            className={`
+                      relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
+                      ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
+                    `}
+                                            onClick={() => handleTierClick(tier.key)}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span
+                                                    className="w-3 h-3 rounded-sm"
+                                                    style={{ backgroundColor: tierColors[tier.key] }}
+                                                ></span>
+                                                {tier.label}
+                                            </div>
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </div>
+
+
+                    {/* Desktop Filters */}
+                    <div className="hidden sm:flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
+                        {/* Position Filters */}
+                        <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                            <motion.button
+                                onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                Guards
+                            </motion.button>
+                            <motion.button
+                                onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                Wings
+                            </motion.button>
+                            <motion.button
+                                onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                Bigs
+                            </motion.button>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="h-8 w-px bg-gray-700/30 mx-2" />
+
+                        {/* Desktop Tier Filter */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <motion.button
+                                    className={`
+                      relative px-3 py-2 rounded-lg text-sm font-medium
+                      flex items-center gap-2
+                      transition-all duration-300
+                      ${selectedTier
                                             ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
                                             : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                                         }
-                `}
+                    `}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     style={selectedTier ? {
@@ -1018,9 +1101,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     <DropdownMenuItem
                                         key={tier.key}
                                         className={`
-                      relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
-                      ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
-                    `}
+                        relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
+                        ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
+                      `}
                                         onClick={() => handleTierClick(tier.key)}
                                     >
                                         <div className="flex items-center gap-2">
@@ -1034,113 +1117,30 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 ))}
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        </div>
-                    </div>
 
+                        {/* Divider */}
+                        <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
-                {/* Desktop Filters */}
-                <div className="hidden sm:flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
-                    {/* Position Filters */}
-                    <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                        {/* Desktop View Mode Toggle */}
                         <motion.button
-                            onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Guards
-                        </motion.button>
-                        <motion.button
-                            onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Wings
-                        </motion.button>
-                        <motion.button
-                            onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Bigs
-                        </motion.button>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-                    {/* Desktop Tier Filter */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <motion.button
-                                className={`
-                      relative px-3 py-2 rounded-lg text-sm font-medium
-                      flex items-center gap-2
-                      transition-all duration-300
-                      ${selectedTier
-                                        ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
-                                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                    }
-                    `}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                style={selectedTier ? {
-                                    backgroundColor: `${tierColors[selectedTier]}20`,
-                                    color: tierColors[selectedTier],
-                                    borderColor: `${tierColors[selectedTier]}4D`
-                                } : {}}
-                            >
-                                Filter Tiers
-                                <ChevronDown className="h-4 w-4" />
-                            </motion.button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                            {tiers.map((tier) => (
-                                <DropdownMenuItem
-                                    key={tier.key}
-                                    className={`
-                        relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
-                        ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
-                      `}
-                                    onClick={() => handleTierClick(tier.key)}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <span
-                                            className="w-3 h-3 rounded-sm"
-                                            style={{ backgroundColor: tierColors[tier.key] }}
-                                        ></span>
-                                        {tier.label}
-                                    </div>
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Divider */}
-                    <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-                    {/* Desktop View Mode Toggle */}
-                    <motion.button
-                        onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
-                        className={`
+                            onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
+                            className={`
                   px-3 py-2 rounded-lg text-sm font-medium flex items-center
                   transition-all duration-300
                   ${viewMode === 'table'
-                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                            }
+                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                    : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                }
                 `}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        <TableIcon className="mr-2 h-4 w-4" />
-                        {viewMode === 'card' ? 'Table View' : 'Card View'}
-                    </motion.button>
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            <TableIcon className="mr-2 h-4 w-4" />
+                            {viewMode === 'card' ? 'Table View' : 'Card View'}
+                        </motion.button>
+                    </div>
                 </div>
             </div>
-        </div>
         </div >
     );
 };

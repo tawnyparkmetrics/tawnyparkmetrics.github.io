@@ -1,21 +1,28 @@
 "use client";
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
 // import Link from 'next/link';
-import { Search, Table as TableIcon } from 'lucide-react';
+import { Search, TrendingUp, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NavigationHeader from '@/components/NavigationHeader';
+import DraftPageHeader from '@/components/DraftPageHeader';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from "@/components/ui/chart"
+import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 
 export interface DraftProspect {
@@ -30,6 +37,10 @@ export interface DraftProspect {
     'Wing - Height': string;
     'Pre-NBA': string;
     'NBA Team': string;
+    'Actual Pick': string;
+
+    //Style info
+    'Team Color': string;
 
     //Consensus info
     'Rank': string;
@@ -40,13 +51,513 @@ export interface DraftProspect {
     'LOW': string;
     'RANGE': string;
     'STDEV': string;
+    'COUNT': number;
+    'Inclusion Rate': string;
+    'SCORE': string;
+
+    //Range Consensus info
+    '1 - 3': string;
+    '4 - 14': string;
+    '15 - 30': string;
+    '31 - 59': string;
+    'Undrafted': string;
 
     Summary?: string;
     originalRank?: number;
 
-    'ABV': string;
-
 }
+
+export interface ConsensusColumns {
+    'Name': string;
+    'The Athletic (Sam Vecenie)': number;
+    'CBS Sports': number;
+    '@KevinOConnorNBA (Yahoo)': number;
+    'The Ringer': number;
+    'Tankathon': number;
+    'NBADraft.net': number;
+    'ESPN': number;
+    'No Ceilings': number;
+    'CraftedNBA': number;
+    '@KlineNBA (Fansided)': number;
+    'Swish Theory': number;
+    'Kevin Pelton (ESPN)': number;
+    'Opta': number;
+    'the center hub': number;
+    '@supersayansavin (TPM)': number;
+    '@CRiehl30': number;
+    '@JoelHinkieMaxey': number;
+    '@draymottishaw': number;
+    '@ZP12Hoops': number;
+    '@kimonsjaer24': number;
+    '@Jackmatthewss_': number;
+    '@rowankent': number;
+    '@CannibalSerb': number;
+    'Jishnu': number;
+    '@fra_sempru': number;
+    '@FPL_Mou': number;
+    'RyanHammer09': number;
+    '@thezonemaster': number;
+    '@hutsonboggs': number;
+    '@PAKA_FLOCKA': number;
+    '@drew_cant_hoop': number;
+    '@PenguinHoops': number;
+    'PK': number;
+    '@nore4dh': number;
+    '@LeftFieldSoup': number;
+    '@OranjeGuerrero': number;
+    '@503sbest': number;
+    '@BrianJNBA': number;
+    '@CediBetter': number;
+    '@JEnnisNBADraft': number;
+    '@report_court': number;
+    '@esotericloserr': number;
+    '@atthelevel': number;
+    '@freewave3': number;
+    'Andrea Cannici': number;
+    '@LoganH_utk': number;
+    'JoshW': number;
+    '@double_pg': number;
+    '@TaouTi959': number;
+    '@Alley_Oop_Coop': number;
+    '@perspectivehoop': number;
+    '@chipwilliamsjr': number;
+    '@DraftCasual': number;
+    '@thebigwafe': number;
+    '@NPComplete34': number;
+    '@SPTSJUNKIE (NBA Draft Network)': number;
+    '@bjpf_': number;
+    '@ram_dub': number;
+    'ReverseEnigma (databallr)': number;
+    '@OpticalHoops': number;
+    '@Rileybushh': number;
+    '@jhirsh03': number;
+    '@who_____knows': number;
+    '@GrizzliesFilm': number;
+    '@Juul__Embiid': number;
+    '@redrock_bball': number;
+    '@matwnba': number;
+    '@SpencerVonNBA': number;
+    'Jack Chambers': number;
+    'NBA Draft Room': number;
+    '@LoganPAdams': number;
+    '@bballstrategy': number;
+    '@movedmypivot': number;
+    '@drakemayefc': number;
+    '@Trellinterlude': number;
+    '@TrashPanda': number;
+    '@Duydidt': number;
+    '@Hoops_Haven1': number;
+    'Isaiah Silas': number;
+    '@codyreeves14': number;
+    '@nikoza2': number;
+    '@zjy2000': number;
+    '@Quinnfishburne': number;
+    '@antoniodias_pt': number;
+    '@cparkernba': number;
+    '@ChuckingDarts': number;
+    '@ShoryLogan': number;
+    '@Ethan387': number;
+    '@IFIMINC': number;
+    '@TStapletonNBA': number;
+    '@WillC': number;
+    '@mobanks10': number;
+    '@RichStayman': number;
+    '@_thedealzone': number;
+    '@_GatheringIntel': number;
+    '@DraftPow': number;
+    '@Dkphisports': number;
+    '@NicThomasNBA': number;
+    'Giddf': number;
+    '@BeyondTheRK': number;
+    '@greg23m': number;
+    'DrewDataDesign': number;
+    'Kam H': number;
+    '@dancingwithnoah': number;
+    'theballhaus': number;
+    'Oneiric': number;
+    '@undraliu': number;
+    '@corbannba': number;
+    '@_LarroHoops': number;
+    'salvador cali': number;
+    '@LoganRoA_': number;
+    '@sammygprops': number;
+    '@wilkomcv': number;
+    '@wheatonbrando': number;
+    '@Flawlesslikeeli': number;
+    '@_R_M_M': number;
+    '@mcfNBA': number;
+    '@evidenceforZ': number;
+    '@sixringsofsteeI': number;
+    '@CozyLito': number;
+    '@HoopsMetrOx': number;
+    '@SBNRicky': number;
+    '@redcooteay': number;
+    '@jessefischer': number;
+    '@henrynbadraft': number;
+    '@spursbeliever': number;
+    'SMILODON': number;
+    '@ayush_batra15': number;
+    '@AmericanNumbers': number;
+    '@100guaranteed': number;
+    '@jaynay1': number;
+    '@NileHoops': number;
+    '@HuntHoops': number;
+    'Mike Gribanov': number;
+    '@bendog28': number;
+    '@JHM Basketball': number;
+    '@halfwaketakes': number;
+    '@criggsnba': number;
+    '@NBADraftFuture': number;
+    '@JoeHulbertNBA': number;
+    '@CTFazio24': number;
+    '@JozhNBA': number;
+    '@hoop_tetris': number;
+    '@tobibuehner': number;
+    '@Josh_markowitz': number;
+    '@onlyonepodcastt': number;
+    '@akaCK_': number;
+    '@TheNicolau15': number;
+    '@British_Buzz': number;
+    '@hellyymarco': number;
+    '@SaucyTakez': number;
+    '@j0nzzzz': number;
+    '@JackDAnder': number;
+    '@nbadrafting': number;
+    'TheProcess': number;
+    '@canpekerpekcan': number;
+    '@ByAnthonyRizzo': number;
+    '@TwoWayMurray': number;
+}
+
+interface ConsensusHistogramProps {
+    prospect: DraftProspect;
+    consensusData: ConsensusColumns;
+    isMobile?: boolean;
+}
+
+const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
+    prospect,
+    consensusData,
+}) => {
+    // Debug function to analyze data validity
+    const analyzeDataValidity = useMemo(() => {
+        const analysis = {
+            prospect: prospect.Name,
+            totalContributors: 0,
+            validContributors: 0,
+            invalidContributors: [] as string[],
+            emptyContributors: [] as string[],
+            invalidValues: [] as { contributor: string; value: any }[],
+            validPicks: 0,
+            totalPicks: 0
+        };
+
+        Object.entries(consensusData)
+            .filter(([key]) => key !== "Name")
+            .forEach(([contributor, value]) => {
+                analysis.totalContributors++;
+                analysis.totalPicks++;
+
+                // Check for empty or invalid values
+                if (value === null || value === undefined || value === '') {
+                    analysis.emptyContributors.push(contributor);
+                    return;
+                }
+
+                // Try to parse the value
+                let pick: number;
+                if (typeof value === "number") {
+                    pick = value;
+                } else if (typeof value === "string" && value.trim() !== "") {
+                    pick = parseInt(value);
+                } else {
+                    analysis.invalidContributors.push(contributor);
+                    analysis.invalidValues.push({ contributor, value });
+                    return;
+                }
+
+                // Check if it's a valid NBA draft pick
+                if (!isNaN(pick) && pick >= 1 && pick <= 60) {
+                    analysis.validContributors++;
+                    analysis.validPicks++;
+                } else {
+                    analysis.invalidContributors.push(contributor);
+                    analysis.invalidValues.push({ contributor, value });
+                }
+            });
+
+        return analysis;
+    }, [consensusData, prospect.Name]);
+
+    // Log analysis for debugging (only for first few prospects to avoid spam)
+    useEffect(() => {
+        if (prospect.Name === 'Cooper Flagg') {
+            console.log(`Data Analysis for ${prospect.Name}:`, analyzeDataValidity);
+            
+            if (analyzeDataValidity.invalidContributors.length > 0) {
+                console.log(`Invalid contributors for ${prospect.Name}:`, analyzeDataValidity.invalidContributors);
+                console.log(`Invalid values for ${prospect.Name}:`, analyzeDataValidity.invalidValues);
+            }
+            
+            if (analyzeDataValidity.emptyContributors.length > 0) {
+                console.log(`Empty contributors for ${prospect.Name}:`, analyzeDataValidity.emptyContributors);
+            }
+        }
+    }, [analyzeDataValidity, prospect.Name]);
+
+    // Build histogram data with proper counting
+    const histogramData = useMemo(() => {
+        const counts: Record<number, number> = {};
+        const picks: number[] = [];
+        let totalContributors = 0;
+        let validPicks = 0;
+
+        // Collect all valid picks - exclude 'Name' column and count all other columns
+        Object.entries(consensusData)
+            .filter(([key]) => key !== "Name")
+            .forEach(([key, value]) => {
+                totalContributors++;
+                
+                // Handle different value types more robustly
+                let pick: number;
+                if (typeof value === "number") {
+                    pick = value;
+                } else if (typeof value === "string" && value.trim() !== "") {
+                    pick = parseInt(value);
+                } else {
+                    // Empty cells, null, or undefined mean contributor didn't rank this prospect
+                    return;
+                }
+
+                // Only count valid NBA draft picks (1-60)
+                // Note: Empty cells mean the contributor didn't rank this prospect
+                if (!isNaN(pick) && pick >= 1 && pick <= 60) {
+                    counts[pick] = (counts[pick] || 0) + 1;
+                    picks.push(pick);
+                    validPicks++;
+                }
+            });
+
+        // Debug logging
+        console.log(`${prospect.Name} - Total contributors: ${totalContributors}, Valid picks: ${validPicks}`);
+        console.log(`${prospect.Name} - Histogram total: ${Object.values(counts).reduce((sum, count) => sum + count, 0)}`);
+
+        if (picks.length === 0) {
+            return [];
+        }
+
+        // Find the range of actual picks
+        const minPick = Math.min(...picks);
+        const maxPick = Math.max(...picks);
+
+        // Special handling for prospects with single consensus pick (like Cooper Flagg at #1)
+        const isConsensusPick = minPick === maxPick;
+        
+        if (isConsensusPick) {
+            // Create a small range around the consensus pick for better visualization
+            const consensusPick = minPick;
+            const startRange = Math.max(1, consensusPick - 1);
+            const endRange = Math.min(60, consensusPick + 1);
+            
+            return Array.from({ length: endRange - startRange + 1 }, (_, i) => ({
+                pick: startRange + i,
+                count: counts[startRange + i] || 0,
+            }));
+        }
+
+        // For prospects with varied picks, show the full range
+        const rangeSize = maxPick - minPick + 1;
+        return Array.from({ length: rangeSize }, (_, i) => ({
+            pick: minPick + i,
+            count: counts[minPick + i] || 0,
+        }));
+    }, [consensusData, prospect]);
+
+    // Calculate total valid contributions for display
+    const totalValidContributions = histogramData.reduce((sum, item) => sum + item.count, 0);
+    
+    // Get total possible contributors (excluding 'Name' column)
+    const totalPossibleContributors = Object.keys(consensusData).length - 1; // Subtract 1 for 'Name' column
+
+    // Use team color or fallback to blue
+    const teamColor =
+        typeof prospect['Team Color'] === 'string' &&
+        /^#[0-9A-Fa-f]{6}$/.test(prospect['Team Color'])
+            ? prospect['Team Color']
+            : '#60A5FA';
+
+    // Custom tooltip component for histogram
+    const CustomHistogramTooltip = ({ active, payload, label }: any) => {
+        if (!active || !payload || !payload.length) {
+            return null;
+        }
+
+        const data = payload[0];
+        return (
+            <div className="bg-[#19191A] border border-gray-700 rounded-lg p-3 shadow-lg">
+                <div className="text-sm text-gray-300 mb-1">
+                    <span className="font-semibold">Rank:</span> {label}
+                </div>
+                <div className="text-sm text-gray-300">
+                    <span className="font-semibold">Frequency:</span> {data.value}
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div>
+            <ChartContainer config={{ count: { color: teamColor, label: "Frequency" } }}>
+                <AreaChart data={histogramData}>
+                    <defs>
+                        <linearGradient id={`areaGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
+                            <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="0" stroke="#333" strokeOpacity={0.2} horizontal={true} vertical={false} />
+                    <XAxis 
+                        dataKey="pick" 
+                        tick={{ fill: "#ccc", fontSize: 12 }} 
+                        domain={['dataMin', 'dataMax']}
+                        type="number"
+                        scale="linear"
+                    />
+                    <YAxis 
+                        tick={{ fill: "#ccc", fontSize: 12 }} 
+                        allowDecimals={false}
+                        domain={[0, 'dataMax']}
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="count"
+                        stroke={teamColor}
+                        fill={`url(#areaGradient-${prospect.Name.replace(/\s/g, '')})`}
+                        isAnimationActive={false}
+                    />
+                    <ChartTooltip content={<CustomHistogramTooltip />} />
+                </AreaChart>
+            </ChartContainer>
+        </div>
+    );
+};
+
+const RangeConsensusGraph: React.FC<ConsensusHistogramProps> = ({
+    prospect,
+}) => {
+    
+    const teamColor =
+        typeof prospect['Team Color'] === 'string' &&
+        /^#[0-9A-Fa-f]{6}$/.test(prospect['Team Color'])
+            ? prospect['Team Color']
+            : '#60A5FA';
+
+    const rangeData = useMemo(() => {
+        if (!prospect) return [];
+
+        // Extract range consensus values
+        const ranges = [
+            { label: '1-3', value: parseInt(prospect['1 - 3'] || '0'), range: '1-3' },
+            { label: '4-14', value: parseInt(prospect['4 - 14'] || '0'), range: '4-14' },
+            { label: '15-30', value: parseInt(prospect['15 - 30'] || '0'), range: '15-30' },
+            { label: '31-59', value: parseInt(prospect['31 - 59'] || '0'), range: '31-59' },
+            { label: 'Undrafted', value: parseInt(prospect['Undrafted'] || '0'), range: 'Undrafted' }
+        ];
+
+        // Filter out ranges with 0 values and return data
+        return ranges.filter(item => item.value > 0).map(item => ({
+            range: item.range,
+            value: item.value,
+            label: item.label,
+            percentage: item.value // This could be calculated as percentage if needed
+        }));
+    }, [prospect]);
+
+    // Use team color or fallback to blue
+
+    // Custom bar shape to avoid bottom stroke
+    const CustomBarShape = (props: any) => {
+        const { x, y, width, height, fill, stroke } = props;
+        return (
+            <g>
+                <rect
+                    x={x}
+                    y={y}
+                    width={width}
+                    height={height}
+                    fill={fill}
+                    stroke="none"
+                    rx={4}
+                    ry={4}
+                />
+                {/* Top line */}
+                <line
+                    x1={x}
+                    y1={y}
+                    x2={x + width}
+                    y2={y}
+                    stroke={stroke}
+                    strokeWidth={2}
+                />
+                {/* Left line */}
+                <line
+                    x1={x}
+                    y1={y}
+                    x2={x}
+                    y2={y + height}
+                    stroke={stroke}
+                    strokeWidth={2}
+                />
+                {/* Right line */}
+                <line
+                    x1={x + width}
+                    y1={y}
+                    x2={x + width}
+                    y2={y + height}
+                    stroke={stroke}
+                    strokeWidth={2}
+                />
+            </g>
+        );
+    };
+
+    return (
+        <ChartContainer config={{
+            range: { color: teamColor, label: "Draft Range" }
+        }}>
+            <BarChart data={rangeData} barCategoryGap="10%">
+                <defs>
+                    <linearGradient id={`barGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
+                        <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
+                    </linearGradient>
+                </defs>
+                <CartesianGrid
+                    strokeDasharray="0"
+                    stroke="#333"
+                    strokeOpacity={0.2}
+                    horizontal={true}
+                    vertical={false}
+                />
+                <XAxis
+                    dataKey="range"
+                    tick={{ fill: "#ccc", fontSize: 12 }}
+                />
+                <YAxis
+                    tick={{ fill: "#ccc", fontSize: 12 }}
+                    domain={[0, 100]}
+                    ticks={[0, 20, 40, 60, 80, 100]}
+                />
+                <Bar
+                    dataKey="value"
+                    fill={`url(#barGradient-${prospect.Name.replace(/\s/g, '')})`}
+                    shape={<CustomBarShape stroke={teamColor} />}
+                    radius={[4, 4, 0, 0]}
+                />
+            </BarChart>
+        </ChartContainer>
+    );
+};
 
 const barlow = Barlow({
     subsets: ['latin'],
@@ -68,46 +579,43 @@ const collegeNames: { [key: string]: string } = {
     "KK Cedevita Olimpija": "KK C. Olimpija",
     "North Dakota State": "NDSU",
     "Delaware Blue Coats": "Del. Blue Coats",
-    "Pallacanestro Reggiana": "Reggiana"
+    "Pallacanestro Reggiana": "Reggiana",
+    "Poitiers Basket 86": "Poitiers"
 }
 
-const draftShort: { [key: string]: string } = {
-    "G League Elite Camp": "G League Elite",
-    "Portsmouth Invitational": "P.I.T."
-}
 
 const teamNames: { [key: string]: string } = {
-    CHA: "Charlotte Hornets",
-    GSW: "Golden State Warriors",
-    LAL: "Los Angeles Lakers",
-    LAC: "Los Angeles Clippers",
-    BOS: "Boston Celtics",
-    MIA: "Miami Heat",
-    CHI: "Chicago Bulls",
-    DAL: "Dallas Mavericks",
-    PHX: "Phoenix Suns",
-    MIL: "Milwaukee Bucks",
-    WAS: "Washington Wizards",
-    HOU: "Houston Rockets",
-    MEM: "Memphis Grizzlies",
-    SAC: "Sacramento Kings",
-    OKC: "Okhlahoma City Thunder",
-    NYK: "Brooklyn Nets",
-    SAS: "San Antonio Spurs",
-    IND: "Indiana Pacers",
-    TOR: "Toronto Raptors",
-    NOP: "New Orleans Pelicans",
-    ATL: "Atlanta Hawks",
-    PHI: "Philadelphia 76ers",
-    DET: "Detroit Pistons",
-    ORL: "Orlando Magic",
-    MIN: "Minnesota Timberwolves",
-    UTA: "Utah Jazz",
-    DEN: "Denver Nuggets",
-    POR: "Portland Trailblazers",
-    CLE: "Cleveland Cavaliers",
-    NCAA: "NC",
-}
+    'Charlotte Hornets': 'CHA',
+    'Golden State Warriors': 'GSW',
+    'Los Angeles Lakers': 'LAL',
+    'Los Angeles Clippers': 'LAC',
+    'Boston Celtics': 'BOS',
+    'Miami Heat': 'MIA',
+    'Chicago Bulls': 'CHI',
+    'Dallas Mavericks': 'DAL',
+    'Phoenix Suns': 'PHX',
+    'Milwaukee Bucks': 'MIL',
+    'Washington Wizards': 'WAS',
+    'Houston Rockets': 'HOU',
+    'Memphis Grizzlies': 'MEM',
+    'Sacramento Kings': 'SAC',
+    'Oklahoma City Thunder': 'OKC',
+    'Brooklyn Nets': 'NYK',
+    'San Antonio Spurs': 'SAS',
+    'Indiana Pacers': 'IND',
+    'Toronto Raptors': 'TOR',
+    'New Orleans Pelicans': 'NOP',
+    'Atlanta Hawks': 'ATL',
+    'Philadelphia 76ers': 'PHI',
+    'Detroit Pistons': 'DET',
+    'Orlando Magic': 'ORL',
+    'Minnesota Timberwolves': 'MIN',
+    'Utah Jazz': 'UTA',
+    'Denver Nuggets': 'DEN',
+    'Portland Trailblazers': 'POR',
+    'Cleveland Cavaliers': 'CLE',
+    'NC': 'NCAA',
+};
 
 const NBATeamLogo = ({ NBA }: { NBA: string }) => {
     const [logoError, setNBALogoError] = useState(false);
@@ -132,32 +640,6 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
     );
 };
 
-const tierColors: { [key: string]: string } = {
-    '10': '#FF66C4',
-    '9': '#E9A2FF',
-    '8': '#5CE1E6',
-    '7': '#7089FF',
-    '6': '#CBFD82',
-    '5': '#7ED957',
-    '4': '#FFDE59',
-    '3': '#FFA455',
-    '2': '#FF8F8F',
-    '1': '#FF5757',
-};
-
-const tiers = [
-    { key: '10', label: 'Tier 10' },
-    { key: '9', label: 'Tier 9' },
-    { key: '8', label: 'Tier 8' },
-    { key: '7', label: 'Tier 7' },
-    { key: '6', label: 'Tier 6' },
-    { key: '5', label: 'Tier 5' },
-    { key: '4', label: 'Tier 4' },
-    { key: '3', label: 'Tier 3' },
-    { key: '2', label: 'Tier 2' },
-    { key: '1', label: 'Tier 1' },
-];
-
 const ProspectCard: React.FC<{
     prospect: DraftProspect;
     rank: RankType;
@@ -165,13 +647,14 @@ const ProspectCard: React.FC<{
     allProspects: DraftProspect[];
     selectedSortKey: string;
     selectedYear: number;
-}> = ({ prospect, filteredProspects, selectedSortKey, selectedYear }) => {
+    consensusData?: ConsensusColumns;
+}> = ({ prospect, consensusData }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [imageError, setImageError] = useState(false);
     const [logoError, setLogoError] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
+    const [showRangeConsensus, setShowRangeConsensus] = useState(false);
 
     // Check if device is mobile
     useEffect(() => {
@@ -179,13 +662,8 @@ const ProspectCard: React.FC<{
             setIsMobile(window.innerWidth < 768);
         };
 
-        // Set initial value
         checkMobile();
-
-        // Add event listener for window resize
         window.addEventListener('resize', checkMobile);
-
-        // Cleanup
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
@@ -211,76 +689,60 @@ const ProspectCard: React.FC<{
     const playerImageUrl = `/player_images2025/${prospect.Name} BG Removed.png`;
     const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
-    // First, extract the complex expression to a variable
-    const pickNumber = Number(prospect['Rank']);
-
-    // Then modify the useMemo hook
-    const currentRank = useMemo(() => {
-        if (selectedSortKey === 'Rank') {
-            // For draft order, use the actual pick number
-            if (!isNaN(pickNumber) && pickNumber <= 58) {
-                return pickNumber;
-            } else {
-                // For UDFAs, return "UDFA" instead of a number
-                return "UDFA";
-            }
-        } else {
-            // For other sorting methods, use the array index
-            const index = filteredProspects.findIndex(p => p.Name === prospect.Name);
-            return index + 1;
-        }
-    }, [prospect, filteredProspects, selectedSortKey, pickNumber]);
+    const currentRank = prospect['Rank'];
 
     // Helper function to get draft display text
     const getDraftDisplayText = (isMobileView: boolean = false) => {
-        if (selectedYear === 2025) {
             if (prospect.Name === 'Cooper Flagg') {
-                return '1 - Dallas Mavericks';
-            } else {
-                return teamNames.hasOwnProperty(prospect['NBA Team']) ? teamNames.DAL : prospect['NBA Team'];
-            }
+            const team = isMobileView
+                ? (teamNames[prospect['NBA Team']] || prospect['NBA Team'])
+                : prospect['NBA Team'];
+            return `${prospect['Actual Pick']} - ${team}`;
         } else {
             const teamName = prospect['NBA Team'];
-            const displayName = isMobileView && draftShort.hasOwnProperty(teamName) ? draftShort[teamName] : teamName;
-            return `${Number(prospect['Rank']) >= 59 ? "UDFA - " : `${displayName} `}`;
+            const displayName = isMobileView && teamNames.hasOwnProperty(teamName)
+                ? teamNames[teamName]
+                : teamName;
+            return `${displayName}`;
         }
     };
 
-    // Data for the new table (example values)
-    const tableData = useMemo(() => ([
-        // { label: 'Cumulative', value: prospect['Cumulative PS/1000'] || 'N/A' },
-        // { label: 'Age', value: prospect['Age Score'] || 'N/A' },
-        // { label: 'Measurables', value: prospect['Measurables Score'] || 'N/A' },
-        // { label: 'Athleticism', value: prospect['Athletic Score'] || 'N/A' },
-        // { label: 'Defense', value: prospect['Defense Score'] || 'N/A' },
+    // Consensus data for the table
+    const consensusTableData = useMemo(() => [
+        { label: 'Mean', value: prospect['MEAN'] || 'N/A' },
+        { label: 'Median', value: prospect['MEDIAN'] || 'N/A' },
+        { label: 'Mode', value: prospect['MODE'] || 'N/A' },
+        { label: 'High', value: prospect['HIGH'] || 'N/A' },
+        { label: 'Low', value: prospect['LOW'] || 'N/A' },
+        { label: 'Range', value: prospect['RANGE'] || 'N/A' },
+        { label: 'Inclusion Rate', value: prospect['Inclusion Rate'] ? `${Math.round(Number(prospect['Inclusion Rate']) * 100)}%` : 'N/A' },
+    ], [prospect]);
 
-        // { label: 'Usage', value: prospect['Usage Score'] || 'N/A' },
-        // { label: 'Scoring', value: prospect['Scoring Score'] || 'N/A' },
-        // { label: 'Self Creation', value: prospect['Self Creation Score'] || 'N/A' },
-        // { label: 'Touch', value: prospect['Touch Score'] || 'N/A' },
-        // { label: 'IQ', value: prospect['IQ Score'] || 'N/A' },
-    ]), [prospect]);
+    // Range consensus data for the table
+    const rangeConsensusTableData = useMemo(() => [
+        { label: 'Picks 1-3', value: prospect['1 - 3'] || '0' },
+        { label: 'Picks 4-14', value: prospect['4 - 14'] || '0' },
+        { label: 'Picks 15-30', value: prospect['15 - 30'] || '0' },
+        { label: 'Picks 31-59', value: prospect['31 - 59'] || '0' },
+        { label: 'Undrafted', value: prospect['Undrafted'] || '0' },
+    ], [prospect]);
 
     return (
         <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
             <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
                 <div className="relative">
-                    {/* Main card container - add mouse event handlers here */}
+                    {/* Main card container */}
                     <div
                         className={`
-            relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]
-            ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px] cursor-pointer'}
-          `}
+                            relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]
+                            ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px] cursor-pointer'}
+                        `}
                         style={{ backgroundColor: '#19191A' }}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                         onClick={() => {
                             if (isMobile) {
-                                if (isMobileInfoExpanded) {
-                                    setIsMobileInfoExpanded(false);
-                                } else {
-                                    setIsExpanded(!isExpanded);
-                                }
+                                setIsExpanded(!isExpanded);
                             } else {
                                 setIsExpanded(!isExpanded);
                                 if (!isExpanded) {
@@ -289,34 +751,34 @@ const ProspectCard: React.FC<{
                             }
                         }}
                     >
-                        {/* Rank Number - Now using the dynamic currentRank */}
+                        {/* Rank Number */}
                         <motion.div
                             layout="position"
                             className={`
-              ${barlow.className}
-              ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20 transition-opacity duration-300'}
-              ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
-            `}
+                                ${barlow.className}
+                                ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20 transition-opacity duration-300'}
+                                ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
+                            `}
                         >
                             <div className={`
-              ${barlow.className}
-              ${isMobile ? 'text-1xl' : 'text-6xl'}
-              font-bold
-              text-white
-              select-none
-              ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''}
-            `}>
+                                ${barlow.className}
+                                ${isMobile ? 'text-1xl' : 'text-6xl'}
+                                font-bold
+                                text-white
+                                select-none
+                                ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''}
+                            `}>
                                 {currentRank}
                             </div>
                         </motion.div>
 
                         {/* Background Pre-NBA Logo */}
                         <div className={`
-            absolute inset-0 flex items-center justify-start
-            ${isMobile ? 'pl-4' : 'pl-12'}
-            transition-opacity duration-300
-            ${((isHovered && !isMobile) || isExpanded) ? 'opacity-90' : 'opacity-20'}
-          `}>
+                            absolute inset-0 flex items-center justify-start
+                            ${isMobile ? 'pl-4' : 'pl-12'}
+                            transition-opacity duration-300
+                            ${((isHovered && !isMobile) || isExpanded) ? 'opacity-90' : 'opacity-20'}
+                        `}>
                             {!logoError ? (
                                 <Image
                                     src={prenbalogoUrl}
@@ -339,15 +801,15 @@ const ProspectCard: React.FC<{
                                 {!imageError ? (
                                     <div className="relative w-full h-full flex items-end justify-center">
                                         <Image
-                                            src={playerImageUrl}  // Use the dynamic playerImageUrl instead of hardcoded path
+                                            src={playerImageUrl}
                                             alt={prospect.Name}
                                             fill
                                             className={`
-                      object-contain
-                      object-bottom
-                      transition-all duration-300
-                      ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}
-                    `}
+                                                object-contain
+                                                object-bottom
+                                                transition-all duration-300
+                                                ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}
+                                            `}
                                             onError={() => setImageError(true)}
                                             sizes={isMobile ? "400px" : "800px"}
                                             priority
@@ -368,26 +830,21 @@ const ProspectCard: React.FC<{
                         >
                             <div className="text-center z-10">
                                 <h2 className={`
-                ${barlow.className}
-                ${isMobile ? 'text-1xl' : 'text-7xl'}
-                font-bold
-                text-white
-                uppercase
-                tracking-wider
-                [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
-              `}> 
+                                    ${barlow.className}
+                                    ${isMobile ? 'text-1xl' : 'text-7xl'}
+                                    font-bold
+                                    text-white
+                                    uppercase
+                                    tracking-wider
+                                    [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
+                                `}>
                                     {prospect.Name}
                                 </h2>
                             </div>
                         </motion.div>
 
-                        {/* Info panel - different for mobile/desktop */}
-                        {isMobile ? (
-                            isExpanded && (
-                                <div style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}></div>
-                            )
-                        ) : (
-                            // Desktop hover info panel
+                        {/* Desktop hover info panel */}
+                        {!isMobile && (
                             <div
                                 className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
                                     }`}
@@ -423,7 +880,7 @@ const ProspectCard: React.FC<{
                         )}
                     </div>
 
-                    {/* Click to View Text - Now properly positioned under the card, desktop only */}
+                    {/* Click to View Text - Desktop only */}
                     {!isExpanded && !isMobile && (
                         <div className="text-center mt-2">
                             <p className={`text-gray-500 text-sm font-bold ${isHovered ? 'animate-pulse' : ''}`}>
@@ -451,7 +908,7 @@ const ProspectCard: React.FC<{
                                         <div>
                                             <span className="font-bold text-white">Pre-NBA </span>
                                             {collegeNames.hasOwnProperty(prospect['Pre-NBA'])
-                                                ? collegeNames[prospect['Pre-NBA']]  // Fixed: Use dynamic key instead of hardcoded 'Duke'
+                                                ? collegeNames[prospect['Pre-NBA']]
                                                 : prospect['Pre-NBA']}
                                         </div>
                                         <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
@@ -481,7 +938,7 @@ const ProspectCard: React.FC<{
                         </motion.div>
                     )}
 
-                    {/* Expanded View - Charts and Rankings */}
+                    {/* Expanded View - Charts and Consensus Table */}
                     {isExpanded && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
@@ -491,87 +948,90 @@ const ProspectCard: React.FC<{
                             className="rounded-xl backdrop-blur-sm p-4 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
                             style={{ backgroundColor: '#19191A' }}
                         >
-
-                            {/* Expanded View Content */}
                             <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
-                                {/* Charts Column - Now on the left (first column) */}
+                                {/* Left side - Charts */}
                                 <div className="text-gray-300 px-2">
-                                    {/* Tier display with color border */}
-                                    {/* <h3 className="font-semibold text-lg mb-3 text-white mt-2">
-                                        Prospect Tier: <span
-                                            className="px-2 py-1 rounded text-sm"
-                                            style={{
-                                                backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
-                                                color: tierColors[prospect.Tier] || 'inherit',
-                                                border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
-                                            }}
-                                        >
-                                            Tier {prospect.Tier}
-                                        </span>
-                                    </h3> */}
-
-                                    {/* Chart Container */}
-                                    {/* <div className={`mb-4 ${!isMobile ? 'h-64' : 'h-[300px]'}`}>
-                                        {activeChart === 'spider' && (
-                                            <SpiderChart
-                                                prospect={prospect}
-                                                selectedYear={selectedYear}
-                                            />
-                                        )}
-                                    </div> */}
+                                    <h4 className="text-lg font-semibold text-white mb-4">
+                                        {showRangeConsensus ? 'Consensus Distrubution' : 'Consensus Distrubution'}
+                                    </h4>
+                                    {showRangeConsensus ? (
+                                        <div className="relative -left-5">
+                                            {consensusData ? (
+                                                <RangeConsensusGraph
+                                                    prospect={prospect}
+                                                    consensusData={consensusData}
+                                                    isMobile={isMobile}
+                                                />
+                                            ) : (
+                                                <div className="flex items-center justify-center h-48 text-gray-400">
+                                                    <p>No consensus data available</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {consensusData ? (
+                                                <div className="relative -left-5">
+                                                    <ConsensusHistogram
+                                                        prospect={prospect}
+                                                        consensusData={consensusData}
+                                                        isMobile={isMobile}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center justify-center h-48 text-gray-400">
+                                                    <p>No consensus data available</p>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
 
-                                {/* Prospect Scores Table - Now shows on both mobile and desktop */}
+                                {/* Right side - Information Tables */}
                                 <div className="text-gray-300 px-2">
-                                    <h3 className="font-semibold text-lg mb-3 text-white mt-2">
-                                        Prospect Scores
-                                    </h3>
+                                    {/* Title with Toggle Button */}
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h4 className="text-lg font-semibold text-white">
+                                            {showRangeConsensus ? 'Consensus Information' : 'Consensus Information'}
+                                        </h4>
+                                        <div
+                                            onClick={() => setShowRangeConsensus(!showRangeConsensus)}
+                                            className={`
+                                                relative w-12 h-6 bg-gray-800/20 rounded-full border border-gray-800 cursor-pointer transition-all duration-200 hover:bg-gray-800/30
+                                            `}
+                                        >
+                                            <div
+                                                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-200 ${showRangeConsensus ? 'left-6' : 'left-0.5'
+                                                    }`}
+                                            />
+                                        </div>
+                                    </div>
 
-                                    {/* Mobile version - single column layout */}
-                                    {isMobile ? (
-                                        <div className="space-y-2 text-sm">
-                                            <div className="flex justify-between font-bold text-gray-400 mb-2 border-b border-gray-600 pb-1">
-                                                <span className="text-left">Category</span>
-                                                <span className="text-center">Score</span>
-                                            </div>
-                                            {tableData.map((item: { label: string; value: string | number }, index) => (
-                                                <div key={index} className="flex justify-between py-1 border-b border-gray-700">
-                                                    <span className="font-bold text-white">{item.label}</span>
-                                                    <span className="text-gray-300">{item.value}</span>
+                                    {showRangeConsensus ? (
+                                        /* Range Consensus Table */
+                                        <div className="space-y-0 px-2 pt-1">
+                                            {rangeConsensusTableData.map((item, index) => (
+                                                <div
+                                                    key={item.label}
+                                                    className={`flex justify-between items-center py-3 ${index !== rangeConsensusTableData.length - 1 ? 'border-b border-gray-700/50' : ''}`}
+                                                >
+                                                    <span className="font-bold text-white text-base text-sm">{item.label}</span>
+                                                    <span className="text-gray-300 text-base text-sm">{item.value}</span>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        /* Desktop version - two column layout */
-                                        <div className="grid grid-cols-2 gap-4 text-sm h-64">
-                                            {/* First 5x2 table */}
-                                            <div className="flex flex-col justify-around">
-                                                {/* Subheaders for the first column group */}
-                                                <div className="flex justify-between font-bold text-gray-400 mb-2">
-                                                    <span className="text-left w-1/2">Category</span>
-                                                    <span className="text-center w-1/2">Score</span>
-                                                </div>
-                                                {tableData.slice(0, 5).map((item: { label: string; value: string | number }, index) => (
-                                                    <div key={index} className="flex justify-between py-1 border-b border-gray-700">
-                                                        <span className="font-bold text-white w-1/2">{item.label}</span>
-                                                        <span className="text-gray-300 text-center w-1/2">{item.value}</span>
+                                        /* Original Consensus Tables */
+                                        <div className="space-y-0 px-2 pt-0 mt-[-8px]">
+                                            {consensusTableData.map((item, index) => (
+                                                    <div
+                                                        key={item.label}
+                                                    className={`flex justify-between items-center py-2 ${index !== consensusTableData.length - 1 ? 'border-b border-gray-700/50' : ''}`}
+                                                    >
+                                                    <span className="font-bold text-white text-sm">{item.label}</span>
+                                                    <span className="text-gray-300 text-sm">{item.value}</span>
                                                     </div>
                                                 ))}
-                                            </div>
-                                            {/* Second 5x2 table */}
-                                            <div className="flex flex-col justify-around">
-                                                {/* Subheaders for the second column group (empty and hidden for redundancy avoidance) */}
-                                                <div className="flex justify-between font-bold text-white mb-2 opacity-0">
-                                                    <span className="text-left w-1/2">Category</span>
-                                                    <span className="text-center w-1/2">Score</span>
-                                                </div>
-                                                {tableData.slice(5, 10).map((item: { label: string; value: string | number }, index) => (
-                                                    <div key={index} className="flex justify-between py-1 border-b border-gray-700">
-                                                        <span className="font-bold text-white w-1/2">{item.label}</span>
-                                                        <span className="text-gray-300 text-center w-1/2">{item.value}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -581,12 +1041,9 @@ const ProspectCard: React.FC<{
                 </div>
             </motion.div>
 
-            {/* Divider */}
+            {/* Divider - Desktop only */}
             {typeof window !== 'undefined' && window.innerWidth > 768 && (
-                <div>
-                    {/* Kept only the faded divider */}
-                    <div className="h-px w-full bg-gray-700/30 my-8" />
-                </div>
+                <div className="h-px w-full bg-gray-700/30 my-8" />
             )}
         </div>
     );
@@ -598,7 +1055,7 @@ interface ProspectFilterProps {
     prospects: DraftProspect[];
     onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
     rank: Record<string, RankType>;
-    onViewModeChange?: (mode: 'card' | 'table') => void;
+    onViewModeChange?: (mode: 'card' | 'table' | 'contributors') => void;
 }
 
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
@@ -608,9 +1065,8 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 }) => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [roleFilter, setRoleFilter] = useState<'all' | 'Guard' | 'Wing' | 'Big'>('all');
-    const [selectedTier, setSelectedTier] = useState<string | null>(null); // New state for tier filter
     const [, setLocalFilteredProspects] = useState(prospects);
-    const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+    const [viewMode, setViewMode] = useState<'card' | 'table' | 'contributors'>('card');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
     useEffect(() => {
@@ -622,26 +1078,19 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     const hasActiveFilters = () => {
         return (
             roleFilter !== 'all' ||
-            searchQuery !== '' ||
-            selectedTier !== null // Check if a tier is selected
+            searchQuery !== ''
         );
     };
 
     const resetFilters = () => {
         setSearchQuery('');
         setRoleFilter('all');
-        setSelectedTier(null); // Reset tier filter
         setLocalFilteredProspects(prospects);
         setIsMobileFilterOpen(false);
 
         if (onFilteredProspectsChange) {
             onFilteredProspectsChange(prospects);
         }
-    };
-
-    // Function to handle tier click
-    const handleTierClick = (tierKey: string) => {
-        setSelectedTier(prevTier => (prevTier === tierKey ? null : tierKey)); // Toggle selection
     };
 
     useEffect(() => {
@@ -661,12 +1110,19 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             );
         }
 
+        // Sort by Rank (ascending order - 1, 2, 3, etc.)
+        results = results.sort((a, b) => {
+            const rankA = parseInt(a.Rank) || 999; // Default to 999 if no rank
+            const rankB = parseInt(b.Rank) || 999;
+            return rankA - rankB;
+        });
+
         setLocalFilteredProspects(results);
 
         if (onFilteredProspectsChange) {
             onFilteredProspectsChange(results);
         }
-    }, [prospects, searchQuery, roleFilter, selectedTier, onFilteredProspectsChange]); // Add selectedTier to dependencies
+    }, [prospects, searchQuery, roleFilter, onFilteredProspectsChange]);
 
     return (
         <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
@@ -685,23 +1141,70 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <ChevronDown className={`ml-1 h-4 w-4 transform transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`} />
                     </motion.button>
 
-                    {/* View Mode Toggle - Right Side */}
+                    {/* View Mode Dropdown - Right Side */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                     <motion.button
-                        onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
                         className={`
                 px-3 py-2 rounded-lg text-sm font-medium flex items-center
                 transition-all duration-300
-                ${viewMode === 'table'
-                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                            }
+                                    bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
               `}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
+                                {viewMode === 'card' ? (
+                                    <>
+                                        <LucideUser className="mr-1 h-4 w-4" />
+                                        Card View
+                                    </>
+                                ) : viewMode === 'table' ? (
+                                    <>
                         <TableIcon className="mr-1 h-4 w-4" />
-                        {viewMode === 'card' ? 'Table View' : 'Card View'}
+                                        Table View
+                                    </>
+                                ) : (
+                                    <>
+                                        <TrendingUp className="mr-1 h-4 w-4" />
+                                        Contributors
+                                    </>
+                                )}
+                                <ChevronDown className="ml-1 h-4 w-4" />
                     </motion.button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                            <DropdownMenuItem
+                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''
+                                    }`}
+                                onClick={() => setViewMode('card')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <LucideUser className="h-4 w-4" />
+                                    Card View
+                                </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''
+                                    }`}
+                                onClick={() => setViewMode('table')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <TableIcon className="h-4 w-4" />
+                                    Table View
+                                </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'contributors' ? 'bg-blue-500/20 text-blue-400' : ''
+                                    }`}
+                                onClick={() => setViewMode('contributors')}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <TrendingUp className="h-4 w-4" />
+                                    Contributors
+                                </div>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
 
@@ -749,7 +1252,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <div className="flex items-center gap-2">
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -757,7 +1260,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -765,176 +1268,333 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 Bigs
                             </motion.button>
-
-                            {/* Divider */}
-                    <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-                            <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <motion.button
-                                    className={`
-                  relative px-3 py-2 rounded-lg text-sm font-medium
-                  flex items-center gap-2 w-fit
-                  transition-all duration-300
-                  ${selectedTier
-                                            ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
-                                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                        }
-                `}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    style={selectedTier ? {
-                                        backgroundColor: `${tierColors[selectedTier]}20`,
-                                        color: tierColors[selectedTier],
-                                        borderColor: `${tierColors[selectedTier]}4D`
-                                    } : {}}
-                                >
-                                    Filter Tiers
-                                    <ChevronDown className="h-4 w-4" />
-                                </motion.button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                {tiers.map((tier) => (
-                                    <DropdownMenuItem
-                                        key={tier.key}
-                                        className={`
-                      relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
-                      ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
-                    `}
-                                        onClick={() => handleTierClick(tier.key)}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <span
-                                                className="w-3 h-3 rounded-sm"
-                                                style={{ backgroundColor: tierColors[tier.key] }}
-                                            ></span>
-                                            {tier.label}
-                                        </div>
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                         </div>
                     </div>
 
 
-                {/* Desktop Filters */}
-                <div className="hidden sm:flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
-                    {/* Position Filters */}
-                    <div className="flex items-center space-x-2 mb-2 sm:mb-0">
-                        <motion.button
-                            onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Guards
-                        </motion.button>
-                        <motion.button
-                            onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Wings
-                        </motion.button>
-                        <motion.button
-                            onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Bigs
-                        </motion.button>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-                    {/* Desktop Tier Filter */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                    {/* Desktop Filters */}
+                    <div className="hidden sm:flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
+                        {/* Position Filters */}
+                        <div className="flex items-center space-x-2 mb-2 sm:mb-0">
                             <motion.button
-                                className={`
-                      relative px-3 py-2 rounded-lg text-sm font-medium
-                      flex items-center gap-2
-                      transition-all duration-300
-                      ${selectedTier
-                                        ? `bg-[${tierColors[selectedTier]}]/20 text-[${tierColors[selectedTier]}] border border-[${tierColors[selectedTier]}]/30`
-                                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                    }
-                    `}
+                                onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
+                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                style={selectedTier ? {
-                                    backgroundColor: `${tierColors[selectedTier]}20`,
-                                    color: tierColors[selectedTier],
-                                    borderColor: `${tierColors[selectedTier]}4D`
-                                } : {}}
                             >
-                                Filter Tiers
-                                <ChevronDown className="h-4 w-4" />
+                                Guards
                             </motion.button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                            {tiers.map((tier) => (
-                                <DropdownMenuItem
-                                    key={tier.key}
+                            <motion.button
+                                onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
+                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                Wings
+                            </motion.button>
+                            <motion.button
+                                onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
+                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                Bigs
+                            </motion.button>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="h-6 md:h-8 w-px bg-gray-700/30 mx-1 md:mx-2" />
+
+                        {/* Desktop View Mode Dropdown */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <motion.button
                                     className={`
-                        relative text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md
-                        ${selectedTier === tier.key ? 'bg-blue-500/20 text-blue-400' : ''}
-                      `}
-                                    onClick={() => handleTierClick(tier.key)}
+                                        px-3 py-2 rounded-lg text-sm font-medium flex items-center
+                      transition-all duration-300
+                                        bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                    `}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    {viewMode === 'card' ? (
+                                        <>
+                                            <LucideUser className="mr-1 h-4 w-4" />
+                                            Card View
+                                        </>
+                                    ) : viewMode === 'table' ? (
+                                        <>
+                                            <TableIcon className="mr-1 h-4 w-4" />
+                                            Table View
+                                        </>
+                                    ) : (
+                                        <>
+                                            <TrendingUp className="mr-1 h-4 w-4" />
+                                            Contributors
+                                        </>
+                                    )}
+                                    <ChevronDown className="ml-1 h-4 w-4" />
+                                </motion.button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    <DropdownMenuItem
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''
+                                        }`}
+                                    onClick={() => setViewMode('card')}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                        <LucideUser className="h-4 w-4" />
+                                        Card View
+                                        </div>
+                                    </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''
+                                        }`}
+                                    onClick={() => setViewMode('table')}
                                 >
                                     <div className="flex items-center gap-2">
-                                        <span
-                                            className="w-3 h-3 rounded-sm"
-                                            style={{ backgroundColor: tierColors[tier.key] }}
-                                        ></span>
-                                        {tier.label}
+                                        <TableIcon className="h-4 w-4" />
+                                        Table View
                                     </div>
                                 </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Divider */}
-                    <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
-                    {/* Desktop View Mode Toggle */}
-                    <motion.button
-                        onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
-                        className={`
-                  px-3 py-2 rounded-lg text-sm font-medium flex items-center
-                  transition-all duration-300
-                  ${viewMode === 'table'
-                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                            }
-                `}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        <TableIcon className="mr-2 h-4 w-4" />
-                        {viewMode === 'card' ? 'Table View' : 'Card View'}
-                    </motion.button>
+                                <DropdownMenuItem
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'contributors' ? 'bg-blue-500/20 text-blue-400' : ''
+                                        }`}
+                                    onClick={() => setViewMode('contributors')}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="h-4 w-4" />
+                                        Contributors
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
             </div>
         </div>
-        </div >
+    );
+};
+
+const ContributorsView: React.FC<{ searchQuery?: string }> = ({ searchQuery }) => {
+    // Mapping object for contributors with their URLs - easy to copy-paste from CSV
+    const contributorsData = {
+        'The Athletic (Sam Vecenie)': 'https://theathletic.com/author/sam-vecenie/',
+        'CBS Sports': 'https://www.cbssports.com/nba/draft/prospect-rankings/',
+        '@KevinOConnorNBA (Yahoo)': 'https://twitter.com/KevinOConnorNBA',
+        'The Ringer': 'https://nbadraft.theringer.com/',
+        'Tankathon': 'https://www.tankathon.com/big_board',
+        'NBADraft.net': 'https://www.nbadraft.net/ranking/bigboard/',
+        'CraftedNBA': 'https://craftednba.com/draft/2025',
+        '@KlineNBA (Fansided)': 'https://twitter.com/KlineNBA',
+        'Swish Theory': 'https://theswishtheory.com/scouting-report/nba-draft/2025-nba-draft/',
+        'No Ceilings': 'https://noceilingsnba.com/',
+        'ESPN': 'https://www.espn.com/nba/draft',
+        'Kevin Pelton (ESPN)': 'https://www.espn.co.uk/nba/story/_/id/44888875/nba-draft-2025-projecting-30-best-prospects',
+        'Opta': 'https://theanalyst.com/articles/nba-draft-rankings-2025-big-board',
+        'the center hub': 'https://the-center-hub.com/2025/06/19/2025-nba-draft-guide/',
+        '@supersayansavin (TPM)': 'https://twitter.com/supersayansavin',
+        '@CRiehl30': 'https://twitter.com/CRiehl30',
+        '@JoelHinkieMaxey': 'https://twitter.com/JoelHinkieMaxey',
+        '@draymottishaw': 'https://twitter.com/draymottishaw',
+        '@ZP12Hoops': 'https://twitter.com/ZP12Hoops',
+        '@kimonsjaer24': 'https://twitter.com/kimonsjaer24',
+        '@Jackmatthewss_': 'https://twitter.com/Jackmatthewss_',
+        '@rowankent': 'https://twitter.com/rowankent',
+        '@CannibalSerb': 'https://twitter.com/CannibalSerb',
+        'Jishnu': '',
+        '@fra_sempru': 'https://twitter.com/fra_sempru',
+        '@FPL_Mou': 'https://twitter.com/FPL_Mou',
+        '@ryanhammer09': 'https://twitter.com/ryanhammer09',
+        '@thezonemaster': 'https://twitter.com/thezonemaster',
+        '@hutsonboggs': 'https://twitter.com/hutsonboggs',
+        '@PAKA_FLOCKA': 'https://twitter.com/PAKA_FLOCKA',
+        '@drew_cant_hoop': 'https://twitter.com/drew_cant_hoop',
+        '@PenguinHoops': 'https://twitter.com/PenguinHoops',
+        'PK': '',
+        '@nore4dh': 'https://twitter.com/nore4dh',
+        '@LeftFieldSoup': 'https://twitter.com/LeftFieldSoup',
+        '@OranjeGuerrero': 'https://twitter.com/OranjeGuerrero',
+        '@503sbest': 'https://twitter.com/503sbest',
+        '@BrianJNBA': 'https://twitter.com/BrianJNBA',
+        '@CediBetter': 'https://twitter.com/CediBetter',
+        '@JEnnisNBADraft': 'https://twitter.com/JEnnisNBADraft',
+        '@report_court': 'https://twitter.com/report_court',
+        '@esotericloserr': 'https://twitter.com/esotericloserr',
+        '@atthelevel': 'https://twitter.com/atthelevel',
+        '@freewave3': 'https://twitter.com/freewave3',
+        'Andrea Cannici': 'https://twitter.com/andrecannici',
+        '@LoganH_utk': 'https://twitter.com/LoganH_utk',
+        'JoshW': '',
+        '@double_pg': 'https://twitter.com/double_pg',
+        '@TaouTi959': 'https://twitter.com/TaouTi959',
+        '@Alley_Oop_Coop': 'https://twitter.com/Alley_Oop_Coop',
+        '@perspectivehoop': 'https://twitter.com/perspectivehoop',
+        '@chipwilliamsjr': 'https://twitter.com/chipwilliamsjr',
+        '@DraftCasual': 'https://twitter.com/DraftCasual',
+        '@thebigwafe': 'https://twitter.com/thebigwafe',
+        '@NPComplete34': 'https://twitter.com/NPComplete34',
+        '@SPTSJUNKIE (NBA Draft Network)': 'https://twitter.com/SPTSJUNKIE',
+        '@bjpf_': 'https://twitter.com/bjpf_',
+        '@ram_dub': 'https://twitter.com/ram_dub',
+        'ReverseEnigma (databallr)': 'https://bsky.app/profile/reverseenigma.bsky.social',
+        '@OpticalHoops': 'https://twitter.com/OpticalHoops',
+        '@Rileybushh': 'https://twitter.com/Rileybushh',
+        '@jhirsh03': 'https://twitter.com/jhirsh03',
+        '@who_____knows': 'https://twitter.com/who_____knows',
+        '@GrizzliesFilm': 'https://twitter.com/GrizzliesFilm',
+        '@Juul__Embiid': 'https://twitter.com/Juul__Embiid',
+        '@redrock_bball': 'https://twitter.com/redrock_bball',
+        '@matwnba': 'https://twitter.com/matwnba',
+        '@SpencerVonNBA': 'https://twitter.com/SpencerVonNBA',
+        'Jack Chambers': '',
+        'NBA Draft Room': 'https://nbadraftroom.com/2025-nba-draft-big-board-10-0-final-edition/',
+        '@LoganPAdams': 'https://twitter.com/LoganPAdams',
+        '@bballstrategy': 'https://twitter.com/bballstrategy',
+        '@movedmypivot': 'https://twitter.com/movedmypivot',
+        '@drakemayefc': 'https://twitter.com/drakemayefc',
+        '@Trellinterlude': 'https://twitter.com/Trellinterlude',
+        '@TrashPanda': 'https://twitter.com/TrashPanda',
+        '@Duydidt': 'https://twitter.com/Duydidt',
+        '@Hoops_Haven1': 'https://twitter.com/Hoops_Haven1',
+        'Isaiah Silas': 'https://twitter.com/ProspectReportt',
+        '@codyreeves14': 'https://twitter.com/codyreeves14',
+        '@nikoza2': 'https://twitter.com/nikoza2',
+        '@zjy2000': 'https://twitter.com/zjy2000',
+        '@Quinnfishburne': 'https://twitter.com/Quinnfishburne',
+        '@antoniodias_pt': 'https://twitter.com/antoniodias_pt',
+        '@cparkernba': 'https://twitter.com/cparkernba',
+        '@ChuckingDarts': 'https://twitter.com/ChuckingDarts',
+        '@ShoryLogan': 'https://twitter.com/ShoryLogan',
+        '@Ethan387': 'https://twitter.com/Ethan387',
+        '@IFIMINC': 'https://twitter.com/IFIMINC',
+        '@TStapletonNBA': 'https://twitter.com/TStapletonNBA',
+        '@WillC': 'https://twitter.com/WillC_NBA',
+        '@mobanks10': 'https://twitter.com/mobanks10',
+        '@RichStayman': 'https://twitter.com/RichStayman',
+        '@_thedealzone': 'https://twitter.com/_thedealzone',
+        '@_GatheringIntel': 'https://twitter.com/_GatheringIntel',
+        '@DraftPow': 'https://twitter.com/DraftPow',
+        '@Dkphisports': 'https://twitter.com/Dkphisports',
+        '@NicThomasNBA': 'https://twitter.com/NicThomasNBA',
+        'Giddf': '',
+        '@BeyondTheRK': 'https://twitter.com/BeyondTheRK',
+        '@greg23m': 'https://twitter.com/greg23m',
+        'DrewDataDesign': '',
+        'Kam H': '',
+        '@dancingwithnoah': 'https://twitter.com/dancingwithnoah',
+        'atheballhaus': 'https://twitter.com/theballhaus',
+        'Oneiric': '',
+        '@undraliu': 'https://twitter.com/undraliu',
+        '@corbannba': 'https://twitter.com/corbannba',
+        '@_LarroHoops': 'https://twitter.com/_LarroHoops',
+        'salvador cali': '',
+        '@LoganRoA_': 'https://twitter.com/LoganRoA_',
+        '@sammygprops': 'https://twitter.com/sammygprops',
+        '@wilkomcv': 'https://twitter.com/wilkomcv',
+        '@wheatonbrando': 'https://twitter.com/wheatonbrando',
+        '@Flawlesslikeeli': 'https://twitter.com/Flawlesslikeeli',
+        '@_R_M_M': 'https://twitter.com/_R_M_M',
+        '@mcfNBA': 'https://twitter.com/mcfNBA',
+        '@evidenceforZ': 'https://twitter.com/evidenceforZ',
+        '@sixringsofsteeI': 'https://twitter.com/sixringsofsteeI',
+        '@CozyLito': 'https://twitter.com/CozyLito',
+        '@HoopsMetrOx': 'https://twitter.com/HoopsMetrOx',
+        '@SBNRicky': 'https://twitter.com/SBNRicky',
+        '@redcooteay': 'https://twitter.com/redcooteay',
+        '@jessefischer': 'https://twitter.com/jessefischer',
+        '@henrynbadraft': 'https://twitter.com/henrynbadraft',
+        '@spursbeliever': 'https://twitter.com/spursbeliever',
+        'SMILODON': '',
+        '@ayush_batra15': 'https://twitter.com/ayush_batra15',
+        '@AmericanNumbers': 'https://twitter.com/AmericanNumbers',
+        '@100guaranteed': 'https://twitter.com/100guaranteed',
+        '@jaynay1': 'https://twitter.com/jaynay1',
+        '@NileHoops': 'https://twitter.com/NileHoops',
+        '@HuntHoops': 'https://twitter.com/HuntHoops',
+        'Mike Gribanov': 'https://twitter.com/mikegrib8',
+        '@bendog28': 'https://twitter.com/bendog28',
+        '@JHM Basketball': 'https://twitter.com/JHMBasketball',
+        '@halfwaketakes': 'https://twitter.com/halfwaketakes',
+        '@criggsnba': 'https://twitter.com/criggsnba',
+        '@NBADraftFuture': 'https://twitter.com/NBADraftFuture',
+        '@JoeHulbertNBA': 'https://twitter.com/JoeHulbertNBA',
+        '@CTFazio24': 'https://twitter.com/CTFazio24',
+        '@JozhNBA': 'https://twitter.com/JozhNBA',
+        '@hoop_tetris': 'https://twitter.com/hoop_tetris',
+        '@tobibuehner': 'https://twitter.com/tobibuehner',
+        '@Josh_markowitz': 'https://twitter.com/Josh_markowitz',
+        '@onlyonepodcastt': 'https://twitter.com/onlyonepodcastt',
+        '@akaCK_': 'https://twitter.com/akaCK_',
+        '@TheNicolau15': 'https://twitter.com/TheNicolau15',
+        '@British_Buzz': 'https://twitter.com/British_Buzz',
+        '@hellyymarco': 'https://twitter.com/hellyymarco',
+        '@SaucyTakez': 'https://twitter.com/SaucyTakez',
+        '@j0nzzzz': 'https://twitter.com/j0nzzzz',
+        '@JackDAnder': 'https://twitter.com/JackDAnder',
+        '@nbadrafting': 'https://twitter.com/nbadrafting',
+        'TheProcess': '',
+        '@canpekerpekcan': 'https://twitter.com/canpekerpekcan',
+        '@ByAnthonyRizzo': 'https://twitter.com/ByAnthonyRizzo',
+        '@TwoWayMurray': 'https://twitter.com/TwoWayMurray'
+    };
+
+    let contributors = Object.keys(contributorsData);
+    if (searchQuery) {
+        const lower = searchQuery.toLowerCase();
+        contributors = contributors.filter(c => c.toLowerCase().includes(lower));
+    }
+
+    return (
+        <div className="max-w-6xl mx-auto px-4">
+            <div className="bg-[#19191A] rounded-lg border border-gray-800 p-6">
+                <h2 className="text-2xl font-bold text-white mb-6">Consensus Contributors</h2>
+                <div className="mt-8 pt-6 border-t border-gray-700/50">
+                    <p className="text-gray-400 mb-5">
+                        Total Contributors: <span className="text-white font-semibold">158</span>, Total Ranks: <span className="text-white font-semibold">8963</span>, Prospects Per Board <span className="text-white font-semibold">59.3</span>
+                    </p>
+                </div>
+                <p className="text-gray-400 mb-8">
+                    Our consensus board is compiled from rankings provided by the following analysts, scouts, and platforms:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {contributors.map((contributor, index) => (
+                        <a
+                            key={contributor}
+                            href={contributorsData[contributor as keyof typeof contributorsData]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-gray-800/20 border border-gray-700/50 rounded-lg p-4 hover:bg-gray-800/30 transition-colors duration-200 hover:border-blue-500/50 group"
+                        >
+                            <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                                    <span className="text-blue-400 font-semibold text-sm group-hover:text-blue-300">
+                                        {index + 1}
+                                    </span>
+                                </div>
+                                <span className="text-gray-300 font-medium group-hover:text-white transition-colors">
+                                    {contributor}
+                                </span>
+                            </div>
+                        </a>
+                    ))}
+                </div>
+            </div>
+        </div>
     );
 };
 
 export default function ConsensusPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
-    const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+    const [consensusMap, setConsensusMap] = useState<Record<string, ConsensusColumns>>({});
+    const [viewMode, setViewMode] = useState<'card' | 'table' | 'contributors'>('card');
     const [sortConfig, setSortConfig] = useState<{
         key: keyof DraftProspect | 'Rank';
         direction: 'ascending' | 'descending';
@@ -945,31 +1605,124 @@ export default function ConsensusPage() {
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [selectedSortKey,] = useState<string>('Actual Pick');
     const tableContainerRef = useRef<HTMLDivElement>(null);
+    const [contributorSearch, setContributorSearch] = useState('');
 
     useEffect(() => {
         document.title = '2025 Draft Board - Andre';
     }, []);
+
+    // Global data analysis function
+    const analyzeGlobalDataValidity = useCallback(() => {
+        if (!consensusMap || Object.keys(consensusMap).length === 0) return;
+
+        const globalAnalysis = {
+            totalProspects: Object.keys(consensusMap).length,
+            totalContributors: 0,
+            contributorIssues: {} as Record<string, { invalidCount: number; emptyCount: number; totalCount: number }>,
+            prospectIssues: {} as Record<string, { invalidCount: number; emptyCount: number; totalCount: number }>,
+            problematicContributors: [] as string[],
+            problematicProspects: [] as string[]
+        };
+
+        // Get contributor list from first prospect
+        const firstProspect = Object.values(consensusMap)[0];
+        const contributors = Object.keys(firstProspect).filter(key => key !== 'Name');
+        globalAnalysis.totalContributors = contributors.length;
+
+        // Initialize contributor tracking
+        contributors.forEach(contributor => {
+            globalAnalysis.contributorIssues[contributor] = { invalidCount: 0, emptyCount: 0, totalCount: 0 };
+        });
+
+        // Analyze each prospect
+        Object.entries(consensusMap).forEach(([prospectName, consensusData]) => {
+            globalAnalysis.prospectIssues[prospectName] = { invalidCount: 0, emptyCount: 0, totalCount: 0 };
+
+            Object.entries(consensusData)
+                .filter(([key]) => key !== 'Name')
+                .forEach(([contributor, value]) => {
+                    globalAnalysis.contributorIssues[contributor].totalCount++;
+                    globalAnalysis.prospectIssues[prospectName].totalCount++;
+
+                    // Check for empty values
+                    if (value === null || value === undefined || value === '') {
+                        globalAnalysis.contributorIssues[contributor].emptyCount++;
+                        globalAnalysis.prospectIssues[prospectName].emptyCount++;
+                        return;
+                    }
+
+                    // Check for invalid values
+                    let pick: number;
+                    if (typeof value === "number") {
+                        pick = value;
+                    } else if (typeof value === "string" && value.trim() !== "") {
+                        pick = parseInt(value);
+                    } else {
+                        globalAnalysis.contributorIssues[contributor].invalidCount++;
+                        globalAnalysis.prospectIssues[prospectName].invalidCount++;
+                        return;
+                    }
+
+                    if (isNaN(pick) || pick < 1 || pick > 60) {
+                        globalAnalysis.contributorIssues[contributor].invalidCount++;
+                        globalAnalysis.prospectIssues[prospectName].invalidCount++;
+                    }
+                });
+        });
+
+        // Identify problematic contributors (more than 10% issues)
+        Object.entries(globalAnalysis.contributorIssues).forEach(([contributor, issues]) => {
+            const totalIssues = issues.invalidCount + issues.emptyCount;
+            const issueRate = totalIssues / issues.totalCount;
+            if (issueRate > 0.1) { // 10% threshold
+                globalAnalysis.problematicContributors.push(contributor);
+            }
+        });
+
+        // Identify problematic prospects (more than 10% issues)
+        Object.entries(globalAnalysis.prospectIssues).forEach(([prospect, issues]) => {
+            const totalIssues = issues.invalidCount + issues.emptyCount;
+            const issueRate = totalIssues / issues.totalCount;
+            if (issueRate > 0.1) { // 10% threshold
+                globalAnalysis.problematicProspects.push(prospect);
+            }
+        });
+
+        console.log('=== GLOBAL DATA VALIDITY ANALYSIS ===');
+        console.log('Global Analysis:', globalAnalysis);
+        
+        if (globalAnalysis.problematicContributors.length > 0) {
+            console.log('Problematic Contributors (>10% issues):', globalAnalysis.problematicContributors);
+        }
+        
+        if (globalAnalysis.problematicProspects.length > 0) {
+            console.log('Problematic Prospects (>10% issues):', globalAnalysis.problematicProspects);
+        }
+
+        return globalAnalysis;
+    }, [consensusMap]);
+
+    // Run global analysis when data is loaded
+    useEffect(() => {
+        if (Object.keys(consensusMap).length > 0) {
+            analyzeGlobalDataValidity();
+        }
+    }, [consensusMap, analyzeGlobalDataValidity]);
 
     // Check if device is mobile
     useEffect(() => {
         const checkMobile = () => {
             setIsMobile(window.innerWidth < 768);
         };
-
-        // Set initial value
         checkMobile();
-
-        // Add event listener for window resize
         window.addEventListener('resize', checkMobile);
-
-        // Cleanup
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     useEffect(() => {
         async function fetchDraftProspects() {
             try {
-                const response = await fetch('/2024 Draft Twitter Consensus Big Board - Consensus Big Board.csv');
+                const response = await fetch('/2025 Draft Twitter Consensus Big Board.csv');
                 const csvText = await response.text();
 
                 Papa.parse(csvText, {
@@ -978,13 +1731,180 @@ export default function ConsensusPage() {
                         const prospectData = results.data as DraftProspect[];
                         setProspects(prospectData);
                         setFilteredProspects(prospectData);
+
+                        const consensusMap: Record<string, ConsensusColumns> = {};
+                        for (const row of results.data as any[]) {
+                            if (!row.Name) continue;
+                            const consensus: ConsensusColumns = {
+                                Name: row.Name,
+                                'The Athletic (Sam Vecenie)': parseInt(row['The Athletic (Sam Vecenie)']) || 0,
+                                'CBS Sports': parseInt(row['CBS Sports']) || 0,
+                                '@KevinOConnorNBA (Yahoo)': parseInt(row['@KevinOConnorNBA (Yahoo)']) || 0,
+                                'The Ringer': parseInt(row['The Ringer']) || 0,
+                                'Tankathon': parseInt(row['Tankathon']) || 0,
+                                'NBADraft.net': parseInt(row['NBADraft.net']) || 0,
+                                'ESPN': parseInt(row['ESPN']) || 0,
+                                'No Ceilings': parseInt(row['No Ceilings']) || 0,
+                                'CraftedNBA': parseInt(row['CraftedNBA']) || 0,
+                                '@KlineNBA (Fansided)': parseInt(row['@KlineNBA (Fansided)']) || 0,
+                                'Swish Theory': parseInt(row['Swish Theory']) || 0,
+                                'Kevin Pelton (ESPN)': parseInt(row['Kevin Pelton (ESPN)']) || 0,
+                                'Opta': parseInt(row['Opta']) || 0,
+                                'the center hub': parseInt(row['the center hub']) || 0,
+                                '@supersayansavin (TPM)': parseInt(row['@supersayansavin (TPM)']) || 0,
+                                '@CRiehl30': parseInt(row['@CRiehl30']) || 0,
+                                '@JoelHinkieMaxey': parseInt(row['@JoelHinkieMaxey']) || 0,
+                                '@draymottishaw': parseInt(row['@draymottishaw']) || 0,
+                                '@ZP12Hoops': parseInt(row['@ZP12Hoops']) || 0,
+                                '@kimonsjaer24': parseInt(row['@kimonsjaer24']) || 0,
+                                '@Jackmatthewss_': parseInt(row['@Jackmatthewss_']) || 0,
+                                '@rowankent': parseInt(row['@rowankent']) || 0,
+                                '@CannibalSerb': parseInt(row['@CannibalSerb']) || 0,
+                                'Jishnu': parseInt(row['Jishnu']) || 0,
+                                '@fra_sempru': parseInt(row['@fra_sempru']) || 0,
+                                '@FPL_Mou': parseInt(row['@FPL_Mou']) || 0,
+                                'RyanHammer09': parseInt(row['RyanHammer09']) || 0,
+                                '@thezonemaster': parseInt(row['@thezonemaster']) || 0,
+                                '@hutsonboggs': parseInt(row['@hutsonboggs']) || 0,
+                                '@PAKA_FLOCKA': parseInt(row['@PAKA_FLOCKA']) || 0,
+                                '@drew_cant_hoop': parseInt(row['@drew_cant_hoop']) || 0,
+                                '@PenguinHoops': parseInt(row['@PenguinHoops']) || 0,
+                                'PK': parseInt(row['PK']) || 0,
+                                '@nore4dh': parseInt(row['@nore4dh']) || 0,
+                                '@LeftFieldSoup': parseInt(row['@LeftFieldSoup']) || 0,
+                                '@OranjeGuerrero': parseInt(row['@OranjeGuerrero']) || 0,
+                                '@503sbest': parseInt(row['@503sbest']) || 0,
+                                '@BrianJNBA': parseInt(row['@BrianJNBA']) || 0,
+                                '@CediBetter': parseInt(row['@CediBetter']) || 0,
+                                '@JEnnisNBADraft': parseInt(row['@JEnnisNBADraft']) || 0,
+                                '@report_court': parseInt(row['@report_court']) || 0,
+                                '@esotericloserr': parseInt(row['@esotericloserr']) || 0,
+                                '@atthelevel': parseInt(row['@atthelevel']) || 0,
+                                '@freewave3': parseInt(row['@freewave3']) || 0,
+                                'Andrea Cannici': parseInt(row['Andrea Cannici']) || 0,
+                                '@LoganH_utk': parseInt(row['@LoganH_utk']) || 0,
+                                'JoshW': parseInt(row['JoshW']) || 0,
+                                '@double_pg': parseInt(row['@double_pg']) || 0,
+                                '@TaouTi959': parseInt(row['@TaouTi959']) || 0,
+                                '@Alley_Oop_Coop': parseInt(row['@Alley_Oop_Coop']) || 0,
+                                '@perspectivehoop': parseInt(row['@perspectivehoop']) || 0,
+                                '@chipwilliamsjr': parseInt(row['@chipwilliamsjr']) || 0,
+                                '@DraftCasual': parseInt(row['@DraftCasual']) || 0,
+                                '@thebigwafe': parseInt(row['@thebigwafe']) || 0,
+                                '@NPComplete34': parseInt(row['@NPComplete34']) || 0,
+                                '@SPTSJUNKIE (NBA Draft Network)': parseInt(row['@SPTSJUNKIE (NBA Draft Network)']) || 0,
+                                '@bjpf_': parseInt(row['@bjpf_']) || 0,
+                                '@ram_dub': parseInt(row['@ram_dub']) || 0,
+                                'ReverseEnigma (databallr)': parseInt(row['ReverseEnigma (databallr)']) || 0,
+                                '@OpticalHoops': parseInt(row['@OpticalHoops']) || 0,
+                                '@Rileybushh': parseInt(row['@Rileybushh']) || 0,
+                                '@jhirsh03': parseInt(row['@jhirsh03']) || 0,
+                                '@who_____knows': parseInt(row['@who_____knows']) || 0,
+                                '@GrizzliesFilm': parseInt(row['@GrizzliesFilm']) || 0,
+                                '@Juul__Embiid': parseInt(row['@Juul__Embiid']) || 0,
+                                '@redrock_bball': parseInt(row['@redrock_bball']) || 0,
+                                '@matwnba': parseInt(row['@matwnba']) || 0,
+                                '@SpencerVonNBA': parseInt(row['@SpencerVonNBA']) || 0,
+                                'Jack Chambers': parseInt(row['Jack Chambers']) || 0,
+                                'NBA Draft Room': parseInt(row['NBA Draft Room']) || 0,
+                                '@LoganPAdams': parseInt(row['@LoganPAdams']) || 0,
+                                '@bballstrategy': parseInt(row['@bballstrategy']) || 0,
+                                '@movedmypivot': parseInt(row['@movedmypivot']) || 0,
+                                '@drakemayefc': parseInt(row['@drakemayefc']) || 0,
+                                '@Trellinterlude': parseInt(row['@Trellinterlude']) || 0,
+                                '@TrashPanda': parseInt(row['@TrashPanda']) || 0,
+                                '@Duydidt': parseInt(row['@Duydidt']) || 0,
+                                '@Hoops_Haven1': parseInt(row['@Hoops_Haven1']) || 0,
+                                'Isaiah Silas': parseInt(row['Isaiah Silas']) || 0,
+                                '@codyreeves14': parseInt(row['@codyreeves14']) || 0,
+                                '@nikoza2': parseInt(row['@nikoza2']) || 0,
+                                '@zjy2000': parseInt(row['@zjy2000']) || 0,
+                                '@Quinnfishburne': parseInt(row['@Quinnfishburne']) || 0,
+                                '@antoniodias_pt': parseInt(row['@antoniodias_pt']) || 0,
+                                '@cparkernba': parseInt(row['@cparkernba']) || 0,
+                                '@ChuckingDarts': parseInt(row['@ChuckingDarts']) || 0,
+                                '@ShoryLogan': parseInt(row['@ShoryLogan']) || 0,
+                                '@Ethan387': parseInt(row['@Ethan387']) || 0,
+                                '@IFIMINC': parseInt(row['@IFIMINC']) || 0,
+                                '@TStapletonNBA': parseInt(row['@TStapletonNBA']) || 0,
+                                '@WillC': parseInt(row['@WillC']) || 0,
+                                '@mobanks10': parseInt(row['@mobanks10']) || 0,
+                                '@RichStayman': parseInt(row['@RichStayman']) || 0,
+                                '@_thedealzone': parseInt(row['@_thedealzone']) || 0,
+                                '@_GatheringIntel': parseInt(row['@_GatheringIntel']) || 0,
+                                '@DraftPow': parseInt(row['@DraftPow']) || 0,
+                                '@Dkphisports': parseInt(row['@Dkphisports']) || 0,
+                                '@NicThomasNBA': parseInt(row['@NicThomasNBA']) || 0,
+                                'Giddf': parseInt(row['Giddf']) || 0,
+                                '@BeyondTheRK': parseInt(row['@BeyondTheRK']) || 0,
+                                '@greg23m': parseInt(row['@greg23m']) || 0,
+                                'DrewDataDesign': parseInt(row['DrewDataDesign']) || 0,
+                                'Kam H': parseInt(row['Kam H']) || 0,
+                                '@dancingwithnoah': parseInt(row['@dancingwithnoah']) || 0,
+                                'theballhaus': parseInt(row['theballhaus']) || 0,
+                                'Oneiric': parseInt(row['Oneiric']) || 0,
+                                '@undraliu': parseInt(row['@undraliu']) || 0,
+                                '@corbannba': parseInt(row['@corbannba']) || 0,
+                                '@_LarroHoops': parseInt(row['@_LarroHoops']) || 0,
+                                'salvador cali': parseInt(row['salvador cali']) || 0,
+                                '@LoganRoA_': parseInt(row['@LoganRoA_']) || 0,
+                                '@sammygprops': parseInt(row['@sammygprops']) || 0,
+                                '@wilkomcv': parseInt(row['@wilkomcv']) || 0,
+                                '@wheatonbrando': parseInt(row['@wheatonbrando']) || 0,
+                                '@Flawlesslikeeli': parseInt(row['@Flawlesslikeeli']) || 0,
+                                '@_R_M_M': parseInt(row['@_R_M_M']) || 0,
+                                '@mcfNBA': parseInt(row['@mcfNBA']) || 0,
+                                '@evidenceforZ': parseInt(row['@evidenceforZ']) || 0,
+                                '@sixringsofsteeI': parseInt(row['@sixringsofsteeI']) || 0,
+                                '@CozyLito': parseInt(row['@CozyLito']) || 0,
+                                '@HoopsMetrOx': parseInt(row['@HoopsMetrOx']) || 0,
+                                '@SBNRicky': parseInt(row['@SBNRicky']) || 0,
+                                '@redcooteay': parseInt(row['@redcooteay']) || 0,
+                                '@jessefischer': parseInt(row['@jessefischer']) || 0,
+                                '@henrynbadraft': parseInt(row['@henrynbadraft']) || 0,
+                                '@spursbeliever': parseInt(row['@spursbeliever']) || 0,
+                                'SMILODON': parseInt(row['SMILODON']) || 0,
+                                '@ayush_batra15': parseInt(row['@ayush_batra15']) || 0,
+                                '@AmericanNumbers': parseInt(row['@AmericanNumbers']) || 0,
+                                '@100guaranteed': parseInt(row['@100guaranteed']) || 0,
+                                '@jaynay1': parseInt(row['@jaynay1']) || 0,
+                                '@NileHoops': parseInt(row['@NileHoops']) || 0,
+                                '@HuntHoops': parseInt(row['@HuntHoops']) || 0,
+                                'Mike Gribanov': parseInt(row['Mike Gribanov']) || 0,
+                                '@bendog28': parseInt(row['@bendog28']) || 0,
+                                '@JHM Basketball': parseInt(row['@JHM Basketball']) || 0,
+                                '@halfwaketakes': parseInt(row['@halfwaketakes']) || 0,
+                                '@criggsnba': parseInt(row['@criggsnba']) || 0,
+                                '@NBADraftFuture': parseInt(row['@NBADraftFuture']) || 0,
+                                '@JoeHulbertNBA': parseInt(row['@JoeHulbertNBA']) || 0,
+                                '@CTFazio24': parseInt(row['@CTFazio24']) || 0,
+                                '@JozhNBA': parseInt(row['@JozhNBA']) || 0,
+                                '@hoop_tetris': parseInt(row['@hoop_tetris']) || 0,
+                                '@tobibuehner': parseInt(row['@tobibuehner']) || 0,
+                                '@Josh_markowitz': parseInt(row['@Josh_markowitz']) || 0,
+                                '@onlyonepodcastt': parseInt(row['@onlyonepodcastt']) || 0,
+                                '@akaCK_': parseInt(row['@akaCK_']) || 0,
+                                '@TheNicolau15': parseInt(row['@TheNicolau15']) || 0,
+                                '@British_Buzz': parseInt(row['@British_Buzz']) || 0,
+                                '@hellyymarco': parseInt(row['@hellyymarco']) || 0,
+                                '@SaucyTakez': parseInt(row['@SaucyTakez']) || 0,
+                                '@j0nzzzz': parseInt(row['@j0nzzzz']) || 0,
+                                '@JackDAnder': parseInt(row['@JackDAnder']) || 0,
+                                '@nbadrafting': parseInt(row['@nbadrafting']) || 0,
+                                'TheProcess': parseInt(row['TheProcess']) || 0,
+                                '@canpekerpekcan': parseInt(row['@canpekerpekcan']) || 0,
+                                '@ByAnthonyRizzo': parseInt(row['@ByAnthonyRizzo']) || 0,
+                                '@TwoWayMurray': parseInt(row['@TwoWayMurray']) || 0,
+                            };
+                            consensusMap[row.Name] = consensus;
+                        }
+                        setConsensusMap(consensusMap);
                     }
                 });
             } catch (error) {
                 console.error('Error fetching draft prospects:', error);
             }
         }
-
         fetchDraftProspects();
     }, []);
 
@@ -1032,6 +1952,12 @@ export default function ConsensusPage() {
             return sortableProspects;
         }
 
+        // List of columns that should be sorted numerically (float or int)
+        const numericColumns = [
+            'SCORE', 'MEAN', 'MEDIAN', 'MODE', 'HIGH', 'LOW', 'RANGE', 'STDEV', 'COUNT',
+            'Age', 'Height (in)', 'Weight (lbs)', 'originalRank', 'Actual Pick'
+        ];
+
         sortableProspects.sort((a, b) => {
             // Handle Rank column specially
             if (sortConfig.key === 'Rank') {
@@ -1042,23 +1968,18 @@ export default function ConsensusPage() {
 
             let aValue = a[sortConfig.key as keyof DraftProspect];
             let bValue = b[sortConfig.key as keyof DraftProspect];
-            // Handle specific columns
-            if (sortConfig.key === 'originalRank') {
-                const aNum = parseInt(aValue as string) || 99;
-                const bNum = parseInt(bValue as string) || 99;
+
+            // Numeric columns: sort as numbers
+            if (numericColumns.includes(sortConfig.key as string)) {
+                const aNum = parseFloat(aValue as string) || 0;
+                const bNum = parseFloat(bValue as string) || 0;
                 return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
             }
 
-            if (sortConfig.key === 'Height') {
-                // Use Height (in) for sorting instead of Height
-                const aNum = parseFloat(a['Height (in)'] as string) || 0;
-                const bNum = parseFloat(b['Height (in)'] as string) || 0;
-                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-            }
-
-            if (sortConfig.key === 'Weight (lbs)') {
-                const aNum = parseInt(aValue as string) || 0;
-                const bNum = parseInt(bValue as string) || 0;
+            // Inclusion Rate: sort as percentage
+            if (sortConfig.key === 'Inclusion Rate') {
+                const aNum = parseFloat((aValue as string)?.replace('%', '')) || 0;
+                const bNum = parseFloat((bValue as string)?.replace('%', '')) || 0;
                 return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
             }
 
@@ -1086,25 +2007,13 @@ export default function ConsensusPage() {
             <div className="max-w-6xl mx-auto px-4 pt-8">
                 <div
                     ref={tableContainerRef}
-                    className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
-                    <Table>
+                    className="w-full bg-[#19191A] rounded-lg border border-gray-800 overflow-x-auto">
+                    <Table
+                        className="min-w-[1800px] lg:min-w-full"
+                    >
                         <TableHeader>
                             <TableRow>
-                                <TableHead
-                                    className={`text-gray-400 cursor-pointer hover:text-gray-200`}
-                                    onClick={() => handleSort('Rank')}
-                                >
-                                    Rank
-                                    {sortConfig?.key === 'Rank' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
-                                    onClick={() => handleSort('Name')}
-                                >
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Name')}>
                                     Name
                                     {sortConfig?.key === 'Name' && (
                                         <span className="ml-1">
@@ -1112,21 +2021,23 @@ export default function ConsensusPage() {
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
-                                    onClick={() => handleSort('Role')}
-                                >
-                                    Position
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Actual Pick')}>
+                                    Actual Pick
+                                    {sortConfig?.key === 'Actual Pick' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Role')}>
+                                    Role
                                     {sortConfig?.key === 'Role' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
-                                    onClick={() => handleSort('Pre-NBA')}
-                                >
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Pre-NBA')}>
                                     Pre-NBA
                                     {sortConfig?.key === 'Pre-NBA' && (
                                         <span className="ml-1">
@@ -1134,32 +2045,7 @@ export default function ConsensusPage() {
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                                    onClick={() => handleSort('Rank')}
-                                >
-                                    Draft Pick
-                                    {sortConfig?.key === 'Rank' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
-                                    onClick={() => handleSort('NBA Team')}
-                                >
-                                    NBA Team
-                                    {sortConfig?.key === 'NBA Team' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
-                                    onClick={() => handleSort('Age')}
-                                >
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Age')}>
                                     Age
                                     {sortConfig?.key === 'Age' && (
                                         <span className="ml-1">
@@ -1167,23 +2053,89 @@ export default function ConsensusPage() {
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
-                                    onClick={() => handleSort('Height')}
-                                >
-                                    Height
-                                    {sortConfig?.key === 'Height' && (
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('NBA Team')}>
+                                    NBA Team
+                                    {sortConfig?.key === 'NBA Team' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
-                                    onClick={() => handleSort('Weight (lbs)')}
-                                >
-                                    Weight
-                                    {sortConfig?.key === 'Weight (lbs)' && (
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('SCORE')}>
+                                    SCORE
+                                    {sortConfig?.key === 'SCORE' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('MEAN')}>
+                                    MEAN
+                                    {sortConfig?.key === 'MEAN' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('MEDIAN')}>
+                                    MEDIAN
+                                    {sortConfig?.key === 'MEDIAN' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('MODE')}>
+                                    MODE
+                                    {sortConfig?.key === 'MODE' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('HIGH')}>
+                                    HIGH
+                                    {sortConfig?.key === 'HIGH' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('LOW')}>
+                                    LOW
+                                    {sortConfig?.key === 'LOW' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('RANGE')}>
+                                    RANGE
+                                    {sortConfig?.key === 'RANGE' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('STDEV')}>
+                                    STDEV
+                                    {sortConfig?.key === 'STDEV' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('COUNT')}>
+                                    COUNT
+                                    {sortConfig?.key === 'COUNT' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Inclusion Rate')}>
+                                    Inclusion Rate
+                                    {sortConfig?.key === 'Inclusion Rate' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
                                         </span>
@@ -1192,31 +2144,29 @@ export default function ConsensusPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {sortedProspects.map((prospect) => {
-                                // Find the original rank of the prospect in the filtered prospects array
-                                const originalRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
-
-                                return (
+                            {sortedProspects.map((prospect) => (
                                     <TableRow
                                         key={prospect.Name}
                                         className="hover:bg-gray-800/20"
                                     >
-                                        <TableCell className="text-gray-300 text-center">{originalRank}</TableCell>
-                                        <TableCell className="font-medium text-gray-300 text-center">{prospect.Name}</TableCell>
+                                    <TableCell className="font-medium text-gray-300 text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">{prospect.Name}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['Actual Pick']}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect.Role}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect['Pre-NBA']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">
-                                            {Number(prospect['Rank']) >= 59 ? "Undrafted" : prospect['Rank']}
-                                        </TableCell>
-                                        <TableCell className="text-gray-300 text-center">
-                                            {teamNames[prospect['NBA Team']] || prospect['NBA Team']}
-                                        </TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect.Age}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect.Height}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Weight (lbs)']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{teamNames[prospect['NBA Team']] || prospect['NBA Team']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['SCORE']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['MEAN']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['MEDIAN']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['MODE']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['HIGH']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['LOW']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['RANGE']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['STDEV']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['COUNT']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['Inclusion Rate']}</TableCell>
                                     </TableRow>
-                                );
-                            })}
+                            ))}
                         </TableBody>
                     </Table>
                 </div>
@@ -1265,17 +2215,82 @@ export default function ConsensusPage() {
 
     return (
         <div className="min-h-screen bg-[#19191A]">
-            <NavigationHeader activeTab="Nick Kalinowski" />
-
-            <ProspectFilter
-                prospects={prospects}
-                onFilteredProspectsChange={setFilteredProspects}
-                rank={{}}
-                onViewModeChange={setViewMode}
-            />
+            <NavigationHeader activeTab="Consensus" />
+            <DraftPageHeader author="Consensus" />
+            {viewMode !== 'contributors' ? (
+                <ProspectFilter
+                    prospects={prospects}
+                    onFilteredProspectsChange={setFilteredProspects}
+                    rank={{}}
+                    onViewModeChange={setViewMode}
+                />
+            ) : (
+                <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
+                    <div className="px-4 py-3 flex items-center justify-between">
+                        <div className="relative flex-grow max-w-full mr-2">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                            <Input
+                                type="text"
+                                placeholder="Search Contributors"
+                                value={contributorSearch}
+                                onChange={(e) => setContributorSearch(e.target.value)}
+                                className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+                            />
+                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <motion.button
+                                    className={`
+                                        px-3 py-2 rounded-lg text-sm font-medium flex items-center
+                                        transition-all duration-300
+                                        bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                                    `}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <TrendingUp className="mr-1 h-4 w-4" />
+                                    Contributors
+                                    <ChevronDown className="ml-1 h-4 w-4" />
+                                </motion.button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                <DropdownMenuItem
+                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                    onClick={() => setViewMode('card')}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <LucideUser className="h-4 w-4" />
+                                        Card View
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                    onClick={() => setViewMode('table')}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <TableIcon className="h-4 w-4" />
+                                        Table View
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
+                                    onClick={() => setViewMode('contributors')}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="h-4 w-4" />
+                                        Contributors
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </div>
+            )}
 
             <div className="max-w-6xl mx-auto px-4 pt-8">
-                {filteredProspects.length > 0 ? (
+                {viewMode === 'contributors' ? (
+                    <ContributorsView searchQuery={contributorSearch} />
+                ) : filteredProspects.length > 0 ? (
                     viewMode === 'card' ? (
                         <div className="space-y-4">
                             {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
@@ -1284,7 +2299,9 @@ export default function ConsensusPage() {
                                     prospect={prospect}
                                     filteredProspects={filteredProspects}
                                     allProspects={prospects}
-                                    selectedSortKey={selectedSortKey} rank={0} selectedYear={0} />
+                                    selectedSortKey={selectedSortKey} rank={Number(prospect['Rank'])} selectedYear={0}
+                                    consensusData={consensusMap[prospect.Name]}
+                                />
                             ))}
                             {isLoading && !isMobile && (
                                 <div className="flex justify-center py-4">

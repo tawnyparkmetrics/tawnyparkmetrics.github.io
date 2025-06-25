@@ -40,6 +40,26 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Consensus Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="bg-[#19191A] border border-white/20 rounded-xl p-8 hover:border-white/40 transition-all duration-300 group">
+          <div className="text-gray-300 text-lg leading-relaxed">
+            <h2 className="text-3xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
+              2025 NBA Draft Consensus Board
+            </h2>
+            <p className="mb-6">
+              Aggregate of 158 boards, all published & submitted before the 2025 NBA Draft. Any boards not verifiably published before the draft are omitted. Thank you to everyone who helps put this consensus together, including: <a href="https://twitter.com/mikegrib8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@mikegrib8</a>, <a href="https://twitter.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@thegrantedwards</a>, <a href="https://twitter.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@codyreeves14</a>, <a href="https://twitter.com/dualbarl" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@dualbarl</a>, <a href="https://twitter.com/CannibalSerb" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@CannibalSerb</a>, <a href="https://twitter.com/bendog28" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@bendog28</a>, <a href="https://twitter.com/BalaRavikumar5" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@BalaRavikumar5</a>, & <a href="https://twitter.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>.
+            </p>
+            <Link href="/Consensus" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors group-hover:text-blue-300">
+              <span className="text-lg font-medium">View Consensus Board</span>
+              <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Draft Boards Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

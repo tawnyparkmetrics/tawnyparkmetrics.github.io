@@ -33,6 +33,11 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   // TPM dropdown items
   const DraftDropdownItems = [
     {
+      name: 'Consensus',
+      href: '/Consensus',
+      available: true
+    },
+    {
       name: 'Max Savin',
       href: '#',
       available: true,
@@ -170,34 +175,49 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                     <div className="py-1" role="menu" aria-orientation="vertical">
                       {DraftDropdownItems.map((item) => (
                         <div key={item.name}>
-                          {/* Main section header */}
-                          <button
-                            className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-400 hover:bg-gray-800/50 transition-colors duration-200"
-                            onClick={(e) => toggleSection(item.name, e)}
-                          >
-                            <span>{item.name}</span>
-                            <ChevronDown
-                              className={`h-4 w-4 transition-transform duration-200 ${
-                                expandedSection === item.name ? 'rotate-180' : ''
-                              }`} 
-                            />
-                          </button>
-                          
-                          {/* Expanded sub-items */}
-                          {expandedSection === item.name && item.subItems && (
-                            <div className="bg-gray-800/30 border-t border-gray-700">
-                              {item.subItems.map((subItem) => (
-                                <Link
-                                  key={subItem.name}
-                                  href={subItem.available ? subItem.href : '#'}
-                                  className="block px-8 py-2 text-sm text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors duration-200"
-                                  role="menuitem"
-                                  onClick={(e) => handleItemClick(e, subItem)}
-                                >
-                                  {subItem.name}
-                                </Link>
-                              ))}
-                            </div>
+                          {/* Check if item has subItems to determine if it's expandable */}
+                          {item.subItems ? (
+                            <>
+                              {/* Main section header */}
+                              <button
+                                className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-400 hover:bg-gray-800/50 transition-colors duration-200"
+                                onClick={(e) => toggleSection(item.name, e)}
+                              >
+                                <span>{item.name}</span>
+                                <ChevronDown
+                                  className={`h-4 w-4 transition-transform duration-200 ${
+                                    expandedSection === item.name ? 'rotate-180' : ''
+                                  }`} 
+                                />
+                              </button>
+                              
+                              {/* Expanded sub-items */}
+                              {expandedSection === item.name && (
+                                <div className="bg-gray-800/30 border-t border-gray-700">
+                                  {item.subItems.map((subItem) => (
+                                    <Link
+                                      key={subItem.name}
+                                      href={subItem.available ? subItem.href : '#'}
+                                      className="block px-8 py-2 text-sm text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors duration-200"
+                                      role="menuitem"
+                                      onClick={(e) => handleItemClick(e, subItem)}
+                                    >
+                                      {subItem.name}
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            /* Direct link item (like Consensus) */
+                            <Link
+                              href={item.available ? item.href : '#'}
+                              className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800/50 hover:text-white transition-colors duration-200"
+                              role="menuitem"
+                              onClick={(e) => handleItemClick(e, item)}
+                            >
+                              {item.name}
+                            </Link>
                           )}
                         </div>
                       ))}
