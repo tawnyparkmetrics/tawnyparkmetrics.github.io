@@ -641,8 +641,9 @@ const teamNames: { [key: string]: string } = {
     'Houston Rockets': 'HOU',
     'Memphis Grizzlies': 'MEM',
     'Sacramento Kings': 'SAC',
+    'New York Knicks': 'NYK',
     'Oklahoma City Thunder': 'OKC',
-    'Brooklyn Nets': 'NYK',
+    'Brooklyn Nets': 'BKN',
     'San Antonio Spurs': 'SAS',
     'Indiana Pacers': 'IND',
     'Toronto Raptors': 'TOR',
@@ -2265,7 +2266,7 @@ export default function ConsensusPage() {
                                         <TableCell className="text-gray-300 text-center">{prospect.Role}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect['Pre-NBA']}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect.Age}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{teamNames[prospect['NBA Team']] || prospect['NBA Team']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center">{prospect['NBA Team']}</TableCell>
                                     <TableCell className="text-gray-300 text-center">{prospect['SCORE']}</TableCell>
                                     <TableCell className="text-gray-300 text-center">{prospect['MEAN']}</TableCell>
                                     <TableCell className="text-gray-300 text-center">{prospect['MEDIAN']}</TableCell>
