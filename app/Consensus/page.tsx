@@ -20,7 +20,6 @@ import {
 import {
     ChartContainer,
     ChartTooltip,
-    ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
@@ -247,7 +246,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
             validContributors: 0,
             invalidContributors: [] as string[],
             emptyContributors: [] as string[],
-            invalidValues: [] as { contributor: string; value: any }[],
+            invalidValues: [] as { contributor: string; value: string | number | null | undefined }[],
             validPicks: 0,
             totalPicks: 0
         };
@@ -373,11 +372,6 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         }));
     }, [consensusData, prospect]);
 
-    // Calculate total valid contributions for display
-    const totalValidContributions = histogramData.reduce((sum, item) => sum + item.count, 0);
-    
-    // Get total possible contributors (excluding 'Name' column)
-    const totalPossibleContributors = Object.keys(consensusData).length - 1; // Subtract 1 for 'Name' column
 
     // Use team color or fallback to blue
     const teamColor =
@@ -387,7 +381,13 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
             : '#60A5FA';
 
     // Custom tooltip component for histogram
-    const CustomHistogramTooltip = ({ active, payload, label }: any) => {
+    interface TooltipProps {
+        active?: boolean;
+        payload?: Array<{ value: number }>;
+        label?: string;
+    }
+
+    const CustomHistogramTooltip = ({ active, payload, label }: TooltipProps) => {
         if (!active || !payload || !payload.length) {
             return null;
         }
@@ -476,8 +476,18 @@ const RangeConsensusGraph: React.FC<ConsensusHistogramProps> = ({
     // Use team color or fallback to blue
 
     // Custom bar shape to avoid bottom stroke
-    const CustomBarShape = (props: any) => {
-        const { x, y, width, height, fill, stroke } = props;
+    interface BarShapeProps {
+        x?: number;
+        y?: number;
+        width?: number;
+        height?: number;
+        fill?: string;
+        stroke?: string;
+        [key: string]: unknown; // Allow additional properties from Recharts
+    }
+
+    const CustomBarShape = (props: BarShapeProps) => {
+        const { x = 0, y = 0, width = 0, height = 0, fill = '', stroke = '' } = props;
         return (
             <g>
                 <rect
