@@ -588,7 +588,7 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
                     tick={{ fill: "#ccc", fontSize: 12 }}
                     domain={[0, 100]}
                     ticks={[0, 20, 40, 60, 80, 100]}
-                    label={{ value: '%', angle: 0, position: 'insideLeft' }}
+                    label={{ value: '', angle: 0, position: 'insideLeft' }}
                 />
                 <Bar
                     dataKey="percentage"
