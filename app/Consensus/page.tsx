@@ -20,9 +20,8 @@ import {
 import {
     ChartContainer,
     ChartTooltip,
-    ChartTooltipContent,
 } from "@/components/ui/chart"
-import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
+import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 
 
@@ -596,16 +595,6 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
                     fill={`url(#barGradient-${prospect.Name.replace(/\s/g, '')})`}
                     shape={<CustomBarShape stroke={teamColor} />}
                     radius={[4, 4, 0, 0]}
-                />
-                <Tooltip
-                    formatter={(value: number) => [`${value}%`, 'Percentage']}
-                    labelFormatter={(label: string) => `Draft Range: ${label}`}
-                    contentStyle={{
-                        backgroundColor: '#19191A',
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#fff'
-                    }}
                 />
             </BarChart>
         </ChartContainer>
