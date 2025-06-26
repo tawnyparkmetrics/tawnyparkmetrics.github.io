@@ -1662,8 +1662,6 @@ const ProspectCard: React.FC<{
     }
   }, [isExpanded, isMobile]);
 
-  const draftedTeam = teamNames[prospect.NBA] || prospect.NBA;
-
   const playerImageUrl = selectedYear === 2025
     ? `/player_images2025/${prospect.Name} BG Removed.png`
     : `/player_images2024/${prospect.Name} BG Removed.png`;
