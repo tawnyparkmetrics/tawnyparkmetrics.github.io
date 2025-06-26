@@ -316,7 +316,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         // Collect all valid picks - exclude 'Name' column and count all other columns
         Object.entries(consensusData)
             .filter(([key]) => key !== "Name")
-            .forEach(([key, value]) => {
+            .forEach(([,value]) => {
                 totalContributors++;
                 
                 // Handle different value types more robustly
@@ -373,12 +373,6 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
             count: counts[minPick + i] || 0,
         }));
     }, [consensusData, prospect]);
-
-    // Calculate total valid contributions for display
-    const totalValidContributions = histogramData.reduce((sum, item) => sum + item.count, 0);
-    
-    // Get total possible contributors (excluding 'Name' column)
-    const totalPossibleContributors = Object.keys(consensusData).length - 1; // Subtract 1 for 'Name' column
 
     // Use team color or fallback to blue
     const teamColor =
