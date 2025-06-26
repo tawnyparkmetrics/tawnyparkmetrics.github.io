@@ -20,6 +20,7 @@ import {
 import {
     ChartContainer,
     ChartTooltip,
+    ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
@@ -163,6 +164,7 @@ export interface ConsensusColumns {
     '@RichStayman': number;
     '@_thedealzone': number;
     '@_GatheringIntel': number;
+    '@sbn_ricky': number;
     '@DraftPow': number;
     '@Dkphisports': number;
     '@NicThomasNBA': number;
@@ -194,6 +196,7 @@ export interface ConsensusColumns {
     '@jessefischer': number;
     '@henrynbadraft': number;
     '@spursbeliever': number;
+    '@thebigwafe (model)': number;
     'SMILODON': number;
     '@ayush_batra15': number;
     '@AmericanNumbers': number;
@@ -238,140 +241,66 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     prospect,
     consensusData,
 }) => {
-    // Debug function to analyze data validity
-    const analyzeDataValidity = useMemo(() => {
-        const analysis = {
-            prospect: prospect.Name,
-            totalContributors: 0,
-            validContributors: 0,
-            invalidContributors: [] as string[],
-            emptyContributors: [] as string[],
-            invalidValues: [] as { contributor: string; value: string | number | null | undefined }[],
-            validPicks: 0,
-            totalPicks: 0
-        };
-
-        Object.entries(consensusData)
-            .filter(([key]) => key !== "Name")
-            .forEach(([contributor, value]) => {
-                analysis.totalContributors++;
-                analysis.totalPicks++;
-
-                // Check for empty or invalid values
-                if (value === null || value === undefined || value === '') {
-                    analysis.emptyContributors.push(contributor);
-                    return;
-                }
-
-                // Try to parse the value
-                let pick: number;
-                if (typeof value === "number") {
-                    pick = value;
-                } else if (typeof value === "string" && value.trim() !== "") {
-                    pick = parseInt(value);
-                } else {
-                    analysis.invalidContributors.push(contributor);
-                    analysis.invalidValues.push({ contributor, value });
-                    return;
-                }
-
-                // Check if it's a valid NBA draft pick
-                if (!isNaN(pick) && pick >= 1 && pick <= 60) {
-                    analysis.validContributors++;
-                    analysis.validPicks++;
-                } else {
-                    analysis.invalidContributors.push(contributor);
-                    analysis.invalidValues.push({ contributor, value });
-                }
-            });
-
-        return analysis;
-    }, [consensusData, prospect.Name]);
-
-    // Log analysis for debugging (only for first few prospects to avoid spam)
-    useEffect(() => {
-        if (prospect.Name === 'Cooper Flagg') {
-            console.log(`Data Analysis for ${prospect.Name}:`, analyzeDataValidity);
-            
-            if (analyzeDataValidity.invalidContributors.length > 0) {
-                console.log(`Invalid contributors for ${prospect.Name}:`, analyzeDataValidity.invalidContributors);
-                console.log(`Invalid values for ${prospect.Name}:`, analyzeDataValidity.invalidValues);
-            }
-            
-            if (analyzeDataValidity.emptyContributors.length > 0) {
-                console.log(`Empty contributors for ${prospect.Name}:`, analyzeDataValidity.emptyContributors);
-            }
-        }
-    }, [analyzeDataValidity, prospect.Name]);
-
-    // Build histogram data with proper counting
+    // 1. Build histogram data with dynamic range
     const histogramData = useMemo(() => {
         const counts: Record<number, number> = {};
         const picks: number[] = [];
         let totalContributors = 0;
         let validPicks = 0;
+        let invalidPicks = 0;
 
-        // Collect all valid picks - exclude 'Name' column and count all other columns
+        // Collect all valid picks
         Object.entries(consensusData)
             .filter(([key]) => key !== "Name")
             .forEach(([key, value]) => {
                 totalContributors++;
+                const pick = typeof value === "number" ? value : parseInt(value as any);
                 
-                // Handle different value types more robustly
-                let pick: number;
-                if (typeof value === "number") {
-                    pick = value;
-                } else if (typeof value === "string" && value.trim() !== "") {
-                    pick = parseInt(value);
-                } else {
-                    // Empty cells, null, or undefined mean contributor didn't rank this prospect
-                    return;
-                }
-
-                // Only count valid NBA draft picks (1-60)
-                // Note: Empty cells mean the contributor didn't rank this prospect
-                if (!isNaN(pick) && pick >= 1 && pick <= 60) {
+                // Count all valid picks (1-60) and non-zero values
+                if (pick > 0 && pick <= 60) {
                     counts[pick] = (counts[pick] || 0) + 1;
                     picks.push(pick);
                     validPicks++;
+                } else {
+                    invalidPicks++;
+                    if (pick !== 0) {
+                        console.log(`${prospect.Name} - Invalid pick from ${key}: ${pick}`);
+                    }
                 }
             });
 
-        // Debug logging
-        console.log(`${prospect.Name} - Total contributors: ${totalContributors}, Valid picks: ${validPicks}`);
-        console.log(`${prospect.Name} - Histogram total: ${Object.values(counts).reduce((sum, count) => sum + count, 0)}`);
+        // Debug: Log detailed information
+        console.log(`${prospect.Name} - Total contributors: ${totalContributors}, Valid picks: ${validPicks}, Invalid picks: ${invalidPicks}`);
+        console.log(`${prospect.Name} - Histogram total: ${Object.values(counts).reduce((sum, count) => sum + count, 0)}, CSV COUNT: ${prospect.COUNT}`);
 
         if (picks.length === 0) {
             return [];
         }
 
-        // Find the range of actual picks
-        const minPick = Math.min(...picks);
-        const maxPick = Math.max(...picks);
+        // Find the range
+        const minPick = Math.min(...picks); // Highest rank (lowest number)
+        const maxPick = Math.max(...picks); // Lowest rank (highest number)
 
-        // Special handling for prospects with single consensus pick (like Cooper Flagg at #1)
-        const isConsensusPick = minPick === maxPick;
-        
-        if (isConsensusPick) {
-            // Create a small range around the consensus pick for better visualization
-            const consensusPick = minPick;
-            const startRange = Math.max(1, consensusPick - 1);
-            const endRange = Math.min(60, consensusPick + 1);
-            
-            return Array.from({ length: endRange - startRange + 1 }, (_, i) => ({
-                pick: startRange + i,
-                count: counts[startRange + i] || 0,
-            }));
+        // Special handling for Cooper Flagg (single point at rank 1)
+        const isCooperFlagg = prospect?.Name?.toLowerCase().includes('Cooper Flagg') ||
+            prospect?.Name?.toLowerCase().includes('Flagg');
+
+        if (isCooperFlagg && minPick === 1 && maxPick === 1) {
+            // Create artificial spread around rank 1 for visualization
+            return [
+                { pick: 0.5, count: 0 },
+                { pick: 1, count: counts[1] || 0 },
+                { pick: 1.5, count: 0 }
+            ];
         }
 
-        // For prospects with varied picks, show the full range
+        // Build array only for the relevant range
         const rangeSize = maxPick - minPick + 1;
         return Array.from({ length: rangeSize }, (_, i) => ({
             pick: minPick + i,
             count: counts[minPick + i] || 0,
         }));
     }, [consensusData, prospect]);
-
 
     // Use team color or fallback to blue
     const teamColor =
@@ -380,34 +309,9 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
             ? prospect['Team Color']
             : '#60A5FA';
 
-    // Custom tooltip component for histogram
-    interface TooltipProps {
-        active?: boolean;
-        payload?: Array<{ value: number }>;
-        label?: string;
-    }
-
-    const CustomHistogramTooltip = ({ active, payload, label }: TooltipProps) => {
-        if (!active || !payload || !payload.length) {
-            return null;
-        }
-
-        const data = payload[0];
-        return (
-            <div className="bg-[#19191A] border border-gray-700 rounded-lg p-3 shadow-lg">
-                <div className="text-sm text-gray-300 mb-1">
-                    <span className="font-semibold">Rank:</span> {label}
-                </div>
-                <div className="text-sm text-gray-300">
-                    <span className="font-semibold">Frequency:</span> {data.value}
-                </div>
-            </div>
-        );
-    };
-
     return (
         <div>
-            <ChartContainer config={{ count: { color: teamColor, label: "Frequency" } }}>
+            <ChartContainer config={{ count: { color: teamColor, label: "Volume" } }}>
                 <AreaChart data={histogramData}>
                     <defs>
                         <linearGradient id={`areaGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
@@ -416,18 +320,8 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="0" stroke="#333" strokeOpacity={0.2} horizontal={true} vertical={false} />
-                    <XAxis 
-                        dataKey="pick" 
-                        tick={{ fill: "#ccc", fontSize: 12 }} 
-                        domain={['dataMin', 'dataMax']}
-                        type="number"
-                        scale="linear"
-                    />
-                    <YAxis 
-                        tick={{ fill: "#ccc", fontSize: 12 }} 
-                        allowDecimals={false}
-                        domain={[0, 'dataMax']}
-                    />
+                    <XAxis dataKey="pick" tick={{ fill: "#ccc", fontSize: 12 }} />
+                    <YAxis tick={{ fill: "#ccc", fontSize: 12 }} allowDecimals={false} />
                     <Area
                         type="monotone"
                         dataKey="count"
@@ -435,9 +329,10 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                         fill={`url(#areaGradient-${prospect.Name.replace(/\s/g, '')})`}
                         isAnimationActive={false}
                     />
-                    <ChartTooltip content={<CustomHistogramTooltip />} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
                 </AreaChart>
             </ChartContainer>
+            {/* Total Volume Display */}
         </div>
     );
 };
@@ -476,18 +371,8 @@ const RangeConsensusGraph: React.FC<ConsensusHistogramProps> = ({
     // Use team color or fallback to blue
 
     // Custom bar shape to avoid bottom stroke
-    interface BarShapeProps {
-        x?: number;
-        y?: number;
-        width?: number;
-        height?: number;
-        fill?: string;
-        stroke?: string;
-        [key: string]: unknown; // Allow additional properties from Recharts
-    }
-
-    const CustomBarShape = (props: BarShapeProps) => {
-        const { x = 0, y = 0, width = 0, height = 0, fill = '', stroke = '' } = props;
+    const CustomBarShape = (props: any) => {
+        const { x, y, width, height, fill, stroke } = props;
         return (
             <g>
                 <rect
@@ -1618,7 +1503,7 @@ export default function ConsensusPage() {
     const [contributorSearch, setContributorSearch] = useState('');
 
     useEffect(() => {
-        document.title = '2025 Draft Board - Andre';
+        document.title = '2025 Consensus Board';
     }, []);
 
     // Global data analysis function
@@ -1905,6 +1790,8 @@ export default function ConsensusPage() {
                                 '@canpekerpekcan': parseInt(row['@canpekerpekcan']) || 0,
                                 '@ByAnthonyRizzo': parseInt(row['@ByAnthonyRizzo']) || 0,
                                 '@TwoWayMurray': parseInt(row['@TwoWayMurray']) || 0,
+                                '@sbn_ricky': 0,
+                                '@thebigwafe (model)': 0
                             };
                             consensusMap[row.Name] = consensus;
                         }
