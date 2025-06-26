@@ -2069,6 +2069,28 @@ export default function ConsensusPage() {
                 return sortConfig.direction === 'ascending' ? aIndex - bIndex : bIndex - aIndex;
             }
 
+            // Handle Actual Pick column specially - reverse sort and handle empty values
+            if (sortConfig.key === 'Actual Pick') {
+                const aValue = a['Actual Pick'];
+                const bValue = b['Actual Pick'];
+                
+                // Check if values are empty
+                const aEmpty = !aValue || aValue.trim() === '';
+                const bEmpty = !bValue || bValue.trim() === '';
+                
+                // If both are empty, maintain original order
+                if (aEmpty && bEmpty) return 0;
+                
+                // If only one is empty, put empty values at the end
+                if (aEmpty && !bEmpty) return 1;
+                if (!aEmpty && bEmpty) return -1;
+                
+                // Both have values, sort numerically (reverse order - smallest first)
+                const aNum = parseInt(aValue) || 0;
+                const bNum = parseInt(bValue) || 0;
+                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+            }
+
             let aValue = a[sortConfig.key as keyof DraftProspect];
             let bValue = b[sortConfig.key as keyof DraftProspect];
 
