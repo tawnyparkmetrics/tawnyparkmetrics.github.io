@@ -2222,7 +2222,7 @@ export default function ConsensusPage() {
                                         key={prospect.Name}
                                         className="hover:bg-gray-800/20"
                                     >
-                                    <TableCell className="font-medium text-gray-300 text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">{prospect.Name}</TableCell>
+                                    <TableCell className="font-medium text-gray-300 text-left whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">{prospect.Name}</TableCell>
                                     <TableCell className="text-gray-300 text-center">{prospect['Actual Pick']}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect.Role}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect['Pre-NBA']}</TableCell>
