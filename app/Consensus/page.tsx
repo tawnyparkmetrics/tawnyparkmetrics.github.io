@@ -393,7 +393,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         }
 
         const data = payload[0];
-        return (
+    return (
             <div className="bg-[#19191A] border border-gray-700 rounded-lg p-3 shadow-lg">
                 <div className="text-sm text-gray-300 mb-1">
                     <span className="font-semibold">Rank:</span> {label}
@@ -408,14 +408,14 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     return (
         <div>
             <ChartContainer config={{ count: { color: teamColor, label: "Frequency" } }}>
-                <AreaChart data={histogramData}>
-                    <defs>
+            <AreaChart data={histogramData}>
+                <defs>
                         <linearGradient id={`areaGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
                             <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
-                        </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="0" stroke="#333" strokeOpacity={0.2} horizontal={true} vertical={false} />
+                    </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="0" stroke="#333" strokeOpacity={0.2} horizontal={true} vertical={false} />
                     <XAxis 
                         dataKey="pick" 
                         tick={{ fill: "#ccc", fontSize: 12 }} 
@@ -428,16 +428,16 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                         allowDecimals={false}
                         domain={[0, 'dataMax']}
                     />
-                    <Area
-                        type="monotone"
-                        dataKey="count"
+                <Area
+                    type="monotone"
+                    dataKey="count"
                         stroke={teamColor}
                         fill={`url(#areaGradient-${prospect.Name.replace(/\s/g, '')})`}
-                        isAnimationActive={false}
-                    />
+                    isAnimationActive={false}
+                />
                     <ChartTooltip content={<CustomHistogramTooltip />} />
-                </AreaChart>
-            </ChartContainer>
+            </AreaChart>
+        </ChartContainer>
         </div>
     );
 };
@@ -500,11 +500,11 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
         return ranges
             .filter(item => item.value > 0)
             .map(item => ({
-                range: item.range,
-                value: item.value,
-                label: item.label,
+            range: item.range,
+            value: item.value,
+            label: item.label,
                 percentage: Math.round(item.value * 100) // Convert decimal to percentage
-            }));
+        }));
     }, [prospect]);
 
     // Custom bar shape to avoid bottom stroke
@@ -696,7 +696,7 @@ const ProspectCard: React.FC<{
     const [imageError, setImageError] = useState(false);
     const [logoError, setLogoError] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [showRangeConsensus, setShowRangeConsensus] = useState(false);
+    const [showRangeConsensus, setShowRangeConsensus] = useState(true);
 
     // Check if device is mobile
     useEffect(() => {
@@ -735,17 +735,15 @@ const ProspectCard: React.FC<{
 
     // Helper function to get draft display text
     const getDraftDisplayText = (isMobileView: boolean = false) => {
-            if (prospect.Name === 'Cooper Flagg') {
-            const team = isMobileView
-                ? (teamNames[prospect['NBA Team']] || prospect['NBA Team'])
-                : prospect['NBA Team'];
-            return `${prospect['Actual Pick']} - ${team}`;
+        const actualPick = prospect['Actual Pick'];
+        const teamName = prospect['NBA Team'];
+        const displayTeam = isMobileView && teamNames.hasOwnProperty(teamName)
+            ? teamNames[teamName]
+            : teamName;
+        if (actualPick && actualPick.trim() !== '') {
+            return `${actualPick} - ${displayTeam}`;
         } else {
-            const teamName = prospect['NBA Team'];
-            const displayName = isMobileView && teamNames.hasOwnProperty(teamName)
-                ? teamNames[teamName]
-                : teamName;
-            return `${displayName}`;
+            return displayTeam;
         }
     };
 
@@ -1011,7 +1009,7 @@ const ProspectCard: React.FC<{
                                 {/* Left side - Charts */}
                                 <div className="text-gray-300 px-2">
                                     <h4 className="text-lg font-semibold text-white mb-4">
-                                        {showRangeConsensus ? 'Consensus Distrubution' : 'Consensus Distrubution'}
+                                        {showRangeConsensus ? 'Range Consensus Distribution' : 'Consensus Distribution'}
                                     </h4>
                                     {showRangeConsensus ? (
                                         <div className="relative -left-5">
@@ -1128,11 +1126,24 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     const [viewMode, setViewMode] = useState<'card' | 'table' | 'contributors'>('card');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-    useEffect(() => {
+    // Handle view mode changes with debugging
+    const handleViewModeChange = useCallback((mode: 'card' | 'table' | 'contributors') => {
+        console.log('handleViewModeChange called with:', mode);
+        console.log('Current viewMode before change:', viewMode);
+        
+        setViewMode(mode);
+        
+        // Call parent callback immediately
         if (onViewModeChange) {
-            onViewModeChange(viewMode);
+            console.log('Calling onViewModeChange with:', mode);
+            onViewModeChange(mode);
         }
-    }, [viewMode, onViewModeChange]);
+    }, [onViewModeChange]);
+
+    // Add effect to log when viewMode actually changes
+    useEffect(() => {
+        console.log('viewMode state updated to:', viewMode);
+    }, [viewMode]);
 
     const hasActiveFilters = () => {
         return (
@@ -1183,6 +1194,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
         }
     }, [prospects, searchQuery, roleFilter, onFilteredProspectsChange]);
 
+    // Debug the current view mode
+    console.log('Current viewMode in render:', viewMode);
+
     return (
         <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
             {/* Mobile Initial Filter Section */}
@@ -1203,15 +1217,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                     {/* View Mode Dropdown - Right Side */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                    <motion.button
-                        className={`
-                px-3 py-2 rounded-lg text-sm font-medium flex items-center
-                transition-all duration-300
-                                    bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
-              `}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
+                            <motion.button
+                                className="px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
                                 {viewMode === 'card' ? (
                                     <>
                                         <LucideUser className="mr-1 h-4 w-4" />
@@ -1219,7 +1229,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     </>
                                 ) : viewMode === 'table' ? (
                                     <>
-                        <TableIcon className="mr-1 h-4 w-4" />
+                                        <TableIcon className="mr-1 h-4 w-4" />
                                         Table View
                                     </>
                                 ) : (
@@ -1229,13 +1239,17 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     </>
                                 )}
                                 <ChevronDown className="ml-1 h-4 w-4" />
-                    </motion.button>
+                            </motion.button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="bg-[#19191A] border-gray-700">
                             <DropdownMenuItem
-                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''
-                                    }`}
-                                onClick={() => setViewMode('card')}
+                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Mobile Card View clicked');
+                                    handleViewModeChange('card');
+                                }}
                             >
                                 <div className="flex items-center gap-2">
                                     <LucideUser className="h-4 w-4" />
@@ -1243,9 +1257,13 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 </div>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''
-                                    }`}
-                                onClick={() => setViewMode('table')}
+                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Mobile Table View clicked');
+                                    handleViewModeChange('table');
+                                }}
                             >
                                 <div className="flex items-center gap-2">
                                     <TableIcon className="h-4 w-4" />
@@ -1253,9 +1271,13 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 </div>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'contributors' ? 'bg-blue-500/20 text-blue-400' : ''
-                                    }`}
-                                onClick={() => setViewMode('contributors')}
+                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'contributors' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Mobile Contributors clicked');
+                                    handleViewModeChange('contributors');
+                                }}
                             >
                                 <div className="flex items-center gap-2">
                                     <TrendingUp className="h-4 w-4" />
@@ -1336,7 +1358,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         </div>
                     </div>
 
-
                     {/* Desktop Filters */}
                     <div className="hidden sm:flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
                         {/* Position Filters */}
@@ -1374,11 +1395,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <motion.button
-                                    className={`
-                                        px-3 py-2 rounded-lg text-sm font-medium flex items-center
-                      transition-all duration-300
-                                        bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
-                    `}
+                                    className="px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
@@ -1402,20 +1419,28 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 </motion.button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                    <DropdownMenuItem
-                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''
-                                        }`}
-                                    onClick={() => setViewMode('card')}
-                                    >
-                                        <div className="flex items-center gap-2">
+                                <DropdownMenuItem
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        console.log('Desktop Card View clicked');
+                                        handleViewModeChange('card');
+                                    }}
+                                >
+                                    <div className="flex items-center gap-2">
                                         <LucideUser className="h-4 w-4" />
                                         Card View
-                                        </div>
-                                    </DropdownMenuItem>
+                                    </div>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem
-                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''
-                                        }`}
-                                    onClick={() => setViewMode('table')}
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        console.log('Desktop Table View clicked');
+                                        handleViewModeChange('table');
+                                    }}
                                 >
                                     <div className="flex items-center gap-2">
                                         <TableIcon className="h-4 w-4" />
@@ -1423,9 +1448,13 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     </div>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'contributors' ? 'bg-blue-500/20 text-blue-400' : ''
-                                        }`}
-                                    onClick={() => setViewMode('contributors')}
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'contributors' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        console.log('Desktop Contributors clicked');
+                                        handleViewModeChange('contributors');
+                                    }}
                                 >
                                     <div className="flex items-center gap-2">
                                         <TrendingUp className="h-4 w-4" />
@@ -1636,14 +1665,14 @@ const ContributorsView: React.FC<{ searchQuery?: string }> = ({ searchQuery }) =
                                     <span className="text-blue-400 font-semibold text-sm group-hover:text-blue-300">
                                         {index + 1}
                                     </span>
-                                </div>
+                    </div>
                                 <span className="text-gray-300 font-medium group-hover:text-white transition-colors">
                                     {contributor}
                                 </span>
-                            </div>
+                </div>
                         </a>
                     ))}
-                </div>
+            </div>
             </div>
         </div>
     );
@@ -2086,7 +2115,15 @@ export default function ConsensusPage() {
                     >
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Name')}>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 text-left" onClick={() => handleSort('Rank')}>
+                                    Rank
+                                    {sortConfig?.key === 'Rank' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 text-left" onClick={() => handleSort('Name')}>
                                     Name
                                     {sortConfig?.key === 'Name' && (
                                         <span className="ml-1">
@@ -2094,7 +2131,7 @@ export default function ConsensusPage() {
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Actual Pick')}>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap" onClick={() => handleSort('Actual Pick')}>
                                     Actual Pick
                                     {sortConfig?.key === 'Actual Pick' && (
                                         <span className="ml-1">
@@ -2135,7 +2172,7 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('SCORE')}>
-                                    SCORE
+                                    Score
                                     {sortConfig?.key === 'SCORE' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
@@ -2143,7 +2180,7 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('MEAN')}>
-                                    MEAN
+                                    Mean
                                     {sortConfig?.key === 'MEAN' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
@@ -2151,7 +2188,7 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('MEDIAN')}>
-                                    MEDIAN
+                                    Median
                                     {sortConfig?.key === 'MEDIAN' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
@@ -2159,7 +2196,7 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('MODE')}>
-                                    MODE
+                                    Mode
                                     {sortConfig?.key === 'MODE' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
@@ -2167,7 +2204,7 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('HIGH')}>
-                                    HIGH
+                                    High
                                     {sortConfig?.key === 'HIGH' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
@@ -2175,7 +2212,7 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('LOW')}>
-                                    LOW
+                                    Low
                                     {sortConfig?.key === 'LOW' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
@@ -2183,7 +2220,7 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('RANGE')}>
-                                    RANGE
+                                    Range
                                     {sortConfig?.key === 'RANGE' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
@@ -2191,7 +2228,7 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('STDEV')}>
-                                    STDEV
+                                    StDev
                                     {sortConfig?.key === 'STDEV' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
@@ -2199,14 +2236,14 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('COUNT')}>
-                                    COUNT
+                                    Count
                                     {sortConfig?.key === 'COUNT' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Inclusion Rate')}>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap" onClick={() => handleSort('Inclusion Rate')}>
                                     Inclusion Rate
                                     {sortConfig?.key === 'Inclusion Rate' && (
                                         <span className="ml-1">
@@ -2222,6 +2259,7 @@ export default function ConsensusPage() {
                                         key={prospect.Name}
                                         className="hover:bg-gray-800/20"
                                     >
+                                    <TableCell className="font-medium text-gray-300 text-center">{prospect['Rank']}</TableCell>
                                     <TableCell className="font-medium text-gray-300 text-left whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">{prospect.Name}</TableCell>
                                     <TableCell className="text-gray-300 text-center">{prospect['Actual Pick']}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect.Role}</TableCell>
@@ -2291,12 +2329,12 @@ export default function ConsensusPage() {
             <NavigationHeader activeTab="Consensus" />
             <DraftPageHeader author="Consensus" />
             {viewMode !== 'contributors' ? (
-                <ProspectFilter
-                    prospects={prospects}
-                    onFilteredProspectsChange={setFilteredProspects}
-                    rank={{}}
-                    onViewModeChange={setViewMode}
-                />
+            <ProspectFilter
+                prospects={prospects}
+                onFilteredProspectsChange={setFilteredProspects}
+                rank={{}}
+                onViewModeChange={setViewMode}
+            />
             ) : (
                 <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
                     <div className="px-4 py-3 flex items-center justify-between">

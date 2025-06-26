@@ -60,36 +60,36 @@ const collegeNames: { [key: string]: string } = {
 }
 
 const teamNames: { [key: string]: string } = {
-  CHA: "Charlotte Hornets",
-  GSW: "Golden State Warriors",
-  LAL: "Los Angeles Lakers",
-  LAC: "Los Angeles Clippers",
-  BOS: "Boston Celtics",
-  MIA: "Miami Heat",
-  CHI: "Chicago Bulls",
-  DAL: "Dallas Mavericks",
-  PHX: "Phoenix Suns",
-  MIL: "Milwaukee Bucks",
-  WAS: "Washington Wizards",
-  HOU: "Houston Rockets",
-  MEM: "Memphis Grizzlies",
-  SAC: "Sacramento Kings",
-  OKC: "Oklahoma City Thunder",
-  NYK: "Brooklyn Nets",
-  SAS: "San Antonio Spurs",
-  IND: "Indiana Pacers",
-  TOR: "Toronto Raptors",
-  NOP: "New Orleans Pelicans",
-  ATL: "Atlanta Hawks",
-  PHI: "Philadelphia 76ers",
-  DET: "Detroit Pistons",
-  ORL: "Orlando Magic",
-  MIN: "Minnesota Timberwolves",
-  UTA: "Utah Jazz",
-  DEN: "Denver Nuggets",
-  POR: "Portland Trailblazers",
-  CLE: "Cleveland Cavaliers",
-  NCAA: "NC"
+  "Charlotte Hornets": "CHA",
+  "Golden State Warriors": "GSW",
+  "Los Angeles Lakers": "LAL",
+  "Los Angeles Clippers": "LAC",
+  "Boston Celtics": "BOS",
+  "Miami Heat": "MIA",
+  "Chicago Bulls": "CHI",
+  "Dallas Mavericks": "DAL",
+  "Phoenix Suns": "PHX",
+  "Milwaukee Bucks": "MIL",
+  "Washington Wizards": "WAS",
+  "Houston Rockets": "HOU",
+  "Memphis Grizzlies": "MEM",
+  "Sacramento Kings": "SAC",
+  "Oklahoma City Thunder": "OKC",
+  "Brooklyn Nets": "NYK",
+  "San Antonio Spurs": "SAS",
+  "Indiana Pacers": "IND",
+  "Toronto Raptors": "TOR",
+  "New Orleans Pelicans": "NOP",
+  "Atlanta Hawks": "ATL",
+  "Philadelphia 76ers": "PHI",
+  "Detroit Pistons": "DET",
+  "Orlando Magic": "ORL",
+  "Minnesota Timberwolves": "MIN",
+  "Utah Jazz": "UTA",
+  "Denver Nuggets": "DEN",
+  "Portland Trailblazers": "POR",
+  "Cleveland Cavaliers": "CLE",
+  "NCAA": "NC"
 }
 
 const draftShort: { [key: string]: string } = {
@@ -208,6 +208,19 @@ const ProspectCard: React.FC<{
   // Dynamic image path based on draft year
   const playerImageUrl = `/player_images${draftYear}/${prospect.Name} BG Removed.png`;
   const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
+
+  // Helper function to get draft display text
+  const getDraftDisplayText = () => {
+    const actualPick = prospect['Actual Pick'];
+    const team = isMobile ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team'];
+    if (actualPick && actualPick.trim() !== '') {
+      return `${actualPick} - ${team}`;
+    } else {
+      // Fallback to current logic
+      return Number(prospect['Actual Pick']) >= 59 ? "Undrafted" :
+        `${prospect['Actual Pick']}${draftYear === '2024' ? ' - ' : ' '}${prospect['NBA Team'] !== 'NCAA' ? (draftShort[prospect['NBA Team']] || prospect['NBA Team']) : 'Unsigned'}`;
+    }
+  };
 
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
@@ -339,9 +352,7 @@ const ProspectCard: React.FC<{
                       <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
                       <div>
                         <span className="font-bold text-white">Draft  </span>
-                        {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" :
-                          `${prospect['Actual Pick']}${draftYear === '2024' ? ' - ' : ' '}${prospect['NBA Team'] !== 'NCAA' ? (draftShort[prospect['NBA Team']] || prospect['NBA Team']) : 'Unsigned'}`
-                        }
+                        {getDraftDisplayText()}
                       </div>
                     </div>
                   </div>
@@ -381,13 +392,7 @@ const ProspectCard: React.FC<{
                     <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                     <div>
                       <span className="font-bold text-white">Draft  </span>
-                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" :
-                        `${prospect['Actual Pick']}${draftYear === '2024' ? ' - ' : ' '}${prospect['NBA Team'] !== 'NCAA' ?
-                          (draftYear === '2024' ?
-                            (teamNames[prospect['NBA Team']] ? prospect['NBA Team'] : prospect['ABV']) :
-                            (draftShort[prospect['NBA Team']] || prospect['NBA Team'])
-                          ) : 'Unsigned'}`
-                      }
+                      {getDraftDisplayText()}
                     </div>
                   </div>
                 </div>
@@ -929,6 +934,17 @@ export default function NickDraftPage() {
     prospects: DraftProspect[],
     rank: Record<string, RankType>
   }) => {
+    // Helper function to get draft display text for table
+    const getTableDraftText = (prospect: DraftProspect) => {
+      const actualPick = prospect['Actual Pick'];
+      const team = prospect['NBA Team'];
+      if (actualPick && actualPick.trim() !== '') {
+        return `${actualPick} - ${team}`;
+      } else {
+        return Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick'];
+      }
+    };
+
     return (
       <div className="max-w-6xl mx-auto px-4 pt-8">
         <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
@@ -1040,7 +1056,7 @@ export default function NickDraftPage() {
                     <TableCell className="text-gray-300">{prospect.Role}</TableCell>
                     <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
                     <TableCell className="text-gray-300">
-                      {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
+                      {getTableDraftText(prospect)}
                     </TableCell>
                     <TableCell className="text-gray-300">
                       {teamNames[prospect['NBA Team']] || prospect['NBA Team']}

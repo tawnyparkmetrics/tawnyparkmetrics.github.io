@@ -144,35 +144,36 @@ const draftShort: { [key: string]: string } = {
 }
 
 const teamNames: { [key: string]: string } = {
-  CHA: "Charlotte Hornets",
-  GSW: "Golden State Warriors",
-  LAL: "Los Angeles Lakers",
-  LAC: "Los Angeles Clippers",
-  BOS: "Boston Celtics",
-  MIA: "Miami Heat",
-  CHI: "Chicago Bulls",
-  DAL: "Dallas Mavericks",
-  PHX: "Phoenix Suns",
-  MIL: "Milwaukee Bucks",
-  WAS: "Washington Wizards",
-  HOU: "Houston Rockets",
-  MEM: "Memphis Grizzlies",
-  SAC: "Sacramento Kings",
-  OKC: "Oklahoma City Thunder",
-  NYK: "New York Knicks",
-  SAS: "San Antonio Spurs",
-  IND: "Indiana Pacers",
-  TOR: "Toronto Raptors",
-  NOP: "New Orleans Pelicans",
-  ATL: "Atlanta Hawks",
-  PHI: "Philadelphia 76ers",
-  DET: "Detroit Pistons",
-  ORL: "Orlando Magic",
-  MIN: "Minnesota Timberwolves",
-  UTA: "Utah Jazz",
-  DEN: "Denver Nuggets",
-  POR: "Portland Trailblazers",
-  CLE: "Cleveland Cavaliers",
+  "Charlotte Hornets": "CHA",
+  "Golden State Warriors": "GSW",
+  "Los Angeles Lakers": "LAL",
+  "Los Angeles Clippers": "LAC",
+  "Boston Celtics": "BOS",
+  "Miami Heat": "MIA",
+  "Chicago Bulls": "CHI",
+  "Dallas Mavericks": "DAL",
+  "Phoenix Suns": "PHX",
+  "Milwaukee Bucks": "MIL",
+  "Washington Wizards": "WAS",
+  "Houston Rockets": "HOU",
+  "Memphis Grizzlies": "MEM",
+  "Sacramento Kings": "SAC",
+  "Oklahoma City Thunder": "OKC",
+  "Brooklyn Nets": "NYK",
+  "San Antonio Spurs": "SAS",
+  "Indiana Pacers": "IND",
+  "Toronto Raptors": "TOR",
+  "New Orleans Pelicans": "NOP",
+  "Atlanta Hawks": "ATL",
+  "Philadelphia 76ers": "PHI",
+  "Detroit Pistons": "DET",
+  "Orlando Magic": "ORL",
+  "Minnesota Timberwolves": "MIN",
+  "Utah Jazz": "UTA",
+  "Denver Nuggets": "DEN",
+  "Portland Trailblazers": "POR",
+  "Cleveland Cavaliers": "CLE",
+  "NCAA": "NC"
 }
 
 // ALL GRAPHING NECESSITIES ARE HERE
@@ -1684,29 +1685,36 @@ const ProspectCard: React.FC<{
   // Helper function to get draft team name (shortened for mobile)
   const getDraftTeamName = (isMobileView: boolean) => {
     if (selectedYear === 2025) {
-      const teamName = prospect.Name === 'Cooper Flagg'
-        ? '1 - Dallas Mavericks'
-        : teamNames[prospect['NBA Team']] || prospect['NBA Team'];
-      
-      if (isMobileView) {
-        // Check if any part of the team name needs shortening
-        return Object.keys(draftShort).reduce((name, longName) => {
-          return name.replace(longName, draftShort[longName]);
-        }, teamName);
+      const actualPick = prospect['Actual Pick'];
+      const team = isMobileView ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team'];
+      if (actualPick && actualPick.trim() !== '') {
+        // Show "Pick - Team"
+        const pickTeam = `${actualPick} - ${team}`;
+        if (isMobileView) {
+          return Object.keys(draftShort).reduce((name, longName) => {
+            return name.replace(longName, draftShort[longName]);
+          }, pickTeam);
+        }
+        return pickTeam;
+      } else {
+        // Show just the team
+        if (isMobileView) {
+          return Object.keys(draftShort).reduce((name, longName) => {
+            return name.replace(longName, draftShort[longName]);
+          }, team);
+        }
+        return team;
       }
-      return teamName;
-    } else {
-      const pickPrefix = Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `;
-      const teamName = pickPrefix + (isMobileView ? prospect.NBA : draftedTeam);
-      
-      if (isMobileView) {
-        // Check if any part of the team name needs shortening
-        return Object.keys(draftShort).reduce((name, longName) => {
-          return name.replace(longName, draftShort[longName]);
-        }, teamName);
-      }
-      return teamName;
     }
+    // ...rest of function (2024 logic)
+    const pickPrefix = Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `;
+    const teamName = pickPrefix + (isMobileView ? (teamNames[prospect.NBA] || prospect.NBA) : prospect.NBA);
+    if (isMobileView) {
+      return Object.keys(draftShort).reduce((name, longName) => {
+        return name.replace(longName, draftShort[longName]);
+      }, teamName);
+    }
+    return teamName;
   };
 
   // First, extract the complex expression to a variable
@@ -2415,7 +2423,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                   {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
                 </TableCell>
                 <TableCell className="text-gray-300">
-                  {teamNames[prospect['NBA Team']] || prospect['NBA Team']}
+                  {prospect['NBA Team']}
                 </TableCell>
                 <TableCell className="text-gray-300">{prospect['Tier']}</TableCell>
                 <TableCell className="text-gray-300">{prospect.Height}</TableCell>

@@ -81,37 +81,37 @@ const draftShort: { [key: string]: string } = {
 }
 
 const teamNames: { [key: string]: string } = {
-    CHA: "Charlotte Hornets",
-    GSW: "Golden State Warriors",
-    LAL: "Los Angeles Lakers",
-    LAC: "Los Angeles Clippers",
-    BOS: "Boston Celtics",
-    MIA: "Miami Heat",
-    CHI: "Chicago Bulls",
-    DAL: "Dallas Mavericks",
-    PHX: "Phoenix Suns",
-    MIL: "Milwaukee Bucks",
-    WAS: "Washington Wizards",
-    HOU: "Houston Rockets",
-    MEM: "Memphis Grizzlies",
-    SAC: "Sacramento Kings",
-    OKC: "Oklahoma City Thunder",
-    NYK: "Brooklyn Nets",
-    SAS: "San Antonio Spurs",
-    IND: "Indiana Pacers",
-    TOR: "Toronto Raptors",
-    NOP: "New Orleans Pelicans",
-    ATL: "Atlanta Hawks",
-    PHI: "Philadelphia 76ers",
-    DET: "Detroit Pistons",
-    ORL: "Orlando Magic",
-    MIN: "Minnesota Timberwolves",
-    UTA: "Utah Jazz",
-    DEN: "Denver Nuggets",
-    POR: "Portland Trailblazers",
-    CLE: "Cleveland Cavaliers",
-    NCAA: "NC",
-}
+    "Charlotte Hornets": "CHA",
+    "Golden State Warriors": "GSW",
+    "Los Angeles Lakers": "LAL",
+    "Los Angeles Clippers": "LAC",
+    "Boston Celtics": "BOS",
+    "Miami Heat": "MIA",
+    "Chicago Bulls": "CHI",
+    "Dallas Mavericks": "DAL",
+    "Phoenix Suns": "PHX",
+    "Milwaukee Bucks": "MIL",
+    "Washington Wizards": "WAS",
+    "Houston Rockets": "HOU",
+    "Memphis Grizzlies": "MEM",
+    "Sacramento Kings": "SAC",
+    "Oklahoma City Thunder": "OKC",
+    "Brooklyn Nets": "NYK",
+    "San Antonio Spurs": "SAS",
+    "Indiana Pacers": "IND",
+    "Toronto Raptors": "TOR",
+    "New Orleans Pelicans": "NOP",
+    "Atlanta Hawks": "ATL",
+    "Philadelphia 76ers": "PHI",
+    "Detroit Pistons": "DET",
+    "Orlando Magic": "ORL",
+    "Minnesota Timberwolves": "MIN",
+    "Utah Jazz": "UTA",
+    "Denver Nuggets": "DEN",
+    "Portland Trailblazers": "POR",
+    "Cleveland Cavaliers": "CLE",
+    "NCAA": "NC"
+  }
 
 const NBATeamLogo = ({ NBA }: { NBA: string }) => {
     const [logoError, setNBALogoError] = useState(false);
@@ -442,20 +442,46 @@ const ProspectCard: React.FC<{
     }, [prospect, filteredProspects, selectedSortKey, pickNumber]);
 
     // Helper function to get draft display text
-    const getDraftDisplayText = (isMobileView: boolean = false) => {
-        if (selectedYear === 2025) {
-            if (prospect.Name === 'Cooper Flagg') {
-                return '1 - Dallas Mavericks';
-            } else {
-                return teamNames.hasOwnProperty(prospect['NBA Team']) ? teamNames.DAL : prospect['NBA Team'];
+const getDraftDisplayText = (isMobileView: boolean = false) => {
+    if (selectedYear === 2025) {
+        const actualPick = prospect['Actual Pick'];
+        const team = isMobileView ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team'];
+        
+        // Check if actualPick exists and is not empty/whitespace
+        if (actualPick && actualPick.toString().trim() !== '') {
+            // Show "Pick - Team"
+            const pickTeam = `${actualPick} - ${team}`;
+            if (isMobileView) {
+                return Object.keys(draftShort).reduce((name, longName) => {
+                    return name.replace(longName, draftShort[longName]);
+                }, pickTeam);
             }
+            return pickTeam;
         } else {
-            const teamName = prospect['NBA Team'];
-            const displayName = isMobileView && draftShort.hasOwnProperty(teamName) ? draftShort[teamName] : teamName;
-            return `${Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${displayName} `}`;
+            // Show just the team (fallback to current behavior)
+            if (isMobileView) {
+                return Object.keys(draftShort).reduce((name, longName) => {
+                    return name.replace(longName, draftShort[longName]);
+                }, team);
+            }
+            return team;
         }
-    };
-
+    } else {
+        // For non-2025 years, keep existing logic
+        const teamName = prospect['NBA Team'];
+        const displayName = isMobileView && draftShort.hasOwnProperty(teamName) ? draftShort[teamName] : teamName;
+        const actualPick = prospect['Actual Pick'];
+        
+        // Check if actualPick exists and is a valid number
+        if (actualPick && !isNaN(Number(actualPick))) {
+            const pickNumber = Number(actualPick);
+            return pickNumber >= 59 ? "UDFA - " + displayName : `${pickNumber} - ${displayName}`;
+        } else {
+            // Fallback to just team name if no valid pick number
+            return displayName;
+        }
+    }
+};
     // Data for the new table (example values)
     const tableData = useMemo(() => ([
         { label: 'Cumulative', value: prospect['Cumulative PS/1000'] || 'N/A' },
@@ -1550,10 +1576,27 @@ export default function AndreDraftPage() {
                                         <TableCell className="text-gray-300 text-center">{prospect.Role}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect['Pre-NBA']}</TableCell>
                                         <TableCell className="text-gray-300 text-center">
-                                            {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
+                                            {(() => {
+                                                const actualPick = prospect['Actual Pick'];
+                                                const team = isMobile ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team'];
+                                                if (actualPick && actualPick.trim() !== '') {
+                                                    // Desktop: Actual Pick - Team Name
+                                                    if (!isMobile) {
+                                                        return `${actualPick} - ${team}`;
+                                                    } else {
+                                                        // Mobile: abbreviate team name if possible
+                                                        const abbreviated = Object.keys(draftShort).reduce((name, longName) => {
+                                                            return name.replace(longName, draftShort[longName]);
+                                                        }, team);
+                                                        return `${actualPick} - ${abbreviated}`;
+                                                    }
+                                                } else {
+                                                    return "Undrafted";
+                                                }
+                                            })()}
                                         </TableCell>
                                         <TableCell className="text-gray-300 text-center">
-                                            {teamNames[prospect['NBA Team']] || prospect['NBA Team']}
+                                            {isMobile ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team']}
                                         </TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect.Age}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect.Height}</TableCell>
