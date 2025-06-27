@@ -443,43 +443,27 @@ const ProspectCard: React.FC<{
 
     // Helper function to get draft display text
 const getDraftDisplayText = (isMobileView: boolean = false) => {
-    if (selectedYear === 2025) {
-        const actualPick = prospect['Actual Pick'];
-        const team = isMobileView ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team'];
-        
-        // Check if actualPick exists and is not empty/whitespace
-        if (actualPick && actualPick.toString().trim() !== '') {
-            // Show "Pick - Team"
-            const pickTeam = `${actualPick} - ${team}`;
-            if (isMobileView) {
-                return Object.keys(draftShort).reduce((name, longName) => {
-                    return name.replace(longName, draftShort[longName]);
-                }, pickTeam);
-            }
-            return pickTeam;
-        } else {
-            // Show just the team (fallback to current behavior)
-            if (isMobileView) {
-                return Object.keys(draftShort).reduce((name, longName) => {
-                    return name.replace(longName, draftShort[longName]);
-                }, team);
-            }
-            return team;
+    const actualPick = prospect['Actual Pick'];
+    const team = isMobileView ? (prospect['ABV'] || prospect['NBA Team']) : prospect['NBA Team'];
+    
+    // Check if actualPick exists and is not empty/whitespace
+    if (actualPick && actualPick.toString().trim() !== '') {
+        // Show "Pick - Team"
+        const pickTeam = `${actualPick} - ${team}`;
+        if (isMobileView) {
+            return Object.keys(draftShort).reduce((name, longName) => {
+                return name.replace(longName, draftShort[longName]);
+            }, pickTeam);
         }
+        return pickTeam;
     } else {
-        // For non-2025 years, keep existing logic
-        const teamName = prospect['NBA Team'];
-        const displayName = isMobileView && draftShort.hasOwnProperty(teamName) ? draftShort[teamName] : teamName;
-        const actualPick = prospect['Actual Pick'];
-        
-        // Check if actualPick exists and is a valid number
-        if (actualPick && !isNaN(Number(actualPick))) {
-            const pickNumber = Number(actualPick);
-            return pickNumber >= 59 ? "UDFA - " + displayName : `${pickNumber} - ${displayName}`;
-        } else {
-            // Fallback to just team name if no valid pick number
-            return displayName;
+        // Show just the team (fallback to current behavior)
+        if (isMobileView) {
+            return Object.keys(draftShort).reduce((name, longName) => {
+                return name.replace(longName, draftShort[longName]);
+            }, team);
         }
+        return team;
     }
 };
     // Data for the new table (example values)
@@ -1578,7 +1562,7 @@ export default function AndreDraftPage() {
                                         <TableCell className="text-gray-300 text-center">
                                             {(() => {
                                                 const actualPick = prospect['Actual Pick'];
-                                                const team = isMobile ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team'];
+                                                const team = isMobile ? (prospect['ABV'] || prospect['NBA Team']) : prospect['NBA Team'];
                                                 if (actualPick && actualPick.trim() !== '') {
                                                     // Desktop: Actual Pick - Team Name
                                                     if (!isMobile) {
