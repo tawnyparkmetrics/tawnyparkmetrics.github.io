@@ -22,7 +22,7 @@ import {
     ChartTooltip,
 } from "@/components/ui/chart"
 import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
-
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 
 export interface DraftProspect {
@@ -2359,6 +2359,7 @@ export default function ConsensusPage() {
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Consensus" />
             <DraftPageHeader author="Consensus" />
+            <GoogleAnalytics  gaId="G-X22HKJ13B7" />
             {viewMode !== 'contributors' ? (
             <ProspectFilter
                 prospects={prospects}
