@@ -18,6 +18,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { GoogleAnalytics } from '@next/third-parties/google';
+
 
 
 export interface DraftProspect {
@@ -1649,6 +1651,7 @@ export default function AndreDraftPage() {
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Andre Liu" />
             <DraftPageHeader author="Andre Liu" />
+            <GoogleAnalytics  gaId="G-X22HKJ13B7" />
             <ProspectFilter
                 prospects={prospects}
                 onFilteredProspectsChange={setFilteredProspects}

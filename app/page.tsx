@@ -4,13 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 //import ComingSoon from '../components/ui/ComingSoon';
 import NavigationHeader from '@/components/NavigationHeader';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Home" />
-      
+      <GoogleAnalytics  gaId="G-X22HKJ13B7" />
       {/* Hero Section - Reduced top padding from pt-20 to pt-12 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
         <div className="bg-[#19191A] border border-white/20 rounded-xl p-8">

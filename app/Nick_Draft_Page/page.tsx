@@ -12,6 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { GoogleAnalytics } from '@next/third-parties/google';
+
 
 export interface DraftProspect {
   Name: string;
@@ -1116,6 +1118,7 @@ export default function NickDraftPage() {
     <div className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Nick Kalinowski" />
       <DraftPageHeader author="Nick Kalinowski" />
+      <GoogleAnalytics  gaId="G-X22HKJ13B7" />
       <ProspectFilter
         prospects={prospects}
         onFilteredProspectsChange={setFilteredProspects}

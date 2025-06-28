@@ -24,6 +24,8 @@ import { TooltipProps } from 'recharts';
 import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import Head from 'next/head';
+import { GoogleAnalytics } from '@next/third-parties/google';
+
 
 type PositionRanks = {
   Y1: number;
@@ -2852,6 +2854,7 @@ export default function DraftProspectsPage() {
       <div className="min-h-screen bg-[#19191A]">
         <NavigationHeader activeTab="Max Savin" />
         <DraftPageHeader author="Max Savin" />
+        <GoogleAnalytics  gaId="G-X22HKJ13B7" />
         <TimelineSlider
           initialProspects={prospects}
           selectedYear={selectedYear}
