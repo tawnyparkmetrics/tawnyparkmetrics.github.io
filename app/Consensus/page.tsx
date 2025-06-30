@@ -2178,7 +2178,7 @@ export default function ConsensusPage() {
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Pre-NBA')}>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 text-center whitespace-nowrap" onClick={() => handleSort('Pre-NBA')}>
                                     Pre-NBA
                                     {sortConfig?.key === 'Pre-NBA' && (
                                         <span className="ml-1">
@@ -2194,7 +2194,7 @@ export default function ConsensusPage() {
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('NBA Team')}>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap text-center" onClick={() => handleSort('NBA Team')}>
                                     NBA Team
                                     {sortConfig?.key === 'NBA Team' && (
                                         <span className="ml-1">
@@ -2294,9 +2294,9 @@ export default function ConsensusPage() {
                                     <TableCell className="font-medium text-gray-300 text-left whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">{prospect.Name}</TableCell>
                                     <TableCell className="text-gray-300 text-center">{prospect['Actual Pick']}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect.Role}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Pre-NBA']}</TableCell>
+                                        <TableCell className="text-gray-300 text-center whitespace-nowrap">{prospect['Pre-NBA']}</TableCell>
                                         <TableCell className="text-gray-300 text-center">{prospect.Age}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['NBA Team']}</TableCell>
+                                    <TableCell className="text-gray-300 text-center whitespace-nowrap">{prospect['NBA Team']}</TableCell>
                                     <TableCell className="text-gray-300 text-center">{prospect['SCORE']}</TableCell>
                                     <TableCell className="text-gray-300 text-center">{prospect['MEAN']}</TableCell>
                                     <TableCell className="text-gray-300 text-center">{prospect['MEDIAN']}</TableCell>
