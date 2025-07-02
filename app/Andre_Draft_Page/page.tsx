@@ -1557,47 +1557,37 @@ export default function AndreDraftPage() {
                                         key={prospect.Name}
                                         className="hover:bg-gray-800/20"
                                     >
-                                        <TableCell className="text-gray-300 text-center">{originalRank}</TableCell>
-                                        <TableCell className="font-medium text-gray-300 text-center">{prospect.Name}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect.Role}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Pre-NBA']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">
+                                        <TableCell className="text-gray-300">{originalRank}</TableCell>
+                                        <TableCell className="font-medium text-gray-300 whitespace-nowrap">{prospect.Name}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect.Role}</TableCell>
+                                        <TableCell className="text-gray-300 whitespace-nowrap">{prospect['Pre-NBA']}</TableCell>
+                                        <TableCell className="text-gray-300 whitespace-nowrap">
                                             {(() => {
                                                 const actualPick = prospect['Actual Pick'];
-                                                const team = isMobile ? (prospect['ABV'] || prospect['NBA Team']) : prospect['NBA Team'];
                                                 if (actualPick && actualPick.trim() !== '') {
-                                                    // Desktop: Actual Pick - Team Name
-                                                    if (!isMobile) {
-                                                        return `${actualPick} - ${team}`;
-                                                    } else {
-                                                        // Mobile: abbreviate team name if possible
-                                                        const abbreviated = Object.keys(draftShort).reduce((name, longName) => {
-                                                            return name.replace(longName, draftShort[longName]);
-                                                        }, team);
-                                                        return `${actualPick} - ${abbreviated}`;
-                                                    }
+                                                    return actualPick;
                                                 } else {
                                                     return "Undrafted";
                                                 }
                                             })()}
                                         </TableCell>
-                                        <TableCell className="text-gray-300 text-center">
-                                            {isMobile ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team']}
+                                        <TableCell className="text-gray-300 whitespace-nowrap">
+                                            {prospect['NBA Team']}
                                         </TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect.Age}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect.Height}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Weight (lbs)']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Age Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Athletic Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Scoring Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Defense Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Measurables Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Self Creation Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Touch Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['IQ Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Usage Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect['Cumulative Prospect Score']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect.Tier}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect.Age}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect.Height}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Age Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Athletic Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Scoring Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Defense Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Measurables Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Self Creation Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Touch Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['IQ Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Usage Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect['Cumulative Prospect Score']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect.Tier}</TableCell>
                                     </TableRow>
                                 );
                             })}

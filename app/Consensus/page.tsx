@@ -743,7 +743,7 @@ const ProspectCard: React.FC<{
             : teamName;
         if (actualPick && actualPick.trim() !== '') {
             return `${actualPick} - ${displayTeam}`;
-        } else {
+            } else {
             return displayTeam;
         }
     };
@@ -1218,16 +1218,16 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                     {/* View Mode Dropdown - Right Side */}
                     <div className="flex items-center gap-2">
                         {/* Contributors Button */}
-                        <motion.button
+                    <motion.button
                             onClick={() => handleViewModeChange('contributors')}
                             className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 ${
                                 viewMode === 'contributors' 
-                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
-                                    : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                             }`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
                             <TrendingUp className="mr-1 h-4 w-4" />
                             Contributors
                         </motion.button>
@@ -1247,7 +1247,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         </>
                                     ) : viewMode === 'table' ? (
                                         <>
-                                            <TableIcon className="mr-1 h-4 w-4" />
+                        <TableIcon className="mr-1 h-4 w-4" />
                                             Table View
                                         </>
                                     ) : (
@@ -1257,7 +1257,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         </>
                                     )}
                                     <ChevronDown className="ml-1 h-4 w-4" />
-                                </motion.button>
+                    </motion.button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="bg-[#19191A] border-gray-700">
                                 <DropdownMenuItem
@@ -1414,12 +1414,12 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
 
                             {/* View Mode Dropdown */}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <motion.button
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <motion.button
                                         className="px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                     >
                                         {viewMode === 'card' ? (
                                             <>
@@ -1438,9 +1438,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                             </>
                                         )}
                                         <ChevronDown className="ml-1 h-4 w-4" />
-                                    </motion.button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                </motion.button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
                                     <DropdownMenuItem
                                         className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
                                         onClick={(e) => {
@@ -1469,8 +1469,8 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                             Table View
                                         </div>
                                     </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                         </div>
                     </div>
                 </div>
@@ -2146,7 +2146,7 @@ export default function ConsensusPage() {
                     >
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 text-left" onClick={() => handleSort('Rank')}>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Rank')}>
                                     Rank
                                     {sortConfig?.key === 'Rank' && (
                                         <span className="ml-1">
@@ -2154,7 +2154,7 @@ export default function ConsensusPage() {
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 text-left" onClick={() => handleSort('Name')}>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Name')}>
                                     Name
                                     {sortConfig?.key === 'Name' && (
                                         <span className="ml-1">
@@ -2178,7 +2178,7 @@ export default function ConsensusPage() {
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 text-center whitespace-nowrap" onClick={() => handleSort('Pre-NBA')}>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap" onClick={() => handleSort('Pre-NBA')}>
                                     Pre-NBA
                                     {sortConfig?.key === 'Pre-NBA' && (
                                         <span className="ml-1">
@@ -2194,7 +2194,7 @@ export default function ConsensusPage() {
                                         </span>
                                     )}
                                 </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap text-center" onClick={() => handleSort('NBA Team')}>
+                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap" onClick={() => handleSort('NBA Team')}>
                                     NBA Team
                                     {sortConfig?.key === 'NBA Team' && (
                                         <span className="ml-1">
@@ -2290,23 +2290,23 @@ export default function ConsensusPage() {
                                         key={prospect.Name}
                                         className="hover:bg-gray-800/20"
                                     >
-                                    <TableCell className="font-medium text-gray-300 text-center">{prospect['Rank']}</TableCell>
-                                    <TableCell className="font-medium text-gray-300 text-left whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">{prospect.Name}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['Actual Pick']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect.Role}</TableCell>
-                                        <TableCell className="text-gray-300 text-center whitespace-nowrap">{prospect['Pre-NBA']}</TableCell>
-                                        <TableCell className="text-gray-300 text-center">{prospect.Age}</TableCell>
-                                    <TableCell className="text-gray-300 text-center whitespace-nowrap">{prospect['NBA Team']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['SCORE']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['MEAN']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['MEDIAN']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['MODE']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['HIGH']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['LOW']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['RANGE']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['STDEV']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['COUNT']}</TableCell>
-                                    <TableCell className="text-gray-300 text-center">{prospect['Inclusion Rate']}</TableCell>
+                                    <TableCell className="font-medium text-gray-300">{prospect['Rank']}</TableCell>
+                                    <TableCell className="font-medium text-gray-300 whitespace-nowrap">{prospect.Name}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['Actual Pick']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect.Role}</TableCell>
+                                        <TableCell className="text-gray-300 whitespace-nowrap">{prospect['Pre-NBA']}</TableCell>
+                                        <TableCell className="text-gray-300">{prospect.Age}</TableCell>
+                                    <TableCell className="text-gray-300 whitespace-nowrap">{prospect['NBA Team']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['SCORE']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['MEAN']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['MEDIAN']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['MODE']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['HIGH']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['LOW']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['RANGE']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['STDEV']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['COUNT']}</TableCell>
+                                    <TableCell className="text-gray-300">{prospect['Inclusion Rate']}</TableCell>
                                     </TableRow>
                             ))}
                         </TableBody>

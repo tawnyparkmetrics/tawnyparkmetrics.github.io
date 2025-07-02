@@ -939,9 +939,8 @@ export default function NickDraftPage() {
     // Helper function to get draft display text for table
     const getTableDraftText = (prospect: DraftProspect) => {
       const actualPick = prospect['Actual Pick'];
-      const team = prospect['NBA Team'];
       if (actualPick && actualPick.trim() !== '') {
-        return `${actualPick} - ${team}`;
+        return actualPick;
       } else {
         return Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick'];
       }
@@ -1061,7 +1060,7 @@ export default function NickDraftPage() {
                       {getTableDraftText(prospect)}
                     </TableCell>
                     <TableCell className="text-gray-300">
-                      {teamNames[prospect['NBA Team']] || prospect['NBA Team']}
+                      {prospect['NBA Team']}
                     </TableCell>
                     <TableCell className="text-gray-300">{prospect.Height}</TableCell>
                     <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>

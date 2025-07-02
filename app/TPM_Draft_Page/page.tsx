@@ -178,6 +178,40 @@ const teamNames: { [key: string]: string } = {
   "NCAA": "NC"
 }
 
+// Reverse mapping for 2024 data (abbreviation to full name)
+const teamNamesReverse: { [key: string]: string } = {
+  "CHA": "Charlotte Hornets",
+  "GSW": "Golden State Warriors",
+  "LAL": "Los Angeles Lakers",
+  "LAC": "Los Angeles Clippers",
+  "BOS": "Boston Celtics",
+  "MIA": "Miami Heat",
+  "CHI": "Chicago Bulls",
+  "DAL": "Dallas Mavericks",
+  "PHX": "Phoenix Suns",
+  "MIL": "Milwaukee Bucks",
+  "WAS": "Washington Wizards",
+  "HOU": "Houston Rockets",
+  "MEM": "Memphis Grizzlies",
+  "SAC": "Sacramento Kings",
+  "OKC": "Oklahoma City Thunder",
+  "NYK": "Brooklyn Nets",
+  "SAS": "San Antonio Spurs",
+  "IND": "Indiana Pacers",
+  "TOR": "Toronto Raptors",
+  "NOP": "New Orleans Pelicans",
+  "ATL": "Atlanta Hawks",
+  "PHI": "Philadelphia 76ers",
+  "DET": "Detroit Pistons",
+  "ORL": "Orlando Magic",
+  "MIN": "Minnesota Timberwolves",
+  "UTA": "Utah Jazz",
+  "DEN": "Denver Nuggets",
+  "POR": "Portland Trailblazers",
+  "CLE": "Cleveland Cavaliers",
+  "NC": "NCAA"
+}
+
 // ALL GRAPHING NECESSITIES ARE HERE
 interface EPMModelProps {
   isOpen: boolean;
@@ -241,7 +275,7 @@ const TimelineFilter = ({
   const getYearSortKeys = () => {
     if (selectedYear === 2025) {
       return [
-        { key: 'Rank', label: 'Consensus' }, // Changed from 'Rank' to 'Consensus'
+        { key: 'Rank', label: 'Draft Order' }, // Changed from 'Rank' to 'Consensus'
         { key: 'Pred. Y1 Rank', label: 'Y1' },
         { key: 'Pred. Y2 Rank', label: 'Y2' },
         { key: 'Pred. Y3 Rank', label: 'Y3' },
@@ -282,7 +316,7 @@ const TimelineFilter = ({
     };
 
     if (selectedYear === 2025) {
-      baseLabels['Rank'] = 'Consensus';
+      baseLabels['Rank'] = 'Draft Order';
     } else {
       baseLabels['Actual Pick'] = 'Draft Order';
     }
@@ -1706,15 +1740,27 @@ const ProspectCard: React.FC<{
         return team;
       }
     }
-    // ...rest of function (2024 logic)
-    const pickPrefix = Number(prospect['Actual Pick']) >= 59 ? "UDFA - " : `${prospect['Actual Pick']} - `;
-    const teamName = pickPrefix + (isMobileView ? (teamNames[prospect.NBA] || prospect.NBA) : prospect.NBA);
-    if (isMobileView) {
-      return Object.keys(draftShort).reduce((name, longName) => {
-        return name.replace(longName, draftShort[longName]);
-      }, teamName);
+    // 2024 logic - make it consistent with 2025
+    const actualPick = prospect['Actual Pick'];
+    const team = isMobileView ? (teamNames[prospect.NBA] || prospect.NBA) : (teamNamesReverse[prospect.NBA] || prospect.NBA);
+    if (actualPick && actualPick.trim() !== '') {
+      // Show "Pick - Team"
+      const pickTeam = `${actualPick} - ${team}`;
+      if (isMobileView) {
+        return Object.keys(draftShort).reduce((name, longName) => {
+          return name.replace(longName, draftShort[longName]);
+        }, pickTeam);
+      }
+      return pickTeam;
+    } else {
+      // Show just the team
+      if (isMobileView) {
+        return Object.keys(draftShort).reduce((name, longName) => {
+          return name.replace(longName, draftShort[longName]);
+        }, team);
+      }
+      return team;
     }
-    return teamName;
   };
 
   // First, extract the complex expression to a variable
@@ -2420,7 +2466,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 <TableCell className="text-gray-300">{prospect.Role}</TableCell>
                 <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
                 <TableCell className="text-gray-300">
-                  {Number(prospect['Actual Pick']) >= 59 ? "Undrafted" : prospect['Actual Pick']}
+                  {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
                 </TableCell>
                 <TableCell className="text-gray-300">
                   {prospect['NBA Team']}
