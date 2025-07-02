@@ -82,39 +82,6 @@ const draftShort: { [key: string]: string } = {
     "Portsmouth Invitational": "P.I.T."
 }
 
-const teamNames: { [key: string]: string } = {
-    "Charlotte Hornets": "CHA",
-    "Golden State Warriors": "GSW",
-    "Los Angeles Lakers": "LAL",
-    "Los Angeles Clippers": "LAC",
-    "Boston Celtics": "BOS",
-    "Miami Heat": "MIA",
-    "Chicago Bulls": "CHI",
-    "Dallas Mavericks": "DAL",
-    "Phoenix Suns": "PHX",
-    "Milwaukee Bucks": "MIL",
-    "Washington Wizards": "WAS",
-    "Houston Rockets": "HOU",
-    "Memphis Grizzlies": "MEM",
-    "Sacramento Kings": "SAC",
-    "Oklahoma City Thunder": "OKC",
-    "Brooklyn Nets": "NYK",
-    "San Antonio Spurs": "SAS",
-    "Indiana Pacers": "IND",
-    "Toronto Raptors": "TOR",
-    "New Orleans Pelicans": "NOP",
-    "Atlanta Hawks": "ATL",
-    "Philadelphia 76ers": "PHI",
-    "Detroit Pistons": "DET",
-    "Orlando Magic": "ORL",
-    "Minnesota Timberwolves": "MIN",
-    "Utah Jazz": "UTA",
-    "Denver Nuggets": "DEN",
-    "Portland Trailblazers": "POR",
-    "Cleveland Cavaliers": "CLE",
-    "NCAA": "NC"
-  }
-
 const NBATeamLogo = ({ NBA }: { NBA: string }) => {
     const [logoError, setNBALogoError] = useState(false);
     const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
