@@ -105,6 +105,52 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
     );
 };
 
+const PreNBALogo = ({ preNBA }: { preNBA: string }) => {
+    const [logoError, setPreNBALogoError] = useState(false);
+    const teamLogoUrl = `/prenba_logos/${preNBA}.png`;
+
+    if (logoError) {
+        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
+            <span className="text-xs text-gray-400">{preNBA}</span>
+        </div>;
+    }
+
+    return (
+        <div className="h-6 w-6 relative">
+            <Image
+                src={teamLogoUrl}
+                alt={`${preNBA} logo`}
+                fill
+                className="object-contain"
+                onError={() => setPreNBALogoError(true)}
+            />
+        </div>
+    );
+};
+
+const TableTeamLogo = ({ NBA }: { NBA: string }) => {
+    const [logoError, setNBALogoError] = useState(false);
+    const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
+
+    if (logoError) {
+        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
+            <span className="text-xs text-gray-400">{NBA}</span>
+        </div>;
+    }
+
+    return (
+        <div className="h-6 w-6 relative">
+            <Image
+                src={teamLogoUrl}
+                alt={`${NBA} logo`}
+                fill
+                className="object-contain"
+                onError={() => setNBALogoError(true)}
+            />
+        </div>
+    );
+};
+
 const tierColors: { [key: string]: string } = {
     '10': '#FF66C4',
     '9': '#E9A2FF',
@@ -1527,7 +1573,12 @@ export default function AndreDraftPage() {
                                         <TableCell className="text-gray-300">{originalRank}</TableCell>
                                         <TableCell className="font-medium text-gray-300 whitespace-nowrap">{prospect.Name}</TableCell>
                                         <TableCell className="text-gray-300">{prospect.Role}</TableCell>
-                                        <TableCell className="text-gray-300 whitespace-nowrap">{prospect['Pre-NBA']}</TableCell>
+                                        <TableCell className="text-gray-300 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <PreNBALogo preNBA={prospect['Pre-NBA']} />
+                                                <span>{prospect['Pre-NBA']}</span>
+                                            </div>
+                                        </TableCell>
                                         <TableCell className="text-gray-300 whitespace-nowrap">
                                             {(() => {
                                                 const actualPick = prospect['Actual Pick'];
@@ -1539,7 +1590,10 @@ export default function AndreDraftPage() {
                                             })()}
                                         </TableCell>
                                         <TableCell className="text-gray-300 whitespace-nowrap">
-                                            {prospect['NBA Team']}
+                                            <div className="flex items-center gap-2">
+                                                <TableTeamLogo NBA={prospect['NBA Team']} />
+                                                <span>{prospect['NBA Team']}</span>
+                                            </div>
                                         </TableCell>
                                         <TableCell className="text-gray-300">{prospect.Age}</TableCell>
                                         <TableCell className="text-gray-300">{prospect.Height}</TableCell>

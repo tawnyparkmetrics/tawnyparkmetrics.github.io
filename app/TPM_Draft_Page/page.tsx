@@ -952,6 +952,52 @@ const NBATeamLogo = ({ NBA }: { NBA: string }) => {
   );
 };
 
+const PreNBALogo = ({ preNBA }: { preNBA: string }) => {
+  const [logoError, setPreNBALogoError] = useState(false);
+  const teamLogoUrl = `/prenba_logos/${preNBA}.png`;
+
+  if (logoError) {
+    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
+      <span className="text-xs text-gray-400">{preNBA}</span>
+    </div>;
+  }
+
+  return (
+    <div className="h-6 w-6 relative">
+      <Image
+        src={teamLogoUrl}
+        alt={`${preNBA} logo`}
+        fill
+        className="object-contain"
+        onError={() => setPreNBALogoError(true)}
+      />
+    </div>
+  );
+};
+
+const TableTeamLogo = ({ NBA }: { NBA: string }) => {
+  const [logoError, setNBALogoError] = useState(false);
+  const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
+
+  if (logoError) {
+    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
+      <span className="text-xs text-gray-400">{NBA}</span>
+    </div>;
+  }
+
+  return (
+    <div className="h-6 w-6 relative">
+      <Image
+        src={teamLogoUrl}
+        alt={`${NBA} logo`}
+        fill
+        className="object-contain"
+        onError={() => setNBALogoError(true)}
+      />
+    </div>
+  );
+};
+
 const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
@@ -2331,7 +2377,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
           <TableHeader>
             <TableRow>
               <TableHead
-                className={`text-gray-400 cursor-pointer hover:text-gray-200`}
+                className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap`}
                 onClick={() => handleSort('Rank')}
               >
                 Rank
@@ -2342,7 +2388,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 )}
               </TableHead>
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Name')}
               >
                 Name
@@ -2353,7 +2399,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 )}
               </TableHead>
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Role')}
               >
                 Position
@@ -2364,7 +2410,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 )}
               </TableHead>
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Pre-NBA')}
               >
                 Pre-NBA
@@ -2375,7 +2421,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 )}
               </TableHead>
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Actual Pick')}
               >
                 Draft Pick
@@ -2386,7 +2432,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 )}
               </TableHead>
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('NBA Team')}
               >
                 NBA Team
@@ -2398,7 +2444,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
               </TableHead>
 
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Tier')}
               >
                 Tier
@@ -2410,7 +2456,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
               </TableHead>
 
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Height')}
               >
                 Height
@@ -2421,7 +2467,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 )}
               </TableHead>
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Weight (lbs)')}
               >
                 Weight
@@ -2432,7 +2478,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 )}
               </TableHead>
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Wing - Height')}
               >
                 Wing - Height
@@ -2443,7 +2489,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 )}
               </TableHead>
               <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200"
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Age')}
               >
                 Age
@@ -2462,16 +2508,24 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 className="hover:bg-gray-800/20"
               >
                 <TableCell className="text-gray-300">{getOriginalRank(prospect)}</TableCell>
-                <TableCell className="font-medium text-gray-300">{prospect.Name}</TableCell>
+                <TableCell className="font-medium text-gray-300 whitespace-nowrap">{prospect.Name}</TableCell>
                 <TableCell className="text-gray-300">{prospect.Role}</TableCell>
-                <TableCell className="text-gray-300">{prospect['Pre-NBA']}</TableCell>
+                <TableCell className="text-gray-300 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <PreNBALogo preNBA={prospect['Pre-NBA']} />
+                    <span>{prospect['Pre-NBA']}</span>
+                  </div>
+                </TableCell>
                 <TableCell className="text-gray-300">
                   {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
                 </TableCell>
-                <TableCell className="text-gray-300">
-                  {prospect['NBA Team']}
+                <TableCell className="text-gray-300 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <TableTeamLogo NBA={prospect['NBA Team']} />
+                    <span>{prospect['NBA Team']}</span>
+                  </div>
                 </TableCell>
-                <TableCell className="text-gray-300">{prospect['Tier']}</TableCell>
+                <TableCell className="text-gray-300 whitespace-nowrap">{prospect['Tier']}</TableCell>
                 <TableCell className="text-gray-300">{prospect.Height}</TableCell>
                 <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
                 <TableCell className="text-gray-300">{prospect['Wing - Height']}</TableCell>
