@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Image from 'next/image';
-import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { LucideUser, X, ChevronDown, SlidersHorizontal, Check, Settings } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 // import Link from 'next/link';
 import { Search, TrendingUp, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
@@ -293,12 +293,12 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     useEffect(() => {
         if (prospect.Name === 'Cooper Flagg') {
             console.log(`Data Analysis for ${prospect.Name}:`, analyzeDataValidity);
-            
+
             if (analyzeDataValidity.invalidContributors.length > 0) {
                 console.log(`Invalid contributors for ${prospect.Name}:`, analyzeDataValidity.invalidContributors);
                 console.log(`Invalid values for ${prospect.Name}:`, analyzeDataValidity.invalidValues);
             }
-            
+
             if (analyzeDataValidity.emptyContributors.length > 0) {
                 console.log(`Empty contributors for ${prospect.Name}:`, analyzeDataValidity.emptyContributors);
             }
@@ -315,9 +315,9 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         // Collect all valid picks - exclude 'Name' column and count all other columns
         Object.entries(consensusData)
             .filter(([key]) => key !== "Name")
-            .forEach(([,value]) => {
+            .forEach(([, value]) => {
                 totalContributors++;
-                
+
                 // Handle different value types more robustly
                 let pick: number;
                 if (typeof value === "number") {
@@ -352,13 +352,13 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
 
         // Special handling for prospects with single consensus pick (like Cooper Flagg at #1)
         const isConsensusPick = minPick === maxPick;
-        
+
         if (isConsensusPick) {
             // Create a small range around the consensus pick for better visualization
             const consensusPick = minPick;
             const startRange = Math.max(1, consensusPick - 1);
             const endRange = Math.min(60, consensusPick + 1);
-            
+
             return Array.from({ length: endRange - startRange + 1 }, (_, i) => ({
                 pick: startRange + i,
                 count: counts[startRange + i] || 0,
@@ -376,7 +376,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     // Use team color or fallback to blue
     const teamColor =
         typeof prospect['Team Color'] === 'string' &&
-        /^#[0-9A-Fa-f]{6}$/.test(prospect['Team Color'])
+            /^#[0-9A-Fa-f]{6}$/.test(prospect['Team Color'])
             ? prospect['Team Color']
             : '#60A5FA';
 
@@ -393,7 +393,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         }
 
         const data = payload[0];
-    return (
+        return (
             <div className="bg-[#19191A] border border-gray-700 rounded-lg p-3 shadow-lg">
                 <div className="text-sm text-gray-300 mb-1">
                     <span className="font-semibold">Rank:</span> {label}
@@ -408,36 +408,36 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     return (
         <div>
             <ChartContainer config={{ count: { color: teamColor, label: "Frequency" } }}>
-            <AreaChart data={histogramData}>
-                <defs>
+                <AreaChart data={histogramData}>
+                    <defs>
                         <linearGradient id={`areaGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
                             <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
-                    </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="0" stroke="#333" strokeOpacity={0.2} horizontal={true} vertical={false} />
-                    <XAxis 
-                        dataKey="pick" 
-                        tick={{ fill: "#ccc", fontSize: 12 }} 
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="0" stroke="#333" strokeOpacity={0.2} horizontal={true} vertical={false} />
+                    <XAxis
+                        dataKey="pick"
+                        tick={{ fill: "#ccc", fontSize: 12 }}
                         domain={['dataMin', 'dataMax']}
                         type="number"
                         scale="linear"
                     />
-                    <YAxis 
-                        tick={{ fill: "#ccc", fontSize: 12 }} 
+                    <YAxis
+                        tick={{ fill: "#ccc", fontSize: 12 }}
                         allowDecimals={false}
                         domain={[0, 'dataMax']}
                     />
-                <Area
-                    type="monotone"
-                    dataKey="count"
+                    <Area
+                        type="monotone"
+                        dataKey="count"
                         stroke={teamColor}
                         fill={`url(#areaGradient-${prospect.Name.replace(/\s/g, '')})`}
-                    isAnimationActive={false}
-                />
+                        isAnimationActive={false}
+                    />
                     <ChartTooltip content={<CustomHistogramTooltip />} />
-            </AreaChart>
-        </ChartContainer>
+                </AreaChart>
+            </ChartContainer>
         </div>
     );
 };
@@ -468,10 +468,10 @@ interface BarShapeProps {
 const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
     prospect,
 }) => {
-    
+
     const teamColor =
         typeof prospect['Team Color'] === 'string' &&
-        /^#[0-9A-Fa-f]{6}$/.test(prospect['Team Color'])
+            /^#[0-9A-Fa-f]{6}$/.test(prospect['Team Color'])
             ? prospect['Team Color']
             : '#60A5FA';
 
@@ -495,16 +495,16 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
         ];
 
         console.log('Graph range values:', ranges.map(r => ({ label: r.label, value: r.value }))); // Debug log
-        
+
         // Filter out ranges with 0 values and convert to percentages
         return ranges
             .filter(item => item.value > 0)
             .map(item => ({
-            range: item.range,
-            value: item.value,
-            label: item.label,
+                range: item.range,
+                value: item.value,
+                label: item.label,
                 percentage: Math.round(item.value * 100) // Convert decimal to percentage
-        }));
+            }));
     }, [prospect]);
 
     // Custom bar shape to avoid bottom stroke
@@ -789,7 +789,7 @@ const ProspectCard: React.FC<{
             : teamName;
         if (actualPick && actualPick.trim() !== '') {
             return `${actualPick} - ${displayTeam}`;
-            } else {
+        } else {
             return displayTeam;
         }
     };
@@ -813,7 +813,7 @@ const ProspectCard: React.FC<{
             const parsed = parseFloat(value.trim());
             return isNaN(parsed) ? 0 : parsed;
         };
-    
+
         const ranges = [
             { label: 'Picks 1-3', value: safeParseFloat(prospect['1 - 3']) },
             { label: 'Picks 4-14', value: safeParseFloat(prospect['4 - 14']) },
@@ -821,9 +821,9 @@ const ProspectCard: React.FC<{
             { label: 'Picks 31-59', value: safeParseFloat(prospect['31 - 59']) },
             { label: 'Undrafted', value: safeParseFloat(prospect['Undrafted']) },
         ];
-    
+
         console.log('Range values:', ranges.map(r => ({ label: r.label, value: r.value }))); // Debug log
-        
+
         // Convert decimal to percentage and return
         return ranges.map(item => ({
             label: item.label,
@@ -1128,14 +1128,14 @@ const ProspectCard: React.FC<{
                                         /* Original Consensus Tables */
                                         <div className="space-y-0 px-2 pt-0 mt-[-8px]">
                                             {consensusTableData.map((item, index) => (
-                                                    <div
-                                                        key={item.label}
+                                                <div
+                                                    key={item.label}
                                                     className={`flex justify-between items-center py-2 ${index !== consensusTableData.length - 1 ? 'border-b border-gray-700/50' : ''}`}
-                                                    >
+                                                >
                                                     <span className="font-bold text-white text-sm">{item.label}</span>
                                                     <span className="text-gray-300 text-sm">{item.value}</span>
-                                                    </div>
-                                                ))}
+                                                </div>
+                                            ))}
                                         </div>
                                     )}
                                 </div>
@@ -1177,9 +1177,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     const handleViewModeChange = useCallback((mode: 'card' | 'table' | 'contributors') => {
         console.log('handleViewModeChange called with:', mode);
         console.log('Current viewMode before change:', viewMode);
-        
+
         setViewMode(mode);
-        
+
         // Call parent callback immediately
         if (onViewModeChange) {
             console.log('Calling onViewModeChange with:', mode);
@@ -1264,16 +1264,15 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                     {/* View Mode Dropdown - Right Side */}
                     <div className="flex items-center gap-2">
                         {/* Contributors Button */}
-                    <motion.button
+                        <motion.button
                             onClick={() => handleViewModeChange('contributors')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 ${
-                                viewMode === 'contributors' 
-                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                            }`}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
+                            className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 ${viewMode === 'contributors'
+                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                    : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                }`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
                             <TrendingUp className="mr-1 h-4 w-4" />
                             Contributors
                         </motion.button>
@@ -1293,7 +1292,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         </>
                                     ) : viewMode === 'table' ? (
                                         <>
-                        <TableIcon className="mr-1 h-4 w-4" />
+                                            <TableIcon className="mr-1 h-4 w-4" />
                                             Table View
                                         </>
                                     ) : (
@@ -1303,7 +1302,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         </>
                                     )}
                                     <ChevronDown className="ml-1 h-4 w-4" />
-                    </motion.button>
+                                </motion.button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="bg-[#19191A] border-gray-700">
                                 <DropdownMenuItem
@@ -1447,11 +1446,10 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             {/* Contributors Button */}
                             <motion.button
                                 onClick={() => handleViewModeChange('contributors')}
-                                className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 ${
-                                    viewMode === 'contributors' 
-                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                                className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 ${viewMode === 'contributors'
+                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                                         : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                }`}
+                                    }`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -1460,12 +1458,12 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
 
                             {/* View Mode Dropdown */}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <motion.button
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <motion.button
                                         className="px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
                                     >
                                         {viewMode === 'card' ? (
                                             <>
@@ -1484,9 +1482,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                             </>
                                         )}
                                         <ChevronDown className="ml-1 h-4 w-4" />
-                                </motion.button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    </motion.button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
                                     <DropdownMenuItem
                                         className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
                                         onClick={(e) => {
@@ -1515,8 +1513,8 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                             Table View
                                         </div>
                                     </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
                 </div>
@@ -1720,15 +1718,150 @@ const ContributorsView: React.FC<{ searchQuery?: string }> = ({ searchQuery }) =
                                     <span className="text-blue-400 font-semibold text-sm group-hover:text-blue-300">
                                         {index + 1}
                                     </span>
-                    </div>
+                                </div>
                                 <span className="text-gray-300 font-medium group-hover:text-white transition-colors">
                                     {contributor}
                                 </span>
-                </div>
+                            </div>
                         </a>
                     ))}
+                </div>
             </div>
-            </div>
+        </div>
+    );
+};
+
+// Add new interface for column configuration
+interface ColumnConfig {
+    key: keyof DraftProspect | 'Rank';
+    label: string;
+    category: 'Player Information' | 'Consensus Information' | 'Range Consensus Information';
+    visible: boolean;
+    sortable: boolean;
+}
+
+// Update column selector component with proper event handling
+const ColumnSelector: React.FC<{
+    columns: ColumnConfig[];
+    onColumnsChange: (columns: ColumnConfig[]) => void;
+    isOpen: boolean;
+    onToggle: () => void;
+}> = ({ columns, onColumnsChange, isOpen, onToggle }) => {
+    const handleToggleColumn = useCallback((key: string) => {
+        const updatedColumns = columns.map(col => 
+            col.key === key ? { ...col, visible: !col.visible } : col
+        );
+        onColumnsChange(updatedColumns);
+    }, [columns, onColumnsChange]);
+
+    const handleToggleCategory = useCallback((category: string) => {
+        const categoryColumns = columns.filter(col => col.category === category);
+        const allVisible = categoryColumns.every(col => col.visible);
+        
+        const updatedColumns = columns.map(col => 
+            col.category === category ? { ...col, visible: !allVisible } : col
+        );
+        onColumnsChange(updatedColumns);
+    }, [columns, onColumnsChange]);
+
+    const categories = ['Player Information', 'Consensus Information', 'Range Consensus Information'] as const;
+
+    return (
+        <div className="mb-4">
+            {/* Toggle Button - styled to match page background */}
+            <button
+                onClick={onToggle}
+                className="w-full flex items-center justify-between px-4 py-3 bg-[#19191A] border border-gray-800 rounded-lg text-gray-400 hover:border-gray-700 transition-colors"
+            >
+                <div className="flex items-center gap-2">
+                    <motion.div
+                        animate={{ rotate: isOpen ? 180 : 0 }}
+                        transition={{ 
+                            duration: 0.4, 
+                            ease: "easeInOut",
+                            delay: isOpen ? 0 : 0.1
+                        }}
+                    >
+                        <Settings className="h-4 w-4" />
+                    </motion.div>
+                    <span className="font-medium">Customize Table Columns</span>
+                </div>
+                <motion.div
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ 
+                        duration: 0.4, 
+                        ease: "easeInOut",
+                        delay: isOpen ? 0 : 0.1
+                    }}
+                >
+                    <ChevronDown className="h-4 w-4" />
+                </motion.div>
+            </button>
+
+            {/* Collapsible Content - styled with matching background color */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ 
+                            duration: 0.3,
+                            ease: "easeInOut"
+                        }}
+                        className="overflow-hidden"
+                    >
+                        <div className="bg-[#19191A] border border-gray-800 rounded-lg p-4 mt-2">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {categories.map(category => {
+                                    const categoryColumns = columns.filter(col => col.category === category);
+                                    const visibleCount = categoryColumns.filter(col => col.visible).length;
+                                    const totalCount = categoryColumns.length;
+                                    
+                                    return (
+                                        <div key={category} className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="text-gray-400 font-medium text-sm">{category}</h4>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        handleToggleCategory(category);
+                                                    }}
+                                                    className="text-xs text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-gray-800/50 transition-colors"
+                                                >
+                                                    {visibleCount === totalCount ? 'Hide All' : 'Show All'}
+                                                </button>
+                                            </div>
+                                            <div className="space-y-2">
+                                                {categoryColumns.map(column => (
+                                                    <label
+                                                        key={column.key}
+                                                        className="flex items-center gap-3 p-2 rounded hover:bg-gray-800/50 cursor-pointer transition-colors"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            handleToggleColumn(column.key);
+                                                        }}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={column.visible}
+                                                            onChange={() => {}} // Controlled by label click
+                                                            className="w-4 h-4 text-gray-300 bg-gray-800 border-gray-600 rounded focus:ring-gray-500 focus:ring-2 pointer-events-none"
+                                                        />
+                                                        <span className="text-gray-400 text-sm">{column.label}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
@@ -1749,6 +1882,42 @@ export default function ConsensusPage() {
     const [selectedSortKey,] = useState<string>('Actual Pick');
     const tableContainerRef = useRef<HTMLDivElement>(null);
     const [contributorSearch, setContributorSearch] = useState('');
+    const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
+    
+    // Define column configuration with only specific columns visible by default
+    const [columns, setColumns] = useState<ColumnConfig[]>([
+        // Player Information
+        { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
+        { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
+        
+        // Consensus Information
+        { key: 'SCORE', label: 'Score', category: 'Consensus Information', visible: true, sortable: true },
+        { key: 'MEAN', label: 'Mean', category: 'Consensus Information', visible: true, sortable: true },
+        { key: 'MEDIAN', label: 'Median', category: 'Consensus Information', visible: true, sortable: true },
+        { key: 'MODE', label: 'Mode', category: 'Consensus Information', visible: true, sortable: true },
+        { key: 'HIGH', label: 'High', category: 'Consensus Information', visible: false, sortable: true },
+        { key: 'LOW', label: 'Low', category: 'Consensus Information', visible: false, sortable: true },
+        { key: 'RANGE', label: 'Range', category: 'Consensus Information', visible: false, sortable: true },
+        { key: 'STDEV', label: 'StDev', category: 'Consensus Information', visible: false, sortable: true },
+        { key: 'COUNT', label: 'Count', category: 'Consensus Information', visible: false, sortable: true },
+        { key: 'Inclusion Rate', label: 'Inclusion Rate', category: 'Consensus Information', visible: false, sortable: true },
+        
+        // Range Consensus Info
+        { key: '1 - 3', label: 'Picks 1-3', category: 'Range Consensus Information', visible: false, sortable: true },
+        { key: '4 - 14', label: 'Picks 4-14', category: 'Range Consensus Information', visible: false, sortable: true },
+        { key: '15 - 30', label: 'Picks 15-30', category: 'Range Consensus Information', visible: false, sortable: true },
+        { key: '31 - 59', label: 'Picks 31-59', category: 'Range Consensus Information', visible: false, sortable: true },
+        { key: 'Undrafted', label: 'Undrafted', category: 'Range Consensus Information', visible: false, sortable: true },
+    ]);
 
     useEffect(() => {
         document.title = 'Consensus & NBA Draft Board';
@@ -1833,11 +2002,11 @@ export default function ConsensusPage() {
 
         console.log('=== GLOBAL DATA VALIDITY ANALYSIS ===');
         console.log('Global Analysis:', globalAnalysis);
-        
+
         if (globalAnalysis.problematicContributors.length > 0) {
             console.log('Problematic Contributors (>10% issues):', globalAnalysis.problematicContributors);
         }
-        
+
         if (globalAnalysis.problematicProspects.length > 0) {
             console.log('Problematic Prospects (>10% issues):', globalAnalysis.problematicProspects);
         }
@@ -1876,20 +2045,20 @@ export default function ConsensusPage() {
                         setFilteredProspects(prospectData);
 
                         const consensusMap: Record<string, ConsensusColumns> = {};
-                        
+
                         // Interface for raw CSV row data
                         interface CSVRow {
                             Name: string;
                             [key: string]: string | number;
                         }
-                        
+
                         // Helper function to safely convert CSV values to numbers
                         const safeParseInt = (value: string | number): number => {
                             if (typeof value === 'number') return value;
                             if (typeof value === 'string') return parseInt(value) || 0;
                             return 0;
                         };
-                        
+
                         for (const row of results.data as CSVRow[]) {
                             if (!row.Name) continue;
                             const consensus: ConsensusColumns = {
@@ -2127,18 +2296,18 @@ export default function ConsensusPage() {
             if (sortConfig.key === 'Actual Pick') {
                 const aValue = a['Actual Pick'];
                 const bValue = b['Actual Pick'];
-                
+
                 // Check if values are empty
                 const aEmpty = !aValue || aValue.trim() === '';
                 const bEmpty = !bValue || bValue.trim() === '';
-                
+
                 // If both are empty, maintain original order
                 if (aEmpty && bEmpty) return 0;
-                
+
                 // If only one is empty, put empty values at the end
                 if (aEmpty && !bEmpty) return 1;
                 if (!aEmpty && bEmpty) return -1;
-                
+
                 // Both have values, sort numerically (reverse order - smallest first)
                 const aNum = parseInt(aValue) || 0;
                 const bNum = parseInt(bValue) || 0;
@@ -2182,8 +2351,46 @@ export default function ConsensusPage() {
         prospects: DraftProspect[],
         rank: Record<string, RankType>
     }) => {
+        const visibleColumns = columns.filter(col => col.visible);
+
+        const renderCell = (prospect: DraftProspect, column: ColumnConfig) => {
+            switch (column.key) {
+                case 'Pre-NBA':
+                    return (
+                        <div className="flex items-center gap-2">
+                            <PreNBALogo preNBA={prospect['Pre-NBA']} />
+                            <span>{prospect['Pre-NBA']}</span>
+                        </div>
+                    );
+                case 'NBA Team':
+                    return (
+                        <div className="flex items-center gap-2">
+                            <TableTeamLogo team={prospect['NBA Team']} />
+                            <span>{prospect['NBA Team']}</span>
+                        </div>
+                    );
+                case '1 - 3':
+                case '4 - 14':
+                case '15 - 30':
+                case '31 - 59':
+                case 'Undrafted':
+                    const value = prospect[column.key];
+                    return value ? `${Math.round(Number(value) * 100)}%` : '0%';
+                default:
+                    return prospect[column.key as keyof DraftProspect];
+            }
+        };
+
         return (
-            <div className="max-w-6xl mx-auto px-4 pt-8">
+            <div className="max-w-6xl mx-auto px-4 pt-0">
+                {/* Column Selector - now a collapsible dropdown */}
+                <ColumnSelector
+                    columns={columns}
+                    onColumnsChange={setColumns}
+                    isOpen={columnSelectorOpen}
+                    onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
+                />
+
                 <div
                     ref={tableContainerRef}
                     className="w-full bg-[#19191A] rounded-lg border border-gray-800 overflow-x-auto">
@@ -2192,178 +2399,37 @@ export default function ConsensusPage() {
                     >
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Rank')}>
-                                    Rank
-                                    {sortConfig?.key === 'Rank' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Name')}>
-                                    Name
-                                    {sortConfig?.key === 'Name' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap" onClick={() => handleSort('Actual Pick')}>
-                                    Draft Pick
-                                    {sortConfig?.key === 'Actual Pick' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Role')}>
-                                    Role
-                                    {sortConfig?.key === 'Role' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap" onClick={() => handleSort('Pre-NBA')}>
-                                    Pre-NBA
-                                    {sortConfig?.key === 'Pre-NBA' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('Age')}>
-                                    Age
-                                    {sortConfig?.key === 'Age' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap" onClick={() => handleSort('NBA Team')}>
-                                    NBA Team
-                                    {sortConfig?.key === 'NBA Team' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('SCORE')}>
-                                    Score
-                                    {sortConfig?.key === 'SCORE' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('MEAN')}>
-                                    Mean
-                                    {sortConfig?.key === 'MEAN' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('MEDIAN')}>
-                                    Median
-                                    {sortConfig?.key === 'MEDIAN' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('MODE')}>
-                                    Mode
-                                    {sortConfig?.key === 'MODE' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('HIGH')}>
-                                    High
-                                    {sortConfig?.key === 'HIGH' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('LOW')}>
-                                    Low
-                                    {sortConfig?.key === 'LOW' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('RANGE')}>
-                                    Range
-                                    {sortConfig?.key === 'RANGE' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('STDEV')}>
-                                    StDev
-                                    {sortConfig?.key === 'STDEV' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200" onClick={() => handleSort('COUNT')}>
-                                    Count
-                                    {sortConfig?.key === 'COUNT' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
-                                <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap" onClick={() => handleSort('Inclusion Rate')}>
-                                    Inclusion Rate
-                                    {sortConfig?.key === 'Inclusion Rate' && (
-                                        <span className="ml-1">
-                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                        </span>
-                                    )}
-                                </TableHead>
+                                {visibleColumns.map((column) => (
+                                    <TableHead 
+                                        key={column.key}
+                                        className={`text-gray-400 whitespace-nowrap ${column.sortable ? 'cursor-pointer hover:text-gray-200' : ''}`}
+                                        onClick={column.sortable ? () => handleSort(column.key) : undefined}
+                                    >
+                                        {column.label}
+                                        {column.sortable && sortConfig?.key === column.key && (
+                                            <span className="ml-1">
+                                                {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                            </span>
+                                        )}
+                                    </TableHead>
+                                ))}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {sortedProspects.map((prospect) => (
-                                    <TableRow
-                                        key={prospect.Name}
-                                        className="hover:bg-gray-800/20"
-                                    >
-                                    <TableCell className="font-medium text-gray-300">{prospect['Rank']}</TableCell>
-                                    <TableCell className="font-medium text-gray-300 whitespace-nowrap">{prospect.Name}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['Actual Pick']}</TableCell>
-                                        <TableCell className="text-gray-300">{prospect.Role}</TableCell>
-                                        <TableCell className="text-gray-300 whitespace-nowrap">
-                                            <div className="flex items-center gap-2">
-                                                <PreNBALogo preNBA={prospect['Pre-NBA']} />
-                                                <span>{prospect['Pre-NBA']}</span>
-                                            </div>
+                                <TableRow
+                                    key={prospect.Name}
+                                    className="hover:bg-gray-800/20"
+                                >
+                                    {visibleColumns.map((column) => (
+                                        <TableCell 
+                                            key={column.key}
+                                            className={`${column.key === 'Name' ? 'font-medium text-gray-300 whitespace-nowrap' : 'text-gray-300'} ${column.key === 'Pre-NBA' || column.key === 'NBA Team' || column.key === 'Wing - Height' || column.key === 'Weight (lbs)' ? 'whitespace-nowrap' : ''}`}
+                                        >
+                                            {renderCell(prospect, column)}
                                         </TableCell>
-                                        <TableCell className="text-gray-300">{prospect.Age}</TableCell>
-                                    <TableCell className="text-gray-300 whitespace-nowrap">
-                                        <div className="flex items-center gap-2">
-                                            <TableTeamLogo team={prospect['NBA Team']} />
-                                            <span>{prospect['NBA Team']}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-gray-300">{prospect['SCORE']}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['MEAN']}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['MEDIAN']}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['MODE']}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['HIGH']}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['LOW']}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['RANGE']}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['STDEV']}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['COUNT']}</TableCell>
-                                    <TableCell className="text-gray-300">{prospect['Inclusion Rate']}</TableCell>
-                                    </TableRow>
+                                    ))}
+                                </TableRow>
                             ))}
                         </TableBody>
                     </Table>
@@ -2415,14 +2481,14 @@ export default function ConsensusPage() {
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Consensus" />
             <DraftPageHeader author="Consensus" />
-            <GoogleAnalytics  gaId="G-X22HKJ13B7" />
+            <GoogleAnalytics gaId="G-X22HKJ13B7" />
             {viewMode !== 'contributors' ? (
-            <ProspectFilter
-                prospects={prospects}
-                onFilteredProspectsChange={setFilteredProspects}
-                rank={{}}
-                onViewModeChange={setViewMode}
-            />
+                <ProspectFilter
+                    prospects={prospects}
+                    onFilteredProspectsChange={setFilteredProspects}
+                    rank={{}}
+                    onViewModeChange={setViewMode}
+                />
             ) : (
                 <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
                     <div className="px-4 py-3 flex items-center justify-between">
