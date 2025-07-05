@@ -50,7 +50,7 @@ export default function Home() {
             </h2>
             <p className="mb-6">
               Aggregate of 158 boards, all published & submitted before the 2025 NBA Draft. Thank you to everyone who helps put this consensus together, including: <a href="https://twitter.com/mikegrib8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@mikegrib8</a>, <a href="https://twitter.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@thegrantedwards</a>, <a href="https://twitter.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@codyreeves14</a>, <a href="https://twitter.com/dualbarl" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@dualbarl</a>, <a href="https://twitter.com/CannibalSerb" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@CannibalSerb</a>, <a href="https://twitter.com/bendog28" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@bendog28</a>, <a href="https://twitter.com/BalaRavikumar5" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@BalaRavikumar5</a>, & <a href="https://twitter.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>.</p>
-            <Link href="/Consensus" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors group-hover:text-blue-300">
+            <Link href="/consensus-nba-board" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors group-hover:text-blue-300">
               <span className="text-lg font-medium">View Consensus Board</span>
               <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -71,7 +71,7 @@ export default function Home() {
             <p className="text-gray-400 mb-4">
               Explore <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>&apos;s model featuring EPM projections, prospect tiers, skills graphs, and player comps.
             </p>
-            <Link href="/TPM_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
+            <Link href="/max-nba-draft-board" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
               <span className="text-sm font-medium">View Draft Board</span>
               <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -87,7 +87,7 @@ export default function Home() {
             <p className="text-gray-400 mb-4">
               Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@kalidrafts</a>&apos;s model ranking prospects by predicted EPM using up to 535 unique predictors.
             </p>
-            <Link href="/Nick_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
+            <Link href="/nick-nba-draft-board" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
               <span className="text-sm font-medium">View Draft Board</span>
               <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -103,7 +103,7 @@ export default function Home() {
             <p className="text-gray-400 mb-4">
               Dive into <a href="https://x.com/undraliu?s=11&t=aZX-xts5orQ1PkjaZOO7FQ" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@undraliu</a>&apos;s &quot;Flagg Plant Score,&quot; which analyzes prospects via original metrics and clustered tiers.
             </p>
-            <Link href="/Andre_Draft_Page" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
+            <Link href="/andre-nba-draft-board" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
               <span className="text-sm font-medium">View Draft Board</span>
               <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

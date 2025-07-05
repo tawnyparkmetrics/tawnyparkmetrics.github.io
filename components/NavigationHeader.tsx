@@ -34,7 +34,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   const DraftDropdownItems = [
     {
       name: 'Consensus',
-      href: '/Consensus',
+      href: '/consensus-nba-board',
       available: true
     },
     {
@@ -42,8 +42,8 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       href: '#',
       available: true,
       subItems: [
-        { name: 'Write Up', href: '/TPM_Write_Up', available: true },
-        { name: 'Big Board', href: '/TPM_Draft_Page', available: true }
+        { name: 'Write Up', href: '/max-nba-draft-model-write-up', available: true },
+        { name: 'Big Board', href: '/max-nba-draft-board', available: true }
       ]
     },
     {
@@ -52,7 +52,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       available: true,
       subItems: [
         { name: 'Write Up', href: 'https://medium.com/@kalidrafts/modeling-the-draft-building-a-predictive-big-board-for-future-nba-prospects-75f3122f3300', available: true },
-        { name: 'Big Board', href: '/Nick_Draft_Page', available: true }
+        { name: 'Big Board', href: '/nick-nba-draft-board', available: true }
       ]
     },
     {
@@ -61,7 +61,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       available: true,
       subItems: [
         { name: 'Write Up', href: 'https://medium.com/@andrelliu1/the-flagg-plant-score-a-predictive-evaluation-of-nba-prospects-42e8dd56cc9b', available: true },
-        { name: 'Big Board', href: '/Andre_Draft_Page', available: true }
+        { name: 'Big Board', href: '/andre-nba-draft-board', available: true }
       ]
     }
   ];
