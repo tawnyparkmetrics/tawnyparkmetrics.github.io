@@ -1187,7 +1187,7 @@ export default function AndreDraftPage() {
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        document.title = '2025 Draft Board - Andre';
+        document.title = 'Andre NBA Draft Board';
     }, []);
 
     // Check if device is mobile

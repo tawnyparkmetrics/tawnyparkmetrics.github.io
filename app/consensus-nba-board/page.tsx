@@ -1751,7 +1751,7 @@ export default function ConsensusPage() {
     const [contributorSearch, setContributorSearch] = useState('');
 
     useEffect(() => {
-        document.title = '2025 Draft Board - Andre';
+        document.title = 'Consensus & NBA Draft Board';
     }, []);
 
     // Global data analysis function

@@ -859,7 +859,7 @@ export default function NickDraftPage() {
   const [selectedSortKey,] = useState<string>('Actual Pick');
 
   useEffect(() => {
-    document.title = `${draftYear} Draft Board - Nick`;
+    document.title = `Nick NBA Draft Board`;
   }, [draftYear]);
 
   // Check if device is mobile

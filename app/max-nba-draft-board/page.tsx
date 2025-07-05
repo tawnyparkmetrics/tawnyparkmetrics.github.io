@@ -2816,7 +2816,7 @@ export default function DraftProspectsPage() {
   const [selectedYear, setSelectedYear] = useState(2025);
 
   useEffect(() => {
-    document.title = 'Draft Board - Max';
+    document.title = 'Max NBA Draft Board';
   }, []);
 
   useEffect(() => {

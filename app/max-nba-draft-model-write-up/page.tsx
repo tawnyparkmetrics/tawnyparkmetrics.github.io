@@ -99,7 +99,7 @@ export default function TPMWriteUpPage() {
   };
 
   useEffect(() => {
-    document.title = 'Draft Model Write Up - Max';
+    document.title = 'Max NBA Draft Model Write-Up';
   }, []);
 
   const sections = [
