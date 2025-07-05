@@ -46,6 +46,7 @@ export interface DraftProspect {
   Position: string;
   Age: string;
   'Team Color': string;
+  'G Played Issue': string;
   // 'Pred. Y1 Rank': number;
   // 'Pred. Y2 Rank': number;
   // 'Pred. Y3 Rank': number;
@@ -275,7 +276,7 @@ const TimelineFilter = ({
   const getYearSortKeys = () => {
     if (selectedYear === 2025) {
       return [
-        { key: 'Rank', label: 'Draft Order' }, // Changed from 'Rank' to 'Consensus'
+        { key: 'Rank', label: 'Draft' }, // Changed from 'Rank' to 'Consensus'
         { key: 'Pred. Y1 Rank', label: 'Y1' },
         { key: 'Pred. Y2 Rank', label: 'Y2' },
         { key: 'Pred. Y3 Rank', label: 'Y3' },
@@ -1416,7 +1417,7 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
             margin={{
               top: 15,
               right: 20,
-              bottom: -5,
+              bottom: -4,
               left: 5
             }}
           >
@@ -2614,6 +2615,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
       initialProspects
         .filter(prospect =>
           prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
+          prospect['G Played Issue'] !== '1' && // Filter out prospects with G Played Issue = 1
           prospect['Actual Pick'] &&
           !isNaN(Number(prospect['Actual Pick'])) &&
           Number(prospect['Actual Pick']) <= 58
@@ -2624,7 +2626,10 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
 
     // Add ranks for undrafted players as 'N/A'
     initialProspects
-      .filter(prospect => prospect.Name !== 'Ulrich Chomche') // Filter out Ulrich Chomche
+      .filter(prospect => 
+        prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
+        prospect['G Played Issue'] !== '1' // Filter out prospects with G Played Issue = 1
+      )
       .forEach(prospect => {
         if (!initialRankMap.has(prospect.Name)) {
           initialRankMap.set(prospect.Name, 'N/A');
@@ -2632,7 +2637,10 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
       });
 
     // Apply filters
-    let filtered = initialProspects.filter(prospect => prospect.Name !== 'Ulrich Chomche'); // Filter out Ulrich Chomche
+    let filtered = initialProspects.filter(prospect => 
+      prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
+      prospect['G Played Issue'] !== '1' // Filter out prospects with G Played Issue = 1
+    );
 
     // Apply search filter
     if (searchQuery) {

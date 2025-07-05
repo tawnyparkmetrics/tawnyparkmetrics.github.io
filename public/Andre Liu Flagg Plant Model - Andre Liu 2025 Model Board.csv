@@ -73,7 +73,7 @@ Rank,Name,Role,Pre-NBA,Actual Pick,NBA Team,ABV,Age,Height (in),Height,Wingspan 
 72,Dink Pate,Wing,Mexico City,UDFA,New York Knicks,NYK,19.29,78.25,"6'6.25""",81.75,"6'9.75""",3.5,201,280,280,308,0.308,0.81,0.14,0.1,0.52,0.51,0.05,0.11,0.34,0.12,3
 73,Will Riley,Wing,Illinois,21,Washington Wizards,WAS,19.37,80.25,"6'8.25""",80.75,"6'8.75""",0.5,186,280,280,308,0.308,0.81,0,0.08,0.35,0.63,0.29,0.37,0.31,0,3
 74,Wooga Poplar,Wing,Villanova,UDFA,Chicago Bulls,CHI,22.47,75.75,"6'3.75""",78,"6'6""",2.25,192,278,278,306,0.306,0.32,0.08,0.12,0.51,0.67,0.53,0.11,0.31,0.09,3
-75,Viktor Lakhin,Big,Clemson,,Portsmouth Invitational,,23.91,83,"6'11""",85.5,"7'1.5""",2.5,245,277,277,305,0.305,0.3,0.29,0.13,0.53,0.73,0.39,0.27,0.35,0.07,3
+75,Viktor Lakhin,Big,Clemson,UDFA,Oklahoma City Thunder,OKC,23.91,83,"6'11""",85.5,"7'1.5""",2.5,245,277,277,305,0.305,0.3,0.29,0.13,0.53,0.73,0.39,0.27,0.35,0.07,3
 76,Mark Sears,Guard,Alabama,UDFA,Milwaukee Bucks,MIL,23.35,70.75,"5'10.75""",74,"6'2""",3.25,183,275,275,303,0.303,0.3,0.02,0.09,0.46,0.77,0.49,0.22,0.18,0.16,3
 77,Cedric Coward,Wing,Washington State,11,Memphis Grizzlies,MEM,21.79,77.25,"6'5.25""",86.25,"7'2.25""",9,213,347,335,302,0.302,0.32,0.31,0.1,0.41,0.6,1,0.06,0.39,0.1,3
 78,Kobe Sanders,Wing,Nevada,50,Los Angeles Clippers,LAC,23.07,79,"6'7""",80.25,"6'8.25""",1.25,203,335,335,302,0.302,0.3,0.13,0.12,0.39,0.78,0.42,0.34,0.68,0.34,3
@@ -88,7 +88,7 @@ Rank,Name,Role,Pre-NBA,Actual Pick,NBA Team,ABV,Age,Height (in),Height,Wingspan 
 87,Payton Sandfort,Wing,Iowa,UDFA,Oklahoma City Thunder,OKC,22.95,78.25,"6'6.25""",80,"6'8""",1.75,214,245,245,270,0.27,0.3,0.18,0.1,0.33,0.74,0.42,0.03,0.35,0.09,2
 88,John Poulakidas,Wing,Yale,UDFA,Los Angeles Clippers,LAC,22.22,76.5,"6'4.5""",81.25,"6'9.25""",4.75,199,296,296,266,0.266,0.32,0.14,0.09,0.23,0.65,0.63,0.29,0.88,0.07,2
 89,Jacksen Moni,Big,North Dakota State,UDFA,San Antonio Spurs,SAS,22.35,80.75,"6'8.75""",82.75,"6'10.75""",2,230,296,296,266,0.266,0.32,0.36,0.08,0.14,0.97,0.74,0.22,0.43,0.04,2
-90,Jalon Moore,Wing,Oklahoma,,NBA Combine,,22.21,78.25,"6'6.25""",80.25,"6'8.25""",2,203,241,241,265,0.265,0.32,0.17,0.13,0.44,0.66,0.51,0,0.08,0,2
+90,Jalon Moore,Wing,Oklahoma,UDFA,NBA Combine,,22.21,78.25,"6'6.25""",80.25,"6'8.25""",2,203,241,241,265,0.265,0.32,0.17,0.13,0.44,0.66,0.51,0,0.08,0,2
 91,Maxime Raynaud,Big,Stanford,42,Sacramento Kings,SAC,22.22,84.25,"7'0.25""",85.25,"7'1.25""",1,237,281,281,253,0.253,0.32,0.4,0.01,0.6,0.9,0.41,0.02,0.73,0.04,2
 92,Jonathan Pierre,Wing,Belmont,UDFA,Washington Wizards,WAS,22.18,80.25,"6'8.25""",84,"7'0""",3.75,214,252,252,227,0.227,0.32,0.26,0.11,0.18,0.77,0.37,0.29,0.23,0.15,1
 93,Nate Santos,Wing,Dayton,UDFA,Orlando Magic,ORL,23.63,77.5,"6'5.5""",80,"6'8""",2.5,210,209,209,188,0.188,0.3,0.19,0.07,0.32,0.55,0.46,0.08,0.13,0.01,1

@@ -2209,7 +2209,7 @@ export default function ConsensusPage() {
                                     )}
                                 </TableHead>
                                 <TableHead className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap" onClick={() => handleSort('Actual Pick')}>
-                                    Actual Pick
+                                    Draft Pick
                                     {sortConfig?.key === 'Actual Pick' && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}

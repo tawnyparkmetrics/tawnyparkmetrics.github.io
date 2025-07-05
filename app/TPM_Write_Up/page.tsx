@@ -72,7 +72,7 @@ const TierTable = () => (
                tier === 'Fringe All-Star' ? 'Jamal Murray' :
                tier === 'Quality Starter' ? 'Jalen Suggs' :
                tier === 'Solid Rotation' ? 'Dennis Schröder' :
-               tier === 'Bench Reserve' ? 'Ben McLemore' :
+               tier === 'Bench Reserve' ? 'Jaden Hardy' :
                'Markus Howard'}
             </td>
             <td className="border border-gray-600 px-4 py-2 text-white">

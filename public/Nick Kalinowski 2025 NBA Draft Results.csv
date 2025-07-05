@@ -53,18 +53,18 @@ Rank,Name,Role,Pre-NBA,Actual Pick,NBA Team,ABV,Class,Age,Height (in),Height,Win
 52,Javon Small,Guard,West Virginia,48,Memphis Grizzlies,MEM,Sr.,22.52,73,"6'1""",76.75,"6'4.75""",3.75,190,1,NBA,NBA
 53,Arthur Kaluma,Big,Texas,UDFA,Los Angeles Lakers,LAL,Sr.,23.32,78.25,"6'6.25""",85,"7'1""",6.75,223,1,G-League,G-League
 54,Kobe Sanders,Wing,Nevada,50,Los Angeles Clippers,LAC,Sr.,23.07,79,"6'7""",80.25,"6'8.25""",1.25,203,1,NBA,NBA
-55,Earl Timberlake,Wing,Bryant,,Portsmouth Invitational,,Gr.,24.64,78,"6'6""",82.5,"6'10.5""",4.5,220,1,NBA,None
-56,Josh Uduje,Wing,San Jose State,,N/A,,Sr.,23.16,77,"6'5""",N/A,N/A,N/A,190,1,NBA,None
+55,Earl Timberlake,Wing,Bryant,UDFA,Portsmouth Invitational,,Gr.,24.64,78,"6'6""",82.5,"6'10.5""",4.5,220,1,NBA,None
+56,Josh Uduje,Wing,San Jose State,UDFA,San Antonio Spurs,SAS,Sr.,23.16,77,"6'5""",N/A,N/A,N/A,190,1,NBA,None
 57,Nate Santos,Wing,Dayton,UDFA,Orlando Magic,ORL,Sr.,23.63,77.5,"6'5.5""",80,"6'8""",2.5,210,1,G-League,G-League
 58,RJ Luis Jr.,Wing,St. John's,UDFA,Utah Jazz,UTA,Jr.,22.58,77.75,"6'5.75""",82.5,"6'10.5""",4.75,210,1,NBA,NBA
 59,Eric Dixon,Big,Villanova,UDFA,Los Angeles Lakers,LAL,Gr.,24.42,79.5,"6'7.5""",83.5,"6'11.5""",4,259,1,NBA,NBA
-60,Jalon Moore,Wing,Oklahoma,,NBA Combine,,Sr.,22.21,78.25,"6'6.25""",80.25,"6'8.25""",2,203,1,NBA,NBA
-61,Brandon Stroud,Wing,USF,,G League Elite Camp,,Gr.,N/A,78,"6'6""",N/A,N/A,N/A,215,1,G-League,G-League
+60,Jalon Moore,Wing,Oklahoma,UDFA,NBA Combine,,Sr.,22.21,78.25,"6'6.25""",80.25,"6'8.25""",2,203,1,NBA,NBA
+61,Brandon Stroud,Wing,USF,UDFA,G League Elite Camp,,Gr.,N/A,78,"6'6""",N/A,N/A,N/A,215,1,G-League,G-League
 62,Igor Milicic Jr.,Big,Tennessee,UDFA,Philadelphia 76ers,PHI,Sr.,22.83,80.75,"6'8.75""",83,"6'11""",2.25,225,1,G-League,None
 63,Alijah Martin,Guard,Florida,39,Toronto Raptors,TOR,Gr.,23.49,73.5,"6'1.5""",79.5,"6'7.5""",6,208,1,NBA,NBA
 64,Payton Sandfort,Big,Iowa,UDFA,Oklahoma City Thunder,OKC,Sr.,22.95,78.25,"6'6.25""",80,"6'8""",1.75,214,1,G-League,G-League
 65,Curtis Jones,Guard,Iowa State,UDFA,Denver Nuggets,DEN,Sr.,24.41,75,"6'3""",79.5,"6'7.5""",4.5,183,1,G-League,G-League
-66,Jaemyn Brakefield,Wing,Ole Miss,,Portsmouth Invitational,,Gr.,24.52,80,"6'8""",N/A,N/A,N/A,225,1,NBA,None
+66,Jaemyn Brakefield,Wing,Ole Miss,UDFA,Portsmouth Invitational,,Gr.,24.52,80,"6'8""",N/A,N/A,N/A,225,1,NBA,None
 67,Caleb Love,Guard,Arizona,UDFA,Portland Trail Blazers,POR,Gr.,23.75,74.25,"6'2.25""",80.75,"6'8.75""",6.5,203,1,G-League,G-League
 68,Max Shulga,Guard,VCU,57,Boston Celtics,BOS,Gr.,23,76.25,"6'4.25""",77.75,"6'5.75""",1.5,206,1,NBA,NBA
 69,Tamar Bates,Wing,Missouri,UDFA,Denver Nuggets,DEN,Sr.,22.34,75.75,"6'3.75""",82.25,"6'10.25""",6.5,191,1,NBA,NBA
@@ -81,10 +81,10 @@ Rank,Name,Role,Pre-NBA,Actual Pick,NBA Team,ABV,Class,Age,Height (in),Height,Win
 80,Dylan Cardwell,Big,Auburn,UDFA,Sacramento Kings,SAC,Sr.,23.53,81.75,"6'9.75""",84.75,"7'0.75""",3,261,1,G-League,G-League
 81,Norchad Omier,Big,Baylor,UDFA,Cleveland Cavaliers,CLE,Gr.,23.83,77.5,"6'5.5""",83.5,"6'11.5""",6,246,1,G-League,G-League
 82,Samson Johnson,Big,UConn,UDFA,Indiana Pacers,IND,Sr.,22.91,82,"6'10""",89,"7'5""",7,205,1,NBA,None
-83,Viktor Lakhin,Big,Clemson,,Portsmouth Invitational,,Sr.,23.91,83,"6'11""",85.5,"7'1.5""",2.5,245,1,NBA,None
+83,Viktor Lakhin,Big,Clemson,UDFA,Oklahoma City Thunder,OKC,Sr.,23.91,83,"6'11""",85.5,"7'1.5""",2.5,245,1,NBA,None
 84,Chance McMillian,Guard,Texas Tech,UDFA,Golden State Warriors,GSW,Sr.,24.39,73.5,"6'1.5""",77,"6'5""",3.5,181,1,G-League,G-League
 85,Sean Pedulla,Guard,Ole Miss,UDFA,Portland Trail Blazers,POR,Sr.,22.71,72.5,"6'0.5""",73.75,"6'1.75""",1.25,194,1,G-League,G-League
-86,Jonas Aidoo,Big,Arkansas,,Portsmouth Invitational,,Sr.,22.54,83,"6'11""",89,"7'4""",6,241,1,NBA,None
+86,Jonas Aidoo,Big,Arkansas,UDFA,Portsmouth Invitational,,Sr.,22.54,83,"6'11""",89,"7'4""",6,241,1,NBA,None
 87,Julian Reese,Big,Maryland,UDFA,Los Angeles Lakers,LAL,Sr.,21.99,81,"6'9""",84.5,"7'0.5""",3.5,252,1,NBA,None
 88,Jabri Abdur-Rahim,Wing,Providence,UDFA,Sacramento Kings,SAC,Sr.,23.26,78,"6'6""",82,"6'10""",4,225,1,G-League,G-League
 1,Ben Saraf,Guard,Ratiopharm Ulm,26,Brooklyn Nets,BKN,,19.2,78,"6'6""",80.75,"6'8.75""",2.75,199,0,NBA,
