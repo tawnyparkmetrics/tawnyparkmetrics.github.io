@@ -38,6 +38,7 @@ export interface DraftProspect {
     'Pre-NBA': string;
     'NBA Team': string;
     'Actual Pick': string;
+    'League': string;
 
     //Style info
     'Team Color': string;
@@ -721,6 +722,30 @@ const TableTeamLogo = ({ team }: { team: string }) => {
             <Image
                 src={logoUrl}
                 alt={`${team} logo`}
+                fill
+                className="object-contain"
+                onError={() => setLogoError(true)}
+            />
+        </div>
+    );
+};
+
+// Add LeagueLogo component after the existing logo components
+const LeagueLogo = ({ league }: { league: string }) => {
+    const [logoError, setLogoError] = useState(false);
+    const logoUrl = `/league_logos/${league}.png`;
+
+    if (logoError) {
+        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
+            <span className="text-xs text-gray-400">{league}</span>
+        </div>;
+    }
+
+    return (
+        <div className="h-6 w-6 relative">
+            <Image
+                src={logoUrl}
+                alt={`${league} logo`}
                 fill
                 className="object-contain"
                 onError={() => setLogoError(true)}
@@ -1747,28 +1772,77 @@ const ColumnSelector: React.FC<{
     isOpen: boolean;
     onToggle: () => void;
 }> = ({ columns, onColumnsChange, isOpen, onToggle }) => {
+    // Local state to track immediate UI changes
+    const [localColumns, setLocalColumns] = useState(columns);
+    const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    
+    // Sync local state with props
+    useEffect(() => {
+        setLocalColumns(columns);
+    }, [columns]);
+    
+    const debouncedUpdate = useCallback((newColumns: ColumnConfig[]) => {
+        // Clear any existing timeout
+        if (updateTimeoutRef.current) {
+            clearTimeout(updateTimeoutRef.current);
+        }
+        
+        // Set new timeout to update parent state
+        updateTimeoutRef.current = setTimeout(() => {
+            onColumnsChange(newColumns);
+        }, 150); // Small delay to prevent rapid updates
+    }, [onColumnsChange]);
+    
     const handleToggleColumn = useCallback((key: string) => {
-        const updatedColumns = columns.map(col => 
+        // Prevent toggling Rank and Name columns
+        if (key === 'Rank' || key === 'Name') return;
+        
+        const updatedColumns = localColumns.map(col => 
             col.key === key ? { ...col, visible: !col.visible } : col
         );
-        onColumnsChange(updatedColumns);
-    }, [columns, onColumnsChange]);
+        
+        // Update local state immediately for responsive UI
+        setLocalColumns(updatedColumns);
+        
+        // Debounce the parent update
+        debouncedUpdate(updatedColumns);
+    }, [localColumns, debouncedUpdate]);
 
     const handleToggleCategory = useCallback((category: string) => {
-        const categoryColumns = columns.filter(col => col.category === category);
+        // Filter out Rank and Name from category columns
+        const categoryColumns = localColumns.filter(col => 
+            col.category === category && col.key !== 'Rank' && col.key !== 'Name'
+        );
         const allVisible = categoryColumns.every(col => col.visible);
         
-        const updatedColumns = columns.map(col => 
-            col.category === category ? { ...col, visible: !allVisible } : col
-        );
-        onColumnsChange(updatedColumns);
-    }, [columns, onColumnsChange]);
+        const updatedColumns = localColumns.map(col => {
+            if (col.category === category && col.key !== 'Rank' && col.key !== 'Name') {
+                return { ...col, visible: !allVisible };
+            }
+            return col;
+        });
+        
+        // Update local state immediately for responsive UI
+        setLocalColumns(updatedColumns);
+        
+        // Debounce the parent update
+        debouncedUpdate(updatedColumns);
+    }, [localColumns, debouncedUpdate]);
+    
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (updateTimeoutRef.current) {
+                clearTimeout(updateTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const categories = ['Player Information', 'Consensus Information', 'Range Consensus Information'] as const;
 
     return (
         <div className="mb-4">
-            {/* Toggle Button - styled to match page background */}
+            {/* Toggle Button */}
             <button
                 onClick={onToggle}
                 className="w-full flex items-center justify-between px-4 py-3 bg-[#19191A] border border-gray-800 rounded-lg text-gray-400 hover:border-gray-700 transition-colors"
@@ -1798,7 +1872,7 @@ const ColumnSelector: React.FC<{
                 </motion.div>
             </button>
 
-            {/* Collapsible Content - styled with matching background color */}
+            {/* Collapsible Content - Fixed positioning when open */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -1809,12 +1883,20 @@ const ColumnSelector: React.FC<{
                             duration: 0.3,
                             ease: "easeInOut"
                         }}
-                        className="overflow-hidden"
+                        className="overflow-hidden relative z-50"
+                        style={{ 
+                            // Prevent the dropdown from affecting layout when table re-renders
+                            position: 'relative',
+                            zIndex: 9999
+                        }}
                     >
-                        <div className="bg-[#19191A] border border-gray-800 rounded-lg p-4 mt-2">
+                        <div className="bg-[#19191A] border border-gray-800 rounded-lg p-4 mt-2 shadow-lg">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {categories.map(category => {
-                                    const categoryColumns = columns.filter(col => col.category === category);
+                                    // Filter out Rank and Name from the dropdown options
+                                    const categoryColumns = localColumns.filter(col => 
+                                        col.category === category && col.key !== 'Rank' && col.key !== 'Name'
+                                    );
                                     const visibleCount = categoryColumns.filter(col => col.visible).length;
                                     const totalCount = categoryColumns.length;
                                     
@@ -1824,7 +1906,6 @@ const ColumnSelector: React.FC<{
                                                 <h4 className="text-gray-400 font-medium text-sm">{category}</h4>
                                                 <button
                                                     onClick={(e) => {
-                                                        e.preventDefault();
                                                         e.stopPropagation();
                                                         handleToggleCategory(category);
                                                     }}
@@ -1835,23 +1916,47 @@ const ColumnSelector: React.FC<{
                                             </div>
                                             <div className="space-y-2">
                                                 {categoryColumns.map(column => (
-                                                    <label
+                                                    <div
                                                         key={column.key}
                                                         className="flex items-center gap-3 p-2 rounded hover:bg-gray-800/50 cursor-pointer transition-colors"
                                                         onClick={(e) => {
-                                                            e.preventDefault();
                                                             e.stopPropagation();
                                                             handleToggleColumn(column.key);
                                                         }}
                                                     >
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={column.visible}
-                                                            onChange={() => {}} // Controlled by label click
-                                                            className="w-4 h-4 text-gray-300 bg-gray-800 border-gray-600 rounded focus:ring-gray-500 focus:ring-2 pointer-events-none"
-                                                        />
-                                                        <span className="text-gray-400 text-sm">{column.label}</span>
-                                                    </label>
+                                                        <div className="relative flex-shrink-0">
+                                                            <div className={`
+                                                                w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200
+                                                                ${column.visible 
+                                                                    ? 'bg-blue-500 border-blue-500' 
+                                                                    : 'bg-gray-800 border-gray-600 hover:border-gray-500'
+                                                                }
+                                                            `}>
+                                                                {column.visible && (
+                                                                    <motion.svg 
+                                                                        className="w-3 h-3 text-white" 
+                                                                        fill="none" 
+                                                                        stroke="currentColor" 
+                                                                        viewBox="0 0 24 24"
+                                                                        initial={{ scale: 0, opacity: 0 }}
+                                                                        animate={{ scale: 1, opacity: 1 }}
+                                                                        exit={{ scale: 0, opacity: 0 }}
+                                                                        transition={{ duration: 0.15 }}
+                                                                    >
+                                                                        <path 
+                                                                            strokeLinecap="round" 
+                                                                            strokeLinejoin="round" 
+                                                                            strokeWidth={2} 
+                                                                            d="M5 13l4 4L19 7" 
+                                                                        />
+                                                                    </motion.svg>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <span className="text-gray-400 text-sm cursor-pointer flex-1 select-none">
+                                                            {column.label}
+                                                        </span>
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>
@@ -1884,12 +1989,13 @@ export default function ConsensusPage() {
     const [contributorSearch, setContributorSearch] = useState('');
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     
-    // Define column configuration with only specific columns visible by default
+    // Define column configuration with League moved between Position and Pre-NBA
     const [columns, setColumns] = useState<ColumnConfig[]>([
-        // Player Information
+        // Player Information - Rank and Name are always visible
         { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
         { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
         { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
+        { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
         { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
         { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
         { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
@@ -1900,7 +2006,6 @@ export default function ConsensusPage() {
         { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
         
         // Consensus Information
-        { key: 'SCORE', label: 'Score', category: 'Consensus Information', visible: true, sortable: true },
         { key: 'MEAN', label: 'Mean', category: 'Consensus Information', visible: true, sortable: true },
         { key: 'MEDIAN', label: 'Median', category: 'Consensus Information', visible: true, sortable: true },
         { key: 'MODE', label: 'Mode', category: 'Consensus Information', visible: true, sortable: true },
@@ -2357,6 +2462,13 @@ export default function ConsensusPage() {
                         <div className="flex items-center gap-2">
                             <PreNBALogo preNBA={prospect['Pre-NBA']} />
                             <span>{prospect['Pre-NBA']}</span>
+                        </div>
+                    );
+                case 'League':
+                    return (
+                        <div className="flex items-center gap-2">
+                            <LeagueLogo league={prospect['League']} />
+                            <span>{prospect['League']}</span>
                         </div>
                     );
                 case 'NBA Team':

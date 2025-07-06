@@ -27,6 +27,7 @@ export interface DraftProspect {
     'Actual Pick': string;
     'NBA Team': string;
     'Pre-NBA': string;
+    'League': string;
     'Height': string;
     'Height (in)': string;
     'Weight (lbs)': string;
@@ -1339,7 +1340,7 @@ export default function AndreDraftPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead
-                                    className={`text-gray-400 cursor-pointer hover:text-gray-200`}
+                                    className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap`}
                                     onClick={() => handleSort('Rank')}
                                 >
                                     Rank
@@ -1350,7 +1351,7 @@ export default function AndreDraftPage() {
                                     )}
                                 </TableHead>
                                 <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
+                                    className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                                     onClick={() => handleSort('Name')}
                                 >
                                     Name
@@ -1361,7 +1362,7 @@ export default function AndreDraftPage() {
                                     )}
                                 </TableHead>
                                 <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
+                                    className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                                     onClick={() => handleSort('Role')}
                                 >
                                     Position
@@ -1372,7 +1373,18 @@ export default function AndreDraftPage() {
                                     )}
                                 </TableHead>
                                 <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
+                                    className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
+                                    onClick={() => handleSort('League')}
+                                >
+                                    League
+                                    {sortConfig?.key === 'League' && (
+                                        <span className="ml-1">
+                                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                                        </span>
+                                    )}
+                                </TableHead>
+                                <TableHead
+                                    className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                                     onClick={() => handleSort('Pre-NBA')}
                                 >
                                     Pre-NBA
@@ -1394,7 +1406,7 @@ export default function AndreDraftPage() {
                                     )}
                                 </TableHead>
                                 <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
+                                    className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                                     onClick={() => handleSort('NBA Team')}
                                 >
                                     NBA Team
@@ -1405,7 +1417,7 @@ export default function AndreDraftPage() {
                                     )}
                                 </TableHead>
                                 <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
+                                    className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                                     onClick={() => handleSort('Age')}
                                 >
                                     Age
@@ -1416,7 +1428,7 @@ export default function AndreDraftPage() {
                                     )}
                                 </TableHead>
                                 <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
+                                    className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                                     onClick={() => handleSort('Height')}
                                 >
                                     Height
@@ -1427,7 +1439,7 @@ export default function AndreDraftPage() {
                                     )}
                                 </TableHead>
                                 <TableHead
-                                    className="text-gray-400 cursor-pointer hover:text-gray-200"
+                                    className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                                     onClick={() => handleSort('Weight (lbs)')}
                                 >
                                     Weight
@@ -1575,6 +1587,12 @@ export default function AndreDraftPage() {
                                         <TableCell className="text-gray-300">{prospect.Role}</TableCell>
                                         <TableCell className="text-gray-300 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
+                                                <LeagueLogo league={prospect.League} />
+                                                <span>{prospect.League}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-gray-300 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
                                                 <PreNBALogo preNBA={prospect['Pre-NBA']} />
                                                 <span>{prospect['Pre-NBA']}</span>
                                             </div>
@@ -1708,3 +1726,27 @@ export default function AndreDraftPage() {
         </div>
     );
 }
+
+// Add LeagueLogo component after the existing logo components
+const LeagueLogo = ({ league }: { league: string }) => {
+    const [logoError, setLogoError] = useState(false);
+    const logoUrl = `/league_logos/${league}.png`;
+
+    if (logoError) {
+        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
+            <span className="text-xs text-gray-400">{league}</span>
+        </div>;
+    }
+
+    return (
+        <div className="h-6 w-6 relative">
+            <Image
+                src={logoUrl}
+                alt={`${league} logo`}
+                fill
+                className="object-contain"
+                onError={() => setLogoError(true)}
+            />
+        </div>
+    );
+};

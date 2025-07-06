@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Image from 'next/image';
-import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal,} from 'lucide-react';
+import { LucideUser, ChevronDown, ChevronUp, X, SlidersHorizontal, } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -69,7 +69,7 @@ export interface DraftProspect {
   'Weight (lbs)': string;
   'Role': string;
   Summary?: string;
-  originalRank?: number;
+  originalRank?: string;
   Size: number;
   Athleticism: number;
   Defense: number;
@@ -277,7 +277,7 @@ const TimelineFilter = ({
   const getYearSortKeys = () => {
     if (selectedYear === 2025) {
       return [
-        { key: 'Rank', label: 'Draft' }, // Changed from 'Rank' to 'Consensus'
+        { key: 'Actual Pick', label: 'Draft' }, // Changed from 'Rank' to 'Consensus'
         { key: 'Pred. Y1 Rank', label: 'Y1' },
         { key: 'Pred. Y2 Rank', label: 'Y2' },
         { key: 'Pred. Y3 Rank', label: 'Y3' },
@@ -317,11 +317,8 @@ const TimelineFilter = ({
       'Avg. Rank Y1-Y5': '5 Year Average',
     };
 
-    if (selectedYear === 2025) {
-      baseLabels['Rank'] = 'Draft Order';
-    } else {
-      baseLabels['Actual Pick'] = 'Draft Order';
-    }
+    // Always use 'Draft Order' for Actual Pick regardless of year
+    baseLabels['Actual Pick'] = 'Draft Order';
 
     return baseLabels;
   };
@@ -349,28 +346,24 @@ const TimelineFilter = ({
   summaryLabels['Tier Ranked'] = 'Tier Ranking';
 
   const getDefaultSortKey = () => {
-    return selectedYear === 2025 ? 'Rank' : 'Actual Pick';
+    return 'Actual Pick'; // Always use Actual Pick for draft order
   };
 
   // Function to reset all filters
   const resetFilters = () => {
-    // Set the default sort key based on the selected year
-    setSelectedSortKey(selectedYear === 2025 ? 'Rank' : 'Actual Pick');
+    // Set the default sort key to Actual Pick for both years
+    setSelectedSortKey('Actual Pick');
     setSelectedPosition(null); // Clear position filter
     setSelectedTier(null); // Clear tier filter
     setSearchQuery(''); // Clear search
     setTierRankActive(false); // Reset tier ranking state
   };
 
-  // Handle year change - reset sort key to appropriate default
+  // Handle year change - reset sort key to Actual Pick for both years
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
-    // Reset sort key to the appropriate default for the new year
-    if (year === 2025) {
-      setSelectedSortKey('Rank');
-    } else {
-      setSelectedSortKey('Actual Pick');
-    }
+    // Reset sort key to Actual Pick for both years
+    setSelectedSortKey('Actual Pick');
   };
 
   const shouldHighlight = (itemKey: string) => {
@@ -1476,7 +1469,7 @@ const PlayerComparisonChart: React.FC<{ prospect: DraftProspect }> = ({ prospect
 };
 
 // First, update the SpiderChart component props to include selectedYear
-const SpiderChart: React.FC<{ 
+const SpiderChart: React.FC<{
   prospect: DraftProspect;
   selectedYear: number;
 }> = ({ prospect, selectedYear }) => {
@@ -1496,7 +1489,7 @@ const SpiderChart: React.FC<{
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Update the useEffect to fetch players from the correct year
+  // Update the useEffect to fetch players from the correct year and filter out G Played Issue = 1
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
@@ -1508,7 +1501,9 @@ const SpiderChart: React.FC<{
           complete: (results) => {
             const allPlayers = results.data as DraftProspect[];
             const playersInSamePosition = allPlayers.filter(
-              p => p.Role === prospect.Role && p.Name !== prospect.Name
+              p => p.Role === prospect.Role && 
+                   p.Name !== prospect.Name && 
+                   p['G Played Issue'] !== '1' // Filter out prospects with G Played Issue = 1
             );
             setSamePositionPlayers(playersInSamePosition);
           }
@@ -1560,7 +1555,7 @@ const SpiderChart: React.FC<{
   // Add custom tick formatter for mobile
   const customTickFormatter = (value: string) => {
     if (!isMobile) return value;
-    
+
     // Adjust positioning for specific labels on mobile
     if (value === 'Shooting') {
       return '  Shooting'; // Add extra space at the start
@@ -1610,8 +1605,8 @@ const SpiderChart: React.FC<{
                     setIsDropdownOpen(false);
                   }}
                   className={`w-full px-3 py-2 text-sm text-left ${showComparison && comparisonPlayer?.Name === player.Name
-                      ? 'bg-gray-700/50 text-gray-200'
-                      : 'text-gray-300 hover:bg-gray-700/50'
+                    ? 'bg-gray-700/50 text-gray-200'
+                    : 'text-gray-300 hover:bg-gray-700/50'
                     }`}
                 >
                   {player.Name}
@@ -1663,7 +1658,7 @@ const ProspectCard: React.FC<{
   allProspects: DraftProspect[];
   selectedSortKey: string;
   selectedYear: number;
-}> = ({ prospect, filteredProspects, allProspects, selectedSortKey, selectedYear }) => {
+}> = ({ prospect, rank, filteredProspects, allProspects, selectedSortKey, selectedYear }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -1769,8 +1764,8 @@ const ProspectCard: React.FC<{
     if (selectedYear === 2025) {
       const actualPick = prospect['Actual Pick'];
       const team = isMobileView ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team'];
-      if (actualPick && actualPick.trim() !== '') {
-        // Show "Pick - Team"
+      if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 59) {
+        // Show "Pick - Team" for picks 1-59 in 2025
         const pickTeam = `${actualPick} - ${team}`;
         if (isMobileView) {
           return Object.keys(draftShort).reduce((name, longName) => {
@@ -1779,20 +1774,21 @@ const ProspectCard: React.FC<{
         }
         return pickTeam;
       } else {
-        // Show just the team
+        // Show "UDFA - Team" for picks 60+ in 2025
+        const udfaTeam = `UDFA - ${team}`;
         if (isMobileView) {
           return Object.keys(draftShort).reduce((name, longName) => {
             return name.replace(longName, draftShort[longName]);
-          }, team);
+          }, udfaTeam);
         }
-        return team;
+        return udfaTeam;
       }
     }
-    // 2024 logic - make it consistent with 2025
+    // 2024 logic - 58 picks total
     const actualPick = prospect['Actual Pick'];
     const team = isMobileView ? (teamNames[prospect.NBA] || prospect.NBA) : (teamNamesReverse[prospect.NBA] || prospect.NBA);
-    if (actualPick && actualPick.trim() !== '') {
-      // Show "Pick - Team"
+    if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 58) {
+      // Show "Pick - Team" for picks 1-58 in 2024
       const pickTeam = `${actualPick} - ${team}`;
       if (isMobileView) {
         return Object.keys(draftShort).reduce((name, longName) => {
@@ -1801,35 +1797,51 @@ const ProspectCard: React.FC<{
       }
       return pickTeam;
     } else {
-      // Show just the team
+      // Show "UDFA - Team" for picks 59+ in 2024
+      const udfaTeam = `UDFA - ${team}`;
       if (isMobileView) {
         return Object.keys(draftShort).reduce((name, longName) => {
           return name.replace(longName, draftShort[longName]);
-        }, team);
+        }, udfaTeam);
       }
-      return team;
+      return udfaTeam;
     }
   };
 
   // First, extract the complex expression to a variable
   const pickNumber = Number(prospect['Actual Pick']);
 
-  // Then modify the useMemo hook
+  // Then modify the useMemo hook to use the rank prop when available
   const currentRank = useMemo(() => {
+    // If we have a valid rank prop, use it (this comes from TimelineSlider)
+    if (rank !== undefined && rank !== null && rank !== '') {
+      return rank;
+    }
+    
+    // Fallback to the original logic if no rank prop is provided
     if (selectedSortKey === 'Actual Pick') {
       // For draft order, use the actual pick number
-      if (!isNaN(pickNumber) && pickNumber <= 58) {
-        return pickNumber;
+      if (selectedYear === 2025) {
+        // 2025: picks 1-59 are drafted, 60+ are UDFA
+        if (!isNaN(pickNumber) && pickNumber <= 59) {
+          return pickNumber.toString();
+        } else {
+          return "UDFA";
+        }
       } else {
-        // For UDFAs, return "UDFA" instead of a number
-        return "UDFA";
+        // 2024: picks 1-58 are drafted, 59+ are UDFA
+        if (!isNaN(pickNumber) && pickNumber <= 58) {
+          return pickNumber.toString();
+        } else {
+          return "UDFA";
+        }
       }
     } else {
       // For other sorting methods, use the array index
       const index = filteredProspects.findIndex(p => p.Name === prospect.Name);
-      return index + 1;
+      return (index + 1).toString();
     }
-  }, [prospect, filteredProspects, selectedSortKey, pickNumber]);
+  }, [prospect, filteredProspects, selectedSortKey, pickNumber, rank, selectedYear]);
 
   return (
     <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
@@ -2105,8 +2117,8 @@ const ProspectCard: React.FC<{
                   {/* Chart Container */}
                   <div className={`mb-4 ${!isMobile ? 'h-64' : 'h-[300px]'}`}>
                     {activeChart === 'spider' ? (
-                      <SpiderChart 
-                        prospect={prospect} 
+                      <SpiderChart
+                        prospect={prospect}
                         selectedYear={selectedYear}  // Pass the selectedYear prop
                       />
                     ) : (
@@ -2189,8 +2201,8 @@ const ProspectCard: React.FC<{
                       <button
                         onClick={() => setActiveChart('spider')}
                         className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${activeChart === 'spider'
-                            ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
-                            : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
+                          ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
+                          : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
                           }`}
                       >
                         Skills Chart
@@ -2198,8 +2210,8 @@ const ProspectCard: React.FC<{
                       <button
                         onClick={() => setActiveChart('comparison')}
                         className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${activeChart === 'comparison'
-                            ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
-                            : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
+                          ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
+                          : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
                           }`}
                       >
                         Player Comparisons
@@ -2295,7 +2307,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
       if (sortConfig.key === 'Rank') {
         const aIndex = prospects.findIndex(p => p.Name === a.Name);
         const bIndex = prospects.findIndex(p => p.Name === b.Name);
-        
+
         // For ascending order (1 to 75), use the original index
         // For descending order (75 to 1), reverse the order
         return sortConfig.direction === 'ascending'
@@ -2368,9 +2380,9 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
   }, [prospects, sortConfig]);
 
   // Helper function to get the original rank of a prospect
-  const getOriginalRank = (prospect: DraftProspect): number => {
-    return prospects.findIndex(p => p.Name === prospect.Name) + 1;
-  };
+  const getOriginalRank = (prospect: DraftProspect): string => {
+    return (prospects.findIndex(p => p.Name === prospect.Name) + 1).toString();
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 pt-8">
@@ -2558,17 +2570,15 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
   );
 };
 
-type RankType = number | 'N/A';
-{/* Filters */}
-function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: { 
-  initialProspects: DraftProspect[]; 
-  selectedYear: number; 
-  setSelectedYear: (year: number) => void; 
+type RankType = string;
+{/* Filters */ }
+function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
+  initialProspects: DraftProspect[];
+  selectedYear: number;
+  setSelectedYear: (year: number) => void;
 }) {
-  // Update initial state based on selected year
-  const [selectedSortKey, setSelectedSortKey] = useState<string>(
-    selectedYear === 2025 ? 'Avg. Rank Y1-Y5' : 'Actual Pick'
-  );
+  // Update initial state to use 'Avg. Rank Y1-Y5' (5Y Avg) instead of 'Actual Pick'
+  const [selectedSortKey, setSelectedSortKey] = useState<string>('Avg. Rank Y1-Y5');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -2576,16 +2586,16 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   const [displayedProspects, setDisplayedProspects] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(false);
   const [, setIsMobile] = useState(false);
-  const [tierRankActive, setTierRankActive] = useState(selectedYear === 2025); // Set based on year
+  const [tierRankActive, setTierRankActive] = useState(true); // Always start with tiers active
 
-  // Update the effect to set different defaults based on year
+  // Update the effect to use 'Avg. Rank Y1-Y5' for both years
   useEffect(() => {
     if (selectedYear === 2025) {
-      setSelectedSortKey('Avg. Rank Y1-Y5');
+      setSelectedSortKey('Avg. Rank Y1-Y5'); // Use 5Y Avg for 2025
       setTierRankActive(true);
     } else {
-      setSelectedSortKey('Actual Pick');
-      setTierRankActive(false);
+      setSelectedSortKey('Avg. Rank Y1-Y5'); // Use 5Y Avg for 2024
+      setTierRankActive(true);
     }
   }, [selectedYear]);
 
@@ -2636,26 +2646,26 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
           prospect['G Played Issue'] !== '1' && // Filter out prospects with G Played Issue = 1
           prospect['Actual Pick'] &&
           !isNaN(Number(prospect['Actual Pick'])) &&
-          Number(prospect['Actual Pick']) <= 58
+          Number(prospect['Actual Pick']) <= (selectedYear === 2025 ? 59 : 58) // 59 for 2025, 58 for 2024
         )
         .sort((a, b) => Number(a['Actual Pick']) - Number(b['Actual Pick']))
-        .map((prospect, index) => [prospect.Name, index + 1])
+        .map((prospect, index) => [prospect.Name, (index + 1).toString()])
     );
 
-    // Add ranks for undrafted players as 'N/A'
+    // Add ranks for undrafted players as 'UDFA'
     initialProspects
-      .filter(prospect => 
+      .filter(prospect =>
         prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
         prospect['G Played Issue'] !== '1' // Filter out prospects with G Played Issue = 1
       )
       .forEach(prospect => {
         if (!initialRankMap.has(prospect.Name)) {
-          initialRankMap.set(prospect.Name, 'N/A');
+          initialRankMap.set(prospect.Name, 'UDFA'); // Use 'UDFA' for undrafted players
         }
       });
 
     // Apply filters
-    let filtered = initialProspects.filter(prospect => 
+    let filtered = initialProspects.filter(prospect =>
       prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
       prospect['G Played Issue'] !== '1' // Filter out prospects with G Played Issue = 1
     );
@@ -2755,12 +2765,40 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
     });
 
     // Map the sorted and filtered prospects to include their original draft rank
-    return sortedFiltered.map(prospect => ({
-      prospect,
-      originalRank: initialRankMap.get(prospect.Name)
-    }));
+    return sortedFiltered.map(prospect => {
+      let rank: RankType;
 
-  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive]); // Remove tierRankMap from dependencies
+      if (selectedSortKey === 'Actual Pick') {
+        // When sorting by Actual Pick, use the actual draft pick number
+        const pickNumber = Number(prospect['Actual Pick']);
+        if (selectedYear === 2025) {
+          // 2025: picks 1-59 are drafted, 60+ are UDFA
+          if (!isNaN(pickNumber) && pickNumber <= 59) {
+            rank = pickNumber.toString();
+          } else {
+            rank = 'UDFA';
+          }
+        } else {
+          // 2024: picks 1-58 are drafted, 59+ are UDFA
+          if (!isNaN(pickNumber) && pickNumber <= 58) {
+            rank = pickNumber.toString();
+          } else {
+            rank = 'UDFA';
+          }
+        }
+      } else {
+        // For other sorting methods, use the position in the sorted array
+        const index = sortedFiltered.findIndex(p => p.Name === prospect.Name);
+        rank = (index + 1).toString();
+      }
+
+      return {
+        prospect,
+        originalRank: rank
+      };
+    });
+
+  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive, selectedYear]); // Remove tierRankMap from dependencies
 
   // const handleTierRankClick = () => {
   //   setTierRankActive(prev => !prev); // Toggle Tier Ranked state
@@ -2782,9 +2820,9 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
         setViewMode={setViewMode}
         tierRankActive={tierRankActive}
         setTierRankActive={setTierRankActive}
-        filteredProspects={filteredProspects.map(p => p.prospect)} // Fix this
-        selectedYear={selectedYear} // Fix this
-        setSelectedYear={setSelectedYear} // Fix this
+        filteredProspects={filteredProspects.map(item => item.prospect)}
+        selectedYear={selectedYear}
+        setSelectedYear={setSelectedYear}
       />
 
       <div className="max-w-6xl mx-auto px-4 pt-8">
@@ -2795,8 +2833,8 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
                 <ProspectCard
                   key={prospect.Name}
                   prospect={prospect}
-                  rank={originalRank ?? 0}
-                  filteredProspects={filteredProspects.map(p => p.prospect)}
+                  rank={originalRank ?? 'N/A'}
+                  filteredProspects={filteredProspects.map(item => item.prospect)}
                   allProspects={initialProspects} // Pass all prospects
                   selectedSortKey={selectedSortKey}
                   selectedYear={selectedYear}                  //selectedYear={} // Convert selectedTier to number
@@ -2810,7 +2848,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
             </div>
           ) : (
             <ProspectTable
-              prospects={filteredProspects.map(p => p.prospect)}
+              prospects={filteredProspects.map(item => item.prospect)}
               rank={Object.fromEntries(
                 filteredProspects.map(({ prospect, originalRank }) => [
                   prospect.Name,
@@ -2970,7 +3008,7 @@ export default function DraftProspectsPage() {
     }
 
     fetchDraftProspects();
-  }, [selectedYear]); 
+  }, [selectedYear]);
 
   return (
     <>
@@ -2980,7 +3018,7 @@ export default function DraftProspectsPage() {
       <div className="min-h-screen bg-[#19191A]">
         <NavigationHeader activeTab="Max Savin" />
         <DraftPageHeader author="Max Savin" />
-        <GoogleAnalytics  gaId="G-X22HKJ13B7" />
+        <GoogleAnalytics gaId="G-X22HKJ13B7" />
         <TimelineSlider
           initialProspects={prospects}
           selectedYear={selectedYear}
