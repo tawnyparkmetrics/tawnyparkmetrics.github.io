@@ -47,6 +47,7 @@ export interface DraftProspect {
   Age: string;
   'Team Color': string;
   'G Played Issue': string;
+  'League': string;
   // 'Pred. Y1 Rank': number;
   // 'Pred. Y2 Rank': number;
   // 'Pred. Y3 Rank': number;
@@ -2412,6 +2413,17 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
               </TableHead>
               <TableHead
                 className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
+                onClick={() => handleSort('League')}
+              >
+                League
+                {sortConfig?.key === 'League' && (
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
+              <TableHead
+                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
                 onClick={() => handleSort('Pre-NBA')}
               >
                 Pre-NBA
@@ -2511,6 +2523,12 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 <TableCell className="text-gray-300">{getOriginalRank(prospect)}</TableCell>
                 <TableCell className="font-medium text-gray-300 whitespace-nowrap">{prospect.Name}</TableCell>
                 <TableCell className="text-gray-300">{prospect.Role}</TableCell>
+                <TableCell className="text-gray-300 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <LeagueLogo league={prospect['League']} />
+                    <span>{prospect['League']}</span>
+                  </div>
+                </TableCell>
                 <TableCell className="text-gray-300 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <PreNBALogo preNBA={prospect['Pre-NBA']} />
@@ -2972,3 +2990,27 @@ export default function DraftProspectsPage() {
     </>
   );
 }
+
+// Add a new component for league logos
+const LeagueLogo = ({ league }: { league: string }) => {
+  const [logoError, setLogoError] = useState(false);
+  const logoUrl = `/league_logos/${league}.png`;
+
+  if (logoError) {
+    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
+      <span className="text-xs text-gray-400">{league}</span>
+    </div>;
+  }
+
+  return (
+    <div className="h-6 w-6 relative">
+      <Image
+        src={logoUrl}
+        alt={`${league} logo`}
+        fill
+        className="object-contain"
+        onError={() => setLogoError(true)}
+      />
+    </div>
+  );
+};
