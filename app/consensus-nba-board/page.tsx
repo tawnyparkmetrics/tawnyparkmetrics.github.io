@@ -2281,7 +2281,7 @@ export default function ConsensusPage() {
         // List of columns that should be sorted numerically (float or int)
         const numericColumns = [
             'SCORE', 'MEAN', 'MEDIAN', 'MODE', 'HIGH', 'LOW', 'RANGE', 'STDEV', 'COUNT',
-            'Age', 'Height (in)', 'Weight (lbs)', 'originalRank', 'Actual Pick'
+            'Age', 'Height (in)', 'Weight (lbs)', 'originalRank'
         ];
 
         sortableProspects.sort((a, b) => {
@@ -2292,25 +2292,22 @@ export default function ConsensusPage() {
                 return sortConfig.direction === 'ascending' ? aIndex - bIndex : bIndex - aIndex;
             }
 
-            // Handle Actual Pick column specially - reverse sort and handle empty values
+            // Handle Actual Pick column specially - treat UDFA as after pick 60
             if (sortConfig.key === 'Actual Pick') {
                 const aValue = a['Actual Pick'];
                 const bValue = b['Actual Pick'];
 
-                // Check if values are empty
-                const aEmpty = !aValue || aValue.trim() === '';
-                const bEmpty = !bValue || bValue.trim() === '';
+                // Helper function to get numeric value for sorting
+                const getPickValue = (value: string): number => {
+                    if (!value || value.trim() === '') return 999; // Empty values go last
+                    if (value.toLowerCase() === 'udfa') return 999; // UDFA goes after all picks
+                    const num = parseInt(value);
+                    return isNaN(num) ? 999 : num; // Invalid numbers go last
+                };
 
-                // If both are empty, maintain original order
-                if (aEmpty && bEmpty) return 0;
+                const aNum = getPickValue(aValue);
+                const bNum = getPickValue(bValue);
 
-                // If only one is empty, put empty values at the end
-                if (aEmpty && !bEmpty) return 1;
-                if (!aEmpty && bEmpty) return -1;
-
-                // Both have values, sort numerically (reverse order - smallest first)
-                const aNum = parseInt(aValue) || 0;
-                const bNum = parseInt(bValue) || 0;
                 return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
             }
 
