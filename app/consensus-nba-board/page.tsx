@@ -24,7 +24,6 @@ import {
 import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { GoogleAnalytics } from '@next/third-parties/google';
 
-
 export interface DraftProspect {
     //Player info for hover
     'Name': string;
@@ -351,28 +350,82 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         const minPick = Math.min(...picks);
         const maxPick = Math.max(...picks);
 
+        // Calculate data density metrics
+        const totalRankings = Object.values(counts).reduce((sum, count) => sum + count, 0);
+        const participationRate = (validPicks / totalContributors) * 100;
+        const pickRange = maxPick - minPick + 1;
+
         // Special handling for prospects with single consensus pick (like Cooper Flagg at #1)
         const isConsensusPick = minPick === maxPick;
 
         if (isConsensusPick) {
             // Create a small range around the consensus pick for better visualization
             const consensusPick = minPick;
-            const startRange = Math.max(1, consensusPick - 1);
-            const endRange = Math.min(60, consensusPick + 1);
+            const startRange = Math.max(1, consensusPick - 2);
+            const endRange = Math.min(60, consensusPick + 2);
 
             return Array.from({ length: endRange - startRange + 1 }, (_, i) => ({
                 pick: startRange + i,
                 count: counts[startRange + i] || 0,
+                isActualPick: (startRange + i) === consensusPick
             }));
         }
 
-        // For prospects with varied picks, show the full range
-        const rangeSize = maxPick - minPick + 1;
-        return Array.from({ length: rangeSize }, (_, i) => ({
-            pick: minPick + i,
-            count: counts[minPick + i] || 0,
+        // For prospects with varied picks, create a more robust range
+        // Add padding to the range for better visualization
+        const padding = Math.max(2, Math.min(5, Math.floor(pickRange * 0.1)));
+        const startRange = Math.max(1, minPick - padding);
+        const endRange = Math.min(60, maxPick + padding);
+
+        return Array.from({ length: endRange - startRange + 1 }, (_, i) => ({
+            pick: startRange + i,
+            count: counts[startRange + i] || 0,
+            isActualPick: picks.includes(startRange + i)
         }));
     }, [consensusData, prospect]);
+
+    // Calculate data quality metrics - FIXED VOTE COUNTING
+    const dataQuality = useMemo(() => {
+        const totalContributors = Object.keys(consensusData).length - 1; // Exclude 'Name'
+        
+        // FIXED: Count valid picks directly from consensusData instead of histogramData
+        let actualValidPicks = 0;
+        Object.entries(consensusData)
+            .filter(([key]) => key !== "Name")
+            .forEach(([, value]) => {
+                // Handle different value types
+                let pick: number;
+                if (typeof value === "number") {
+                    pick = value;
+                } else if (typeof value === "string" && value.trim() !== "") {
+                    pick = parseInt(value);
+                } else {
+                    return; // Skip empty/invalid values
+                }
+                
+                // Count all valid NBA draft picks (1-60)
+                if (!isNaN(pick) && pick >= 1 && pick <= 60) {
+                    actualValidPicks++;
+                }
+            });
+        
+        const participationRate = totalContributors > 0 ? (actualValidPicks / totalContributors) * 100 : 0;
+        const maxCount = Math.max(...histogramData.map(item => item.count));
+        
+        // FIXED: Make sparse data criteria extremely restrictive - only for truly exceptional cases
+        // Only use bars for prospects with 1-2 total votes or completely no distribution
+        const uniquePickPositions = histogramData.filter(item => item.count > 0).length;
+        const isSparseData = actualValidPicks <= 1 || (actualValidPicks === 2 && uniquePickPositions === 1); // Very restrictive
+        
+        return {
+            totalContributors,
+            validPicks: actualValidPicks, // Use the correctly counted picks
+            participationRate,
+            maxCount,
+            isSparseData,
+            uniquePickPositions
+        };
+    }, [histogramData, consensusData]);
 
     // Use team color or fallback to blue
     const teamColor =
@@ -397,47 +450,120 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         return (
             <div className="bg-[#19191A] border border-gray-700 rounded-lg p-3 shadow-lg">
                 <div className="text-sm text-gray-300 mb-1">
-                    <span className="font-semibold">Rank:</span> {label}
+                    <span className="font-semibold">Pick:</span> {label}
                 </div>
                 <div className="text-sm text-gray-300">
-                    <span className="font-semibold">Frequency:</span> {data.value}
+                    <span className="font-semibold">Votes:</span> {data.value}
                 </div>
             </div>
         );
     };
 
+    // If no data, show message
+    if (histogramData.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-48 text-gray-400">
+                <p>No consensus data available for {prospect.Name}</p>
+            </div>
+        );
+    }
+
+    // Calculate proper domains for better visualization
+    const xDomain = histogramData.length > 0 ? [
+        histogramData[0].pick,
+        histogramData[histogramData.length - 1].pick
+    ] : [1, 60];
+
+    const yDomain = [0, Math.max(3, dataQuality.maxCount)]; // Minimum height of 3 for better scaling
+
     return (
         <div>
+            {/* Data quality warning for sparse data - moved right */}
+            {dataQuality.isSparseData && (
+                <div className="mb-3 ml-4 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+                    <div className="text-xs text-yellow-400">
+                        <span className="font-semibold">Limited Data:</span> Only {dataQuality.validPicks} of {dataQuality.totalContributors} contributors ranked this prospect ({Math.round(dataQuality.participationRate)}%)
+                    </div>
+                </div>
+            )}
+
             <ChartContainer config={{ count: { color: teamColor, label: "Frequency" } }}>
-                <AreaChart data={histogramData}>
-                    <defs>
-                        <linearGradient id={`areaGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
-                            <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
-                        </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="0" stroke="#333" strokeOpacity={0.2} horizontal={true} vertical={false} />
-                    <XAxis
-                        dataKey="pick"
-                        tick={{ fill: "#ccc", fontSize: 12 }}
-                        domain={['dataMin', 'dataMax']}
-                        type="number"
-                        scale="linear"
-                    />
-                    <YAxis
-                        tick={{ fill: "#ccc", fontSize: 12 }}
-                        allowDecimals={false}
-                        domain={[0, 'dataMax']}
-                    />
-                    <Area
-                        type="monotone"
-                        dataKey="count"
-                        stroke={teamColor}
-                        fill={`url(#areaGradient-${prospect.Name.replace(/\s/g, '')})`}
-                        isAnimationActive={false}
-                    />
-                    <ChartTooltip content={<CustomHistogramTooltip />} />
-                </AreaChart>
+                {dataQuality.isSparseData ? (
+                    // Use bar chart for truly sparse data (very few picks or single position)
+                    <BarChart data={histogramData} barCategoryGap="20%">
+                        <defs>
+                            <linearGradient id={`barGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
+                                <stop offset="100%" stopColor={teamColor} stopOpacity={0.4} />
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid 
+                            strokeDasharray="0" 
+                            stroke="#333" 
+                            strokeOpacity={0.2} 
+                            horizontal={true} 
+                            vertical={false} 
+                        />
+                        <XAxis
+                            dataKey="pick"
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            domain={xDomain}
+                            type="number"
+                            scale="linear"
+                        />
+                        <YAxis
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            allowDecimals={false}
+                            domain={yDomain}
+                        />
+                        <Bar
+                            dataKey="count"
+                            fill={`url(#barGradient-${prospect.Name.replace(/\s/g, '')})`}
+                            stroke={teamColor}
+                            strokeWidth={1}
+                            radius={[2, 2, 0, 0]}
+                        />
+                        <ChartTooltip content={<CustomHistogramTooltip />} />
+                    </BarChart>
+                ) : (
+                    // Use area chart for all other data (including later picks with fewer contributors)
+                    <AreaChart data={histogramData}>
+                        <defs>
+                            <linearGradient id={`areaGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
+                                <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid 
+                            strokeDasharray="0" 
+                            stroke="#333" 
+                            strokeOpacity={0.2} 
+                            horizontal={true} 
+                            vertical={false} 
+                        />
+                        <XAxis
+                            dataKey="pick"
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            domain={xDomain}
+                            type="number"
+                            scale="linear"
+                        />
+                        <YAxis
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            allowDecimals={false}
+                            domain={yDomain}
+                        />
+                        <Area
+                            type="monotone"
+                            dataKey="count"
+                            stroke={teamColor}
+                            strokeWidth={2}
+                            fill={`url(#areaGradient-${prospect.Name.replace(/\s/g, '')})`}
+                            isAnimationActive={false}
+                        />
+                        <ChartTooltip content={<CustomHistogramTooltip />} />
+                    </AreaChart>
+                )}
             </ChartContainer>
         </div>
     );
@@ -499,7 +625,6 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
 
         // Filter out ranges with 0 values and convert to percentages
         return ranges
-            .filter(item => item.value > 0)
             .map(item => ({
                 range: item.range,
                 value: item.value,
@@ -625,7 +750,6 @@ const collegeNames: { [key: string]: string } = {
     "Pallacanestro Reggiana": "Reggiana",
     "Poitiers Basket 86": "Poitiers"
 }
-
 
 const teamNames: { [key: string]: string } = {
     'Charlotte Hornets': 'CHA',
