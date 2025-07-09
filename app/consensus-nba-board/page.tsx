@@ -1812,41 +1812,6 @@ interface ColumnConfig {
     sortable: boolean;
 }
 
-// Sample data for demo
-const sampleColumns: ColumnConfig[] = [
-    // Player Information - Rank and Name are always visible
-    { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
-    { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
-    { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
-    
-    // Consensus Information
-    { key: 'MEAN', label: 'Mean', category: 'Consensus Information', visible: true, sortable: true },
-    { key: 'MEDIAN', label: 'Median', category: 'Consensus Information', visible: true, sortable: true },
-    { key: 'MODE', label: 'Mode', category: 'Consensus Information', visible: true, sortable: true },
-    { key: 'HIGH', label: 'High', category: 'Consensus Information', visible: false, sortable: true },
-    { key: 'LOW', label: 'Low', category: 'Consensus Information', visible: false, sortable: true },
-    { key: 'RANGE', label: 'Range', category: 'Consensus Information', visible: false, sortable: true },
-    { key: 'STDEV', label: 'StDev', category: 'Consensus Information', visible: false, sortable: true },
-    { key: 'COUNT', label: 'Count', category: 'Consensus Information', visible: false, sortable: true },
-    { key: 'Inclusion Rate', label: 'Inclusion Rate', category: 'Consensus Information', visible: false, sortable: true },
-    
-    // Range Consensus Info
-    { key: '1 - 3', label: 'Picks 1-3', category: 'Range Consensus Information', visible: false, sortable: true },
-    { key: '4 - 14', label: 'Picks 4-14', category: 'Range Consensus Information', visible: false, sortable: true },
-    { key: '15 - 30', label: 'Picks 15-30', category: 'Range Consensus Information', visible: false, sortable: true },
-    { key: '31 - 59', label: 'Picks 31-59', category: 'Range Consensus Information', visible: false, sortable: true },
-    { key: 'Undrafted', label: 'Undrafted', category: 'Range Consensus Information', visible: false, sortable: true },
-];
-
 const ColumnSelector: React.FC<{
     columns: ColumnConfig[];
     onColumnsChange: (columns: ColumnConfig[]) => void;
@@ -1989,39 +1954,6 @@ const ColumnSelector: React.FC<{
                                 </div>
                             );
                         })}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// Demo component
-const Demo = () => {
-    const [columns, setColumns] = useState<ColumnConfig[]>(sampleColumns);
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <div className="min-h-screen bg-black p-8">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-white text-2xl font-bold mb-8">Column Selector Demo</h1>
-                
-                <ColumnSelector
-                    columns={columns}
-                    onColumnsChange={setColumns}
-                    isOpen={isOpen}
-                    onToggle={() => setIsOpen(!isOpen)}
-                />
-
-                {/* Demo table showing visible columns */}
-                <div className="mt-8 bg-[#19191A] border border-gray-800 rounded-lg p-4">
-                    <h2 className="text-white font-medium mb-4">Visible Columns Preview:</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                        {columns.filter(col => col.visible).map(col => (
-                            <div key={col.key} className="text-gray-400 text-sm p-2 bg-gray-800/50 rounded">
-                                {col.label}
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
