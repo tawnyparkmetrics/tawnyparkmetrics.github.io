@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { LucideUser, X, ChevronDown, SlidersHorizontal, Settings } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 // import Link from 'next/link';
 import { Search, TrendingUp, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
@@ -350,9 +350,6 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         const minPick = Math.min(...picks);
         const maxPick = Math.max(...picks);
 
-        // Calculate data density metrics
-        const totalRankings = Object.values(counts).reduce((sum, count) => sum + count, 0);
-        const participationRate = (validPicks / totalContributors) * 100;
         const pickRange = maxPick - minPick + 1;
 
         // Special handling for prospects with single consensus pick (like Cooper Flagg at #1)
