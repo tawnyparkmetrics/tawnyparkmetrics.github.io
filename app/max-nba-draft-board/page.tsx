@@ -1669,14 +1669,19 @@ const ProspectCard: React.FC<{
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [activeChart, setActiveChart] = useState('spider');
 
-  // Calculate original rankings based on all prospects
+  // Create validProspects filter that will be used throughout the component
+  const validProspects = useMemo(() => {
+    return allProspects.filter(p => p['G Played Issue'] !== '1');
+  }, [allProspects]);
+
+  // Calculate original rankings based on valid prospects only
   const originalRankings = useMemo(() => {
-    // Create sorted arrays of all prospects for 3-year and 5-year averages
-    const sortedBy3YAvg = [...allProspects].sort(
+    // Create sorted arrays of all valid prospects for 3-year and 5-year averages
+    const sortedBy3YAvg = [...validProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
     );
 
-    const sortedBy5YAvg = [...allProspects].sort(
+    const sortedBy5YAvg = [...validProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y5']) - Number(a['Avg. EPM Y1-Y5'])
     );
 
@@ -1684,14 +1689,14 @@ const ProspectCard: React.FC<{
     const rank3Y = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
     const rank5Y = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
 
-    // Get position-specific rankings
-    const samePositionProspects = allProspects.filter(p => p.Role === prospect.Role);
+    // Get position-specific rankings from valid prospects only
+    const samePositionValidProspects = validProspects.filter(p => p.Role === prospect.Role);
 
-    const sortedBy3YAvgPosition = [...samePositionProspects].sort(
+    const sortedBy3YAvgPosition = [...samePositionValidProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
     );
 
-    const sortedBy5YAvgPosition = [...samePositionProspects].sort(
+    const sortedBy5YAvgPosition = [...samePositionValidProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y5']) - Number(a['Avg. EPM Y1-Y5'])
     );
 
@@ -1704,7 +1709,7 @@ const ProspectCard: React.FC<{
       position3Y: positionRank3Y,
       position5Y: positionRank5Y
     };
-  }, [prospect.Name, allProspects, prospect.Role]);
+  }, [prospect.Name, validProspects, prospect.Role]);
 
   // Check if device is mobile
   useEffect(() => {
@@ -2119,10 +2124,12 @@ const ProspectCard: React.FC<{
                     {activeChart === 'spider' ? (
                       <SpiderChart
                         prospect={prospect}
-                        selectedYear={selectedYear}  // Pass the selectedYear prop
+                        selectedYear={selectedYear}
                       />
                     ) : (
-                      <PlayerComparisonChart prospect={prospect} />
+                      <PlayerComparisonChart 
+                        prospect={prospect}
+                      />
                     )}
                   </div>
                 </div>
