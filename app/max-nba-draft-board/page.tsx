@@ -1676,18 +1676,27 @@ const ProspectCard: React.FC<{
 
   // Calculate original rankings based on valid prospects only
   const originalRankings = useMemo(() => {
-    // Create sorted arrays of all valid prospects for 3-year and 5-year averages
+    // If this prospect is not valid, return N/A for all rankings
+    if (prospect['G Played Issue'] === '1') {
+      return {
+        overall3Y: 'N/A',
+        overall5Y: 'N/A',
+        position3Y: 'N/A',
+        position5Y: 'N/A'
+      };
+    }
+
+    // Only use validProspects for all ranking calculations
     const sortedBy3YAvg = [...validProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
     );
-
     const sortedBy5YAvg = [...validProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y5']) - Number(a['Avg. EPM Y1-Y5'])
     );
 
     // Find the current prospect's position in these sorted arrays
-    const rank3Y = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name) + 1;
-    const rank5Y = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name) + 1;
+    const rank3Y = sortedBy3YAvg.findIndex(p => p.Name === prospect.Name);
+    const rank5Y = sortedBy5YAvg.findIndex(p => p.Name === prospect.Name);
 
     // Get position-specific rankings from valid prospects only
     const samePositionValidProspects = validProspects.filter(p => p.Role === prospect.Role);
@@ -1695,21 +1704,20 @@ const ProspectCard: React.FC<{
     const sortedBy3YAvgPosition = [...samePositionValidProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y3']) - Number(a['Avg. EPM Y1-Y3'])
     );
-
     const sortedBy5YAvgPosition = [...samePositionValidProspects].sort(
       (a, b) => Number(b['Avg. EPM Y1-Y5']) - Number(a['Avg. EPM Y1-Y5'])
     );
 
-    const positionRank3Y = sortedBy3YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
-    const positionRank5Y = sortedBy5YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
+    const positionRank3Y = sortedBy3YAvgPosition.findIndex(p => p.Name === prospect.Name);
+    const positionRank5Y = sortedBy5YAvgPosition.findIndex(p => p.Name === prospect.Name);
 
     return {
-      overall3Y: rank3Y,
-      overall5Y: rank5Y,
-      position3Y: positionRank3Y,
-      position5Y: positionRank5Y
+      overall3Y: rank3Y !== -1 ? (rank3Y + 1) : 'N/A',
+      overall5Y: rank5Y !== -1 ? (rank5Y + 1) : 'N/A',
+      position3Y: positionRank3Y !== -1 ? (positionRank3Y + 1) : 'N/A',
+      position5Y: positionRank5Y !== -1 ? (positionRank5Y + 1) : 'N/A'
     };
-  }, [prospect.Name, validProspects, prospect.Role]);
+  }, [prospect.Name, validProspects, prospect.Role, prospect['G Played Issue']]);
 
   // Check if device is mobile
   useEffect(() => {
@@ -2874,6 +2882,30 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   );
 }
 
+// Add a new component for league logos
+const LeagueLogo = ({ league }: { league: string }) => {
+  const [logoError, setLogoError] = useState(false);
+  const logoUrl = `/league_logos/${league}.png`;
+
+  if (logoError) {
+    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
+      <span className="text-xs text-gray-400">{league}</span>
+    </div>;
+  }
+
+  return (
+    <div className="h-6 w-6 relative">
+      <Image
+        src={logoUrl}
+        alt={`${league} logo`}
+        fill
+        className="object-contain"
+        onError={() => setLogoError(true)}
+      />
+    </div>
+  );
+};
+
 export default function DraftProspectsPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);
   const [selectedYear, setSelectedYear] = useState(2025);
@@ -2894,10 +2926,29 @@ export default function DraftProspectsPage() {
           complete: (results) => {
             const prospectData = results.data as DraftProspect[];
 
+            // Filter out prospects with G Played Issue = '1' for all ranking calculations
+            const validProspects = prospectData.filter(p => p['G Played Issue'] !== '1');
+
             // Calculate position rankings for all prospects
             const prospectsWithRanks = prospectData.map(prospect => {
-              // Get all prospects with the same role
-              const samePositionProspects = prospectData.filter(p => p.Role === prospect.Role);
+              // If this prospect has G Played Issue, skip ranking calculations
+              if (prospect['G Played Issue'] === '1') {
+                return {
+                  ...prospect,
+                  positionRanks: { Y1: 0, Y2: 0, Y3: 0, Y4: 0, Y5: 0, Y1Y3: 0, Y1Y5: 0 },
+                  avg3YEPM: 0,
+                  avg5YEPM: 0,
+                  globalRank3Y: 0,
+                  globalRank5Y: 0,
+                  'Avg. EPM Y1-Y3': 0,
+                  'Avg. EPM Y1-Y5': 0,
+                  'Rank Y1-Y3': 0,
+                  'Rank Y1-Y5': 0
+                };
+              }
+
+              // Get all VALID prospects with the same role
+              const samePositionValidProspects = validProspects.filter(p => p.Role === prospect.Role);
 
               // Calculate position ranks for each year
               const positionRanks = {
@@ -2910,10 +2961,10 @@ export default function DraftProspectsPage() {
                 Y1Y5: 0
               };
 
-              // Calculate position ranks for each year
+              // Calculate position ranks for each year using only valid prospects
               ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].forEach(year => {
                 const yearKey = `Pred. ${year} EPM` as keyof DraftProspect;
-                const sortedByYear = [...samePositionProspects].sort((a, b) => {
+                const sortedByYear = [...samePositionValidProspects].sort((a, b) => {
                   const aEPM = Number(a[yearKey]) || 0;
                   const bEPM = Number(b[yearKey]) || 0;
                   return bEPM - aEPM;
@@ -2938,8 +2989,8 @@ export default function DraftProspectsPage() {
                 Number(prospect['Pred. Y5 EPM'] || 0)
               ) / 5;
 
-              // Calculate 3-year average rankings
-              const allProspectsWith3YAvg = [...prospectData].map(p => {
+              // Calculate 3-year average rankings using only valid prospects
+              const validProspectsWith3YAvg = [...validProspects].map(p => {
                 const p3YAvg = (
                   Number(p['Pred. Y1 EPM'] || 0) +
                   Number(p['Pred. Y2 EPM'] || 0) +
@@ -2948,8 +2999,8 @@ export default function DraftProspectsPage() {
                 return { ...p, avg3YEPM: p3YAvg };
               });
 
-              // Calculate 5-year average rankings
-              const allProspectsWith5YAvg = [...prospectData].map(p => {
+              // Calculate 5-year average rankings using only valid prospects
+              const validProspectsWith5YAvg = [...validProspects].map(p => {
                 const p5YAvg = (
                   Number(p['Pred. Y1 EPM'] || 0) +
                   Number(p['Pred. Y2 EPM'] || 0) +
@@ -2960,36 +3011,45 @@ export default function DraftProspectsPage() {
                 return { ...p, avg5YEPM: p5YAvg };
               });
 
-              // Get global rankings (all positions)
-              const sortedBy3YAvgAll = [...allProspectsWith3YAvg].sort((a, b) => b.avg3YEPM - a.avg3YEPM);
+              // Get global rankings (all positions) using only valid prospects
+              const sortedBy3YAvgAll = [...validProspectsWith3YAvg].sort((a, b) => b.avg3YEPM - a.avg3YEPM);
               const globalRank3Y = sortedBy3YAvgAll.findIndex(p => p.Name === prospect.Name) + 1;
 
-              const sortedBy5YAvgAll = [...allProspectsWith5YAvg].sort((a, b) => b.avg5YEPM - a.avg5YEPM);
+              const sortedBy5YAvgAll = [...validProspectsWith5YAvg].sort((a, b) => b.avg5YEPM - a.avg5YEPM);
               const globalRank5Y = sortedBy5YAvgAll.findIndex(p => p.Name === prospect.Name) + 1;
 
-              // Get position-specific rankings
-              const samePositionProspectsWith3YAvg = allProspectsWith3YAvg.filter(p => p.Role === prospect.Role);
-              const sortedBy3YAvgPosition = [...samePositionProspectsWith3YAvg].sort((a, b) => b.avg3YEPM - a.avg3YEPM);
+              // Get position-specific rankings using only valid prospects
+              const samePositionValidProspectsWith3YAvg = validProspectsWith3YAvg.filter(p => p.Role === prospect.Role);
+              const sortedBy3YAvgPosition = [...samePositionValidProspectsWith3YAvg].sort((a, b) => b.avg3YEPM - a.avg3YEPM);
               positionRanks.Y1Y3 = sortedBy3YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
 
-              const samePositionProspectsWith5YAvg = allProspectsWith5YAvg.filter(p => p.Role === prospect.Role);
-              const sortedBy5YAvgPosition = [...samePositionProspectsWith5YAvg].sort((a, b) => b.avg5YEPM - a.avg5YEPM);
+              const samePositionValidProspectsWith5YAvg = validProspectsWith5YAvg.filter(p => p.Role === prospect.Role);
+              const sortedBy5YAvgPosition = [...samePositionValidProspectsWith5YAvg].sort((a, b) => b.avg5YEPM - a.avg5YEPM);
               positionRanks.Y1Y5 = sortedBy5YAvgPosition.findIndex(p => p.Name === prospect.Name) + 1;
 
-              // For 2025 prospects, calculate individual year rankings
+              // Calculate individual year rankings for both overall and position
               const yearRankings: { [key: string]: number } = {};
-              if (selectedYear === 2025) {
-                ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].forEach(year => {
-                  const yearKey = `Pred. ${year} EPM` as keyof DraftProspect;
-                  const sortedByYear = [...prospectData].sort((a, b) => {
-                    const aEPM = Number(a[yearKey]) || 0;
-                    const bEPM = Number(b[yearKey]) || 0;
-                    return bEPM - aEPM;
-                  });
-                  const yearRank = sortedByYear.findIndex(p => p.Name === prospect.Name) + 1;
-                  yearRankings[`Pred. ${year} Rank`] = yearRank;
+              ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].forEach(year => {
+                const yearKey = `Pred. ${year} EPM` as keyof DraftProspect;
+                
+                // Overall ranking (all positions) using only valid prospects
+                const sortedByYearOverall = [...validProspects].sort((a, b) => {
+                  const aEPM = Number(a[yearKey]) || 0;
+                  const bEPM = Number(b[yearKey]) || 0;
+                  return bEPM - aEPM;
                 });
-              }
+                const overallYearRank = sortedByYearOverall.findIndex(p => p.Name === prospect.Name) + 1;
+                yearRankings[`Pred. ${year} Rank`] = overallYearRank;
+
+                // Position ranking using only valid prospects
+                const sortedByYearPosition = [...samePositionValidProspects].sort((a, b) => {
+                  const aEPM = Number(a[yearKey]) || 0;
+                  const bEPM = Number(b[yearKey]) || 0;
+                  return bEPM - aEPM;
+                });
+                const positionYearRank = sortedByYearPosition.findIndex(p => p.Name === prospect.Name) + 1;
+                yearRankings[`Pred. ${year} Position Rank`] = positionYearRank;
+              });
 
               return {
                 ...prospect,
@@ -3035,27 +3095,3 @@ export default function DraftProspectsPage() {
     </>
   );
 }
-
-// Add a new component for league logos
-const LeagueLogo = ({ league }: { league: string }) => {
-  const [logoError, setLogoError] = useState(false);
-  const logoUrl = `/league_logos/${league}.png`;
-
-  if (logoError) {
-    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{league}</span>
-    </div>;
-  }
-
-  return (
-    <div className="h-6 w-6 relative">
-      <Image
-        src={logoUrl}
-        alt={`${league} logo`}
-        fill
-        className="object-contain"
-        onError={() => setLogoError(true)}
-      />
-    </div>
-  );
-};
