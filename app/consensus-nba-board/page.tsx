@@ -309,77 +309,65 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     const histogramData = useMemo(() => {
         const counts: Record<number, number> = {};
         const picks: number[] = [];
-        let totalContributors = 0;
-        let validPicks = 0;
-
-        // Collect all valid picks - exclude 'Name' column and count all other columns
+    
         Object.entries(consensusData)
             .filter(([key]) => key !== "Name")
             .forEach(([, value]) => {
-                totalContributors++;
-
-                // Handle different value types more robustly
-                let pick: number;
+                let pick: number | undefined;
+    
                 if (typeof value === "number") {
                     pick = value;
-                } else if (typeof value === "string" && value.trim() !== "") {
-                    pick = parseInt(value);
-                } else {
-                    // Empty cells, null, or undefined mean contributor didn't rank this prospect
-                    return;
+                } else if (typeof value === "string") {
+                    const cleaned = value.replace(/[^\d]/g, ''); // remove commas, quotes, etc.
+                    const parsed = parseInt(cleaned);
+                    if (!isNaN(parsed)) pick = parsed;
                 }
-
-                // Only count valid NBA draft picks (1-60)
-                // Note: Empty cells mean the contributor didn't rank this prospect
-                if (!isNaN(pick) && pick >= 1 && pick <= 60) {
+    
+                if (pick && pick >= 1 && pick <= 108) {
                     counts[pick] = (counts[pick] || 0) + 1;
                     picks.push(pick);
-                    validPicks++;
                 }
             });
-
-        // Debug logging
-        console.log(`${prospect.Name} - Total contributors: ${totalContributors}, Valid picks: ${validPicks}`);
-        console.log(`${prospect.Name} - Histogram total: ${Object.values(counts).reduce((sum, count) => sum + count, 0)}`);
-
-        if (picks.length === 0) {
-            return [];
+    
+        // RJ Davis specific debug
+        if (prospect.Name === 'RJ Davis') {
+            console.log(`🔍 RJ Davis Area Chart Data:`, {
+                rawPicks: picks,
+                histogramCounts: counts,
+            });
         }
-
-        // Find the range of actual picks
+    
+        if (picks.length === 0) return [];
+    
         const minPick = Math.min(...picks);
         const maxPick = Math.max(...picks);
 
-        const pickRange = maxPick - minPick + 1;
-
-        // Special handling for prospects with single consensus pick (like Cooper Flagg at #1)
-        const isConsensusPick = minPick === maxPick;
-
-        if (isConsensusPick) {
-            // Create a small range around the consensus pick for better visualization
-            const consensusPick = minPick;
-            const startRange = Math.max(1, consensusPick - 2);
-            const endRange = Math.min(60, consensusPick + 2);
-
-            return Array.from({ length: endRange - startRange + 1 }, (_, i) => ({
-                pick: startRange + i,
-                count: counts[startRange + i] || 0,
-                isActualPick: (startRange + i) === consensusPick
-            }));
+        const uniquePicks = new Set(picks);
+    
+        const histogram =
+            uniquePicks.size === 1
+                ? Array.from({ length: 3 }, (_, i) => {
+                    const x = minPick - 1 + i;
+                    return {
+                        pick: x,
+                        count: counts[x] || 0,
+                    };
+                })
+                : Array.from({ length: maxPick - minPick + 1 }, (_, i) => {
+                    const x = minPick + i;
+                    return {
+                        pick: x,
+                        count: counts[x] || 0,
+                    };
+                });
+    
+        if (prospect.Name === 'RJ Davis') {
+            console.log("✅ Final RJ Davis histogramData:", histogram);
         }
-
-        // For prospects with varied picks, create a more robust range
-        // Add padding to the range for better visualization
-        const padding = Math.max(2, Math.min(5, Math.floor(pickRange * 0.1)));
-        const startRange = Math.max(1, minPick - padding);
-        const endRange = Math.min(60, maxPick + padding);
-
-        return Array.from({ length: endRange - startRange + 1 }, (_, i) => ({
-            pick: startRange + i,
-            count: counts[startRange + i] || 0,
-            isActualPick: picks.includes(startRange + i)
-        }));
+    
+        return histogram;
     }, [consensusData, prospect]);
+    
 
     // Calculate data quality metrics - FIXED VOTE COUNTING
     const dataQuality = useMemo(() => {
