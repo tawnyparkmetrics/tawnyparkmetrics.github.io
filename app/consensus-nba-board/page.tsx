@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { LucideUser, X, ChevronDown, SlidersHorizontal, Settings } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 // import Link from 'next/link';
 import { Search, TrendingUp, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/chart"
 import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { GoogleAnalytics } from '@next/third-parties/google';
-
 
 export interface DraftProspect {
     //Player info for hover
@@ -342,6 +341,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     
         const minPick = Math.min(...picks);
         const maxPick = Math.max(...picks);
+
         const uniquePicks = new Set(picks);
     
         const histogram =
@@ -369,6 +369,49 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     }, [consensusData, prospect]);
     
 
+    // Calculate data quality metrics - FIXED VOTE COUNTING
+    const dataQuality = useMemo(() => {
+        const totalContributors = Object.keys(consensusData).length - 1; // Exclude 'Name'
+        
+        // FIXED: Count valid picks directly from consensusData instead of histogramData
+        let actualValidPicks = 0;
+        Object.entries(consensusData)
+            .filter(([key]) => key !== "Name")
+            .forEach(([, value]) => {
+                // Handle different value types
+                let pick: number;
+                if (typeof value === "number") {
+                    pick = value;
+                } else if (typeof value === "string" && value.trim() !== "") {
+                    pick = parseInt(value);
+                } else {
+                    return; // Skip empty/invalid values
+                }
+                
+                // Count all valid NBA draft picks (1-60)
+                if (!isNaN(pick) && pick >= 1 && pick <= 60) {
+                    actualValidPicks++;
+                }
+            });
+        
+        const participationRate = totalContributors > 0 ? (actualValidPicks / totalContributors) * 100 : 0;
+        const maxCount = Math.max(...histogramData.map(item => item.count));
+        
+        // FIXED: Make sparse data criteria extremely restrictive - only for truly exceptional cases
+        // Only use bars for prospects with 1-2 total votes or completely no distribution
+        const uniquePickPositions = histogramData.filter(item => item.count > 0).length;
+        const isSparseData = actualValidPicks <= 1 || (actualValidPicks === 2 && uniquePickPositions === 1); // Very restrictive
+        
+        return {
+            totalContributors,
+            validPicks: actualValidPicks, // Use the correctly counted picks
+            participationRate,
+            maxCount,
+            isSparseData,
+            uniquePickPositions
+        };
+    }, [histogramData, consensusData]);
+
     // Use team color or fallback to blue
     const teamColor =
         typeof prospect['Team Color'] === 'string' &&
@@ -392,47 +435,120 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         return (
             <div className="bg-[#19191A] border border-gray-700 rounded-lg p-3 shadow-lg">
                 <div className="text-sm text-gray-300 mb-1">
-                    <span className="font-semibold">Rank:</span> {label}
+                    <span className="font-semibold">Pick:</span> {label}
                 </div>
                 <div className="text-sm text-gray-300">
-                    <span className="font-semibold">Frequency:</span> {data.value}
+                    <span className="font-semibold">Votes:</span> {data.value}
                 </div>
             </div>
         );
     };
 
+    // If no data, show message
+    if (histogramData.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-48 text-gray-400">
+                <p>No consensus data available for {prospect.Name}</p>
+            </div>
+        );
+    }
+
+    // Calculate proper domains for better visualization
+    const xDomain = histogramData.length > 0 ? [
+        histogramData[0].pick,
+        histogramData[histogramData.length - 1].pick
+    ] : [1, 60];
+
+    const yDomain = [0, Math.max(3, dataQuality.maxCount)]; // Minimum height of 3 for better scaling
+
     return (
         <div>
+            {/* Data quality warning for sparse data - moved right */}
+            {dataQuality.isSparseData && (
+                <div className="mb-3 ml-4 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+                    <div className="text-xs text-yellow-400">
+                        <span className="font-semibold">Limited Data:</span> Only {dataQuality.validPicks} of {dataQuality.totalContributors} contributors ranked this prospect ({Math.round(dataQuality.participationRate)}%)
+                    </div>
+                </div>
+            )}
+
             <ChartContainer config={{ count: { color: teamColor, label: "Frequency" } }}>
-                <AreaChart data={histogramData}>
-                    <defs>
-                        <linearGradient id={`areaGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
-                            <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
-                        </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="0" stroke="#333" strokeOpacity={0.2} horizontal={true} vertical={false} />
-                    <XAxis
-                        dataKey="pick"
-                        tick={{ fill: "#ccc", fontSize: 12 }}
-                        domain={['dataMin', 'dataMax']}
-                        type="number"
-                        scale="linear"
-                    />
-                    <YAxis
-                        tick={{ fill: "#ccc", fontSize: 12 }}
-                        allowDecimals={false}
-                        domain={[0, 'dataMax']}
-                    />
-                    <Area
-                        type="monotone"
-                        dataKey="count"
-                        stroke={teamColor}
-                        fill={`url(#areaGradient-${prospect.Name.replace(/\s/g, '')})`}
-                        isAnimationActive={false}
-                    />
-                    <ChartTooltip content={<CustomHistogramTooltip />} />
-                </AreaChart>
+                {dataQuality.isSparseData ? (
+                    // Use bar chart for truly sparse data (very few picks or single position)
+                    <BarChart data={histogramData} barCategoryGap="20%">
+                        <defs>
+                            <linearGradient id={`barGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
+                                <stop offset="100%" stopColor={teamColor} stopOpacity={0.4} />
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid 
+                            strokeDasharray="0" 
+                            stroke="#333" 
+                            strokeOpacity={0.2} 
+                            horizontal={true} 
+                            vertical={false} 
+                        />
+                        <XAxis
+                            dataKey="pick"
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            domain={xDomain}
+                            type="number"
+                            scale="linear"
+                        />
+                        <YAxis
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            allowDecimals={false}
+                            domain={yDomain}
+                        />
+                        <Bar
+                            dataKey="count"
+                            fill={`url(#barGradient-${prospect.Name.replace(/\s/g, '')})`}
+                            stroke={teamColor}
+                            strokeWidth={1}
+                            radius={[2, 2, 0, 0]}
+                        />
+                        <ChartTooltip content={<CustomHistogramTooltip />} />
+                    </BarChart>
+                ) : (
+                    // Use area chart for all other data (including later picks with fewer contributors)
+                    <AreaChart data={histogramData}>
+                        <defs>
+                            <linearGradient id={`areaGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
+                                <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid 
+                            strokeDasharray="0" 
+                            stroke="#333" 
+                            strokeOpacity={0.2} 
+                            horizontal={true} 
+                            vertical={false} 
+                        />
+                        <XAxis
+                            dataKey="pick"
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            domain={xDomain}
+                            type="number"
+                            scale="linear"
+                        />
+                        <YAxis
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            allowDecimals={false}
+                            domain={yDomain}
+                        />
+                        <Area
+                            type="monotone"
+                            dataKey="count"
+                            stroke={teamColor}
+                            strokeWidth={2}
+                            fill={`url(#areaGradient-${prospect.Name.replace(/\s/g, '')})`}
+                            isAnimationActive={false}
+                        />
+                        <ChartTooltip content={<CustomHistogramTooltip />} />
+                    </AreaChart>
+                )}
             </ChartContainer>
         </div>
     );
@@ -494,7 +610,6 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
 
         // Filter out ranges with 0 values and convert to percentages
         return ranges
-            .filter(item => item.value > 0)
             .map(item => ({
                 range: item.range,
                 value: item.value,
@@ -620,7 +735,6 @@ const collegeNames: { [key: string]: string } = {
     "Pallacanestro Reggiana": "Reggiana",
     "Poitiers Basket 86": "Poitiers"
 }
-
 
 const teamNames: { [key: string]: string } = {
     'Charlotte Hornets': 'CHA',
@@ -1305,6 +1419,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
+                                    {/* Only show icons on desktop, not on mobile */}
+                                    <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
+                                    <span className="hidden sm:flex items-center">
                                     {viewMode === 'card' ? (
                                         <>
                                             <LucideUser className="mr-1 h-4 w-4" />
@@ -1321,16 +1438,38 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                             Card View
                                         </>
                                     )}
+                                    </span>
                                     <ChevronDown className="ml-1 h-4 w-4" />
                                 </motion.button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                {/* Mobile: No icons, single-line text */}
                                 <DropdownMenuItem
-                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        console.log('Mobile Card View clicked');
+                                        handleViewModeChange('card');
+                                    }}
+                                >
+                                    Card View
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleViewModeChange('table');
+                                    }}
+                                >
+                                    Table View
+                                </DropdownMenuItem>
+                                {/* Desktop: With icons */}
+                                <DropdownMenuItem
+                                    className={`hidden sm:flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
                                         handleViewModeChange('card');
                                     }}
                                 >
@@ -1340,11 +1479,10 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     </div>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    className={`hidden sm:flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        console.log('Mobile Table View clicked');
                                         handleViewModeChange('table');
                                     }}
                                 >
@@ -1485,6 +1623,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
+                                        {/* Only show icons on desktop, not on mobile */}
+                                        <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
+                                        <span className="hidden sm:flex items-center">
                                         {viewMode === 'card' ? (
                                             <>
                                                 <LucideUser className="mr-1 h-4 w-4" />
@@ -1501,16 +1642,38 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                                 Card View
                                             </>
                                         )}
+                                        </span>
                                         <ChevronDown className="ml-1 h-4 w-4" />
                                     </motion.button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    {/* Mobile: No icons, single-line text */}
                                     <DropdownMenuItem
-                                        className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                        className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
-                                            console.log('Desktop Card View clicked');
+                                            handleViewModeChange('card');
+                                        }}
+                                    >
+                                            Card View
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleViewModeChange('table');
+                                        }}
+                                    >
+                                        Table View
+                                    </DropdownMenuItem>
+                                    {/* Desktop: With icons */}
+                                    <DropdownMenuItem
+                                        className={`hidden sm:flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
                                             handleViewModeChange('card');
                                         }}
                                     >
@@ -1520,11 +1683,10 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         </div>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                        className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                        className={`hidden sm:flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
-                                            console.log('Desktop Table View clicked');
                                             handleViewModeChange('table');
                                         }}
                                     >
@@ -1751,87 +1913,49 @@ const ContributorsView: React.FC<{ searchQuery?: string }> = ({ searchQuery }) =
     );
 };
 
-// Add new interface for column configuration
 interface ColumnConfig {
-    key: keyof DraftProspect | 'Rank';
+    key: string;
     label: string;
     category: 'Player Information' | 'Consensus Information' | 'Range Consensus Information';
     visible: boolean;
     sortable: boolean;
 }
 
-// Update column selector component with proper event handling
 const ColumnSelector: React.FC<{
     columns: ColumnConfig[];
     onColumnsChange: (columns: ColumnConfig[]) => void;
     isOpen: boolean;
     onToggle: () => void;
 }> = ({ columns, onColumnsChange, isOpen, onToggle }) => {
-    // Local state to track immediate UI changes
-    const [localColumns, setLocalColumns] = useState(columns);
-    const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    
-    // Sync local state with props
-    useEffect(() => {
-        setLocalColumns(columns);
-    }, [columns]);
-    
-    const debouncedUpdate = useCallback((newColumns: ColumnConfig[]) => {
-        // Clear any existing timeout
-        if (updateTimeoutRef.current) {
-            clearTimeout(updateTimeoutRef.current);
-        }
-        
-        // Set new timeout to update parent state
-        updateTimeoutRef.current = setTimeout(() => {
-            onColumnsChange(newColumns);
-        }, 150); // Small delay to prevent rapid updates
-    }, [onColumnsChange]);
-    
     const handleToggleColumn = useCallback((key: string) => {
         // Prevent toggling Rank and Name columns
         if (key === 'Rank' || key === 'Name') return;
         
-        const updatedColumns = localColumns.map(col => 
+        const updatedColumns = columns.map(col => 
             col.key === key ? { ...col, visible: !col.visible } : col
         );
         
-        // Update local state immediately for responsive UI
-        setLocalColumns(updatedColumns);
-        
-        // Debounce the parent update
-        debouncedUpdate(updatedColumns);
-    }, [localColumns, debouncedUpdate]);
+        // Update immediately without debouncing
+        onColumnsChange(updatedColumns);
+    }, [columns, onColumnsChange]);
 
     const handleToggleCategory = useCallback((category: string) => {
         // Filter out Rank and Name from category columns
-        const categoryColumns = localColumns.filter(col => 
+        const categoryColumns = columns.filter(col => 
             col.category === category && col.key !== 'Rank' && col.key !== 'Name'
         );
         const allVisible = categoryColumns.every(col => col.visible);
         
-        const updatedColumns = localColumns.map(col => {
+        const updatedColumns = columns.map(col => {
             if (col.category === category && col.key !== 'Rank' && col.key !== 'Name') {
                 return { ...col, visible: !allVisible };
             }
             return col;
         });
         
-        // Update local state immediately for responsive UI
-        setLocalColumns(updatedColumns);
-        
-        // Debounce the parent update
-        debouncedUpdate(updatedColumns);
-    }, [localColumns, debouncedUpdate]);
-    
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (updateTimeoutRef.current) {
-                clearTimeout(updateTimeoutRef.current);
-            }
-        };
-    }, []);
+        // Update immediately without debouncing
+        onColumnsChange(updatedColumns);
+    }, [columns, onColumnsChange]);
 
     const categories = ['Player Information', 'Consensus Information', 'Range Consensus Information'] as const;
 
@@ -1843,125 +1967,105 @@ const ColumnSelector: React.FC<{
                 className="w-full flex items-center justify-between px-4 py-3 bg-[#19191A] border border-gray-800 rounded-lg text-gray-400 hover:border-gray-700 transition-colors"
             >
                 <div className="flex items-center gap-2">
-                    <motion.div
-                        animate={{ rotate: isOpen ? 180 : 0 }}
-                        transition={{ 
-                            duration: 0.4, 
-                            ease: "easeInOut",
-                            delay: isOpen ? 0 : 0.1
-                        }}
+                    <div 
+                        className="transition-transform duration-300 ease-in-out"
+                        style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
                     >
                         <Settings className="h-4 w-4" />
-                    </motion.div>
+                    </div>
                     <span className="font-medium">Customize Table Columns</span>
                 </div>
-                <motion.div
-                    animate={{ rotate: isOpen ? 180 : 0 }}
-                    transition={{ 
-                        duration: 0.4, 
-                        ease: "easeInOut",
-                        delay: isOpen ? 0 : 0.1
-                    }}
+                <div 
+                    className="transition-transform duration-300 ease-in-out"
+                    style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
                 >
                     <ChevronDown className="h-4 w-4" />
-                </motion.div>
+                </div>
             </button>
 
-            {/* Collapsible Content - Fixed positioning when open */}
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ 
-                            duration: 0.3,
-                            ease: "easeInOut"
-                        }}
-                        className="overflow-hidden relative z-50"
-                        style={{ 
-                            // Prevent the dropdown from affecting layout when table re-renders
-                            position: 'relative',
-                            zIndex: 9999
-                        }}
-                    >
-                        <div className="bg-[#19191A] border border-gray-800 rounded-lg p-4 mt-2 shadow-lg">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {categories.map(category => {
-                                    // Filter out Rank and Name from the dropdown options
-                                    const categoryColumns = localColumns.filter(col => 
-                                        col.category === category && col.key !== 'Rank' && col.key !== 'Name'
-                                    );
-                                    const visibleCount = categoryColumns.filter(col => col.visible).length;
-                                    const totalCount = categoryColumns.length;
-                                    
-                                    return (
-                                        <div key={category} className="space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <h4 className="text-gray-400 font-medium text-sm">{category}</h4>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleToggleCategory(category);
-                                                    }}
-                                                    className="text-xs text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-gray-800/50 transition-colors"
-                                                >
-                                                    {visibleCount === totalCount ? 'Hide All' : 'Show All'}
-                                                </button>
-                                            </div>
-                                            <div className="space-y-2">
-                                                {categoryColumns.map(column => (
-                                                    <div
-                                                        key={column.key}
-                                                        className="flex items-center gap-3 p-2 rounded hover:bg-gray-800/50 cursor-pointer transition-colors"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleToggleColumn(column.key);
-                                                        }}
-                                                    >
-                                                        <div className="relative flex-shrink-0">
-                                                            <div className={`
-                                                                w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200
-                                                                ${column.visible 
-                                                                    ? 'bg-blue-500 border-blue-500' 
-                                                                    : 'bg-gray-800 border-gray-600 hover:border-gray-500'
-                                                                }
-                                                            `}>
-                                                                {column.visible && (
-                                                                    <motion.svg 
-                                                                        className="w-3 h-3 text-white" 
-                                                                        fill="none" 
-                                                                        stroke="currentColor" 
-                                                                        viewBox="0 0 24 24"
-                                                                        initial={{ scale: 0, opacity: 0 }}
-                                                                        animate={{ scale: 1, opacity: 1 }}
-                                                                        exit={{ scale: 0, opacity: 0 }}
-                                                                        transition={{ duration: 0.15 }}
-                                                                    >
-                                                                        <path 
-                                                                            strokeLinecap="round" 
-                                                                            strokeLinejoin="round" 
-                                                                            strokeWidth={2} 
-                                                                            d="M5 13l4 4L19 7" 
-                                                                        />
-                                                                    </motion.svg>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <span className="text-gray-400 text-sm cursor-pointer flex-1 select-none">
-                                                            {column.label}
-                                                        </span>
+            {/* Collapsible Content */}
+            <div 
+                className="overflow-hidden transition-all duration-300 ease-in-out relative z-50"
+                style={{ 
+                    maxHeight: isOpen ? '1000px' : '0px',
+                    opacity: isOpen ? 1 : 0
+                }}
+            >
+                <div className="bg-[#19191A] border border-gray-800 rounded-lg p-4 mt-2 shadow-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {categories.map(category => {
+                            // Filter out Rank and Name from the dropdown options
+                            const categoryColumns = columns.filter(col => 
+                                col.category === category && col.key !== 'Rank' && col.key !== 'Name'
+                            );
+                            const visibleCount = categoryColumns.filter(col => col.visible).length;
+                            const totalCount = categoryColumns.length;
+                            
+                            return (
+                                <div key={category} className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-gray-400 font-medium text-sm">{category}</h4>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleToggleCategory(category);
+                                            }}
+                                            className="text-xs text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-gray-800/50 transition-colors"
+                                        >
+                                            {visibleCount === totalCount ? 'Hide All' : 'Show All'}
+                                        </button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {categoryColumns.map(column => (
+                                            <div
+                                                key={column.key}
+                                                className="flex items-center gap-3 p-2 rounded hover:bg-gray-800/50 cursor-pointer transition-colors"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleToggleColumn(column.key);
+                                                }}
+                                            >
+                                                <div className="relative flex-shrink-0">
+                                                    <div className={`
+                                                        w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200
+                                                        ${column.visible 
+                                                            ? 'bg-blue-500 border-blue-500' 
+                                                            : 'bg-gray-800 border-gray-600 hover:border-gray-500'
+                                                        }
+                                                    `}>
+                                                        {column.visible && (
+                                                            <svg 
+                                                                className="w-3 h-3 text-white transition-all duration-150" 
+                                                                fill="none" 
+                                                                stroke="currentColor" 
+                                                                viewBox="0 0 24 24"
+                                                                style={{
+                                                                    transform: column.visible ? 'scale(1)' : 'scale(0)',
+                                                                    opacity: column.visible ? 1 : 0
+                                                                }}
+                                                            >
+                                                                <path 
+                                                                    strokeLinecap="round" 
+                                                                    strokeLinejoin="round" 
+                                                                    strokeWidth={2} 
+                                                                    d="M5 13l4 4L19 7" 
+                                                                />
+                                                            </svg>
+                                                        )}
                                                     </div>
-                                                ))}
+                                                </div>
+                                                <span className="text-gray-400 text-sm cursor-pointer flex-1 select-none">
+                                                    {column.label}
+                                                </span>
                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
@@ -2505,9 +2609,9 @@ export default function ConsensusPage() {
                             <TableRow>
                                 {visibleColumns.map((column) => (
                                     <TableHead 
-                                        key={column.key}
+                                        key={column.key as keyof DraftProspect}
                                         className={`text-gray-400 whitespace-nowrap ${column.sortable ? 'cursor-pointer hover:text-gray-200' : ''}`}
-                                        onClick={column.sortable ? () => handleSort(column.key) : undefined}
+                                        onClick={column.sortable ? () => handleSort(column.key as keyof DraftProspect) : undefined}
                                     >
                                         {column.label}
                                         {column.sortable && sortConfig?.key === column.key && (
