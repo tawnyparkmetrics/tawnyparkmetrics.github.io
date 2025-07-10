@@ -1,6 +1,6 @@
-import type { NextConfig } from "next";
+// Removed TypeScript-only syntax for JavaScript compatibility
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   webpack: (config) => {
     config.resolve.fallback = { fs: false, path: false };
     return config;
@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/Consensus',
-        destination: '/consensus-nba-draft-board',
+        destination: '/consensus-nba-board',
         permanent: true, // Use 301 redirect for SEO
       },
     ];
