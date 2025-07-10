@@ -435,10 +435,10 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         return (
             <div className="bg-[#19191A] border border-gray-700 rounded-lg p-3 shadow-lg">
                 <div className="text-sm text-gray-300 mb-1">
-                    <span className="font-semibold">Pick:</span> {label}
+                    <span className="font-semibold">Rank:</span> {label}
                 </div>
                 <div className="text-sm text-gray-300">
-                    <span className="font-semibold">Votes:</span> {data.value}
+                    <span className="font-semibold">Frequency:</span> {data.value}
                 </div>
             </div>
         );
@@ -463,15 +463,6 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
 
     return (
         <div>
-            {/* Data quality warning for sparse data - moved right */}
-            {dataQuality.isSparseData && (
-                <div className="mb-3 ml-4 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
-                    <div className="text-xs text-yellow-400">
-                        <span className="font-semibold">Limited Data:</span> Only {dataQuality.validPicks} of {dataQuality.totalContributors} contributors ranked this prospect ({Math.round(dataQuality.participationRate)}%)
-                    </div>
-                </div>
-            )}
-
             <ChartContainer config={{ count: { color: teamColor, label: "Frequency" } }}>
                 {dataQuality.isSparseData ? (
                     // Use bar chart for truly sparse data (very few picks or single position)
