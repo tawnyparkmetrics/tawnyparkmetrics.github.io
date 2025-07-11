@@ -1,5 +1,3 @@
-// Removed TypeScript-only syntax for JavaScript compatibility
-
 const nextConfig = {
   webpack: (config) => {
     config.resolve.fallback = { fs: false, path: false };
@@ -10,30 +8,30 @@ const nextConfig = {
       {
         source: '/Nick_Draft_Page',
         destination: '/nick-nba-draft-board',
-        permanent: true, // Use 301 redirect for SEO
+        permanent: true,
       },
       {
         source: '/Andre_Draft_Page',
         destination: '/andre-nba-draft-board',
-        permanent: true, // Use 301 redirect for SEO
+        permanent: true,
       },
       {
         source: '/TPM_Draft_Page',
         destination: '/max-nba-draft-board',
-        permanent: true, // Use 301 redirect for SEO
+        permanent: true,
       },
       {
         source: '/TPM_Write_Up',
         destination: '/max-nba-draft-model-write-up',
-        permanent: true, // Use 301 redirect for SEO
+        permanent: true,
       },
       {
         source: '/Consensus',
-        destination: '/consensus-nba-board',
-        permanent: true, // Use 301 redirect for SEO
+        destination: '/consensus-nba-board', // Fixed this URL
+        permanent: true,
       },
     ];
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
