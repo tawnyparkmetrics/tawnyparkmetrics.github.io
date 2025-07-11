@@ -10,7 +10,7 @@ export default function Custom404() {
       '/Andre_Draft_Page': '/andre-nba-draft-board',
       '/TPM_Draft_Page': '/max-nba-draft-board',
       '/TPM_Write_Up': '/max-nba-draft-model-write-up',
-      '/Consensus': '/consensus-nba-draft-board',
+      '/Consensus': '/consensus-nba-board',
     };
 
     if (redirects[router.asPath]) {
