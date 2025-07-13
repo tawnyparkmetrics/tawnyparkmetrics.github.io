@@ -2382,14 +2382,11 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
     { key: 'Pred. Y5 Rank', label: 'Y5 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
     { key: 'Rank Y1-Y3', label: '3Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
     { key: 'Rank Y1-Y5', label: '5Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-    { key: 'Size', label: 'Size', category: 'Skills Information', visible: false, sortable: true },
-    { key: 'Athleticism', label: 'Athleticism', category: 'Skills Information', visible: false, sortable: true },
-    { key: 'Defense', label: 'Defense', category: 'Skills Information', visible: false, sortable: true },
-    { key: 'Rebounding', label: 'Rebounding', category: 'Skills Information', visible: false, sortable: true },
-    { key: 'Scoring', label: 'Scoring', category: 'Skills Information', visible: false, sortable: true },
-    { key: 'Passing', label: 'Passing', category: 'Skills Information', visible: false, sortable: true },
-    { key: 'Shooting', label: 'Shooting', category: 'Skills Information', visible: false, sortable: true },
-    { key: 'Efficiency', label: 'Efficiency', category: 'Skills Information', visible: false, sortable: true },
+    { key: 'Comp1', label: 'Comp 1', category: 'Player Comparisons', visible: false, sortable: true },
+    { key: 'Comp2', label: 'Comp 2', category: 'Player Comparisons', visible: false, sortable: true },
+    { key: 'Comp3', label: 'Comp 3', category: 'Player Comparisons', visible: false, sortable: true },
+    { key: 'Comp4', label: 'Comp 4', category: 'Player Comparisons', visible: false, sortable: true },
+    { key: 'Comp5', label: 'Comp 5', category: 'Player Comparisons', visible: false, sortable: true },
   ]);
 
   // Function to handle sorting
@@ -2603,12 +2600,12 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                     );
                   }
                   
-                  // Handle skills columns - format to 1 decimal place
-                  if (['Size', 'Athleticism', 'Defense', 'Rebounding', 'Scoring', 'Passing', 'Shooting', 'Efficiency'].includes(column.key)) {
-                    const skillValue = prospect[key];
+                  // Handle comparison columns
+                  if (['Comp1', 'Comp2', 'Comp3', 'Comp4', 'Comp5'].includes(column.key)) {
+                    const compValue = prospect[key];
                     return (
-                      <TableCell key={column.key} className="text-gray-300">
-                        {typeof skillValue === 'number' ? skillValue.toFixed(1) : String(skillValue || '')}
+                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                        {String(compValue || '')}
                       </TableCell>
                     );
                   }

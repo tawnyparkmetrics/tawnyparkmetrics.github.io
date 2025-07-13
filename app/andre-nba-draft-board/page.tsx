@@ -1213,23 +1213,57 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         {/* Divider */}
                         <div className="h-8 w-px bg-gray-700/30 mx-2" />
 
-                        {/* Desktop View Mode Toggle */}
-                        <motion.button
-                            onClick={() => setViewMode(viewMode === 'card' ? 'table' : 'card')}
-                            className={`
-                  px-3 py-2 rounded-lg text-sm font-medium flex items-center
-                  transition-all duration-300
-                  ${viewMode === 'table'
-                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                    : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                }
-                `}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <TableIcon className="mr-2 h-4 w-4" />
-                            {viewMode === 'card' ? 'Table View' : 'Card View'}
-                        </motion.button>
+                        {/* Desktop View Mode Dropdown */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <motion.button
+                                    className="px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    {viewMode === 'card' ? (
+                                        <>
+                                            <LucideUser className="mr-2 h-4 w-4" />
+                                            Card View
+                                        </>
+                                    ) : (
+                                        <>
+                                            <TableIcon className="mr-2 h-4 w-4" />
+                                            Table View
+                                        </>
+                                    )}
+                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                </motion.button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                <DropdownMenuItem
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setViewMode('card');
+                                    }}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <LucideUser className="h-4 w-4" />
+                                        Card View
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setViewMode('table');
+                                    }}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <TableIcon className="h-4 w-4" />
+                                        Table View
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
             </div>
