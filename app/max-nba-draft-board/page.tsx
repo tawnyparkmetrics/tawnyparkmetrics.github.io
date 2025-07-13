@@ -175,7 +175,7 @@ const teamNames: { [key: string]: string } = {
   "Minnesota Timberwolves": "MIN",
   "Utah Jazz": "UTA",
   "Denver Nuggets": "DEN",
-  "Portland Trailblazers": "POR",
+  "Portland Trail Blazers": "POR",
   "Cleveland Cavaliers": "CLE",
   "NCAA": "NC"
 }
@@ -2692,9 +2692,32 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
         const fullName = prospect.Name.toLowerCase();
         const nameMatch = fullName.includes(query);
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
-        const teamAbbrevMatch = prospect.NBA.toLowerCase().includes(query);
-        const teamFullNameMatch = teamNames[prospect.NBA]?.toLowerCase().includes(query);
-        return nameMatch || preNBAMatch || teamAbbrevMatch || teamFullNameMatch;
+        
+        // Handle team name search - check both abbreviated and full names
+        let teamMatch = false;
+        if (selectedYear === 2025) {
+          // For 2025, use 'NBA Team' field which contains full team names
+          const teamFullName = prospect['NBA Team'].toLowerCase();
+          teamMatch = teamFullName.includes(query);
+          
+          // Also check if the query matches any abbreviated version
+          const teamAbbrev = teamNames[prospect['NBA Team']];
+          if (teamAbbrev) {
+            teamMatch = teamMatch || teamAbbrev.toLowerCase().includes(query);
+          }
+        } else {
+          // For 2024, use 'NBA' field which contains abbreviations
+          const teamAbbrev = prospect.NBA.toLowerCase();
+          teamMatch = teamAbbrev.includes(query);
+          
+          // Also check if the query matches the full team name
+          const teamFullName = teamNamesReverse[prospect.NBA];
+          if (teamFullName) {
+            teamMatch = teamMatch || teamFullName.toLowerCase().includes(query);
+          }
+        }
+        
+        return nameMatch || preNBAMatch || teamMatch;
       });
     }
 

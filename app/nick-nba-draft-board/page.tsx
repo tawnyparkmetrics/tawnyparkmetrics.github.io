@@ -90,7 +90,7 @@ const teamNames: { [key: string]: string } = {
   "Minnesota Timberwolves": "MIN",
   "Utah Jazz": "UTA",
   "Denver Nuggets": "DEN",
-  "Portland Trailblazers": "POR",
+  "Portland Trail Blazers": "POR",
   "Cleveland Cavaliers": "CLE",
   "NCAA": "NC"
 }

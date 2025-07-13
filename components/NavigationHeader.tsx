@@ -43,7 +43,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       available: true,
       subItems: [
         { name: 'Write Up', href: '/max-nba-draft-model-write-up', available: true },
-        { name: 'Draft Boards', href: '/max-nba-draft-board', available: true }
+        { name: 'Draft Board', href: '/max-nba-draft-board', available: true }
       ]
     },
     {
@@ -52,7 +52,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       available: true,
       subItems: [
         { name: 'Write Up', href: 'https://medium.com/@kalidrafts/modeling-the-draft-building-a-predictive-big-board-for-future-nba-prospects-75f3122f3300', available: true },
-        { name: 'Draft Boards', href: '/nick-nba-draft-board', available: true }
+        { name: 'Draft Board', href: '/nick-nba-draft-board', available: true }
       ]
     },
     {
@@ -61,7 +61,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       available: true,
       subItems: [
         { name: 'Write Up', href: 'https://medium.com/@andrelliu1/the-flagg-plant-score-a-predictive-evaluation-of-nba-prospects-42e8dd56cc9b', available: true },
-        { name: 'Draft Boards', href: '/andre-nba-draft-board', available: true }
+        { name: 'Draft Board', href: '/andre-nba-draft-board', available: true }
       ]
     }
   ];
