@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Image from 'next/image';
-import { LucideUser, X, ChevronDown, SlidersHorizontal, Settings } from 'lucide-react';
+import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
 import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
