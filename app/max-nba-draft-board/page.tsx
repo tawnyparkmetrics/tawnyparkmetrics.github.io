@@ -529,25 +529,88 @@ const TimelineFilter = ({
           {/* Divider */}
           <div className="h-6 md:h-8 w-px bg-gray-700/30 mx-1 md:mx-2" />
 
-          {/* View mode toggle */}
-          <motion.button
-            onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
-            className={`
-              px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium
-              flex items-center
-              transition-all duration-300
-              ${viewMode === 'table'
-                ? 'bg-blue-500/20 text-gray-400 border border-blue-500/30'
-                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-              }
-            `}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <TableIcon className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
-            <span className="hidden sm:inline">{viewMode === 'cards' ? 'Table View' : 'Card View'}</span>
-            <span className="sm:hidden">{viewMode === 'cards' ? 'Table' : 'Cards'}</span>
-          </motion.button>
+          {/* View Mode Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <motion.button
+                className="px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {/* Only show icons on desktop, not on mobile */}
+                <span className="sm:hidden">{viewMode === 'cards' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
+                <span className="hidden sm:flex items-center">
+                {viewMode === 'cards' ? (
+                  <>
+                    <LucideUser className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+                    Card View
+                  </>
+                ) : viewMode === 'table' ? (
+                  <>
+                    <TableIcon className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+                    Table View
+                  </>
+                ) : (
+                  <>
+                    <LucideUser className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+                    Card View
+                  </>
+                )}
+                </span>
+                <ChevronDown className="ml-1 md:ml-2 h-3 w-3 md:h-4 md:w-4" />
+              </motion.button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+              {/* Mobile: No icons, single-line text */}
+              <DropdownMenuItem
+                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'cards' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setViewMode('cards');
+                }}
+              >
+                Card View
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setViewMode('table');
+                }}
+              >
+                Table View
+              </DropdownMenuItem>
+              {/* Desktop: With icons */}
+              <DropdownMenuItem
+                className={`hidden sm:flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'cards' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setViewMode('cards');
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <LucideUser className="h-3 w-3 md:h-4 md:w-4" />
+                  Card View
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className={`hidden sm:flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setViewMode('table');
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <TableIcon className="h-3 w-3 md:h-4 md:w-4" />
+                  Table View
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -2307,10 +2370,11 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
     { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
     { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
     { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Wing - Height', label: 'Wing - Height', category: 'Player Information', visible: false, sortable: true },
     { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
     { key: 'Pred. Y1 Rank', label: 'Y1 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
     { key: 'Pred. Y2 Rank', label: 'Y2 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
     { key: 'Pred. Y3 Rank', label: 'Y3 Rank', category: 'EPM Rank Information', visible: false, sortable: true },

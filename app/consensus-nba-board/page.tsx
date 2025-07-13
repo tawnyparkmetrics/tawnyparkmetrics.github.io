@@ -469,7 +469,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                     // Use bar chart for truly sparse data (very few picks or single position)
                     <BarChart data={histogramData} barCategoryGap="20%">
                         <defs>
-                            <linearGradient id={`barGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient id={`barGradient-${prospect.Name.replace(/[^a-zA-Z0-9]/g, '')}`} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
                                 <stop offset="100%" stopColor={teamColor} stopOpacity={0.4} />
                             </linearGradient>
@@ -495,7 +495,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                         />
                         <Bar
                             dataKey="count"
-                            fill={`url(#barGradient-${prospect.Name.replace(/\s/g, '')})`}
+                            fill={`url(#barGradient-${prospect.Name.replace(/[^a-zA-Z0-9]/g, '')})`}
                             stroke={teamColor}
                             strokeWidth={1}
                             radius={[2, 2, 0, 0]}
@@ -506,7 +506,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                     // Use area chart for all other data (including later picks with fewer contributors)
                     <AreaChart data={histogramData}>
                         <defs>
-                            <linearGradient id={`areaGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient id={`areaGradient-${prospect.Name.replace(/[^a-zA-Z0-9]/g, '')}`} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
                                 <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
                             </linearGradient>
@@ -535,7 +535,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                             dataKey="count"
                             stroke={teamColor}
                             strokeWidth={2}
-                            fill={`url(#areaGradient-${prospect.Name.replace(/\s/g, '')})`}
+                            fill={`url(#areaGradient-${prospect.Name.replace(/[^a-zA-Z0-9]/g, '')})`}
                             isAnimationActive={false}
                         />
                         <ChartTooltip content={<CustomHistogramTooltip />} />
@@ -671,7 +671,7 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
         }}>
             <BarChart data={rangeData} barCategoryGap="10%">
                 <defs>
-                    <linearGradient id={`barGradient-${prospect.Name.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id={`barGradient-${prospect.Name.replace(/[^a-zA-Z0-9]/g, '')}`} x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
                         <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
                     </linearGradient>
@@ -695,7 +695,7 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
                 />
                 <Bar
                     dataKey="percentage"
-                    fill={`url(#barGradient-${prospect.Name.replace(/\s/g, '')})`}
+                    fill={`url(#barGradient-${prospect.Name.replace(/[^a-zA-Z0-9]/g, '')})`}
                     shape={<CustomBarShape stroke={teamColor} />}
                     radius={[4, 4, 0, 0]}
                 />
@@ -1906,7 +1906,6 @@ const ContributorsView: React.FC<{ searchQuery?: string }> = ({ searchQuery }) =
 };
 
 
-
 export default function ConsensusPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
@@ -1925,7 +1924,7 @@ export default function ConsensusPage() {
     const [contributorSearch, setContributorSearch] = useState('');
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     
-    // Define column configuration with League moved between Position and Pre-NBA
+    // Define column configuration with proper Player Information order
     const [columns, setColumns] = useState<ColumnConfig[]>([
         // Player Information - Rank and Name are always visible
         { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
@@ -2421,6 +2420,9 @@ export default function ConsensusPage() {
                 case 'Undrafted':
                     const value = prospect[column.key];
                     return value ? `${Math.round(Number(value) * 100)}%` : '0%';
+                case 'Inclusion Rate':
+                    const inclusionRate = prospect['Inclusion Rate'];
+                    return inclusionRate ? `${Math.round(Number(inclusionRate) * 100)}%` : '0%';
                 default:
                     return prospect[column.key as keyof DraftProspect];
             }
