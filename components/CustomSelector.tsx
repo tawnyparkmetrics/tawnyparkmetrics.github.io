@@ -4,7 +4,7 @@ import { Settings, ChevronDown } from 'lucide-react';
 interface ColumnConfig {
     key: string;
     label: string;
-    category: 'Player Information' | 'Consensus Information' | 'Range Consensus Information';
+    category: string; // Made flexible to accept any category
     visible: boolean;
     sortable: boolean;
 }
@@ -14,17 +14,21 @@ interface ColumnSelectorProps {
     onColumnsChange: (columns: ColumnConfig[]) => void;
     isOpen: boolean;
     onToggle: () => void;
+    categories?: string[]; // Optional: pass custom categories
+    lockedColumns?: string[]; // Optional: specify which columns can't be toggled
 }
 
 const ColumnSelector: React.FC<ColumnSelectorProps> = ({ 
     columns, 
     onColumnsChange, 
     isOpen, 
-    onToggle 
+    onToggle,
+    categories,
+    lockedColumns = ['Rank', 'Name'] // Default locked columns
 }) => {
     const handleToggleColumn = useCallback((key: string) => {
-        // Prevent toggling Rank and Name columns
-        if (key === 'Rank' || key === 'Name') return;
+        // Prevent toggling locked columns
+        if (lockedColumns.includes(key)) return;
         
         const updatedColumns = columns.map(col => 
             col.key === key ? { ...col, visible: !col.visible } : col
@@ -32,17 +36,17 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
         
         // Update immediately without debouncing
         onColumnsChange(updatedColumns);
-    }, [columns, onColumnsChange]);
+    }, [columns, onColumnsChange, lockedColumns]);
 
     const handleToggleCategory = useCallback((category: string) => {
-        // Filter out Rank and Name from category columns
+        // Filter out locked columns from category columns
         const categoryColumns = columns.filter(col => 
-            col.category === category && col.key !== 'Rank' && col.key !== 'Name'
+            col.category === category && !lockedColumns.includes(col.key)
         );
         const allVisible = categoryColumns.every(col => col.visible);
         
         const updatedColumns = columns.map(col => {
-            if (col.category === category && col.key !== 'Rank' && col.key !== 'Name') {
+            if (col.category === category && !lockedColumns.includes(col.key)) {
                 return { ...col, visible: !allVisible };
             }
             return col;
@@ -50,9 +54,10 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
         
         // Update immediately without debouncing
         onColumnsChange(updatedColumns);
-    }, [columns, onColumnsChange]);
+    }, [columns, onColumnsChange, lockedColumns]);
 
-    const categories = ['Player Information', 'Consensus Information', 'Range Consensus Information'] as const;
+    // Get unique categories from columns or use passed categories
+    const displayCategories = categories || [...new Set(columns.map(col => col.category))];
 
     return (
         <div className="mb-4">
@@ -88,10 +93,10 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
             >
                 <div className="bg-[#19191A] border border-gray-800 rounded-lg p-4 mt-2 shadow-lg">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {categories.map(category => {
-                            // Filter out Rank and Name from the dropdown options
+                        {displayCategories.map(category => {
+                            // Filter out locked columns from the dropdown options
                             const categoryColumns = columns.filter(col => 
-                                col.category === category && col.key !== 'Rank' && col.key !== 'Name'
+                                col.category === category && !lockedColumns.includes(col.key)
                             );
                             const visibleCount = categoryColumns.filter(col => col.visible).length;
                             const totalCount = categoryColumns.length;

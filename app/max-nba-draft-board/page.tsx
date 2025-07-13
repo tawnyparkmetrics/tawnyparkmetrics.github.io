@@ -25,6 +25,7 @@ import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import Head from 'next/head';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import CustomSelector, { ColumnConfig } from '@/components/CustomSelector';
 
 
 type PositionRanks = {
@@ -2296,6 +2297,36 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';
   } | null>(null);
+  const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
+  const [columns, setColumns] = useState<ColumnConfig[]>([
+    { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
+    { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
+    { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Wing - Height', label: 'Wing - Height', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Pred. Y1 Rank', label: 'Y1 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Pred. Y2 Rank', label: 'Y2 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Pred. Y3 Rank', label: 'Y3 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Pred. Y4 Rank', label: 'Y4 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Pred. Y5 Rank', label: 'Y5 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Rank Y1-Y3', label: '3Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Rank Y1-Y5', label: '5Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Size', label: 'Size', category: 'Skills Information', visible: false, sortable: true },
+    { key: 'Athleticism', label: 'Athleticism', category: 'Skills Information', visible: false, sortable: true },
+    { key: 'Defense', label: 'Defense', category: 'Skills Information', visible: false, sortable: true },
+    { key: 'Rebounding', label: 'Rebounding', category: 'Skills Information', visible: false, sortable: true },
+    { key: 'Scoring', label: 'Scoring', category: 'Skills Information', visible: false, sortable: true },
+    { key: 'Passing', label: 'Passing', category: 'Skills Information', visible: false, sortable: true },
+    { key: 'Shooting', label: 'Shooting', category: 'Skills Information', visible: false, sortable: true },
+    { key: 'Efficiency', label: 'Efficiency', category: 'Skills Information', visible: false, sortable: true },
+  ]);
 
   // Function to handle sorting
   const handleSort = (key: keyof DraftProspect | 'Rank') => {
@@ -2400,145 +2431,35 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 pt-8">
+    <div className="max-w-6xl mx-auto px-4 pt-2">
+      {/* Column Selector */}
+      <div className="mb-2">
+        <CustomSelector
+          columns={columns}
+          onColumnsChange={setColumns}
+          isOpen={columnSelectorOpen}
+          onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
+        />
+      </div>
+      
       <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead
-                className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap`}
-                onClick={() => handleSort('Rank')}
-              >
-                Rank
-                {sortConfig?.key === 'Rank' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('Name')}
-              >
-                Name
-                {sortConfig?.key === 'Name' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('Role')}
-              >
-                Position
-                {sortConfig?.key === 'Role' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('League')}
-              >
-                League
-                {sortConfig?.key === 'League' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('Pre-NBA')}
-              >
-                Pre-NBA
-                {sortConfig?.key === 'Pre-NBA' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('Actual Pick')}
-              >
-                Draft Pick
-                {sortConfig?.key === 'Actual Pick' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('NBA Team')}
-              >
-                NBA Team
-                {sortConfig?.key === 'NBA Team' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('Tier')}
-              >
-                Tier
-                {sortConfig?.key === 'Tier' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('Height')}
-              >
-                Height
-                {sortConfig?.key === 'Height' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('Weight (lbs)')}
-              >
-                Weight
-                {sortConfig?.key === 'Weight (lbs)' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('Wing - Height')}
-              >
-                Wing - Height
-                {sortConfig?.key === 'Wing - Height' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
-              <TableHead
-                className="text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap"
-                onClick={() => handleSort('Age')}
-              >
-                Age
-                {sortConfig?.key === 'Age' && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
+              {columns.filter(col => col.visible).map((column) => (
+                <TableHead
+                  key={column.key}
+                  className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
+                  onClick={() => column.sortable && handleSort(column.key as keyof DraftProspect | 'Rank')}
+                >
+                  {column.label}
+                  {column.sortable && sortConfig?.key === column.key && (
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -2547,35 +2468,122 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                 key={prospect.Name}
                 className="hover:bg-gray-800/20"
               >
-                <TableCell className="text-gray-300">{getOriginalRank(prospect)}</TableCell>
-                <TableCell className="font-medium text-gray-300 whitespace-nowrap">{prospect.Name}</TableCell>
-                <TableCell className="text-gray-300">{prospect.Role}</TableCell>
-                <TableCell className="text-gray-300 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <LeagueLogo league={prospect['League']} />
-                    <span>{prospect['League']}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-gray-300 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <PreNBALogo preNBA={prospect['Pre-NBA']} />
-                    <span>{prospect['Pre-NBA']}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-gray-300">
-                  {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
-                </TableCell>
-                <TableCell className="text-gray-300 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <TableTeamLogo NBA={prospect['NBA Team']} />
-                    <span>{prospect['NBA Team']}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-gray-300 whitespace-nowrap">{prospect['Tier']}</TableCell>
-                <TableCell className="text-gray-300">{prospect.Height}</TableCell>
-                <TableCell className="text-gray-300">{prospect['Weight (lbs)']}</TableCell>
-                <TableCell className="text-gray-300">{prospect['Wing - Height']}</TableCell>
-                <TableCell className="text-gray-300">{prospect.Age}</TableCell>
+                {columns.filter(col => col.visible).map((column) => {
+                  const key = column.key as keyof DraftProspect;
+                  
+                  // Handle special cases for different column types
+                  if (column.key === 'Rank') {
+                    return (
+                      <TableCell key={column.key} className="text-gray-300">
+                        {getOriginalRank(prospect)}
+                      </TableCell>
+                    );
+                  }
+                  
+                  if (column.key === 'Name') {
+                    return (
+                      <TableCell key={column.key} className="font-medium text-gray-300 whitespace-nowrap">
+                        {prospect.Name}
+                      </TableCell>
+                    );
+                  }
+                  
+                  if (column.key === 'League') {
+                    return (
+                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <LeagueLogo league={prospect['League']} />
+                          <span>{prospect['League']}</span>
+                        </div>
+                      </TableCell>
+                    );
+                  }
+                  
+                  if (column.key === 'Pre-NBA') {
+                    return (
+                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <PreNBALogo preNBA={prospect['Pre-NBA']} />
+                          <span>{prospect['Pre-NBA']}</span>
+                        </div>
+                      </TableCell>
+                    );
+                  }
+                  
+                  if (column.key === 'Actual Pick') {
+                    return (
+                      <TableCell key={column.key} className="text-gray-300">
+                        {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
+                      </TableCell>
+                    );
+                  }
+                  
+                  if (column.key === 'NBA Team') {
+                    return (
+                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <TableTeamLogo NBA={prospect['NBA Team']} />
+                          <span>{prospect['NBA Team']}</span>
+                        </div>
+                      </TableCell>
+                    );
+                  }
+                  
+                  // Handle Rank columns - display as whole numbers
+                  if (column.key.includes('Rank') && !column.key.includes('Position')) {
+                    const rankValue = prospect[key];
+                    return (
+                      <TableCell key={column.key} className="text-gray-300">
+                        {typeof rankValue === 'number' ? rankValue.toString() : String(rankValue || '')}
+                      </TableCell>
+                    );
+                  }
+                  
+                  // Handle skills columns - format to 1 decimal place
+                  if (['Size', 'Athleticism', 'Defense', 'Rebounding', 'Scoring', 'Passing', 'Shooting', 'Efficiency'].includes(column.key)) {
+                    const skillValue = prospect[key];
+                    return (
+                      <TableCell key={column.key} className="text-gray-300">
+                        {typeof skillValue === 'number' ? skillValue.toFixed(1) : String(skillValue || '')}
+                      </TableCell>
+                    );
+                  }
+                  
+                  // Handle Tier column with color styling
+                  if (column.key === 'Tier') {
+                    return (
+                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                        <span
+                          className="px-2 py-1 rounded text-sm font-medium"
+                          style={{
+                            backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
+                            color: tierColors[prospect.Tier] || 'inherit',
+                            border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
+                          }}
+                        >
+                          {prospect.Tier}
+                        </span>
+                      </TableCell>
+                    );
+                  }
+                  
+                  // Handle positionRanks object - skip it as it's not meant for display
+                  if (column.key === 'positionRanks') {
+                    return (
+                      <TableCell key={column.key} className="text-gray-300">
+                        N/A
+                      </TableCell>
+                    );
+                  }
+                  
+                  // Default case for other columns
+                  const cellValue = prospect[key];
+                  return (
+                    <TableCell key={column.key} className="text-gray-300">
+                      {typeof cellValue === 'object' ? 'N/A' : String(cellValue || '')}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))}
           </TableBody>
