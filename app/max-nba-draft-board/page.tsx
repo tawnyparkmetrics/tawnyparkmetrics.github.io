@@ -2355,7 +2355,7 @@ const ProspectCard: React.FC<{
 };
 
 {/* Player Tables */ }
-const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record<string, RankType> }) => {
+const ProspectTable = ({ prospects, rank, rankingSystem }: { prospects: DraftProspect[], rank: Record<string, RankType>, rankingSystem: Map<string, number> }) => {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';
@@ -2486,16 +2486,6 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
     return sortableProspects;
   }, [prospects, sortConfig]);
 
-  // Helper function to get the original rank of a prospect
-  const getOriginalRank = (prospect: DraftProspect): string => {
-    // Create a ranking system based on the filtered prospects order
-    const rankingMap = new Map<string, number>();
-    prospects.forEach((prospect, index) => {
-      rankingMap.set(prospect.Name, index + 1);
-    });
-    return (rankingMap.get(prospect.Name) || 1).toString();
-  }
-
   return (
     <div className="max-w-6xl mx-auto px-4 pt-2">
       {/* Column Selector */}
@@ -2541,7 +2531,7 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
                   if (column.key === 'Rank') {
                     return (
                       <TableCell key={column.key} className="text-gray-300">
-                        {getOriginalRank(prospect)}
+                        {rankingSystem.get(prospect.Name) || 'N/A'}
                       </TableCell>
                     );
                   }
@@ -3039,6 +3029,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
                   originalRank ?? 'N/A'
                 ])
               )}
+              rankingSystem={rankingSystem}
             />
           )
         ) : (
