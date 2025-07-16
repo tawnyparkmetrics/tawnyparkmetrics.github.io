@@ -2355,7 +2355,7 @@ const ProspectCard: React.FC<{
 };
 
 {/* Player Tables */ }
-const ProspectTable = ({ prospects, rank, rankingSystem }: { prospects: DraftProspect[], rank: Record<string, RankType>, rankingSystem: Map<string, number> }) => {
+const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rank: Record<string, RankType>, rankingSystem: Map<string, number> }) => {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof DraftProspect | 'Rank';
     direction: 'ascending' | 'descending';
