@@ -2488,7 +2488,12 @@ const ProspectTable = ({ prospects }: { prospects: DraftProspect[], rank: Record
 
   // Helper function to get the original rank of a prospect
   const getOriginalRank = (prospect: DraftProspect): string => {
-    return (prospects.findIndex(p => p.Name === prospect.Name) + 1).toString();
+    // Create a ranking system based on the filtered prospects order
+    const rankingMap = new Map<string, number>();
+    prospects.forEach((prospect, index) => {
+      rankingMap.set(prospect.Name, index + 1);
+    });
+    return (rankingMap.get(prospect.Name) || 1).toString();
   }
 
   return (

@@ -2466,9 +2466,11 @@ export default function ConsensusPage() {
 
     // Render the table with sorting functionality
     const ProspectTable = ({
+        rankingSystem
     }: {
         prospects: DraftProspect[],
-        rank: Record<string, RankType>
+        rank: Record<string, RankType>,
+        rankingSystem: Map<string, number>
     }) => {
         const visibleColumns = columns.filter(col => col.visible);
 
@@ -2545,21 +2547,26 @@ export default function ConsensusPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {sortedProspects.map((prospect) => (
-                                <TableRow
-                                    key={prospect.Name}
-                                    className="hover:bg-gray-800/20"
-                                >
-                                    {visibleColumns.map((column) => (
-                                        <TableCell 
-                                            key={column.key}
-                                            className={`${column.key === 'Name' ? 'font-medium text-gray-300 whitespace-nowrap' : 'text-gray-300'} ${column.key === 'Pre-NBA' || column.key === 'NBA Team' || column.key === 'Wing - Height' || column.key === 'Weight (lbs)' ? 'whitespace-nowrap' : ''}`}
-                                        >
-                                            {renderCell(prospect, column)}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))}
+                            {sortedProspects.map((prospect) => {
+                                // Get the original rank from the ranking system
+                                const originalRank = rankingSystem.get(prospect.Name) || 1;
+
+                                return (
+                                    <TableRow
+                                        key={prospect.Name}
+                                        className="hover:bg-gray-800/20"
+                                    >
+                                        {visibleColumns.map((column) => (
+                                            <TableCell 
+                                                key={column.key}
+                                                className={`${column.key === 'Name' ? 'font-medium text-gray-300 whitespace-nowrap' : 'text-gray-300'} ${column.key === 'Pre-NBA' || column.key === 'NBA Team' || column.key === 'Wing - Height' || column.key === 'Weight (lbs)' ? 'whitespace-nowrap' : ''}`}
+                                            >
+                                                {column.key === 'Rank' ? originalRank : renderCell(prospect, column)}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                );
+                            })}
                         </TableBody>
                     </Table>
                 </div>
@@ -2714,6 +2721,7 @@ export default function ConsensusPage() {
                                     prospect.originalRank ?? 'N/A'
                                 ])
                             )}
+                            rankingSystem={rankingSystem}
                         />
                     )
                 ) : (
