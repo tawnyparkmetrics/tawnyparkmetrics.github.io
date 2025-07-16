@@ -273,7 +273,7 @@ const TimelineFilter = ({
   selectedYear,
   setSelectedYear,
 }: TimelineFilterProps) => {
-  const [showFilterSection, setShowFilterSection] = useState(false);
+  const [showFilterSection, setShowFilterSection] = useState(true);
 
   const getYearSortKeys = () => {
     if (selectedYear === 2025) {
