@@ -208,7 +208,7 @@ const ProspectCard: React.FC<{
   selectedSortKey: string;
   draftYear: '2025' | '2024'; // Add this prop
   rankingSystem: Map<string, number>; // Add ranking system prop
-}> = ({ prospect, filteredProspects, draftYear, rankingSystem }) => {
+}> = ({ prospect, draftYear, rankingSystem }) => {
   // Get the original rank from the ranking system
   const actualRank = rankingSystem.get(prospect.Name) || 1;
 

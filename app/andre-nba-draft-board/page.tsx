@@ -392,7 +392,7 @@ const ProspectCard: React.FC<{
     selectedSortKey: string;
     selectedYear: number;
     rankingSystem: Map<string, number>; // Add ranking system prop
-}> = ({ prospect, filteredProspects, selectedSortKey, selectedYear, rankingSystem }) => {
+}> = ({ prospect, selectedSortKey, selectedYear, rankingSystem }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [imageError, setImageError] = useState(false);
