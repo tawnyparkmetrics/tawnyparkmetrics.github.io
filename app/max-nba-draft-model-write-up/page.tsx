@@ -439,7 +439,7 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            <strong>Hopefully in the near future, yes.</strong> We would like to offer access to the data I use for my models (except the EPM data, which is not mine to share) as part of an upcoming subscription service. In doing so, subscribers could pursue their own draft analysis without having to source, standardize, and clean the data themselves – often the most time-intensive and tedious part of the data science process. Specifically, this will include access to the international and g-league BPM&apos;s I&apos;ve calculated, features I&apos;ve engineered, a &quot;raw&quot; copy of the dataset, and a copy standardized by both age and strength of competition.
+            <strong>Hopefully in the near future, yes.</strong> We would like to offer access to the data I use for my models (except the EPM data, which is not mine to share) as part of an upcoming subscription service. In doing so, subscribers could pursue their own draft analysis without having to source, standardize, and clean the data themselves – often the most time-intensive and tedious part of the data science process. Specifically, this will include access to the international and G-League BPM&apos;s I&apos;ve calculated, features I&apos;ve engineered, a &quot;raw&quot; copy of the dataset, and a copy standardized by both age and strength of competition.
           </p>
           <p className="mb-4">
             Ideally, should Tawny Park Metrics achieve financial viability from other sources of revenue, we would eventually offer the data for free. However, for the foreseeable future, it will remain behind a paywall, enabling us to continue producing basketball analysis and content.
@@ -473,7 +473,7 @@ export default function TPMWriteUpPage() {
       content: (
         <div>
           <p className="mb-4">
-            <strong>Yes,</strong> I try to watch and learn as much about each prospect – qualitatively – as I can, <strong>but it does not factor into any of my models&apos; output</strong> (i.e. what you see on my big board). While I love watching college, international, g-league, and NBA hoops, I don&apos;t, yet, feel compelled to publish my own personal opinion on prospects. 
+            <strong>Yes,</strong> I try to watch and learn as much about each prospect – qualitatively – as I can, <strong>but it does not factor into any of my models&apos; output</strong> (i.e. what you see on my big board). While I love watching college, international, G-League, and NBA hoops, I don&apos;t, yet, feel compelled to publish my own personal opinion on prospects. 
           </p>
           <p className="mb-4">
             For one, there is already a plethora of high quality, more conventional, scouting published online. Moreover, while I&apos;ve followed the NBA and college basketball my whole life, <strong>there&apos;s still a lot I have to learn.</strong> It&apos;s remarkable how much transpires possession to possession, that if you&apos;re not watching closely, completely flies over your head. 

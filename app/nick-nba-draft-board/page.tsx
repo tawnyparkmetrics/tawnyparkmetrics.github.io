@@ -207,9 +207,10 @@ const ProspectCard: React.FC<{
   allProspects: DraftProspect[];
   selectedSortKey: string;
   draftYear: '2025' | '2024'; // Add this prop
-}> = ({ prospect, filteredProspects, draftYear }) => {
-  // Find the actual rank of this prospect in the filtered and sorted list
-  const actualRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
+  rankingSystem: Map<string, number>; // Add ranking system prop
+}> = ({ prospect, filteredProspects, draftYear, rankingSystem }) => {
+  // Get the original rank from the ranking system
+  const actualRank = rankingSystem.get(prospect.Name) || 1;
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -511,6 +512,7 @@ interface ProspectFilterProps {
   onViewModeChange?: (mode: 'card' | 'table') => void; // New prop
   draftYear: '2025' | '2024';
   onDraftYearChange: (year: '2025' | '2024') => void;
+  onFilterStateChange?: (filterState: { filter: 'NCAA' | 'Int', roleFilter: 'all' | 'Guard' | 'Wing' | 'Big' }) => void;
 }
 
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
@@ -518,7 +520,8 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
   onFilteredProspectsChange,
   onViewModeChange,
   draftYear,
-  onDraftYearChange
+  onDraftYearChange,
+  onFilterStateChange
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filter, setFilter] = useState<'NCAA' | 'Int'>('NCAA');
@@ -533,6 +536,13 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
       onViewModeChange(viewMode);
     }
   }, [viewMode, onViewModeChange]);
+
+  // Notify parent component of filter state changes (excluding search)
+  useEffect(() => {
+    if (onFilterStateChange) {
+      onFilterStateChange({ filter, roleFilter });
+    }
+  }, [filter, roleFilter, onFilterStateChange]);
 
   const hasActiveFilters = () => {
     return (
@@ -981,6 +991,35 @@ export default function NickDraftPage() {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [selectedSortKey,] = useState<string>('Actual Pick');
+  const [filterState, setFilterState] = useState<{ filter: 'NCAA' | 'Int', roleFilter: 'all' | 'Guard' | 'Wing' | 'Big' }>({
+    filter: 'NCAA',
+    roleFilter: 'all'
+  });
+
+  // Create a separate ranking system that's independent of search filters but includes position and other filters
+  const rankingSystem = useMemo(() => {
+    // Apply the same filters as the ProspectFilter component (excluding search)
+    let validProspects = [...prospects];
+
+    // Apply NCAA/Int filter
+    if (filterState.filter === 'NCAA') {
+      validProspects = validProspects.filter((prospect) => prospect.NCAAM === '1');
+    } else if (filterState.filter === 'Int') {
+      validProspects = validProspects.filter((prospect) => prospect.NCAAM === '0');
+    }
+
+    // Apply role filter
+    if (filterState.roleFilter !== 'all') {
+      validProspects = validProspects.filter((prospect) => prospect.Role === filterState.roleFilter);
+    }
+
+    // Create a ranking map based on the filtered prospects order
+    const rankingMap = new Map<string, number>();
+    validProspects.forEach((prospect, index) => {
+      rankingMap.set(prospect.Name, index + 1);
+    });
+    return rankingMap;
+  }, [prospects, filterState]); // Include filterState but NOT searchQuery
 
   useEffect(() => {
     document.title = `Nick NBA Draft Board`;
@@ -1102,9 +1141,11 @@ export default function NickDraftPage() {
 
   // Render the table with sorting functionality
   const ProspectTable = ({
+    rankingSystem
   }: {
     prospects: DraftProspect[],
-    rank: Record<string, RankType>
+    rank: Record<string, RankType>,
+    rankingSystem: Map<string, number>
   }) => {
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     const [columns, setColumns] = useState<ColumnConfig[]>([
@@ -1166,8 +1207,8 @@ export default function NickDraftPage() {
             </TableHeader>
             <TableBody>
               {sortedProspects.map((prospect) => {
-                // Find the original rank of the prospect in the filtered prospects array
-                const originalRank = filteredProspects.findIndex(p => p.Name === prospect.Name) + 1;
+                // Get the original rank from the ranking system
+                const originalRank = rankingSystem.get(prospect.Name) || 1;
 
                 return (
                   <TableRow
@@ -1304,6 +1345,7 @@ export default function NickDraftPage() {
         onViewModeChange={setViewMode}
         draftYear={draftYear}
         onDraftYearChange={setDraftYear}
+        onFilterStateChange={setFilterState}
       />
 
       <div className="max-w-6xl mx-auto px-4 pt-8">
@@ -1318,6 +1360,7 @@ export default function NickDraftPage() {
                   allProspects={prospects}
                   selectedSortKey={selectedSortKey}
                   draftYear={draftYear}
+                  rankingSystem={rankingSystem}
                 />
               ))}
               {isLoading && !isMobile && (
@@ -1335,6 +1378,7 @@ export default function NickDraftPage() {
                   prospect.originalRank ?? 'N/A'
                 ])
               )}
+              rankingSystem={rankingSystem}
             />
           )
         ) : (

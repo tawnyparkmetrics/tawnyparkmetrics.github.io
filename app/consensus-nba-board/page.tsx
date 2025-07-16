@@ -306,7 +306,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         }
     }, [analyzeDataValidity, prospect.Name]);
 
-    // Build histogram data with proper counting
+    // Build histogram data with proper counting and percentage conversion
     const histogramData = useMemo(() => {
         const counts: Record<number, number> = {};
         const picks: number[] = [];
@@ -342,23 +342,41 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     
         const minPick = Math.min(...picks);
         const maxPick = Math.max(...picks);
-
         const uniquePicks = new Set(picks);
+        
+        // Calculate total valid contributors for percentage calculation
+        const totalContributors = Object.entries(consensusData)
+            .filter(([key]) => key !== "Name")
+            .reduce((count, [, value]) => {
+                let pick: number | undefined;
+                if (typeof value === "number") {
+                    pick = value;
+                } else if (typeof value === "string") {
+                    const cleaned = value.replace(/[^\d]/g, '');
+                    const parsed = parseInt(cleaned);
+                    if (!isNaN(parsed)) pick = parsed;
+                }
+                return pick && pick >= 1 && pick <= 108 ? count + 1 : count;
+            }, 0);
     
         const histogram =
             uniquePicks.size === 1
                 ? Array.from({ length: 3 }, (_, i) => {
                     const x = minPick - 1 + i;
+                    const count = counts[x] || 0;
                     return {
                         pick: x,
-                        count: counts[x] || 0,
+                        count: count,
+                        percentage: totalContributors > 0 ? (count / totalContributors) * 100 : 0,
                     };
                 })
                 : Array.from({ length: maxPick - minPick + 1 }, (_, i) => {
                     const x = minPick + i;
+                    const count = counts[x] || 0;
                     return {
                         pick: x,
-                        count: counts[x] || 0,
+                        count: count,
+                        percentage: totalContributors > 0 ? (count / totalContributors) * 100 : 0,
                     };
                 });
     
@@ -396,7 +414,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
             });
         
         const participationRate = totalContributors > 0 ? (actualValidPicks / totalContributors) * 100 : 0;
-        const maxCount = Math.max(...histogramData.map(item => item.count));
+        const maxPercentage = Math.max(...histogramData.map(item => item.percentage));
         
         // FIXED: Make sparse data criteria extremely restrictive - only for truly exceptional cases
         // Only use bars for prospects with 1-2 total votes or completely no distribution
@@ -407,7 +425,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
             totalContributors,
             validPicks: actualValidPicks, // Use the correctly counted picks
             participationRate,
-            maxCount,
+            maxPercentage,
             isSparseData,
             uniquePickPositions
         };
@@ -439,7 +457,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                     <span className="font-semibold">Rank:</span> {label}
                 </div>
                 <div className="text-sm text-gray-300">
-                    <span className="font-semibold">Frequency:</span> {data.value}
+                    <span className="font-semibold">Frequency:</span> {data.value.toFixed(1)}%
                 </div>
             </div>
         );
@@ -460,11 +478,39 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         histogramData[histogramData.length - 1].pick
     ] : [1, 60];
 
-    const yDomain = [0, Math.max(3, dataQuality.maxCount)]; // Minimum height of 3 for better scaling
+    // Calculate dynamic y-axis max based on the highest percentage
+    const getYAxisMax = (maxPercentage: number): number => {
+        if (maxPercentage <= 0) return 10; // Default if no data
+        
+        // Round up to the next reasonable tick (increments of 5)
+        if (maxPercentage <= 5) return 5;
+        if (maxPercentage <= 10) return 10;
+        if (maxPercentage <= 15) return 15;
+        if (maxPercentage <= 20) return 20;
+        if (maxPercentage <= 25) return 25;
+        if (maxPercentage <= 30) return 30;
+        if (maxPercentage <= 35) return 35;
+        if (maxPercentage <= 40) return 40;
+        if (maxPercentage <= 45) return 45;
+        if (maxPercentage <= 50) return 50;
+        if (maxPercentage <= 55) return 55;
+        if (maxPercentage <= 60) return 60;
+        if (maxPercentage <= 65) return 65;
+        if (maxPercentage <= 70) return 70;
+        if (maxPercentage <= 75) return 75;
+        if (maxPercentage <= 80) return 80;
+        if (maxPercentage <= 85) return 85;
+        if (maxPercentage <= 90) return 90;
+        if (maxPercentage <= 95) return 95;
+        return 100; // For very high percentages
+    };
+
+    const yAxisMax = getYAxisMax(dataQuality.maxPercentage);
+    const yDomain = [0, yAxisMax];
 
     return (
         <div>
-            <ChartContainer config={{ count: { color: teamColor, label: "Frequency" } }}>
+            <ChartContainer config={{ percentage: { color: teamColor, label: "Percentage" } }}>
                 {dataQuality.isSparseData ? (
                     // Use bar chart for truly sparse data (very few picks or single position)
                     <BarChart data={histogramData} barCategoryGap="20%">
@@ -492,9 +538,11 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                             tick={{ fill: "#ccc", fontSize: 12 }}
                             allowDecimals={false}
                             domain={yDomain}
+                            ticks={Array.from({ length: Math.floor(yAxisMax / 5) + 1 }, (_, i) => i * 5).filter(tick => tick <= yAxisMax)}
+                            label={{ value: '', angle: 0, position: 'insideLeft' }}
                         />
                         <Bar
-                            dataKey="count"
+                            dataKey="percentage"
                             fill={`url(#barGradient-${prospect.Name.replace(/[^a-zA-Z0-9]/g, '')})`}
                             stroke={teamColor}
                             strokeWidth={1}
@@ -529,10 +577,12 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                             tick={{ fill: "#ccc", fontSize: 12 }}
                             allowDecimals={false}
                             domain={yDomain}
+                            ticks={Array.from({ length: Math.floor(yAxisMax / 5) + 1 }, (_, i) => i * 5).filter(tick => tick <= yAxisMax)}
+                            label={{ value: '', angle: 0, position: 'insideLeft' }}
                         />
                         <Area
                             type="monotone"
-                            dataKey="count"
+                            dataKey="percentage"
                             stroke={teamColor}
                             strokeWidth={2}
                             fill={`url(#areaGradient-${prospect.Name.replace(/[^a-zA-Z0-9]/g, '')})`}

@@ -2721,33 +2721,106 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
     setDisplayedProspects(5);
   }, [selectedSortKey, selectedPosition, searchQuery, tierRankActive]); // Include tierRankActive
 
-  const filteredProspects = useMemo(() => {
-    // Create a map of the initial draft order rank
-    const initialRankMap = new Map<string, RankType>(
-      initialProspects
-        .filter(prospect =>
-          prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
-          prospect['G Played Issue'] !== '1' && // Filter out prospects with G Played Issue = 1
-          prospect['Actual Pick'] &&
-          !isNaN(Number(prospect['Actual Pick'])) &&
-          Number(prospect['Actual Pick']) <= (selectedYear === 2025 ? 59 : 58) // 59 for 2025, 58 for 2024
-        )
-        .sort((a, b) => Number(a['Actual Pick']) - Number(b['Actual Pick']))
-        .map((prospect, index) => [prospect.Name, (index + 1).toString()])
+  // Create a separate ranking system that's independent of search filters but includes position and tier filters
+  const rankingSystem = useMemo(() => {
+    // Filter out invalid prospects for ranking calculations
+    let validProspects = initialProspects.filter(prospect =>
+      prospect.Name !== 'Ulrich Chomche' && 
+      prospect['G Played Issue'] !== '1'
     );
 
-    // Add ranks for undrafted players as 'UDFA'
-    initialProspects
-      .filter(prospect =>
-        prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
-        prospect['G Played Issue'] !== '1' // Filter out prospects with G Played Issue = 1
-      )
-      .forEach(prospect => {
-        if (!initialRankMap.has(prospect.Name)) {
-          initialRankMap.set(prospect.Name, 'UDFA'); // Use 'UDFA' for undrafted players
-        }
-      });
+    // Apply position filter if selected (this affects ranking)
+    if (selectedPosition) {
+      validProspects = validProspects.filter(prospect => prospect.Role === selectedPosition);
+    }
 
+    // Apply tier filter if selected (this affects ranking)
+    if (selectedTier) {
+      validProspects = validProspects.filter(prospect => prospect.Tier === selectedTier);
+    }
+
+    // Define tierRankMap for sorting
+    const tierRankMap = {
+      'All-Time Great': 1,
+      'All-NBA Caliber': 2,
+      'Fringe All-Star': 3,
+      'Quality Starter': 4,
+      'Solid Rotation': 5,
+      'Bench Reserve': 6,
+      'Fringe NBA': 7
+    };
+
+    // Sort prospects based on current sort key and tier ranking
+    const sortedProspects = [...validProspects].sort((a, b) => {
+      // If tier ranking is active, always sort by tier first
+      if (tierRankActive) {
+        const aTierRank = tierRankMap[a.Tier as keyof typeof tierRankMap] || 999;
+        const bTierRank = tierRankMap[b.Tier as keyof typeof tierRankMap] || 999;
+
+        // If tiers are different, sort by tier
+        if (aTierRank !== bTierRank) {
+          return aTierRank - bTierRank;
+        }
+
+        // If tiers are the same, sort by the selected metric
+        if (selectedSortKey === 'Avg. Rank Y1-Y3') {
+          const aValue = Number(a['Avg. EPM Y1-Y3']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y3']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey === 'Avg. Rank Y1-Y5') {
+          const aValue = Number(a['Avg. EPM Y1-Y5']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y5']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey.includes('EPM')) {
+          const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 0;
+          const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 0;
+          return bValue - aValue;
+        } else if (selectedSortKey.includes('Rank')) {
+          const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 999;
+          const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 999;
+          return aValue - bValue;
+        } else if (selectedSortKey === 'Actual Pick') {
+          const aPick = Number(a['Actual Pick']) || 999;
+          const bPick = Number(b['Actual Pick']) || 999;
+          return aPick - bPick;
+        }
+      } else {
+        // If tier ranking is not active, use normal sorting
+        if (selectedSortKey === 'Avg. Rank Y1-Y3') {
+          const aValue = Number(a['Avg. EPM Y1-Y3']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y3']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey === 'Avg. Rank Y1-Y5') {
+          const aValue = Number(a['Avg. EPM Y1-Y5']) || 0;
+          const bValue = Number(b['Avg. EPM Y1-Y5']) || 0;
+          return bValue - aValue; // Higher EPM is better
+        } else if (selectedSortKey.includes('EPM')) {
+          const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 0;
+          const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 0;
+          return bValue - aValue;
+        } else if (selectedSortKey.includes('Rank')) {
+          const aValue = Number(a[selectedSortKey as keyof DraftProspect]) || 999;
+          const bValue = Number(b[selectedSortKey as keyof DraftProspect]) || 999;
+          return aValue - bValue;
+        } else if (selectedSortKey === 'Actual Pick') {
+          const aPick = Number(a['Actual Pick']) || 999;
+          const bPick = Number(b['Actual Pick']) || 999;
+          return aPick - bPick;
+        }
+      }
+      return 0;
+    });
+
+    // Create a map of prospect names to their ranks
+    const rankingMap = new Map<string, number>();
+    sortedProspects.forEach((prospect, index) => {
+      rankingMap.set(prospect.Name, index + 1);
+    });
+
+    return rankingMap;
+  }, [initialProspects, selectedSortKey, selectedPosition, selectedTier, tierRankActive, selectedYear]); // Include position and tier filters, but NOT searchQuery
+
+  const filteredProspects = useMemo(() => {
     // Apply filters
     let filtered = initialProspects.filter(prospect =>
       prospect.Name !== 'Ulrich Chomche' && // Filter out Ulrich Chomche
@@ -2799,7 +2872,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
       filtered = filtered.filter(prospect => prospect.Tier === selectedTier);
     }
 
-    // Define tierRankMap inside useMemo
+    // Sort the filtered prospects using the same logic as the ranking system
     const tierRankMap = {
       'All-Time Great': 1,
       'All-NBA Caliber': 2,
@@ -2810,7 +2883,6 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
       'Fringe NBA': 7
     };
 
-    // Sort the filtered prospects
     const sortedFiltered = [...filtered].sort((a, b) => {
       // If tier ranking is active, always sort by tier first
       if (tierRankActive) {
@@ -2871,7 +2943,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
       return 0;
     });
 
-    // Map the sorted and filtered prospects to include their original draft rank
+    // Map the sorted and filtered prospects to include their original rank from the ranking system
     return sortedFiltered.map(prospect => {
       let rank: RankType;
 
@@ -2894,9 +2966,9 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
           }
         }
       } else {
-        // For other sorting methods, use the position in the sorted array
-        const index = sortedFiltered.findIndex(p => p.Name === prospect.Name);
-        rank = (index + 1).toString();
+        // For other sorting methods, use the rank from the ranking system
+        const originalRank = rankingSystem.get(prospect.Name);
+        rank = originalRank ? originalRank.toString() : 'N/A';
       }
 
       return {
@@ -2905,7 +2977,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
       };
     });
 
-  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive, selectedYear]); // Remove tierRankMap from dependencies
+  }, [initialProspects, selectedSortKey, selectedPosition, searchQuery, selectedTier, tierRankActive, selectedYear, rankingSystem]); // Include rankingSystem in dependencies
 
   // const handleTierRankClick = () => {
   //   setTierRankActive(prev => !prev); // Toggle Tier Ranked state

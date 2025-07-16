@@ -17,6 +17,31 @@ interface ColumnSelectorProps {
     categories?: string[]; // Optional: pass custom categories
     lockedColumns?: string[]; // Optional: specify which columns can't be toggled
 }
+/**
+ * Utility function to determine if the device is mobile based on window width.
+ * Returns true if window.innerWidth < 768 (Tailwind's sm breakpoint).
+ */
+export const isMobileDevice = (): boolean => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+};
+
+/**
+ * Utility classNames for mobile consistency.
+ * Use these in your filter containers to ensure proper width and overflow handling.
+ */
+export const mobileFilterContainerClass =
+    "w-full max-w-full overflow-x-auto flex flex-wrap gap-2 px-1 py-2";
+
+/**
+ * Example usage in a filter container:
+ * <div className={isMobileDevice() ? mobileFilterContainerClass : "your-desktop-class"}>
+ *   ...filter buttons...
+ * </div>
+ *
+ * This ensures that on mobile, the filter container is full width, allows horizontal scrolling if needed,
+ * and has consistent padding/gap.
+ */
 
 const ColumnSelector: React.FC<ColumnSelectorProps> = ({ 
     columns, 
@@ -60,11 +85,11 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
     const displayCategories = categories || [...new Set(columns.map(col => col.category))];
 
     return (
-        <div className="mb-4">
+        <div className="mb-4 relative">
             {/* Toggle Button */}
             <button
                 onClick={onToggle}
-                className="w-full flex items-center justify-between px-4 py-3 bg-[#19191A] border border-gray-800 rounded-lg text-gray-400 hover:border-gray-700 transition-colors"
+                className="w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 bg-[#19191A] border border-gray-800 rounded-lg text-gray-400 hover:border-gray-700 transition-colors"
             >
                 <div className="flex items-center gap-2">
                     <div 
@@ -73,7 +98,7 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                     >
                         <Settings className="h-4 w-4" />
                     </div>
-                    <span className="font-medium">Customize Table Columns</span>
+                    <span className="font-medium text-sm md:text-base">Customize Table Columns</span>
                 </div>
                 <div 
                     className="transition-transform duration-300 ease-in-out"
@@ -91,8 +116,8 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                     opacity: isOpen ? 1 : 0
                 }}
             >
-                <div className="bg-[#19191A] border border-gray-800 rounded-lg p-4 mt-2 shadow-lg">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-[#19191A] border border-gray-800 rounded-lg p-3 md:p-4 mt-2 shadow-lg max-h-[80vh] overflow-y-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                         {displayCategories.map(category => {
                             // Filter out locked columns from the dropdown options
                             const categoryColumns = columns.filter(col => 
@@ -102,24 +127,24 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                             const totalCount = categoryColumns.length;
                             
                             return (
-                                <div key={category} className="space-y-3">
+                                <div key={category} className="space-y-2 md:space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="text-gray-400 font-medium text-sm">{category}</h4>
+                                        <h4 className="text-gray-400 font-medium text-xs md:text-sm">{category}</h4>
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleToggleCategory(category);
                                             }}
-                                            className="text-xs text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-gray-800/50 transition-colors"
+                                            className="text-xs text-gray-300 hover:text-white px-1.5 md:px-2 py-0.5 md:py-1 rounded hover:bg-gray-800/50 transition-colors"
                                         >
                                             {visibleCount === totalCount ? 'Hide All' : 'Show All'}
                                         </button>
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="space-y-1 md:space-y-2">
                                         {categoryColumns.map(column => (
                                             <div
                                                 key={column.key}
-                                                className="flex items-center gap-3 p-2 rounded hover:bg-gray-800/50 cursor-pointer transition-colors"
+                                                className="flex items-center gap-2 md:gap-3 p-1.5 md:p-2 rounded hover:bg-gray-800/50 cursor-pointer transition-colors"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleToggleColumn(column.key);
@@ -154,7 +179,7 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                                                         )}
                                                     </div>
                                                 </div>
-                                                <span className="text-gray-400 text-sm cursor-pointer flex-1 select-none">
+                                                <span className="text-gray-400 text-xs md:text-sm cursor-pointer flex-1 select-none">
                                                     {column.label}
                                                 </span>
                                             </div>
