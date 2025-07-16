@@ -913,7 +913,8 @@ const ProspectCard: React.FC<{
     selectedSortKey: string;
     selectedYear: number;
     consensusData?: ConsensusColumns;
-}> = ({ prospect, consensusData }) => {
+    rankingSystem: Map<string, number>;
+}> = ({ prospect, consensusData, rankingSystem }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [imageError, setImageError] = useState(false);
@@ -954,7 +955,9 @@ const ProspectCard: React.FC<{
     const playerImageUrl = `/player_images2025/${prospect.Name} BG Removed.png`;
     const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
-    const currentRank = prospect['Rank'];
+    // Get the original rank from the ranking system
+    const actualRank = rankingSystem.get(prospect.Name) || 1;
+    const currentRank = actualRank.toString();
 
     // Helper function to get draft display text
     const getDraftDisplayText = (isMobileView: boolean = false) => {
@@ -1334,6 +1337,7 @@ type RankType = number | 'N/A';
 interface ProspectFilterProps {
     prospects: DraftProspect[];
     onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
+    onRankingSystemChange?: (rankingSystem: Map<string, number>) => void;
     rank: Record<string, RankType>;
     onViewModeChange?: (mode: 'card' | 'table' | 'contributors') => void;
 }
@@ -1341,6 +1345,7 @@ interface ProspectFilterProps {
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
     prospects,
     onFilteredProspectsChange,
+    onRankingSystemChange,
     onViewModeChange
 }) => {
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -1393,6 +1398,28 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             results = results.filter((prospect) => prospect.Role === roleFilter);
         }
 
+        // Create ranking system based on filters (excluding search)
+        const rankingSystem = new Map<string, number>();
+        const filteredForRanking = prospects.filter((prospect) => {
+            if (roleFilter !== 'all') {
+                return prospect.Role === roleFilter;
+            }
+            return true;
+        });
+
+        // Sort by Rank (ascending order - 1, 2, 3, etc.)
+        const sortedForRanking = filteredForRanking.sort((a, b) => {
+            const rankA = parseInt(a.Rank) || 999; // Default to 999 if no rank
+            const rankB = parseInt(b.Rank) || 999;
+            return rankA - rankB;
+        });
+
+        // Assign ranks based on filtered and sorted data
+        sortedForRanking.forEach((prospect, index) => {
+            rankingSystem.set(prospect.Name, index + 1);
+        });
+
+        // Apply search filter after creating ranking system
         if (searchQuery) {
             const searchTermLower = searchQuery.toLowerCase();
             results = results.filter(
@@ -1415,7 +1442,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
         if (onFilteredProspectsChange) {
             onFilteredProspectsChange(results);
         }
-    }, [prospects, searchQuery, roleFilter, onFilteredProspectsChange]);
+
+        if (onRankingSystemChange) {
+            onRankingSystemChange(rankingSystem);
+        }
+    }, [prospects, searchQuery, roleFilter, onFilteredProspectsChange, onRankingSystemChange]);
 
     // Debug the current view mode
     console.log('Current viewMode in render:', viewMode);
@@ -1973,6 +2004,7 @@ export default function ConsensusPage() {
     const tableContainerRef = useRef<HTMLDivElement>(null);
     const [contributorSearch, setContributorSearch] = useState('');
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
+    const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
     
     // Define column configuration with proper Player Information order
     const [columns, setColumns] = useState<ColumnConfig[]>([
@@ -2583,6 +2615,7 @@ export default function ConsensusPage() {
                 <ProspectFilter
                     prospects={prospects}
                     onFilteredProspectsChange={setFilteredProspects}
+                    onRankingSystemChange={setRankingSystem}
                     rank={{}}
                     onViewModeChange={setViewMode}
                 />
@@ -2663,6 +2696,7 @@ export default function ConsensusPage() {
                                     allProspects={prospects}
                                     selectedSortKey={selectedSortKey} rank={Number(prospect['Rank'])} selectedYear={0}
                                     consensusData={consensusMap[prospect.Name]}
+                                    rankingSystem={rankingSystem}
                                 />
                             ))}
                             {isLoading && !isMobile && (
