@@ -995,6 +995,21 @@ export default function NickDraftPage() {
     filter: 'NCAA',
     roleFilter: 'all'
   });
+  const [columns, setColumns] = useState<ColumnConfig[]>([
+    { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
+    { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
+    { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
+  ]);
+  const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
 
   // Create a separate ranking system that's independent of search filters but includes position and other filters
   const rankingSystem = useMemo(() => {
@@ -1105,6 +1120,23 @@ export default function NickDraftPage() {
       let aValue = a[sortConfig.key as keyof DraftProspect];
       let bValue = b[sortConfig.key as keyof DraftProspect];
 
+      // Helper function to check if a value is N/A, empty, or undefined
+      const isNAValue = (value: any): boolean => {
+        return value === undefined || 
+               value === null || 
+               value === '' || 
+               String(value).toLowerCase() === 'n/a' ||
+               String(value).toLowerCase() === 'na';
+      };
+
+      // Check if either value is N/A - N/A values always go to the end
+      const aIsNA = isNAValue(aValue);
+      const bIsNA = isNAValue(bValue);
+
+      if (aIsNA && !bIsNA) return 1;  // a goes after b
+      if (!aIsNA && bIsNA) return -1; // a goes before b
+      if (aIsNA && bIsNA) return 0;   // both are N/A, maintain order
+
       // Handle specific columns
       if (sortConfig.key === 'Actual Pick') {
         const aNum = parseInt(aValue as string) || 99;
@@ -1125,7 +1157,16 @@ export default function NickDraftPage() {
         return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
       }
 
-      // Default string comparison
+      // For numeric columns, try to parse as numbers
+      const aNum = parseFloat(aValue as string);
+      const bNum = parseFloat(bValue as string);
+      
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        // Both are valid numbers
+        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+      }
+
+      // Default string comparison for non-numeric values
       if (aValue === undefined) aValue = '';
       if (bValue === undefined) bValue = '';
 
@@ -1141,28 +1182,20 @@ export default function NickDraftPage() {
 
   // Render the table with sorting functionality
   const ProspectTable = ({
-    rankingSystem
+    rankingSystem,
+    columns,
+    setColumns,
+    isOpen,
+    onToggle
   }: {
     prospects: DraftProspect[],
     rank: Record<string, RankType>,
-    rankingSystem: Map<string, number>
+    rankingSystem: Map<string, number>,
+    columns: ColumnConfig[],
+    setColumns: React.Dispatch<React.SetStateAction<ColumnConfig[]>>,
+    isOpen: boolean,
+    onToggle: () => void
   }) => {
-    const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
-    const [columns, setColumns] = useState<ColumnConfig[]>([
-      { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
-      { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
-      { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
-      { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
-      { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
-      { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
-      { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-      { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
-      { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
-      { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
-      { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
-      { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
-    ]);
-
     // Helper function to get draft display text for table
     const getTableDraftText = (prospect: DraftProspect) => {
       const actualPick = prospect['Actual Pick'];
@@ -1180,8 +1213,8 @@ export default function NickDraftPage() {
           <CustomSelector
             columns={columns}
             onColumnsChange={setColumns}
-            isOpen={columnSelectorOpen}
-            onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
+            isOpen={isOpen}
+            onToggle={onToggle}
           />
         </div>
         
@@ -1379,6 +1412,10 @@ export default function NickDraftPage() {
                 ])
               )}
               rankingSystem={rankingSystem}
+              columns={columns}
+              setColumns={setColumns}
+              isOpen={columnSelectorOpen}
+              onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
             />
           )
         ) : (

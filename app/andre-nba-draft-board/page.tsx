@@ -21,8 +21,6 @@ import {
 import { GoogleAnalytics } from '@next/third-parties/google';
 import CustomSelector, { ColumnConfig } from '@/components/CustomSelector';
 
-
-
 export interface DraftProspect {
     Name: string;
     'Actual Pick': string;
@@ -459,30 +457,30 @@ const ProspectCard: React.FC<{
     }, [prospect, selectedSortKey, pickNumber, rankingSystem]);
 
     // Helper function to get draft display text
-const getDraftDisplayText = (isMobileView: boolean = false) => {
-    const actualPick = prospect['Actual Pick'];
-    const team = isMobileView ? (prospect['ABV'] || prospect['NBA Team']) : prospect['NBA Team'];
-    
-    // Check if actualPick exists and is not empty/whitespace
-    if (actualPick && actualPick.toString().trim() !== '') {
-        // Show "Pick - Team"
-        const pickTeam = `${actualPick} - ${team}`;
-        if (isMobileView) {
-            return Object.keys(draftShort).reduce((name, longName) => {
-                return name.replace(longName, draftShort[longName]);
-            }, pickTeam);
+    const getDraftDisplayText = (isMobileView: boolean = false) => {
+        const actualPick = prospect['Actual Pick'];
+        const team = isMobileView ? (prospect['ABV'] || prospect['NBA Team']) : prospect['NBA Team'];
+
+        // Check if actualPick exists and is not empty/whitespace
+        if (actualPick && actualPick.toString().trim() !== '') {
+            // Show "Pick - Team"
+            const pickTeam = `${actualPick} - ${team}`;
+            if (isMobileView) {
+                return Object.keys(draftShort).reduce((name, longName) => {
+                    return name.replace(longName, draftShort[longName]);
+                }, pickTeam);
+            }
+            return pickTeam;
+        } else {
+            // Show just the team (fallback to current behavior)
+            if (isMobileView) {
+                return Object.keys(draftShort).reduce((name, longName) => {
+                    return name.replace(longName, draftShort[longName]);
+                }, team);
+            }
+            return team;
         }
-        return pickTeam;
-    } else {
-        // Show just the team (fallback to current behavior)
-        if (isMobileView) {
-            return Object.keys(draftShort).reduce((name, longName) => {
-                return name.replace(longName, draftShort[longName]);
-            }, team);
-        }
-        return team;
-    }
-};
+    };
     // Data for the new table (example values)
     const tableData = useMemo(() => ([
         { label: 'Cumulative', value: prospect['Cumulative PS/1000'] || 'N/A' },
@@ -831,6 +829,30 @@ const getDraftDisplayText = (isMobileView: boolean = false) => {
 
 type RankType = number | 'N/A';
 
+// Add LeagueLogo component after the existing logo components
+const LeagueLogo = ({ league }: { league: string }) => {
+    const [logoError, setLogoError] = useState(false);
+    const logoUrl = `/league_logos/${league}.png`;
+
+    if (logoError) {
+        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
+            <span className="text-xs text-gray-400">{league}</span>
+        </div>;
+    }
+
+    return (
+        <div className="h-6 w-6 relative">
+            <Image
+                src={logoUrl}
+                alt={`${league} logo`}
+                fill
+                className="object-contain"
+                onError={() => setLogoError(true)}
+            />
+        </div>
+    );
+};
+
 interface ProspectFilterProps {
     prospects: DraftProspect[];
     onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
@@ -946,22 +968,22 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 {/* Only show icons on desktop, not on mobile */}
                                 <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
                                 <span className="hidden sm:flex items-center">
-                                {viewMode === 'card' ? (
-                                    <>
-                                        <LucideUser className="mr-1 h-4 w-4" />
-                                        Card View
-                                    </>
-                                ) : viewMode === 'table' ? (
-                                    <>
-                                        <TableIcon className="mr-1 h-4 w-4" />
-                                        Table View
-                                    </>
-                                ) : (
-                                    <>
-                                        <LucideUser className="mr-1 h-4 w-4" />
-                                        Card View
-                                    </>
-                                )}
+                                    {viewMode === 'card' ? (
+                                        <>
+                                            <LucideUser className="mr-1 h-4 w-4" />
+                                            Card View
+                                        </>
+                                    ) : viewMode === 'table' ? (
+                                        <>
+                                            <TableIcon className="mr-1 h-4 w-4" />
+                                            Table View
+                                        </>
+                                    ) : (
+                                        <>
+                                            <LucideUser className="mr-1 h-4 w-4" />
+                                            Card View
+                                        </>
+                                    )}
                                 </span>
                                 <ChevronDown className="ml-1 h-4 w-4" />
                             </motion.button>
@@ -1280,7 +1302,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     );
 };
 
-
 export default function AndreDraftPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
@@ -1290,6 +1311,7 @@ export default function AndreDraftPage() {
         direction: 'ascending' | 'descending';
     } | null>(null);
     const [loadedProspects, setLoadedProspects] = useState<number>(5);
+    const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -1299,6 +1321,32 @@ export default function AndreDraftPage() {
         roleFilter: 'all',
         selectedTier: null
     });
+    const [columns, setColumns] = useState<ColumnConfig[]>([
+        { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
+        { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
+        { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Age Score', label: 'Age Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'Athletic Score', label: 'Athletic Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'Scoring Score', label: 'Scoring Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'Defense Score', label: 'Defense Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'Measurables Score', label: 'Measurables Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'Self Creation Score', label: 'Self Creation Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'Touch Score', label: 'Touch Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'IQ Score', label: 'IQ Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'Usage Score', label: 'Usage Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'Cumulative Prospect Score', label: 'Cumulative Prospect Score', category: 'Scoring Information', visible: false, sortable: true },
+        { key: 'Cumulative PS/1000', label: 'Cumulative PS/1000', category: 'Scoring Information', visible: false, sortable: true },
+    ]);
 
     // Create a separate ranking system that's independent of search filters but includes position and tier filters
     const rankingSystem = useMemo(() => {
@@ -1420,6 +1468,23 @@ export default function AndreDraftPage() {
             let aValue = a[sortConfig.key as keyof DraftProspect];
             let bValue = b[sortConfig.key as keyof DraftProspect];
 
+            // Helper function to check if a value is N/A, empty, or undefined
+            const isNAValue = (value: any): boolean => {
+                return value === undefined || 
+                       value === null || 
+                       value === '' || 
+                       String(value).toLowerCase() === 'n/a' ||
+                       String(value).toLowerCase() === 'na';
+            };
+
+            // Check if either value is N/A - N/A values always go to the end
+            const aIsNA = isNAValue(aValue);
+            const bIsNA = isNAValue(bValue);
+
+            if (aIsNA && !bIsNA) return 1;  // a goes after b
+            if (!aIsNA && bIsNA) return -1; // a goes before b
+            if (aIsNA && bIsNA) return 0;   // both are N/A, maintain order
+
             // Handle specific columns
             if (sortConfig.key === 'Actual Pick') {
                 const aNum = parseInt(aValue as string) || 99;
@@ -1446,8 +1511,16 @@ export default function AndreDraftPage() {
                 return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
             }
 
+            // For numeric columns, try to parse as numbers
+            const aNum = parseFloat(aValue as string);
+            const bNum = parseFloat(bValue as string);
+            
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+                // Both are valid numbers
+                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+            }
 
-            // Default string comparison
+            // Default string comparison for non-numeric values
             if (aValue === undefined) aValue = '';
             if (bValue === undefined) bValue = '';
 
@@ -1463,39 +1536,21 @@ export default function AndreDraftPage() {
 
     // Render the table with sorting functionality
     const ProspectTable = ({
-        rankingSystem
+        rankingSystem,
+        columns,
+        setColumns,
+        isOpen,
+        onToggle
     }: {
         prospects: DraftProspect[],
         rank: Record<string, RankType>,
-        rankingSystem: Map<string, number>
+        rankingSystem: Map<string, number>,
+        columns: ColumnConfig[],
+        setColumns: React.Dispatch<React.SetStateAction<ColumnConfig[]>>,
+        isOpen: boolean,
+        onToggle: () => void
     }) => {
-        const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
-        const [columns, setColumns] = useState<ColumnConfig[]>([
-            { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
-            { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
-            { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
-            { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
-            { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
-            { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
-            { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-            { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
-            { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
-            { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
-            { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
-            { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
-            { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
-            { key: 'Age Score', label: 'Age Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'Athletic Score', label: 'Athletic Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'Scoring Score', label: 'Scoring Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'Defense Score', label: 'Defense Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'Measurables Score', label: 'Measurables Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'Self Creation Score', label: 'Self Creation Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'Touch Score', label: 'Touch Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'IQ Score', label: 'IQ Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'Usage Score', label: 'Usage Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'Cumulative Prospect Score', label: 'Cumulative Prospect Score', category: 'Scoring Information', visible: false, sortable: true },
-            { key: 'Cumulative PS/1000', label: 'Cumulative PS/1000', category: 'Scoring Information', visible: false, sortable: true },
-        ]);
+        // Remove the local isColumnSelectorOpen state - it's now passed as props
 
         return (
             <div className="max-w-6xl mx-auto px-4 pt-2">
@@ -1504,8 +1559,8 @@ export default function AndreDraftPage() {
                     <CustomSelector
                         columns={columns}
                         onColumnsChange={setColumns}
-                        isOpen={columnSelectorOpen}
-                        onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
+                        isOpen={isOpen}  // Use prop instead of local state
+                        onToggle={onToggle}  // Use prop instead of local state
                     />
                 </div>
                 <div
@@ -1542,7 +1597,7 @@ export default function AndreDraftPage() {
                                     >
                                         {columns.filter(col => col.visible).map((column) => {
                                             const key = column.key as keyof DraftProspect;
-                                            
+
                                             // Handle special cases for different column types
                                             if (column.key === 'Rank') {
                                                 return (
@@ -1551,7 +1606,7 @@ export default function AndreDraftPage() {
                                                     </TableCell>
                                                 );
                                             }
-                                            
+
                                             if (column.key === 'Name') {
                                                 return (
                                                     <TableCell key={column.key} className="font-medium text-gray-300 whitespace-nowrap">
@@ -1559,7 +1614,7 @@ export default function AndreDraftPage() {
                                                     </TableCell>
                                                 );
                                             }
-                                            
+
                                             if (column.key === 'League') {
                                                 return (
                                                     <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
@@ -1570,7 +1625,7 @@ export default function AndreDraftPage() {
                                                     </TableCell>
                                                 );
                                             }
-                                            
+
                                             if (column.key === 'Pre-NBA') {
                                                 return (
                                                     <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
@@ -1581,7 +1636,7 @@ export default function AndreDraftPage() {
                                                     </TableCell>
                                                 );
                                             }
-                                            
+
                                             if (column.key === 'Actual Pick') {
                                                 return (
                                                     <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
@@ -1596,7 +1651,7 @@ export default function AndreDraftPage() {
                                                     </TableCell>
                                                 );
                                             }
-                                            
+
                                             if (column.key === 'NBA Team') {
                                                 return (
                                                     <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
@@ -1607,7 +1662,7 @@ export default function AndreDraftPage() {
                                                     </TableCell>
                                                 );
                                             }
-                                            
+
                                             if (column.key === 'Tier') {
                                                 return (
                                                     <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
@@ -1624,7 +1679,7 @@ export default function AndreDraftPage() {
                                                     </TableCell>
                                                 );
                                             }
-                                            
+
                                             // Default case for other columns
                                             const cellValue = prospect[key];
                                             return (
@@ -1686,14 +1741,14 @@ export default function AndreDraftPage() {
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Andre Liu" />
             <DraftPageHeader author="Andre Liu" />
-            <GoogleAnalytics  gaId="G-X22HKJ13B7" />
-                    <ProspectFilter
-            prospects={prospects}
-            onFilteredProspectsChange={setFilteredProspects}
-            rank={{}}
-            onViewModeChange={setViewMode}
-            onFilterStateChange={setFilterState}
-        />
+            <GoogleAnalytics gaId="G-X22HKJ13B7" />
+            <ProspectFilter
+                prospects={prospects}
+                onFilteredProspectsChange={setFilteredProspects}
+                rank={{}}
+                onViewModeChange={setViewMode}
+                onFilterStateChange={setFilterState}
+            />
 
             <div className="max-w-6xl mx-auto px-4 pt-8">
                 {filteredProspects.length > 0 ? (
@@ -1705,8 +1760,8 @@ export default function AndreDraftPage() {
                                     prospect={prospect}
                                     filteredProspects={filteredProspects}
                                     allProspects={prospects}
-                                    selectedSortKey={selectedSortKey} 
-                                    rank={0} 
+                                    selectedSortKey={selectedSortKey}
+                                    rank={0}
                                     selectedYear={0}
                                     rankingSystem={rankingSystem} />
                             ))}
@@ -1726,6 +1781,10 @@ export default function AndreDraftPage() {
                                 ])
                             )}
                             rankingSystem={rankingSystem}
+                            columns={columns}
+                            setColumns={setColumns}
+                            isOpen={columnSelectorOpen}
+                            onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
                         />
                     )
                 ) : (
@@ -1737,27 +1796,3 @@ export default function AndreDraftPage() {
         </div>
     );
 }
-
-// Add LeagueLogo component after the existing logo components
-const LeagueLogo = ({ league }: { league: string }) => {
-    const [logoError, setLogoError] = useState(false);
-    const logoUrl = `/league_logos/${league}.png`;
-
-    if (logoError) {
-        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{league}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-6 w-6 relative">
-            <Image
-                src={logoUrl}
-                alt={`${league} logo`}
-                fill
-                className="object-contain"
-                onError={() => setLogoError(true)}
-            />
-        </div>
-    );
-};
