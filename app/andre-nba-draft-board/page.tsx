@@ -1469,7 +1469,7 @@ export default function AndreDraftPage() {
             let bValue = b[sortConfig.key as keyof DraftProspect];
 
             // Helper function to check if a value is N/A, empty, or undefined
-            const isNAValue = (value: any): boolean => {
+            const isNAValue = (value: string | number | undefined | null): boolean => {
                 return value === undefined || 
                        value === null || 
                        value === '' || 

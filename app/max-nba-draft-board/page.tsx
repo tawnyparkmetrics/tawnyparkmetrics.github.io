@@ -532,11 +532,11 @@ const TimelineFilter = ({
           {/* View Mode Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <motion.button
+          <motion.button
                 className="px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
                 {/* Only show icons on desktop, not on mobile */}
                 <span className="sm:hidden">{viewMode === 'cards' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
                 <span className="hidden sm:flex items-center">
@@ -547,7 +547,7 @@ const TimelineFilter = ({
                   </>
                 ) : viewMode === 'table' ? (
                   <>
-                    <TableIcon className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+            <TableIcon className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
                     Table View
                   </>
                 ) : (
@@ -558,7 +558,7 @@ const TimelineFilter = ({
                 )}
                 </span>
                 <ChevronDown className="ml-1 md:ml-2 h-3 w-3 md:h-4 md:w-4" />
-              </motion.button>
+          </motion.button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-[#19191A] border-gray-700">
               {/* Mobile: No icons, single-line text */}
@@ -1732,7 +1732,6 @@ const ProspectCard: React.FC<{
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [activeChart, setActiveChart] = useState('spider');
-  const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
 
   // Create validProspects filter that will be used throughout the component
   const validProspects = useMemo(() => {
@@ -2428,7 +2427,7 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
       let bValue = b[sortConfig.key as keyof DraftProspect];
 
       // Helper function to check if a value is N/A, empty, or undefined
-      const isNAValue = (value: any): boolean => {
+      const isNAValue = (value: unknown): boolean => {
         return value === undefined || 
                value === null || 
                value === '' || 
@@ -2530,18 +2529,18 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
           <TableHeader>
             <TableRow>
               {columns.filter(col => col.visible).map((column) => (
-                <TableHead
+              <TableHead
                   key={column.key}
                   className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
                   onClick={() => column.sortable && handleSort(column.key as keyof DraftProspect | 'Rank')}
-                >
+              >
                   {column.label}
                   {column.sortable && sortConfig?.key === column.key && (
-                    <span className="ml-1">
-                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                    </span>
-                  )}
-                </TableHead>
+                  <span className="ml-1">
+                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                  </span>
+                )}
+              </TableHead>
               ))}
             </TableRow>
           </TableHeader>
@@ -2574,41 +2573,41 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
                   if (column.key === 'League') {
                     return (
                       <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <LeagueLogo league={prospect['League']} />
-                          <span>{prospect['League']}</span>
-                        </div>
-                      </TableCell>
+                  <div className="flex items-center gap-2">
+                    <LeagueLogo league={prospect['League']} />
+                    <span>{prospect['League']}</span>
+                  </div>
+                </TableCell>
                     );
                   }
                   
                   if (column.key === 'Pre-NBA') {
                     return (
                       <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <PreNBALogo preNBA={prospect['Pre-NBA']} />
-                          <span>{prospect['Pre-NBA']}</span>
-                        </div>
-                      </TableCell>
+                  <div className="flex items-center gap-2">
+                    <PreNBALogo preNBA={prospect['Pre-NBA']} />
+                    <span>{prospect['Pre-NBA']}</span>
+                  </div>
+                </TableCell>
                     );
                   }
                   
                   if (column.key === 'Actual Pick') {
                     return (
                       <TableCell key={column.key} className="text-gray-300">
-                        {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
-                      </TableCell>
+                  {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
+                </TableCell>
                     );
                   }
                   
                   if (column.key === 'NBA Team') {
                     return (
                       <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <TableTeamLogo NBA={prospect['NBA Team']} />
-                          <span>{prospect['NBA Team']}</span>
-                        </div>
-                      </TableCell>
+                  <div className="flex items-center gap-2">
+                    <TableTeamLogo NBA={prospect['NBA Team']} />
+                    <span>{prospect['NBA Team']}</span>
+                  </div>
+                </TableCell>
                     );
                   }
                   
