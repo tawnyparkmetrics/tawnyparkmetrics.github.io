@@ -2016,16 +2016,16 @@ export default function ConsensusPage() {
         { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
         { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
         { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Age', label: 'Age', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Height', label: 'Height', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: true, sortable: true },
         
         // Consensus Information
-        { key: 'MEAN', label: 'Mean', category: 'Consensus Information', visible: true, sortable: true },
-        { key: 'MEDIAN', label: 'Median', category: 'Consensus Information', visible: true, sortable: true },
-        { key: 'MODE', label: 'Mode', category: 'Consensus Information', visible: true, sortable: true },
+        { key: 'MEAN', label: 'Mean', category: 'Consensus Information', visible: false, sortable: true },
+        { key: 'MEDIAN', label: 'Median', category: 'Consensus Information', visible: false, sortable: true },
+        { key: 'MODE', label: 'Mode', category: 'Consensus Information', visible: false, sortable: true },
         { key: 'HIGH', label: 'High', category: 'Consensus Information', visible: false, sortable: true },
         { key: 'LOW', label: 'Low', category: 'Consensus Information', visible: false, sortable: true },
         { key: 'RANGE', label: 'Range', category: 'Consensus Information', visible: false, sortable: true },
@@ -2436,6 +2436,23 @@ export default function ConsensusPage() {
             let aValue = a[sortConfig.key as keyof DraftProspect];
             let bValue = b[sortConfig.key as keyof DraftProspect];
 
+            // Helper function to check if a value is N/A, empty, or undefined
+            const isNAValue = (value: any): boolean => {
+                return value === undefined || 
+                       value === null || 
+                       value === '' || 
+                       String(value).toLowerCase() === 'n/a' ||
+                       String(value).toLowerCase() === 'na';
+            };
+
+            // Check if either value is N/A - N/A values always go to the end
+            const aIsNA = isNAValue(aValue);
+            const bIsNA = isNAValue(bValue);
+
+            if (aIsNA && !bIsNA) return 1;  // a goes after b
+            if (!aIsNA && bIsNA) return -1; // a goes before b
+            if (aIsNA && bIsNA) return 0;   // both are N/A, maintain order
+
             // Numeric columns: sort as numbers
             if (numericColumns.includes(sortConfig.key as string)) {
                 const aNum = parseFloat(aValue as string) || 0;
@@ -2450,7 +2467,16 @@ export default function ConsensusPage() {
                 return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
             }
 
-            // Default string comparison
+            // For numeric columns, try to parse as numbers
+            const aNum = parseFloat(aValue as string);
+            const bNum = parseFloat(bValue as string);
+            
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+                // Both are valid numbers
+                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+            }
+
+            // Default string comparison for non-numeric values
             if (aValue === undefined) aValue = '';
             if (bValue === undefined) bValue = '';
 

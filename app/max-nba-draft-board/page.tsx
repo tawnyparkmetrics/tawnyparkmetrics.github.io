@@ -1732,6 +1732,7 @@ const ProspectCard: React.FC<{
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [activeChart, setActiveChart] = useState('spider');
+  const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
 
   // Create validProspects filter that will be used throughout the component
   const validProspects = useMemo(() => {
@@ -2426,6 +2427,23 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
       let aValue = a[sortConfig.key as keyof DraftProspect];
       let bValue = b[sortConfig.key as keyof DraftProspect];
 
+      // Helper function to check if a value is N/A, empty, or undefined
+      const isNAValue = (value: any): boolean => {
+        return value === undefined || 
+               value === null || 
+               value === '' || 
+               String(value).toLowerCase() === 'n/a' ||
+               String(value).toLowerCase() === 'na';
+      };
+
+      // Check if either value is N/A - N/A values always go to the end
+      const aIsNA = isNAValue(aValue);
+      const bIsNA = isNAValue(bValue);
+
+      if (aIsNA && !bIsNA) return 1;  // a goes after b
+      if (!aIsNA && bIsNA) return -1; // a goes before b
+      if (aIsNA && bIsNA) return 0;   // both are N/A, maintain order
+
       // Handle specific columns
       if (sortConfig.key === 'Actual Pick') {
         // Convert to numbers for sorting
@@ -2472,7 +2490,16 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
           : bNum - aNum;
       }
 
-      // Default string comparison
+      // For numeric columns, try to parse as numbers
+      const aNum = parseFloat(aValue as string);
+      const bNum = parseFloat(bValue as string);
+      
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        // Both are valid numbers
+        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+      }
+
+      // Default string comparison for non-numeric values
       if (aValue === undefined) aValue = '';
       if (bValue === undefined) bValue = '';
 
