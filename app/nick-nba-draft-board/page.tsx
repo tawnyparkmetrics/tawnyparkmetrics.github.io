@@ -996,18 +996,18 @@ export default function NickDraftPage() {
     roleFilter: 'all'
   });
   const [columns, setColumns] = useState<ColumnConfig[]>([
-    { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
-    { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
-    { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Rank', label: 'Rank', category: 'Basic Info', visible: true, sortable: true },
+    { key: 'Name', label: 'Name', category: 'Basic Info', visible: true, sortable: true },
+    { key: 'Role', label: 'Position', category: 'Basic Info', visible: true, sortable: true },
+    { key: 'Age', label: 'Age', category: 'Basic Info', visible: false, sortable: true },
+    { key: 'League', label: 'League', category: 'Team Info', visible: true, sortable: true },
+    { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Team Info', visible: true, sortable: true },
+    { key: 'Actual Pick', label: 'Draft Pick', category: 'Team Info', visible: true, sortable: true },
+    { key: 'NBA Team', label: 'NBA Team', category: 'Team Info', visible: true, sortable: true },
+    { key: 'Height', label: 'Height', category: 'Physical', visible: false, sortable: true },
+    { key: 'Wingspan', label: 'Wingspan', category: 'Physical', visible: false, sortable: true },
+    { key: 'Wing - Height', label: 'Wing-Height', category: 'Physical', visible: false, sortable: true },
+    { key: 'Weight (lbs)', label: 'Weight', category: 'Physical', visible: false, sortable: true },
   ]);
   const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
 
