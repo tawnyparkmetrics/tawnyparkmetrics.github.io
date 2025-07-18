@@ -34,6 +34,7 @@ export interface DraftProspect {
     'Role': string;
     'Age': string;
     'Wingspan': string;
+    'Wingspan (in)': string;
     'Wing - Height': string;
     'Pre-NBA': string;
     'NBA Team': string;
@@ -2403,7 +2404,7 @@ export default function ConsensusPage() {
         // List of columns that should be sorted numerically (float or int)
         const numericColumns = [
             'SCORE', 'MEAN', 'MEDIAN', 'MODE', 'HIGH', 'LOW', 'RANGE', 'STDEV', 'COUNT',
-            'Age', 'Height (in)', 'Weight (lbs)', 'originalRank'
+            'Age', 'Height (in)', 'Wingspan (in)', 'Weight (lbs)', 'originalRank'
         ];
 
         sortableProspects.sort((a, b) => {
@@ -2452,6 +2453,20 @@ export default function ConsensusPage() {
             if (aIsNA && !bIsNA) return 1;  // a goes after b
             if (!aIsNA && bIsNA) return -1; // a goes before b
             if (aIsNA && bIsNA) return 0;   // both are N/A, maintain order
+
+            // Handle Height (convert to inches)
+            if (sortConfig.key === 'Height') {
+                const aNum = parseFloat(a['Height (in)'] as string) || 0;
+                const bNum = parseFloat(b['Height (in)'] as string) || 0;
+                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+            }
+
+            // Handle Wingspan (convert to inches)
+            if (sortConfig.key === 'Wingspan') {
+                const aNum = parseFloat(a['Wingspan (in)'] as string) || 0;
+                const bNum = parseFloat(b['Wingspan (in)'] as string) || 0;
+                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+            }
 
             // Numeric columns: sort as numbers
             if (numericColumns.includes(sortConfig.key as string)) {

@@ -66,6 +66,7 @@ export interface DraftProspect {
   'Height': string;
   'Height (in)': string;
   'Wingspan': string;
+  'Wingspan (in)': string;
   'Wing - Height': string;
   'Weight (lbs)': string;
   'Role': string;
@@ -2475,6 +2476,15 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
       if (sortConfig.key === 'Height') {
         const aNum = parseFloat(a['Height (in)'] as string) || 0;
         const bNum = parseFloat(b['Height (in)'] as string) || 0;
+        return sortConfig.direction === 'ascending'
+          ? aNum - bNum
+          : bNum - aNum;
+      }
+
+      // Handle Wingspan (convert to inches)
+      if (sortConfig.key === 'Wingspan') {
+        const aNum = parseFloat(a['Wingspan (in)'] as string) || 0;
+        const bNum = parseFloat(b['Wingspan (in)'] as string) || 0;
         return sortConfig.direction === 'ascending'
           ? aNum - bNum
           : bNum - aNum;

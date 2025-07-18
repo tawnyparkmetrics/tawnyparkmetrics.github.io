@@ -29,6 +29,7 @@ export interface DraftProspect {
   'Role': string;
   'Age': string;
   'Wingspan': string;
+  'Wingspan (in)': string;
   'Wing - Height': string;
 
   "NCAAM": string;
@@ -1148,6 +1149,13 @@ export default function NickDraftPage() {
         // Use Height (in) for sorting instead of Height
         const aNum = parseFloat(a['Height (in)'] as string) || 0;
         const bNum = parseFloat(b['Height (in)'] as string) || 0;
+        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
+      }
+
+      if (sortConfig.key === 'Wingspan') {
+        // Use Wingspan (in) for sorting instead of Wingspan
+        const aNum = parseFloat(a['Wingspan (in)'] as string) || 0;
+        const bNum = parseFloat(b['Wingspan (in)'] as string) || 0;
         return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
       }
 
