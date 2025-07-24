@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { Settings, ChevronDown } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface ColumnConfig {
     key: string;
@@ -16,6 +17,28 @@ interface ColumnSelectorProps {
     onToggle: () => void;
     categories?: string[]; // Optional: pass custom categories
     lockedColumns?: string[]; // Optional: specify which columns can't be toggled
+    /** 
+     * NOTE: The Settings button rotation effect depends on how the button is rendered and animated.
+     * On Max's NBA Draft Board page, the Settings (Sliders/Settings) button is wrapped in a <motion.button> from framer-motion,
+     * which animates the rotation based on the open/close state.
+     * On other pages, if you use a plain <button> or do not use framer-motion's <motion.button> with the animate prop,
+     * the rotation will not work.
+     * 
+     * To fix this, ensure that on all pages/components where you use the CustomSelector,
+     * the Settings button is rendered as a <motion.button> (from framer-motion) and
+     * that you animate the rotation (e.g., animate={{ rotate: isOpen ? 90 : 0 }}).
+     * 
+     * Example:
+     * <motion.button
+     *   animate={{ rotate: isOpen ? 90 : 0 }}
+     *   transition={{ duration: 0.2 }}
+     *   ...
+     * >
+     *   <Settings ... />
+     * </motion.button>
+     * 
+     * If you use a plain <button> or do not use framer-motion, the icon will not rotate.
+     */
 }
 /**
  * Utility function to determine if the device is mobile based on window width.
@@ -87,26 +110,29 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
     return (
         <div className="mb-4 relative">
             {/* Toggle Button */}
-            <button
+            <motion.button
                 onClick={onToggle}
                 className="w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 bg-[#19191A] border border-gray-800 rounded-lg text-gray-400 hover:border-gray-700 transition-colors"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="button"
             >
                 <div className="flex items-center gap-2">
-                    <div 
-                        className="transition-transform duration-300 ease-in-out"
-                        style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    <motion.div
+                        animate={{ rotate: isOpen ? 180 : 0 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
                     >
                         <Settings className="h-4 w-4" />
-                    </div>
+                    </motion.div>
                     <span className="font-medium text-sm md:text-base">Customize Table Columns</span>
                 </div>
-                <div 
-                    className="transition-transform duration-300 ease-in-out"
-                    style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                <motion.div
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
                 >
                     <ChevronDown className="h-4 w-4" />
-                </div>
-            </button>
+                </motion.div>
+            </motion.button>
 
             {/* Collapsible Content */}
             <div 

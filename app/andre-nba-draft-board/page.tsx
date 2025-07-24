@@ -1416,9 +1416,6 @@ export default function AndreDraftPage() {
 
     // Function to handle sorting
     const handleSort = (key: keyof DraftProspect | 'Rank') => {
-        // Preserve current scroll position
-        const currentScrollLeft = tableContainerRef.current?.scrollLeft || 0;
-
         let direction: 'ascending' | 'descending' = 'ascending';
 
         // If already sorting by this key, toggle direction
@@ -1427,28 +1424,7 @@ export default function AndreDraftPage() {
         }
 
         setSortConfig({ key, direction });
-
-        // Restore scroll position after state update using requestAnimationFrame
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                if (tableContainerRef.current) {
-                    tableContainerRef.current.scrollLeft = currentScrollLeft;
-                }
-            });
-        });
     };
-
-    useEffect(() => {
-        if (tableContainerRef.current && sortConfig) {
-            // This runs after sorting state change
-            const preservedScrollLeft = tableContainerRef.current.scrollLeft;
-            requestAnimationFrame(() => {
-                if (tableContainerRef.current) {
-                    tableContainerRef.current.scrollLeft = preservedScrollLeft;
-                }
-            });
-        }
-    }, [sortConfig]);
 
     // Apply sorting to the filtered prospects
     const sortedProspects = useMemo(() => {

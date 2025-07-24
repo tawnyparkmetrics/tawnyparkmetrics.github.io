@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/chart"
 import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { GoogleAnalytics } from '@next/third-parties/google';
-import CustomSelector, { ColumnConfig } from '@/components/CustomSelector';
+import CustomSelector, { ColumnConfig, isMobileDevice } from '@/components/CustomSelector';
 
 export interface DraftProspect {
     //Player info for hover
@@ -311,12 +311,12 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     const histogramData = useMemo(() => {
         const counts: Record<number, number> = {};
         const picks: number[] = [];
-    
+
         Object.entries(consensusData)
             .filter(([key]) => key !== "Name")
             .forEach(([, value]) => {
                 let pick: number | undefined;
-    
+
                 if (typeof value === "number") {
                     pick = value;
                 } else if (typeof value === "string") {
@@ -324,13 +324,13 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                     const parsed = parseInt(cleaned);
                     if (!isNaN(parsed)) pick = parsed;
                 }
-    
+
                 if (pick && pick >= 1 && pick <= 108) {
                     counts[pick] = (counts[pick] || 0) + 1;
                     picks.push(pick);
                 }
             });
-    
+
         // RJ Davis specific debug
         if (prospect.Name === 'RJ Davis') {
             console.log(`🔍 RJ Davis Area Chart Data:`, {
@@ -338,13 +338,13 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                 histogramCounts: counts,
             });
         }
-    
+
         if (picks.length === 0) return [];
-    
+
         const minPick = Math.min(...picks);
         const maxPick = Math.max(...picks);
         const uniquePicks = new Set(picks);
-        
+
         // Calculate total valid contributors for percentage calculation
         const totalContributors = Object.entries(consensusData)
             .filter(([key]) => key !== "Name")
@@ -359,7 +359,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                 }
                 return pick && pick >= 1 && pick <= 108 ? count + 1 : count;
             }, 0);
-    
+
         const histogram =
             uniquePicks.size === 1
                 ? Array.from({ length: 3 }, (_, i) => {
@@ -380,19 +380,19 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                         percentage: totalContributors > 0 ? (count / totalContributors) * 100 : 0,
                     };
                 });
-    
+
         if (prospect.Name === 'RJ Davis') {
             console.log("✅ Final RJ Davis histogramData:", histogram);
         }
-    
+
         return histogram;
     }, [consensusData, prospect]);
-    
+
 
     // Calculate data quality metrics - FIXED VOTE COUNTING
     const dataQuality = useMemo(() => {
         const totalContributors = Object.keys(consensusData).length - 1; // Exclude 'Name'
-        
+
         // FIXED: Count valid picks directly from consensusData instead of histogramData
         let actualValidPicks = 0;
         Object.entries(consensusData)
@@ -407,21 +407,21 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                 } else {
                     return; // Skip empty/invalid values
                 }
-                
+
                 // Count all valid NBA draft picks (1-60)
                 if (!isNaN(pick) && pick >= 1 && pick <= 60) {
                     actualValidPicks++;
                 }
             });
-        
+
         const participationRate = totalContributors > 0 ? (actualValidPicks / totalContributors) * 100 : 0;
         const maxPercentage = Math.max(...histogramData.map(item => item.percentage));
-        
+
         // FIXED: Make sparse data criteria extremely restrictive - only for truly exceptional cases
         // Only use bars for prospects with 1-2 total votes or completely no distribution
         const uniquePickPositions = histogramData.filter(item => item.count > 0).length;
         const isSparseData = actualValidPicks <= 1 || (actualValidPicks === 2 && uniquePickPositions === 1); // Very restrictive
-        
+
         return {
             totalContributors,
             validPicks: actualValidPicks, // Use the correctly counted picks
@@ -482,7 +482,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     // Calculate dynamic y-axis max based on the highest percentage
     const getYAxisMax = (maxPercentage: number): number => {
         if (maxPercentage <= 0) return 10; // Default if no data
-        
+
         // Round up to the next reasonable tick (increments of 5)
         if (maxPercentage <= 5) return 5;
         if (maxPercentage <= 10) return 10;
@@ -521,12 +521,12 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                                 <stop offset="100%" stopColor={teamColor} stopOpacity={0.4} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid 
-                            strokeDasharray="0" 
-                            stroke="#333" 
-                            strokeOpacity={0.2} 
-                            horizontal={true} 
-                            vertical={false} 
+                        <CartesianGrid
+                            strokeDasharray="0"
+                            stroke="#333"
+                            strokeOpacity={0.2}
+                            horizontal={true}
+                            vertical={false}
                         />
                         <XAxis
                             dataKey="pick"
@@ -560,12 +560,12 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                                 <stop offset="100%" stopColor={teamColor} stopOpacity={0.1} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid 
-                            strokeDasharray="0" 
-                            stroke="#333" 
-                            strokeOpacity={0.2} 
-                            horizontal={true} 
-                            vertical={false} 
+                        <CartesianGrid
+                            strokeDasharray="0"
+                            stroke="#333"
+                            strokeOpacity={0.2}
+                            horizontal={true}
+                            vertical={false}
                         />
                         <XAxis
                             dataKey="pick"
@@ -622,8 +622,9 @@ interface BarShapeProps {
 
 const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
     prospect,
-}) => {
 
+}) => {
+    const isMobile = isMobileDevice();
     const teamColor =
         typeof prospect['Team Color'] === 'string' &&
             /^#[0-9A-Fa-f]{6}$/.test(prospect['Team Color'])
@@ -646,7 +647,11 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
             { label: '4-14', value: safeParseFloat(prospect['4 - 14']), range: '4-14' },
             { label: '15-30', value: safeParseFloat(prospect['15 - 30']), range: '15-30' },
             { label: '31-59', value: safeParseFloat(prospect['31 - 59']), range: '31-59' },
-            { label: 'Undrafted', value: safeParseFloat(prospect['Undrafted']), range: 'Undrafted' }
+            { 
+                label: isMobile ? 'UDFA' : 'Undrafted', 
+                value: safeParseFloat(prospect['Undrafted']), 
+                range: 'Undrafted' 
+            }
         ];
 
         console.log('Graph range values:', ranges.map(r => ({ label: r.label, value: r.value }))); // Debug log
@@ -659,7 +664,7 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
                 label: item.label,
                 percentage: Math.round(item.value * 100) // Convert decimal to percentage
             }));
-    }, [prospect]);
+    }, [prospect, isMobile]);
 
     // Custom bar shape to avoid bottom stroke
     const CustomBarShape = (props: BarShapeProps) => {
@@ -735,7 +740,7 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
                     vertical={false}
                 />
                 <XAxis
-                    dataKey="range"
+                    dataKey="label"
                     tick={{ fill: "#ccc", fontSize: 12 }}
                 />
                 <YAxis
@@ -1475,8 +1480,8 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <motion.button
                             onClick={() => handleViewModeChange('contributors')}
                             className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 ${viewMode === 'contributors'
-                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                    : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                                 }`}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -1496,22 +1501,22 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     {/* Only show icons on desktop, not on mobile */}
                                     <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
                                     <span className="hidden sm:flex items-center">
-                                    {viewMode === 'card' ? (
-                                        <>
-                                            <LucideUser className="mr-1 h-4 w-4" />
-                                            Card View
-                                        </>
-                                    ) : viewMode === 'table' ? (
-                                        <>
-                                            <TableIcon className="mr-1 h-4 w-4" />
-                                            Table View
-                                        </>
-                                    ) : (
-                                        <>
-                                            <LucideUser className="mr-1 h-4 w-4" />
-                                            Card View
-                                        </>
-                                    )}
+                                        {viewMode === 'card' ? (
+                                            <>
+                                                <LucideUser className="mr-1 h-4 w-4" />
+                                                Card View
+                                            </>
+                                        ) : viewMode === 'table' ? (
+                                            <>
+                                                <TableIcon className="mr-1 h-4 w-4" />
+                                                Table View
+                                            </>
+                                        ) : (
+                                            <>
+                                                <LucideUser className="mr-1 h-4 w-4" />
+                                                Card View
+                                            </>
+                                        )}
                                     </span>
                                     <ChevronDown className="ml-1 h-4 w-4" />
                                 </motion.button>
@@ -1679,8 +1684,8 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             <motion.button
                                 onClick={() => handleViewModeChange('contributors')}
                                 className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 ${viewMode === 'contributors'
-                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                    : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                                     }`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -1700,22 +1705,22 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         {/* Only show icons on desktop, not on mobile */}
                                         <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
                                         <span className="hidden sm:flex items-center">
-                                        {viewMode === 'card' ? (
-                                            <>
-                                                <LucideUser className="mr-1 h-4 w-4" />
-                                                Card View
-                                            </>
-                                        ) : viewMode === 'table' ? (
-                                            <>
-                                                <TableIcon className="mr-1 h-4 w-4" />
-                                                Table View
-                                            </>
-                                        ) : (
-                                            <>
-                                                <LucideUser className="mr-1 h-4 w-4" />
-                                                Card View
-                                            </>
-                                        )}
+                                            {viewMode === 'card' ? (
+                                                <>
+                                                    <LucideUser className="mr-1 h-4 w-4" />
+                                                    Card View
+                                                </>
+                                            ) : viewMode === 'table' ? (
+                                                <>
+                                                    <TableIcon className="mr-1 h-4 w-4" />
+                                                    Table View
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <LucideUser className="mr-1 h-4 w-4" />
+                                                    Card View
+                                                </>
+                                            )}
                                         </span>
                                         <ChevronDown className="ml-1 h-4 w-4" />
                                     </motion.button>
@@ -1730,7 +1735,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                             handleViewModeChange('card');
                                         }}
                                     >
-                                            Card View
+                                        Card View
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
@@ -2006,7 +2011,7 @@ export default function ConsensusPage() {
     const [contributorSearch, setContributorSearch] = useState('');
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
-    
+
     // Define column configuration with proper Player Information order
     const [columns, setColumns] = useState<ColumnConfig[]>([
         // Player Information - Rank and Name are always visible
@@ -2022,7 +2027,7 @@ export default function ConsensusPage() {
         { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: true, sortable: true },
         { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: true, sortable: true },
         { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: true, sortable: true },
-        
+
         // Consensus Information
         { key: 'MEAN', label: 'Mean', category: 'Consensus Information', visible: false, sortable: true },
         { key: 'MEDIAN', label: 'Median', category: 'Consensus Information', visible: false, sortable: true },
@@ -2033,7 +2038,7 @@ export default function ConsensusPage() {
         { key: 'STDEV', label: 'StDev', category: 'Consensus Information', visible: false, sortable: true },
         { key: 'COUNT', label: 'Count', category: 'Consensus Information', visible: false, sortable: true },
         { key: 'Inclusion Rate', label: 'Inclusion Rate', category: 'Consensus Information', visible: false, sortable: true },
-        
+
         // Range Consensus Info
         { key: '1 - 3', label: 'Picks 1-3', category: 'Range Consensus Information', visible: false, sortable: true },
         { key: '4 - 14', label: 'Picks 4-14', category: 'Range Consensus Information', visible: false, sortable: true },
@@ -2439,11 +2444,11 @@ export default function ConsensusPage() {
 
             // Helper function to check if a value is N/A, empty, or undefined
             const isNAValue = (value: string | number | undefined | null): boolean => {
-                return value === undefined || 
-                       value === null || 
-                       value === '' || 
-                       String(value).toLowerCase() === 'n/a' ||
-                       String(value).toLowerCase() === 'na';
+                return value === undefined ||
+                    value === null ||
+                    value === '' ||
+                    String(value).toLowerCase() === 'n/a' ||
+                    String(value).toLowerCase() === 'na';
             };
 
             // Check if either value is N/A - N/A values always go to the end
@@ -2485,7 +2490,7 @@ export default function ConsensusPage() {
             // For numeric columns, try to parse as numbers
             const aNum = parseFloat(aValue as string);
             const bNum = parseFloat(bValue as string);
-            
+
             if (!isNaN(aNum) && !isNaN(bNum)) {
                 // Both are valid numbers
                 return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
@@ -2572,7 +2577,7 @@ export default function ConsensusPage() {
                         <TableHeader>
                             <TableRow>
                                 {visibleColumns.map((column) => (
-                                    <TableHead 
+                                    <TableHead
                                         key={column.key as keyof DraftProspect}
                                         className={`text-gray-400 whitespace-nowrap ${column.sortable ? 'cursor-pointer hover:text-gray-200' : ''}`}
                                         onClick={column.sortable ? () => handleSort(column.key as keyof DraftProspect) : undefined}
@@ -2598,7 +2603,7 @@ export default function ConsensusPage() {
                                         className="hover:bg-gray-800/20"
                                     >
                                         {visibleColumns.map((column) => (
-                                            <TableCell 
+                                            <TableCell
                                                 key={column.key}
                                                 className={`${column.key === 'Name' ? 'font-medium text-gray-300 whitespace-nowrap' : 'text-gray-300'} ${column.key === 'Pre-NBA' || column.key === 'NBA Team' || column.key === 'Wing - Height' || column.key === 'Weight (lbs)' ? 'whitespace-nowrap' : ''}`}
                                             >
