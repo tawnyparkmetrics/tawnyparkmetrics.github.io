@@ -1992,7 +1992,6 @@ const ContributorsView: React.FC<{ searchQuery?: string }> = ({ searchQuery }) =
     );
 };
 
-
 export default function ConsensusPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
@@ -2011,6 +2010,8 @@ export default function ConsensusPage() {
     const [contributorSearch, setContributorSearch] = useState('');
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
+   // const [scrollPosition, setScrollPosition] = useState(0);
+    
 
     // Define column configuration with proper Player Information order
     const [columns, setColumns] = useState<ColumnConfig[]>([
@@ -2051,6 +2052,7 @@ export default function ConsensusPage() {
         document.title = 'Consensus & NBA Draft Board';
     }, []);
 
+    
     // Global data analysis function
     const analyzeGlobalDataValidity = useCallback(() => {
         if (!consensusMap || Object.keys(consensusMap).length === 0) return;

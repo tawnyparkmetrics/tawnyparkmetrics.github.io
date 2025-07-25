@@ -80,7 +80,7 @@ const teamNames: { [key: string]: string } = {
   "Memphis Grizzlies": "MEM",
   "Sacramento Kings": "SAC",
   "Oklahoma City Thunder": "OKC",
-  "Brooklyn Nets": "NYK",
+  "Brooklyn Nets": "BKN",
   "San Antonio Spurs": "SAS",
   "Indiana Pacers": "IND",
   "Toronto Raptors": "TOR",
