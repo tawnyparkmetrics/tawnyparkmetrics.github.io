@@ -17,28 +17,6 @@ interface ColumnSelectorProps {
     onToggle: () => void;
     categories?: string[]; // Optional: pass custom categories
     lockedColumns?: string[]; // Optional: specify which columns can't be toggled
-    /** 
-     * NOTE: The Settings button rotation effect depends on how the button is rendered and animated.
-     * On Max's NBA Draft Board page, the Settings (Sliders/Settings) button is wrapped in a <motion.button> from framer-motion,
-     * which animates the rotation based on the open/close state.
-     * On other pages, if you use a plain <button> or do not use framer-motion's <motion.button> with the animate prop,
-     * the rotation will not work.
-     * 
-     * To fix this, ensure that on all pages/components where you use the CustomSelector,
-     * the Settings button is rendered as a <motion.button> (from framer-motion) and
-     * that you animate the rotation (e.g., animate={{ rotate: isOpen ? 90 : 0 }}).
-     * 
-     * Example:
-     * <motion.button
-     *   animate={{ rotate: isOpen ? 90 : 0 }}
-     *   transition={{ duration: 0.2 }}
-     *   ...
-     * >
-     *   <Settings ... />
-     * </motion.button>
-     * 
-     * If you use a plain <button> or do not use framer-motion, the icon will not rotate.
-     */
 }
 /**
  * Utility function to determine if the device is mobile based on window width.
@@ -113,7 +91,6 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
             <motion.button
                 onClick={onToggle}
                 className="w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 bg-[#19191A] border border-gray-800 rounded-lg text-gray-400 hover:border-gray-700 transition-colors"
-                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="button"
             >

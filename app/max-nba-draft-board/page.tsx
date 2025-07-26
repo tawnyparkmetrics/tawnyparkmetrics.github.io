@@ -41,7 +41,7 @@ type PositionRanks = {
 export interface DraftProspect {
   Name: string;
   'Actual Pick': string;
-  NBA: string;
+  ABV: string;
   'NBA Team': string;
   'Pre-NBA': string;
   Position: string;
@@ -147,74 +147,6 @@ const collegeNames: { [key: string]: string } = {
 const draftShort: { [key: string]: string } = {
   "G League Elite Camp": "G League Elite",
   "Portsmouth Invitational": "P.I.T."
-}
-
-const teamNames: { [key: string]: string } = {
-  "Charlotte Hornets": "CHA",
-  "Golden State Warriors": "GSW",
-  "Los Angeles Lakers": "LAL",
-  "Los Angeles Clippers": "LAC",
-  "Boston Celtics": "BOS",
-  "Miami Heat": "MIA",
-  "Chicago Bulls": "CHI",
-  "Dallas Mavericks": "DAL",
-  "Phoenix Suns": "PHX",
-  "Milwaukee Bucks": "MIL",
-  "Washington Wizards": "WAS",
-  "Houston Rockets": "HOU",
-  "Memphis Grizzlies": "MEM",
-  "Sacramento Kings": "SAC",
-  "Oklahoma City Thunder": "OKC",
-  "Brooklyn Nets": "BKN",
-  "San Antonio Spurs": "SAS",
-  "Indiana Pacers": "IND",
-  "Toronto Raptors": "TOR",
-  "New Orleans Pelicans": "NOP",
-  "Atlanta Hawks": "ATL",
-  "Philadelphia 76ers": "PHI",
-  "Detroit Pistons": "DET",
-  "Orlando Magic": "ORL",
-  "Minnesota Timberwolves": "MIN",
-  "Utah Jazz": "UTA",
-  "Denver Nuggets": "DEN",
-  "Portland Trail Blazers": "POR",
-  "Cleveland Cavaliers": "CLE",
-  "NCAA": "NC"
-}
-
-// Reverse mapping for 2024 data (abbreviation to full name)
-const teamNamesReverse: { [key: string]: string } = {
-  "CHA": "Charlotte Hornets",
-  "GSW": "Golden State Warriors",
-  "LAL": "Los Angeles Lakers",
-  "LAC": "Los Angeles Clippers",
-  "BOS": "Boston Celtics",
-  "MIA": "Miami Heat",
-  "CHI": "Chicago Bulls",
-  "DAL": "Dallas Mavericks",
-  "PHX": "Phoenix Suns",
-  "MIL": "Milwaukee Bucks",
-  "WAS": "Washington Wizards",
-  "HOU": "Houston Rockets",
-  "MEM": "Memphis Grizzlies",
-  "SAC": "Sacramento Kings",
-  "OKC": "Oklahoma City Thunder",
-  "NYK": "New York Knicks",
-  "BKN": "Brooklyn Nets",
-  "SAS": "San Antonio Spurs",
-  "IND": "Indiana Pacers",
-  "TOR": "Toronto Raptors",
-  "NOP": "New Orleans Pelicans",
-  "ATL": "Atlanta Hawks",
-  "PHI": "Philadelphia 76ers",
-  "DET": "Detroit Pistons",
-  "ORL": "Orlando Magic",
-  "MIN": "Minnesota Timberwolves",
-  "UTA": "Utah Jazz",
-  "DEN": "Denver Nuggets",
-  "POR": "Portland Trailblazers",
-  "CLE": "Cleveland Cavaliers",
-  "NC": "NCAA"
 }
 
 // ALL GRAPHING NECESSITIES ARE HERE
@@ -534,33 +466,33 @@ const TimelineFilter = ({
           {/* View Mode Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-          <motion.button
+              <motion.button
                 className="px-2 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 {/* Only show icons on desktop, not on mobile */}
                 <span className="sm:hidden">{viewMode === 'cards' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
                 <span className="hidden sm:flex items-center">
-                {viewMode === 'cards' ? (
-                  <>
-                    <LucideUser className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
-                    Card View
-                  </>
-                ) : viewMode === 'table' ? (
-                  <>
-            <TableIcon className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
-                    Table View
-                  </>
-                ) : (
-                  <>
-                    <LucideUser className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
-                    Card View
-                  </>
-                )}
+                  {viewMode === 'cards' ? (
+                    <>
+                      <LucideUser className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+                      Card View
+                    </>
+                  ) : viewMode === 'table' ? (
+                    <>
+                      <TableIcon className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+                      Table View
+                    </>
+                  ) : (
+                    <>
+                      <LucideUser className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+                      Card View
+                    </>
+                  )}
                 </span>
                 <ChevronDown className="ml-1 md:ml-2 h-3 w-3 md:h-4 md:w-4" />
-          </motion.button>
+              </motion.button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-[#19191A] border-gray-700">
               {/* Mobile: No icons, single-line text */}
@@ -1567,9 +1499,9 @@ const SpiderChart: React.FC<{
           complete: (results) => {
             const allPlayers = results.data as DraftProspect[];
             const playersInSamePosition = allPlayers.filter(
-              p => p.Role === prospect.Role && 
-                   p.Name !== prospect.Name && 
-                   p['G Played Issue'] !== '1' // Filter out prospects with G Played Issue = 1
+              p => p.Role === prospect.Role &&
+                p.Name !== prospect.Name &&
+                p['G Played Issue'] !== '1' // Filter out prospects with G Played Issue = 1
             );
             setSamePositionPlayers(playersInSamePosition);
           }
@@ -1842,7 +1774,7 @@ const ProspectCard: React.FC<{
   const getDraftTeamName = (isMobileView: boolean) => {
     if (selectedYear === 2025) {
       const actualPick = prospect['Actual Pick'];
-      const team = isMobileView ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team'];
+      const team = prospect.ABV
       if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 59) {
         // Show "Pick - Team" for picks 1-59 in 2025
         const pickTeam = `${actualPick} - ${team}`;
@@ -1865,7 +1797,7 @@ const ProspectCard: React.FC<{
     }
     // 2024 logic - 58 picks total
     const actualPick = prospect['Actual Pick'];
-    const team = isMobileView ? (teamNames[prospect.NBA] || prospect.NBA) : (teamNamesReverse[prospect.NBA] || prospect.NBA);
+    const team = prospect.ABV; // Use NBA column directly for 2024 data
     if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 58) {
       // Show "Pick - Team" for picks 1-58 in 2024
       const pickTeam = `${actualPick} - ${team}`;
@@ -1896,7 +1828,7 @@ const ProspectCard: React.FC<{
     if (rank !== undefined && rank !== null && rank !== '') {
       return rank;
     }
-    
+
     // Fallback to the original logic if no rank prop is provided
     if (selectedSortKey === 'Actual Pick') {
       // For draft order, use the actual pick number
@@ -2201,7 +2133,7 @@ const ProspectCard: React.FC<{
                         selectedYear={selectedYear}
                       />
                     ) : (
-                      <PlayerComparisonChart 
+                      <PlayerComparisonChart
                         prospect={prospect}
                       />
                     )}
@@ -2430,11 +2362,11 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
 
       // Helper function to check if a value is N/A, empty, or undefined
       const isNAValue = (value: unknown): boolean => {
-        return value === undefined || 
-               value === null || 
-               value === '' || 
-               String(value).toLowerCase() === 'n/a' ||
-               String(value).toLowerCase() === 'na';
+        return value === undefined ||
+          value === null ||
+          value === '' ||
+          String(value).toLowerCase() === 'n/a' ||
+          String(value).toLowerCase() === 'na';
       };
 
       // Check if either value is N/A - N/A values always go to the end
@@ -2503,7 +2435,7 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
       // For numeric columns, try to parse as numbers
       const aNum = parseFloat(aValue as string);
       const bNum = parseFloat(bValue as string);
-      
+
       if (!isNaN(aNum) && !isNaN(bNum)) {
         // Both are valid numbers
         return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
@@ -2534,24 +2466,24 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
           onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
         />
       </div>
-      
+
       <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
         <Table>
           <TableHeader>
             <TableRow>
               {columns.filter(col => col.visible).map((column) => (
-              <TableHead
+                <TableHead
                   key={column.key}
                   className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
                   onClick={() => column.sortable && handleSort(column.key as keyof DraftProspect | 'Rank')}
-              >
+                >
                   {column.label}
                   {column.sortable && sortConfig?.key === column.key && (
-                  <span className="ml-1">
-                    {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                  </span>
-                )}
-              </TableHead>
+                    <span className="ml-1">
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
@@ -2563,7 +2495,7 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
               >
                 {columns.filter(col => col.visible).map((column) => {
                   const key = column.key as keyof DraftProspect;
-                  
+
                   // Handle special cases for different column types
                   if (column.key === 'Rank') {
                     return (
@@ -2572,7 +2504,7 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
                       </TableCell>
                     );
                   }
-                  
+
                   if (column.key === 'Name') {
                     return (
                       <TableCell key={column.key} className="font-medium text-gray-300 whitespace-nowrap">
@@ -2580,48 +2512,48 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
                       </TableCell>
                     );
                   }
-                  
+
                   if (column.key === 'League') {
                     return (
                       <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <LeagueLogo league={prospect['League']} />
-                    <span>{prospect['League']}</span>
-                  </div>
-                </TableCell>
+                        <div className="flex items-center gap-2">
+                          <LeagueLogo league={prospect['League']} />
+                          <span>{prospect['League']}</span>
+                        </div>
+                      </TableCell>
                     );
                   }
-                  
+
                   if (column.key === 'Pre-NBA') {
                     return (
                       <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <PreNBALogo preNBA={prospect['Pre-NBA']} />
-                    <span>{prospect['Pre-NBA']}</span>
-                  </div>
-                </TableCell>
+                        <div className="flex items-center gap-2">
+                          <PreNBALogo preNBA={prospect['Pre-NBA']} />
+                          <span>{prospect['Pre-NBA']}</span>
+                        </div>
+                      </TableCell>
                     );
                   }
-                  
+
                   if (column.key === 'Actual Pick') {
                     return (
                       <TableCell key={column.key} className="text-gray-300">
-                  {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
-                </TableCell>
+                        {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
+                      </TableCell>
                     );
                   }
-                  
+
                   if (column.key === 'NBA Team') {
                     return (
                       <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <TableTeamLogo NBA={prospect['NBA Team']} />
-                    <span>{prospect['NBA Team']}</span>
-                  </div>
-                </TableCell>
+                        <div className="flex items-center gap-2">
+                          <TableTeamLogo NBA={prospect['NBA Team']} />
+                          <span>{prospect['NBA Team']}</span>
+                        </div>
+                      </TableCell>
                     );
                   }
-                  
+
                   // Handle Rank columns - display as whole numbers
                   if (column.key.includes('Rank') && !column.key.includes('Position')) {
                     const rankValue = prospect[key];
@@ -2631,7 +2563,7 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
                       </TableCell>
                     );
                   }
-                  
+
                   // Handle comparison columns
                   if (['Comp1', 'Comp2', 'Comp3', 'Comp4', 'Comp5'].includes(column.key)) {
                     const compValue = prospect[key];
@@ -2641,7 +2573,7 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
                       </TableCell>
                     );
                   }
-                  
+
                   // Handle Tier column with color styling
                   if (column.key === 'Tier') {
                     return (
@@ -2659,7 +2591,7 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
                       </TableCell>
                     );
                   }
-                  
+
                   // Handle positionRanks object - skip it as it's not meant for display
                   if (column.key === 'positionRanks') {
                     return (
@@ -2668,7 +2600,7 @@ const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[
                       </TableCell>
                     );
                   }
-                  
+
                   // Default case for other columns
                   const cellValue = prospect[key];
                   return (
@@ -2757,7 +2689,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   const rankingSystem = useMemo(() => {
     // Filter out invalid prospects for ranking calculations
     let validProspects = initialProspects.filter(prospect =>
-      prospect.Name !== 'Ulrich Chomche' && 
+      prospect.Name !== 'Ulrich Chomche' &&
       prospect['G Played Issue'] !== '1'
     );
 
@@ -2866,31 +2798,19 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
         const fullName = prospect.Name.toLowerCase();
         const nameMatch = fullName.includes(query);
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
-        
-        // Handle team name search - check both abbreviated and full names
+    
+        // Handle team name search - use the NBA column directly for both years
         let teamMatch = false;
         if (selectedYear === 2025) {
-          // For 2025, use 'NBA Team' field which contains full team names
-          const teamFullName = prospect['NBA Team'].toLowerCase();
-          teamMatch = teamFullName.includes(query);
-          
-          // Also check if the query matches any abbreviated version
-          const teamAbbrev = teamNames[prospect['NBA Team']];
-          if (teamAbbrev) {
-            teamMatch = teamMatch || teamAbbrev.toLowerCase().includes(query);
-          }
-        } else {
-          // For 2024, use 'NBA' field which contains abbreviations
-          const teamAbbrev = prospect.NBA.toLowerCase();
+          // For 2025, use 'NBA Team' field (assuming it contains abbreviated names)
+          const teamAbbrev = prospect['NBA Team'].toLowerCase();
           teamMatch = teamAbbrev.includes(query);
-          
-          // Also check if the query matches the full team name
-          const teamFullName = teamNamesReverse[prospect.NBA];
-          if (teamFullName) {
-            teamMatch = teamMatch || teamFullName.toLowerCase().includes(query);
-          }
+        } else {
+          // For 2024, use 'NBA' field (contains abbreviations)
+          const teamAbbrev = prospect.ABV.toLowerCase();
+          teamMatch = teamAbbrev.includes(query);
         }
-        
+    
         return nameMatch || preNBAMatch || teamMatch;
       });
     }
@@ -3228,7 +3148,7 @@ export default function DraftProspectsPage() {
               const yearRankings: { [key: string]: number } = {};
               ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].forEach(year => {
                 const yearKey = `Pred. ${year} EPM` as keyof DraftProspect;
-                
+
                 // Overall ranking (all positions) using only valid prospects
                 const sortedByYearOverall = [...validProspects].sort((a, b) => {
                   const aEPM = Number(a[yearKey]) || 0;

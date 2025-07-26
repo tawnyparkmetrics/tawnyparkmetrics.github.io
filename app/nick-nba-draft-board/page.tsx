@@ -64,40 +64,6 @@ const collegeNames: { [key: string]: string } = {
   "Pallacanestro Reggiana": "Reggiana"
 }
 
-const teamNames: { [key: string]: string } = {
-  "Charlotte Hornets": "CHA",
-  "Golden State Warriors": "GSW",
-  "Los Angeles Lakers": "LAL",
-  "Los Angeles Clippers": "LAC",
-  "Boston Celtics": "BOS",
-  "Miami Heat": "MIA",
-  "Chicago Bulls": "CHI",
-  "Dallas Mavericks": "DAL",
-  "Phoenix Suns": "PHX",
-  "Milwaukee Bucks": "MIL",
-  "Washington Wizards": "WAS",
-  "Houston Rockets": "HOU",
-  "Memphis Grizzlies": "MEM",
-  "Sacramento Kings": "SAC",
-  "Oklahoma City Thunder": "OKC",
-  "Brooklyn Nets": "BKN",
-  "San Antonio Spurs": "SAS",
-  "Indiana Pacers": "IND",
-  "Toronto Raptors": "TOR",
-  "New Orleans Pelicans": "NOP",
-  "Atlanta Hawks": "ATL",
-  "Philadelphia 76ers": "PHI",
-  "Detroit Pistons": "DET",
-  "Orlando Magic": "ORL",
-  "Minnesota Timberwolves": "MIN",
-  "Utah Jazz": "UTA",
-  "Denver Nuggets": "DEN",
-  "New York Knicks": "NYK",
-  "Portland Trail Blazers": "POR",
-  "Cleveland Cavaliers": "CLE",
-  "NCAA": "NC"
-}
-
 const draftShort: { [key: string]: string } = {
   "G League Elite Camp": "G League Elite",
   "Portsmouth Invitational": "P.I.T."
@@ -288,7 +254,7 @@ const ProspectCard: React.FC<{
   // Helper function to get draft display text
   const getDraftDisplayText = () => {
     const actualPick = prospect['Actual Pick'];
-    const team = isMobile ? (teamNames[prospect['NBA Team']] || prospect['NBA Team']) : prospect['NBA Team'];
+    const team = isMobile ? prospect.ABV : prospect['NBA Team'];
     if (actualPick && actualPick.trim() !== '') {
       return `${actualPick} - ${team}`;
     } else {

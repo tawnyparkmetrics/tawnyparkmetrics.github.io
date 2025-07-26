@@ -40,6 +40,7 @@ export interface DraftProspect {
     'NBA Team': string;
     'Actual Pick': string;
     'League': string;
+    'ABV': string;
 
     //Style info
     'Team Color': string;
@@ -784,39 +785,6 @@ const collegeNames: { [key: string]: string } = {
     "Poitiers Basket 86": "Poitiers"
 }
 
-const teamNames: { [key: string]: string } = {
-    'Charlotte Hornets': 'CHA',
-    'Golden State Warriors': 'GSW',
-    'Los Angeles Lakers': 'LAL',
-    'Los Angeles Clippers': 'LAC',
-    'Boston Celtics': 'BOS',
-    'Miami Heat': 'MIA',
-    'Chicago Bulls': 'CHI',
-    'Dallas Mavericks': 'DAL',
-    'Phoenix Suns': 'PHX',
-    'Milwaukee Bucks': 'MIL',
-    'Washington Wizards': 'WAS',
-    'Houston Rockets': 'HOU',
-    'Memphis Grizzlies': 'MEM',
-    'Sacramento Kings': 'SAC',
-    'New York Knicks': 'NYK',
-    'Oklahoma City Thunder': 'OKC',
-    'Brooklyn Nets': 'BKN',
-    'San Antonio Spurs': 'SAS',
-    'Indiana Pacers': 'IND',
-    'Toronto Raptors': 'TOR',
-    'New Orleans Pelicans': 'NOP',
-    'Atlanta Hawks': 'ATL',
-    'Philadelphia 76ers': 'PHI',
-    'Detroit Pistons': 'DET',
-    'Orlando Magic': 'ORL',
-    'Minnesota Timberwolves': 'MIN',
-    'Utah Jazz': 'UTA',
-    'Denver Nuggets': 'DEN',
-    'Portland Trailblazers': 'POR',
-    'Cleveland Cavaliers': 'CLE',
-    'NC': 'NCAA',
-};
 
 const NBATeamLogo = ({ NBA }: { NBA: string }) => {
     const [logoError, setNBALogoError] = useState(false);
@@ -969,15 +937,14 @@ const ProspectCard: React.FC<{
     const getDraftDisplayText = (isMobileView: boolean = false) => {
         const actualPick = prospect['Actual Pick'];
         const teamName = prospect['NBA Team'];
-        const displayTeam = isMobileView && teamNames.hasOwnProperty(teamName)
-            ? teamNames[teamName]
-            : teamName;
+        const displayTeam = isMobileView ? prospect.ABV : teamName;
+        
         if (actualPick && actualPick.trim() !== '') {
-            return `${actualPick} - ${displayTeam}`;
+          return `${actualPick} - ${displayTeam}`;
         } else {
-            return displayTeam;
+          return displayTeam;
         }
-    };
+      };
 
     // Consensus data for the table
     const consensusTableData = useMemo(() => [
