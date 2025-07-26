@@ -92,6 +92,7 @@ const teamNames: { [key: string]: string } = {
   "Minnesota Timberwolves": "MIN",
   "Utah Jazz": "UTA",
   "Denver Nuggets": "DEN",
+  "New York Knicks": "NYK",
   "Portland Trail Blazers": "POR",
   "Cleveland Cavaliers": "CLE",
   "NCAA": "NC"
@@ -466,7 +467,7 @@ const ProspectCard: React.FC<{
                     <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
                     <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
                     <div>
-                      <span className="font-bold text-white">Draft  </span>
+                      <span className="font-bold text-white">Draft </span>
                       {getDraftDisplayText()}
                     </div>
                   </div>
