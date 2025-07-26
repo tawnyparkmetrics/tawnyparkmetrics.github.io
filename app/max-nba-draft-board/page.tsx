@@ -1774,7 +1774,7 @@ const ProspectCard: React.FC<{
   const getDraftTeamName = (isMobileView: boolean) => {
     if (selectedYear === 2025) {
       const actualPick = prospect['Actual Pick'];
-      const team = prospect.ABV
+      const team = isMobileView ? prospect.ABV : prospect['NBA Team']; // Use ABV for mobile, NBA Team for desktop
       if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 59) {
         // Show "Pick - Team" for picks 1-59 in 2025
         const pickTeam = `${actualPick} - ${team}`;
@@ -1797,7 +1797,7 @@ const ProspectCard: React.FC<{
     }
     // 2024 logic - 58 picks total
     const actualPick = prospect['Actual Pick'];
-    const team = prospect.ABV; // Use NBA column directly for 2024 data
+    const team = isMobileView ? prospect.ABV : prospect['NBA Team']; // Use ABV for mobile, NBA Team for desktop
     if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 58) {
       // Show "Pick - Team" for picks 1-58 in 2024
       const pickTeam = `${actualPick} - ${team}`;
@@ -2807,7 +2807,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
           teamMatch = teamAbbrev.includes(query);
         } else {
           // For 2024, use 'NBA' field (contains abbreviations)
-          const teamAbbrev = prospect.ABV.toLowerCase();
+          const teamAbbrev = prospect['NBA Team'].toLowerCase();
           teamMatch = teamAbbrev.includes(query);
         }
     
