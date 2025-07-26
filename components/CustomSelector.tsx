@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Settings, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -52,6 +52,7 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
     categories,
     lockedColumns = ['Rank', 'Name'] // Default locked columns
 }) => {
+    const rotationRef = useRef(0);
     const handleToggleColumn = useCallback((key: string) => {
         // Prevent toggling locked columns
         if (lockedColumns.includes(key)) return;
@@ -96,8 +97,11 @@ const ColumnSelector: React.FC<ColumnSelectorProps> = ({
             >
                 <div className="flex items-center gap-2">
                     <motion.div
-                        animate={{ rotate: isOpen ? 180 : 0 }}
-                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        animate={{ 
+                            rotate: isOpen ? (rotationRef.current += 360) : (rotationRef.current += 360)
+                        }}
+                        transition={{ duration: 0.5, ease: 'easeInOut' }}
+                        key={`settings-${isOpen}`}
                     >
                         <Settings className="h-4 w-4" />
                     </motion.div>
