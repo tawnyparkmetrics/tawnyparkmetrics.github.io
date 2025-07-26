@@ -207,7 +207,15 @@ const TimelineFilter = ({
   selectedYear,
   setSelectedYear,
 }: TimelineFilterProps) => {
-  const [showFilterSection, setShowFilterSection] = useState(true);
+  const [showFilterSection, setShowFilterSection] = useState(() => {
+    // Check if we're in a browser environment
+    if (typeof window !== 'undefined') {
+      // Return true for desktop (768px and above), false for mobile
+      return window.innerWidth >= 768;
+    }
+    // Default to true for SSR
+    return true;
+  });
 
   const getYearSortKeys = () => {
     if (selectedYear === 2025) {
@@ -797,7 +805,7 @@ const TimelineFilter = ({
             <div className="md:hidden space-y-3 mb-4 p-3 bg-gray-800/10 rounded-lg border border-gray-800">
               {/* Tier Ranking Toggle for Mobile */}
               <div className="flex flex-wrap gap-2 mb-2">
-                <div className="w-full text-xs text-gray-400 mb-1">Sorting:</div>
+                <div className="w-full text-xs text-gray-400 mb-1">Tiers:</div>
                 <motion.button
                   onClick={handleTierRankToggle}
                   className={`
