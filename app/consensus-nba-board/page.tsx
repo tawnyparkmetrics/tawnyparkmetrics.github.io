@@ -967,10 +967,10 @@ const ProspectCard: React.FC<{
         };
 
         const ranges = [
-            { label: 'Picks 1-3', value: safeParseFloat(prospect['1 - 3']) },
-            { label: 'Picks 4-14', value: safeParseFloat(prospect['4 - 14']) },
-            { label: 'Picks 15-30', value: safeParseFloat(prospect['15 - 30']) },
-            { label: 'Picks 31-59', value: safeParseFloat(prospect['31 - 59']) },
+            { label: '1-3', value: safeParseFloat(prospect['1 - 3']) },
+            { label: '4-14', value: safeParseFloat(prospect['4 - 14']) },
+            { label: '15-30', value: safeParseFloat(prospect['15 - 30']) },
+            { label: '31-59', value: safeParseFloat(prospect['31 - 59']) },
             { label: 'Undrafted', value: safeParseFloat(prospect['Undrafted']) },
         ];
 

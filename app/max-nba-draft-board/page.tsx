@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useMemo, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +24,9 @@ import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import Head from 'next/head';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import CustomSelector, { ColumnConfig } from '@/components/CustomSelector';
+import { ColumnConfig } from '@/components/CustomSelector';
+import { BaseProspectCard } from '@/components/BaseProspectCard';
+import { ProspectTable } from '@/components/ProspectTable';
 
 
 type PositionRanks = {
@@ -1657,7 +1658,7 @@ const SpiderChart: React.FC<{
   );
 };
 
-const ProspectCard: React.FC<{
+const MaxPageProspectCard: React.FC<{
   prospect: DraftProspect;
   rank: RankType;
   filteredProspects: DraftProspect[];
@@ -1665,15 +1666,12 @@ const ProspectCard: React.FC<{
   selectedSortKey: string;
   selectedYear: number;
 }> = ({ prospect, rank, filteredProspects, allProspects, selectedSortKey, selectedYear }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [logoError, setLogoError] = useState(false);
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
   const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [activeChart, setActiveChart] = useState('spider');
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Create validProspects filter that will be used throughout the component
   const validProspects = useMemo(() => {
@@ -1741,90 +1739,11 @@ const ProspectCard: React.FC<{
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handleMouseEnter = () => {
-    if (!isMobile) {
-      setIsHovered(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!isMobile && !isExpanded) {
-      setIsHovered(false);
-    }
-  };
-
-  // Update hover state when dropdown is expanded
-  useEffect(() => {
-    if (isExpanded && !isMobile) {
-      setIsHovered(true);
-    }
-  }, [isExpanded, isMobile]);
-
-  const playerImageUrl = selectedYear === 2025
-    ? `/player_images2025/${prospect.Name} BG Removed.png`
-    : `/player_images2024/${prospect.Name} BG Removed.png`;
-
-  const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
-
   const getPositionRank = (year: string): string => {
     if (!prospect.positionRanks) return 'N/A';
     const yearKey = year as keyof PositionRanks;
     const rank = prospect.positionRanks[yearKey];
     return rank ? rank.toString() : 'N/A';
-  };
-
-  // Helper function to get shortened college name
-  const getShortenedCollegeName = (collegeName: string): string => {
-    return collegeNames[collegeName] || collegeName;
-  };
-
-  // Helper function to get draft team name (shortened for mobile)
-  const getDraftTeamName = (isMobileView: boolean) => {
-    if (selectedYear === 2025) {
-      const actualPick = prospect['Actual Pick'];
-      const team = isMobileView ? prospect.ABV : prospect['NBA Team']; // Use ABV for mobile, NBA Team for desktop
-      if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 59) {
-        // Show "Pick - Team" for picks 1-59 in 2025
-        const pickTeam = `${actualPick} - ${team}`;
-        if (isMobileView) {
-          return Object.keys(draftShort).reduce((name, longName) => {
-            return name.replace(longName, draftShort[longName]);
-          }, pickTeam);
-        }
-        return pickTeam;
-      } else {
-        // Show "UDFA - Team" for picks 60+ in 2025
-        const udfaTeam = `UDFA - ${team}`;
-        if (isMobileView) {
-          return Object.keys(draftShort).reduce((name, longName) => {
-            return name.replace(longName, draftShort[longName]);
-          }, udfaTeam);
-        }
-        return udfaTeam;
-      }
-    }
-    // 2024 logic - 58 picks total
-    const actualPick = prospect['Actual Pick'];
-    const team = isMobileView ? prospect.ABV : prospect['NBA Team']; // Use ABV for mobile, NBA Team for desktop
-    if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 58) {
-      // Show "Pick - Team" for picks 1-58 in 2024
-      const pickTeam = `${actualPick} - ${team}`;
-      if (isMobileView) {
-        return Object.keys(draftShort).reduce((name, longName) => {
-          return name.replace(longName, draftShort[longName]);
-        }, pickTeam);
-      }
-      return pickTeam;
-    } else {
-      // Show "UDFA - Team" for picks 59+ in 2024
-      const udfaTeam = `UDFA - ${team}`;
-      if (isMobileView) {
-        return Object.keys(draftShort).reduce((name, longName) => {
-          return name.replace(longName, draftShort[longName]);
-        }, udfaTeam);
-      }
-      return udfaTeam;
-    }
   };
 
   // First, extract the complex expression to a variable
@@ -1862,768 +1781,261 @@ const ProspectCard: React.FC<{
     }
   }, [prospect, filteredProspects, selectedSortKey, pickNumber, rank, selectedYear]);
 
+  const handleExpand = (expanded: boolean) => {
+    setIsExpanded(expanded);
+  };
+
   return (
-    <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
-      <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
-        <div className="relative">
-          {/* Main card container - add mouse event handlers here */}
-          <div
-            className={`
-              relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] 
-              ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px] cursor-pointer'}
-            `}
-            style={{ backgroundColor: '#19191A' }}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => {
-              if (isMobile) {
-                if (isMobileInfoExpanded) {
-                  setIsMobileInfoExpanded(false);
-                } else {
-                  setIsExpanded(!isExpanded);
-                }
-              } else {
-                setIsExpanded(!isExpanded);
-                if (!isExpanded) {
-                  setIsHovered(true);
-                }
-              }
-            }}
-          >
-            {/* Rank Number - Now using the dynamic currentRank */}
-            <motion.div
-              layout="position"
-              className={`
-                ${barlow.className}
-                ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20 transition-opacity duration-300'}
-                ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
-              `}
+    <BaseProspectCard
+      prospect={prospect}
+      rank={currentRank}
+      selectedYear={selectedYear}
+      isMobile={isMobile}
+      onExpand={handleExpand}
+    >
+      {/* Max's specific dropdown content */}
+      {/* Mobile - Chart Toggle tabs */}
+      {isMobile && (
+        <div className="mb-4 border-b border-gray-700">
+          <div className="flex space-x-2 mb-2">
+            <button
+              onClick={() => setActiveChart('spider')}
+              className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200
+              ${activeChart === 'spider'
+                  ? 'bg-gray-800 text-white border-b-2 border-blue-500'
+                  : 'text-gray-400 hover:text-gray-300'}`}
             >
-              <div className={`
-                ${barlow.className} 
-                ${isMobile ? 'text-1xl' : 'text-6xl'} 
-                font-bold
-                text-white
-                select-none
-                ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
-              `}>
-                {currentRank}
-              </div>
-            </motion.div>
-
-            {/* Background Pre-NBA Logo */}
-            <div className={`
-              absolute inset-0 flex items-center justify-start 
-              ${isMobile ? 'pl-4' : 'pl-12'} 
-              transition-opacity duration-300 
-              ${((isHovered && !isMobile) || isExpanded) ? 'opacity-90' : 'opacity-20'}
-            `}>
-              {!logoError ? (
-                <Image
-                  src={prenbalogoUrl}
-                  alt={prospect['Pre-NBA']}
-                  width={isMobile ? 70 : 200}
-                  height={isMobile ? 70 : 200}
-                  className={`object-contain transition-transform duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}`}
-                  onError={() => setLogoError(true)}
-                />
-              ) : (
-                <div className={`${isMobile ? 'w-24 h-24' : 'w-48 h-48'} bg-gray-800 rounded-full flex items-center justify-center`}>
-                  <span className={`${isMobile ? 'text-sm' : 'text-xl'} text-gray-400`}>{prospect['Pre-NBA']}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Player Image */}
-            <div className="absolute inset-0 flex justify-center items-end overflow-hidden">
-              <div className={`relative ${isMobile ? 'w-[90%] h-[90%]' : 'w-[90%] h-[90%]'}`}>
-                {!imageError ? (
-                  <div className="relative w-full h-full flex items-end justify-center">
-                    <Image
-                      src={playerImageUrl}  // Use the dynamic playerImageUrl instead of hardcoded path
-                      alt={prospect.Name}
-                      fill
-                      className={`
-                        object-contain 
-                        object-bottom
-                        transition-all duration-300 
-                        ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}
-                      `}
-                      onError={() => setImageError(true)}
-                      sizes={isMobile ? "400px" : "800px"}
-                      priority
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <LucideUser className="text-gray-500" size={isMobile ? 32 : 48} />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Large Centered Name */}
-            <motion.div
-              layout="position"
-              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-0' : 'opacity-100'}`}
+              Skills
+            </button>
+            <button
+              onClick={() => setActiveChart('comparison')}
+              className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200
+              ${activeChart === 'comparison'
+                  ? 'bg-gray-800 text-white border-b-2 border-blue-500'
+                  : 'text-gray-400 hover:text-gray-300'}`}
             >
-              <div className="text-center z-10">
-                <h2 className={`
-                  ${barlow.className} 
-                  ${isMobile ? 'text-1xl' : 'text-7xl'}
-                  font-bold 
-                  text-white 
-                  uppercase 
-                  tracking-wider
-                  [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
-                `}>
-                  {prospect.Name}
-                </h2>
-              </div>
-            </motion.div>
-
-            {/* Info panel - different for mobile/desktop */}
-            {isMobile ? (isExpanded && (
-              <div style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}></div>
-            )
-            ) : (
-              // Desktop hover info panel
-              <div
-                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-                  }`}
-                style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-              >
-                <div className="p-6 space-y-4 flex flex-col">
-                  <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
-                  <div className="space-y-2 text-sm text-gray-300">
-                    <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
-                    <div><span className="font-bold text-white">Wingspan  </span> {prospect.Wingspan}</div>
-                    <div><span className="font-bold text-white">Wing - Height  </span> {prospect['Wing - Height']}</div>
-                    <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-700">
-                    <div className="space-y-2 text-sm text-gray-300">
-                      <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
-                      <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
-                      <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
-                      <div>
-                        <span className="font-bold text-white">Draft  </span>
-                        {getDraftTeamName(false)}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* NBA Team logo */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-                    <NBATeamLogo NBA={prospect['NBA Team']} />
-                  </div>
-                </div>
-              </div>
-            )}
+              Comps
+            </button>
           </div>
-
-          {/* Click to View Text - Now properly positioned under the card, desktop only */}
-          {!isExpanded && !isMobile && (
-            <div className="text-center mt-2">
-              <p className={`text-gray-500 text-sm font-bold ${isHovered ? 'animate-pulse' : ''}`}>
-                Click Card to View More Information
-              </p>
-            </div>
-          )}
-
-          {/* Mobile Info Dropdown */}
-          {isMobile && isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative"
-              style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-            >
-              <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {/* Draft Information Column */}
-                <div>
-                  <h4 className="font-semibold text-white text-sm mb-1">Draft Information</h4>
-                  <div className="space-y-1 text-xs text-gray-300">
-                    <div>
-                      <span className="font-bold text-white">Pre-NBA </span>
-                      {getShortenedCollegeName(prospect['Pre-NBA'])}
-                    </div>
-                    <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
-                    <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
-                    <div>
-                      <span className="font-bold text-white">Draft </span>
-                      {getDraftTeamName(true)}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Physicals Column */}
-                <div className="ml-2">
-                  <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
-                  <div className="space-y-1 text-xs text-gray-300">
-                    <div><span className="font-bold text-white">Height </span> {prospect.Height}</div>
-                    <div><span className="font-bold text-white">Wingspan </span> {prospect.Wingspan}</div>
-                    <div><span className="font-bold text-white">Wing - Height </span> {prospect['Wing - Height']}</div>
-                    <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
-                  </div>
-                </div>
-              </div>
-              {/* Team Logo in Top Right */}
-              <div className="absolute top-3.5 right-3.5 transform scale-50 origin-top-right">
-                <NBATeamLogo NBA={prospect['NBA Team']} />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Expanded View - Charts and Rankings */}
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="rounded-xl backdrop-blur-sm p-4 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
-              style={{ backgroundColor: '#19191A' }}
-            >
-              {/* Mobile - Chart Toggle tabs */}
-              {isMobile && (
-                <div className="mb-4 border-b border-gray-700">
-                  <div className="flex space-x-2 mb-2">
-                    <button
-                      onClick={() => setActiveChart('spider')}
-                      className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200
-                      ${activeChart === 'spider'
-                          ? 'bg-gray-800 text-white border-b-2 border-blue-500'
-                          : 'text-gray-400 hover:text-gray-300'}`}
-                    >
-                      Skills
-                    </button>
-                    <button
-                      onClick={() => setActiveChart('comparison')}
-                      className={`py-2 px-3 text-xs font-medium rounded-t-md transition-all duration-200
-                      ${activeChart === 'comparison'
-                          ? 'bg-gray-800 text-white border-b-2 border-blue-500'
-                          : 'text-gray-400 hover:text-gray-300'}`}
-                    >
-                      Comps
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Expanded View Content */}
-              <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
-                {/* Charts Column - Always show on mobile, above rankings */}
-                <div className="text-gray-300 px-2"> {/* Added px-2 for side margins */}
-                  {/* Tier display with color border */}
-                  <h3 className="font-semibold text-lg mb-3 text-white mt-2">
-                    Prospect Tier: <span
-                      className="px-2 py-1 rounded text-sm"
-                      style={{
-                        backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
-                        color: tierColors[prospect.Tier] || 'inherit',
-                        border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
-                      }}
-                    >
-                      {prospect.Tier}
-                    </span>
-                  </h3>
-
-                  {/* Chart Container */}
-                  <div className={`mb-4 ${!isMobile ? 'h-64' : 'h-[300px]'}`}>
-                    {activeChart === 'spider' ? (
-                      <SpiderChart
-                        prospect={prospect}
-                        selectedYear={selectedYear}
-                      />
-                    ) : (
-                      <PlayerComparisonChart
-                        prospect={prospect}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Rankings Column */}
-                <div className="space-y-4 flex flex-col justify-start px-2">
-                  <h3 className="font-semibold text-lg mb-3 text-white mt-2">
-                    Projected EPM Rankings
-                  </h3>
-                  {/* Rankings Table */}
-                  <div className="w-full">
-                    <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
-                      <div>Year</div>
-                      <div className="text-center">Overall</div>
-                      <div className="text-center">Position</div>
-                    </div>
-                    <div className="space-y-3">
-                      {/* Show individual years */}
-                      {['Y1', 'Y2', 'Y3'].map((year) => (
-                        <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-                          <div>Year {year.slice(1)}</div>
-                          <div className="text-center">
-                            {(() => {
-                              const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
-                              const rankValue = prospect[rankKey];
-                              const numValue = Number(rankValue);
-                              return !isNaN(numValue) ? numValue : 'N/A';
-                            })()}
-                          </div>
-                          <div className="text-center">{getPositionRank(year)}</div>
-                        </div>
-                      ))}
-
-                      {/* 3 Year Average */}
-                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                        <div>3 Year Avg</div>
-                        <div className="text-center">
-                          {originalRankings.overall3Y}
-                        </div>
-                        <div className="text-center">{originalRankings.position3Y}</div>
-                      </div>
-
-                      {/* Show remaining individual years */}
-                      {['Y4', 'Y5'].map((year) => (
-                        <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
-                          <div>Year {year.slice(1)}</div>
-                          <div className="text-center">
-                            {(() => {
-                              const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
-                              const rankValue = prospect[rankKey];
-                              const numValue = Number(rankValue);
-                              return !isNaN(numValue) ? numValue : 'N/A';
-                            })()}
-                          </div>
-                          <div className="text-center">{getPositionRank(year)}</div>
-                        </div>
-                      ))}
-
-                      {/* 5 Year Average */}
-                      <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
-                        <div>5 Year Avg</div>
-                        <div className="text-center">
-                          {originalRankings.overall5Y}
-                        </div>
-                        <div className="text-center">{originalRankings.position5Y}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Desktop - All buttons row - spans full width below both columns */}
-                {!isMobile && (
-                  <div className="col-span-2 mt-2">
-                    <div className="grid grid-cols-4 gap-2">
-                      {/* Chart Toggle Buttons */}
-                      <button
-                        onClick={() => setActiveChart('spider')}
-                        className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${activeChart === 'spider'
-                          ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
-                          : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
-                          }`}
-                      >
-                        Skills Chart
-                      </button>
-                      <button
-                        onClick={() => setActiveChart('comparison')}
-                        className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${activeChart === 'comparison'
-                          ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
-                          : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
-                          }`}
-                      >
-                        Player Comparisons
-                      </button>
-
-                      {/* Graph Buttons */}
-                      <motion.button
-                        onClick={() => {
-                          setGraphType('rankings');
-                          setIsGraphModelOpen(true);
-                        }}
-                        className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        Rankings Graph
-                      </motion.button>
-                      <motion.button
-                        onClick={() => {
-                          setGraphType('EPM');
-                          setIsGraphModelOpen(true);
-                        }}
-                        className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        EPM Graph
-                      </motion.button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Graph Model */}
-              {isGraphModelOpen && (
-                <IndividualProspectGraphs
-                  isOpen={isGraphModelOpen}
-                  onClose={() => setIsGraphModelOpen(false)}
-                  prospects={allProspects}
-                  selectedPosition={prospect.Role}
-                  selectedProspect={prospect}
-                  allProspects={allProspects}
-                  graphType={graphType}
-                  setGraphType={setGraphType}
-                />
-              )}
-            </motion.div>
-          )}
-        </div>
-      </motion.div>
-
-      {/* Divider */}
-      {!isMobile && (
-        <div>
-          <div className="h-px w=3/4 bg-gray my-5" />
-          <div className="h-px w-full bg-gray-700/30 my -8" />
-          <div className="h-px w=3/4 bg-gray my-5" />
         </div>
       )}
-    </div>
+
+      {/* Expanded View Content */}
+      <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
+        {/* Charts Column - Always show on mobile, above rankings */}
+        <div className="text-gray-300 px-2"> {/* Added px-2 for side margins */}
+          {/* Tier display with color border */}
+          <h3 className="font-semibold text-lg mb-3 text-white mt-2">
+            Prospect Tier: <span
+              className="px-2 py-1 rounded text-sm"
+              style={{
+                backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
+                color: tierColors[prospect.Tier] || 'inherit',
+                border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
+              }}
+            >
+              {prospect.Tier}
+            </span>
+          </h3>
+
+          {/* Chart Container */}
+          <div className={`mb-4 ${!isMobile ? 'h-64' : 'h-[300px]'}`}>
+            {activeChart === 'spider' ? (
+              <SpiderChart
+                prospect={prospect}
+                selectedYear={selectedYear}
+              />
+            ) : (
+              <PlayerComparisonChart
+                prospect={prospect}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Rankings Column */}
+        <div className="space-y-4 flex flex-col justify-start px-2">
+          <h3 className="font-semibold text-lg mb-3 text-white mt-2">
+            Projected EPM Rankings
+          </h3>
+          {/* Rankings Table */}
+          <div className="w-full">
+            <div className="grid grid-cols-3 gap-4 mb-2 text-sm font-semibold text-gray-400 border-b border-gray-700 pb-2">
+              <div>Year</div>
+              <div className="text-center">Overall</div>
+              <div className="text-center">Position</div>
+            </div>
+            <div className="space-y-3">
+              {/* Show individual years */}
+              {['Y1', 'Y2', 'Y3'].map((year) => (
+                <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                  <div>Year {year.slice(1)}</div>
+                  <div className="text-center">
+                    {(() => {
+                      const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
+                      const rankValue = prospect[rankKey];
+                      const numValue = Number(rankValue);
+                      return !isNaN(numValue) ? numValue : 'N/A';
+                    })()}
+                  </div>
+                  <div className="text-center">{getPositionRank(year)}</div>
+                </div>
+              ))}
+
+              {/* 3 Year Average */}
+              <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                <div>3 Year Avg</div>
+                <div className="text-center">
+                  {originalRankings.overall3Y}
+                </div>
+                <div className="text-center">{originalRankings.position3Y}</div>
+              </div>
+
+              {/* Show remaining individual years */}
+              {['Y4', 'Y5'].map((year) => (
+                <div key={year} className="grid grid-cols-3 gap-4 text-sm text-gray-300">
+                  <div>Year {year.slice(1)}</div>
+                  <div className="text-center">
+                    {(() => {
+                      const rankKey = `Pred. ${year} Rank` as keyof DraftProspect;
+                      const rankValue = prospect[rankKey];
+                      const numValue = Number(rankValue);
+                      return !isNaN(numValue) ? numValue : 'N/A';
+                    })()}
+                  </div>
+                  <div className="text-center">{getPositionRank(year)}</div>
+                </div>
+              ))}
+
+              {/* 5 Year Average */}
+              <div className="grid grid-cols-3 gap-4 text-sm text-blue-400">
+                <div>5 Year Avg</div>
+                <div className="text-center">
+                  {originalRankings.overall5Y}
+                </div>
+                <div className="text-center">{originalRankings.position5Y}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop - All buttons row - spans full width below both columns */}
+        {!isMobile && (
+          <div className="col-span-2 mt-2">
+            <div className="grid grid-cols-4 gap-2">
+              {/* Chart Toggle Buttons */}
+              <button
+                onClick={() => setActiveChart('spider')}
+                className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${activeChart === 'spider'
+                  ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
+                  : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
+                  }`}
+              >
+                Skills Chart
+              </button>
+              <button
+                onClick={() => setActiveChart('comparison')}
+                className={`text-sm font-medium py-2 px-4 rounded-md border transition-all duration-200 shadow-sm ${activeChart === 'comparison'
+                  ? 'text-blue-400 border-blue-500/30 bg-blue-500/20'
+                  : 'text-gray-400 border-gray-800 hover:border-blue-500/30 bg-gray-800/20 hover:bg-gray-700'
+                  }`}
+              >
+                Player Comparisons
+              </button>
+
+              {/* Graph Buttons */}
+              <motion.button
+                onClick={() => {
+                  setGraphType('rankings');
+                  setIsGraphModelOpen(true);
+                }}
+                className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Rankings Graph
+              </motion.button>
+              <motion.button
+                onClick={() => {
+                  setGraphType('EPM');
+                  setIsGraphModelOpen(true);
+                }}
+                className="bg-gray-800/20 hover:bg-gray-700 text-gray-400 text-sm font-medium py-2 px-4 rounded-md border border-gray-800 hover:border-blue-500/30 transition-all duration-200 shadow-sm"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                EPM Graph
+              </motion.button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Graph Model */}
+      {isGraphModelOpen && (
+        <IndividualProspectGraphs
+          isOpen={isGraphModelOpen}
+          onClose={() => setIsGraphModelOpen(false)}
+          prospects={allProspects}
+          selectedPosition={prospect.Role}
+          selectedProspect={prospect}
+          allProspects={allProspects}
+          graphType={graphType}
+          setGraphType={setGraphType}
+        />
+      )}
+    </BaseProspectCard>
   );
 };
 
-{/* Player Tables */ }
-const ProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rank: Record<string, RankType>, rankingSystem: Map<string, number> }) => {
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof DraftProspect | 'Rank';
-    direction: 'ascending' | 'descending';
-  } | null>(null);
-  const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
-  const [columns, setColumns] = useState<ColumnConfig[]>([
-    { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
-    { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
-    { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
-    { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
-    { key: 'Pred. Y1 Rank', label: 'Y1 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-    { key: 'Pred. Y2 Rank', label: 'Y2 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-    { key: 'Pred. Y3 Rank', label: 'Y3 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-    { key: 'Pred. Y4 Rank', label: 'Y4 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-    { key: 'Pred. Y5 Rank', label: 'Y5 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-    { key: 'Rank Y1-Y3', label: '3Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-    { key: 'Rank Y1-Y5', label: '5Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-    { key: 'Comp1', label: 'Comp 1', category: 'Player Comparisons', visible: false, sortable: true },
-    { key: 'Comp2', label: 'Comp 2', category: 'Player Comparisons', visible: false, sortable: true },
-    { key: 'Comp3', label: 'Comp 3', category: 'Player Comparisons', visible: false, sortable: true },
-    { key: 'Comp4', label: 'Comp 4', category: 'Player Comparisons', visible: false, sortable: true },
-    { key: 'Comp5', label: 'Comp 5', category: 'Player Comparisons', visible: false, sortable: true },
-  ]);
+// Replace the existing ProspectTable component with:
+const MaxProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
+    const [columns, setColumns] = useState<ColumnConfig[]>([
+        { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
+        { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
+        { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Pred. Y1 Rank', label: 'Y1 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+        { key: 'Pred. Y2 Rank', label: 'Y2 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+        { key: 'Pred. Y3 Rank', label: 'Y3 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+        { key: 'Pred. Y4 Rank', label: 'Y4 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+        { key: 'Pred. Y5 Rank', label: 'Y5 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+        { key: 'Rank Y1-Y3', label: '3Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+        { key: 'Rank Y1-Y5', label: '5Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+        { key: 'Comp1', label: 'Comp 1', category: 'Player Comparisons', visible: false, sortable: true },
+        { key: 'Comp2', label: 'Comp 2', category: 'Player Comparisons', visible: false, sortable: true },
+        { key: 'Comp3', label: 'Comp 3', category: 'Player Comparisons', visible: false, sortable: true },
+        { key: 'Comp4', label: 'Comp 4', category: 'Player Comparisons', visible: false, sortable: true },
+        { key: 'Comp5', label: 'Comp 5', category: 'Player Comparisons', visible: false, sortable: true },
+    ]);
 
-  // Function to handle sorting
-  const handleSort = (key: keyof DraftProspect | 'Rank') => {
-    let direction: 'ascending' | 'descending' = 'ascending';
+    const tierRankMap = {
+        'All-Time Great': 1,
+        'All-NBA Caliber': 2,
+        'Fringe All-Star': 3,
+        'Quality Starter': 4,
+        'Solid Rotation': 5,
+        'Bench Reserve': 6,
+        'Fringe NBA': 7
+    };
 
-    // If already sorting by this key, toggle direction
-    if (sortConfig && sortConfig.key === key) {
-      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
-    }
-
-    setSortConfig({ key, direction });
-  };
-
-  // Apply sorting to the filtered prospects
-  const sortedProspects = React.useMemo(() => {
-    const sortableProspects = [...prospects];
-
-    if (!sortConfig) {
-      return sortableProspects;
-    }
-
-    sortableProspects.sort((a, b) => {
-      // Handle Rank column specially
-      if (sortConfig.key === 'Rank') {
-        const aIndex = prospects.findIndex(p => p.Name === a.Name);
-        const bIndex = prospects.findIndex(p => p.Name === b.Name);
-
-        // For ascending order (1 to 75), use the original index
-        // For descending order (75 to 1), reverse the order
-        return sortConfig.direction === 'ascending'
-          ? aIndex - bIndex
-          : bIndex - aIndex;
-      }
-
-      // Rest of the sorting logic for other columns...
-      let aValue = a[sortConfig.key as keyof DraftProspect];
-      let bValue = b[sortConfig.key as keyof DraftProspect];
-
-      // Helper function to check if a value is N/A, empty, or undefined
-      const isNAValue = (value: unknown): boolean => {
-        return value === undefined ||
-          value === null ||
-          value === '' ||
-          String(value).toLowerCase() === 'n/a' ||
-          String(value).toLowerCase() === 'na';
-      };
-
-      // Check if either value is N/A - N/A values always go to the end
-      const aIsNA = isNAValue(aValue);
-      const bIsNA = isNAValue(bValue);
-
-      if (aIsNA && !bIsNA) return 1;  // a goes after b
-      if (!aIsNA && bIsNA) return -1; // a goes before b
-      if (aIsNA && bIsNA) return 0;   // both are N/A, maintain order
-
-      // Handle specific columns
-      if (sortConfig.key === 'Actual Pick') {
-        // Convert to numbers for sorting
-        const aNum = parseInt(aValue as string) || 99; // Use 99 for undrafted
-        const bNum = parseInt(bValue as string) || 99;
-        return sortConfig.direction === 'ascending'
-          ? aNum - bNum
-          : bNum - aNum;
-      }
-
-      // Handle Tier sorting
-      if (sortConfig.key === 'Tier') {
-        const tierRankMap = {
-          'All-Time Great': 1,
-          'All-NBA Caliber': 2,
-          'Fringe All-Star': 3,
-          'Quality Starter': 4,
-          'Solid Rotation': 5,
-          'Bench Reserve': 6,
-          'Fringe NBA': 7
-        };
-        const aRank = tierRankMap[aValue as keyof typeof tierRankMap] || 999;
-        const bRank = tierRankMap[bValue as keyof typeof tierRankMap] || 999;
-        return sortConfig.direction === 'ascending'
-          ? aRank - bRank
-          : bRank - aRank;
-      }
-
-      // Handle Height (convert to inches)
-      if (sortConfig.key === 'Height') {
-        const aNum = parseFloat(a['Height (in)'] as string) || 0;
-        const bNum = parseFloat(b['Height (in)'] as string) || 0;
-        return sortConfig.direction === 'ascending'
-          ? aNum - bNum
-          : bNum - aNum;
-      }
-
-      // Handle Wingspan (convert to inches)
-      if (sortConfig.key === 'Wingspan') {
-        const aNum = parseFloat(a['Wingspan (in)'] as string) || 0;
-        const bNum = parseFloat(b['Wingspan (in)'] as string) || 0;
-        return sortConfig.direction === 'ascending'
-          ? aNum - bNum
-          : bNum - aNum;
-      }
-
-      // Handle Weight
-      if (sortConfig.key === 'Weight (lbs)') {
-        const aNum = parseInt(aValue as string) || 0;
-        const bNum = parseInt(bValue as string) || 0;
-        return sortConfig.direction === 'ascending'
-          ? aNum - bNum
-          : bNum - aNum;
-      }
-
-      // For numeric columns, try to parse as numbers
-      const aNum = parseFloat(aValue as string);
-      const bNum = parseFloat(bValue as string);
-
-      if (!isNaN(aNum) && !isNaN(bNum)) {
-        // Both are valid numbers
-        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-      }
-
-      // Default string comparison for non-numeric values
-      if (aValue === undefined) aValue = '';
-      if (bValue === undefined) bValue = '';
-
-      if (sortConfig.direction === 'ascending') {
-        return String(aValue).localeCompare(String(bValue));
-      } else {
-        return String(bValue).localeCompare(String(aValue));
-      }
-    });
-
-    return sortableProspects;
-  }, [prospects, sortConfig]);
-
-  return (
-    <div className="max-w-6xl mx-auto px-4 pt-2">
-      {/* Column Selector */}
-      <div className="mb-2">
-        <CustomSelector
-          columns={columns}
-          onColumnsChange={setColumns}
-          isOpen={columnSelectorOpen}
-          onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
+    return (
+        <ProspectTable
+            prospects={prospects}
+            rankingSystem={rankingSystem}
+            columns={columns}
+            tierRankMap={tierRankMap}
         />
-      </div>
-
-      <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {columns.filter(col => col.visible).map((column) => (
-                <TableHead
-                  key={column.key}
-                  className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
-                  onClick={() => column.sortable && handleSort(column.key as keyof DraftProspect | 'Rank')}
-                >
-                  {column.label}
-                  {column.sortable && sortConfig?.key === column.key && (
-                    <span className="ml-1">
-                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                    </span>
-                  )}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedProspects.map((prospect) => (
-              <TableRow
-                key={prospect.Name}
-                className="hover:bg-gray-800/20"
-              >
-                {columns.filter(col => col.visible).map((column) => {
-                  const key = column.key as keyof DraftProspect;
-
-                  // Handle special cases for different column types
-                  if (column.key === 'Rank') {
-                    return (
-                      <TableCell key={column.key} className="text-gray-300">
-                        {rankingSystem.get(prospect.Name) || 'N/A'}
-                      </TableCell>
-                    );
-                  }
-
-                  if (column.key === 'Name') {
-                    return (
-                      <TableCell key={column.key} className="font-medium text-gray-300 whitespace-nowrap">
-                        {prospect.Name}
-                      </TableCell>
-                    );
-                  }
-
-                  if (column.key === 'League') {
-                    return (
-                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <LeagueLogo league={prospect['League']} />
-                          <span>{prospect['League']}</span>
-                        </div>
-                      </TableCell>
-                    );
-                  }
-
-                  if (column.key === 'Pre-NBA') {
-                    return (
-                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <PreNBALogo preNBA={prospect['Pre-NBA']} />
-                          <span>{prospect['Pre-NBA']}</span>
-                        </div>
-                      </TableCell>
-                    );
-                  }
-
-                  if (column.key === 'Actual Pick') {
-                    return (
-                      <TableCell key={column.key} className="text-gray-300">
-                        {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
-                      </TableCell>
-                    );
-                  }
-
-                  if (column.key === 'NBA Team') {
-                    return (
-                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <TableTeamLogo NBA={prospect['NBA Team']} />
-                          <span>{prospect['NBA Team']}</span>
-                        </div>
-                      </TableCell>
-                    );
-                  }
-
-                  // Handle Rank columns - display as whole numbers
-                  if (column.key.includes('Rank') && !column.key.includes('Position')) {
-                    const rankValue = prospect[key];
-                    return (
-                      <TableCell key={column.key} className="text-gray-300">
-                        {typeof rankValue === 'number' ? rankValue.toString() : String(rankValue || '')}
-                      </TableCell>
-                    );
-                  }
-
-                  // Handle comparison columns
-                  if (['Comp1', 'Comp2', 'Comp3', 'Comp4', 'Comp5'].includes(column.key)) {
-                    const compValue = prospect[key];
-                    return (
-                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                        {String(compValue || '')}
-                      </TableCell>
-                    );
-                  }
-
-                  // Handle Tier column with color styling
-                  if (column.key === 'Tier') {
-                    return (
-                      <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                        <span
-                          className="px-2 py-1 rounded text-sm font-medium"
-                          style={{
-                            backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
-                            color: tierColors[prospect.Tier] || 'inherit',
-                            border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
-                          }}
-                        >
-                          {prospect.Tier}
-                        </span>
-                      </TableCell>
-                    );
-                  }
-
-                  // Handle positionRanks object - skip it as it's not meant for display
-                  if (column.key === 'positionRanks') {
-                    return (
-                      <TableCell key={column.key} className="text-gray-300">
-                        N/A
-                      </TableCell>
-                    );
-                  }
-
-                  // Default case for other columns
-                  const cellValue = prospect[key];
-                  return (
-                    <TableCell key={column.key} className="text-gray-300">
-                      {typeof cellValue === 'object' ? 'N/A' : String(cellValue || '')}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
-  );
+    );
 };
 
 type RankType = string;
@@ -2806,7 +2218,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
         const fullName = prospect.Name.toLowerCase();
         const nameMatch = fullName.includes(query);
         const preNBAMatch = prospect['Pre-NBA'].toLowerCase().includes(query);
-    
+
         // Handle team name search - use the NBA column directly for both years
         let teamMatch = false;
         if (selectedYear === 2025) {
@@ -2818,7 +2230,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
           const teamAbbrev = prospect['NBA Team'].toLowerCase();
           teamMatch = teamAbbrev.includes(query);
         }
-    
+
         return nameMatch || preNBAMatch || teamMatch;
       });
     }
@@ -2969,14 +2381,14 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
           viewMode === 'cards' ? (
             <div className="space-y-4">
               {filteredProspects.slice(0, displayedProspects).map(({ prospect, originalRank }) => (
-                <ProspectCard
+                <MaxPageProspectCard
                   key={prospect.Name}
                   prospect={prospect}
                   rank={originalRank ?? 'N/A'}
                   filteredProspects={filteredProspects.map(item => item.prospect)}
                   allProspects={initialProspects} // Pass all prospects
                   selectedSortKey={selectedSortKey}
-                  selectedYear={selectedYear}                  //selectedYear={} // Convert selectedTier to number
+                  selectedYear={selectedYear}
                 />
               ))}
               {isLoading && (
@@ -2986,14 +2398,8 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
               )}
             </div>
           ) : (
-            <ProspectTable
+            <MaxProspectTable
               prospects={filteredProspects.map(item => item.prospect)}
-              rank={Object.fromEntries(
-                filteredProspects.map(({ prospect, originalRank }) => [
-                  prospect.Name,
-                  originalRank ?? 'N/A'
-                ])
-              )}
               rankingSystem={rankingSystem}
             />
           )

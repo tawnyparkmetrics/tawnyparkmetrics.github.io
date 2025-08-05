@@ -3,12 +3,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
-import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
 // import Link from 'next/link';
 import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts';
@@ -19,7 +17,11 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import CustomSelector, { ColumnConfig } from '@/components/CustomSelector';
+import { ColumnConfig } from '@/components/CustomSelector';
+import { BaseProspectCard } from '@/components/BaseProspectCard';
+import { AnimatePresence } from 'framer-motion';
+import { ProspectTable } from '@/components/ProspectTable';
+
 
 export interface DraftProspect {
     Name: string;
@@ -54,57 +56,6 @@ export interface DraftProspect {
     'ABV': string;
 
 }
-
-const barlow = Barlow({
-    subsets: ['latin'],
-    weight: ['700'], // Use 700 for bold text
-});
-
-const collegeNames: { [key: string]: string } = {
-    "UC Santa Barbara": "UCSB",
-    "G League Ignite": "Ignite",
-    "JL Bourg-en-Bresse": "JL Bourg",
-    "Cholet Basket": "Cholet",
-    "KK Crvena Zvezda": "KK Crvena",
-    "Ratiopharm Ulm": "Ulm",
-    "Washington State": "Washington St.",
-    "KK Mega Basket": "KK Mega",
-    "Melbourne United": "Melbourne Utd",
-    "Eastern Kentucky": "EKU",
-    "Western Carolina": "WCU",
-    "KK Cedevita Olimpija": "KK C. Olimpija",
-    "North Dakota State": "NDSU",
-    "Delaware Blue Coats": "Del. Blue Coats",
-    "Pallacanestro Reggiana": "Reggiana"
-}
-
-const draftShort: { [key: string]: string } = {
-    "G League Elite Camp": "G League Elite",
-    "Portsmouth Invitational": "P.I.T."
-}
-
-const NBATeamLogo = ({ NBA }: { NBA: string }) => {
-    const [logoError, setNBALogoError] = useState(false);
-    const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
-
-    if (logoError) {
-        return <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{NBA}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-16 w-16 relative">
-            <Image
-                src={teamLogoUrl}
-                alt={`${NBA} logo`}
-                fill
-                className="object-contain"
-                onError={() => setNBALogoError(true)}
-            />
-        </div>
-    );
-};
 
 const PreNBALogo = ({ preNBA }: { preNBA: string }) => {
     const [logoError, setPreNBALogoError] = useState(false);
@@ -382,22 +333,18 @@ const SpiderChart: React.FC<{
     );
 };
 
-
-const ProspectCard: React.FC<{
+const AndrePageProspectCard: React.FC<{
     prospect: DraftProspect;
     rank: RankType;
     filteredProspects: DraftProspect[];
     allProspects: DraftProspect[];
     selectedSortKey: string;
     selectedYear: number;
-    rankingSystem: Map<string, number>; // Add ranking system prop
+    rankingSystem: Map<string, number>;
 }> = ({ prospect, selectedSortKey, selectedYear, rankingSystem }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    const [imageError, setImageError] = useState(false);
-    const [logoError, setLogoError] = useState(false);
+    const [, setIsHovered] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
     const [activeChart] = useState('spider');
 
     // Check if device is mobile
@@ -416,27 +363,12 @@ const ProspectCard: React.FC<{
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    const handleMouseEnter = () => {
-        if (!isMobile) {
-            setIsHovered(true);
-        }
-    };
-
-    const handleMouseLeave = () => {
-        if (!isMobile && !isExpanded) {
-            setIsHovered(false);
-        }
-    };
-
     // Update hover state when dropdown is expanded
     useEffect(() => {
         if (isExpanded && !isMobile) {
             setIsHovered(true);
         }
     }, [isExpanded, isMobile]);
-
-    const playerImageUrl = `/player_images2025/${prospect.Name} BG Removed.png`;
-    const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
     // First, extract the complex expression to a variable
     const pickNumber = Number(prospect['Actual Pick']);
@@ -457,31 +389,6 @@ const ProspectCard: React.FC<{
         }
     }, [prospect, selectedSortKey, pickNumber, rankingSystem]);
 
-    // Helper function to get draft display text
-    const getDraftDisplayText = (isMobileView: boolean = false) => {
-        const actualPick = prospect['Actual Pick'];
-        const team = isMobileView ? (prospect['ABV'] || prospect['NBA Team']) : prospect['NBA Team'];
-
-        // Check if actualPick exists and is not empty/whitespace
-        if (actualPick && actualPick.toString().trim() !== '') {
-            // Show "Pick - Team"
-            const pickTeam = `${actualPick} - ${team}`;
-            if (isMobileView) {
-                return Object.keys(draftShort).reduce((name, longName) => {
-                    return name.replace(longName, draftShort[longName]);
-                }, pickTeam);
-            }
-            return pickTeam;
-        } else {
-            // Show just the team (fallback to current behavior)
-            if (isMobileView) {
-                return Object.keys(draftShort).reduce((name, longName) => {
-                    return name.replace(longName, draftShort[longName]);
-                }, team);
-            }
-            return team;
-        }
-    };
     // Data for the new table (example values)
     const tableData = useMemo(() => ([
         { label: 'Cumulative', value: prospect['Cumulative PS/1000'] || 'N/A' },
@@ -489,7 +396,6 @@ const ProspectCard: React.FC<{
         { label: 'Measurables', value: prospect['Measurables Score'] || 'N/A' },
         { label: 'Athleticism', value: prospect['Athletic Score'] || 'N/A' },
         { label: 'Defense', value: prospect['Defense Score'] || 'N/A' },
-
         { label: 'Usage', value: prospect['Usage Score'] || 'N/A' },
         { label: 'Scoring', value: prospect['Scoring Score'] || 'N/A' },
         { label: 'Self Creation', value: prospect['Self Creation Score'] || 'N/A' },
@@ -497,241 +403,23 @@ const ProspectCard: React.FC<{
         { label: 'IQ', value: prospect['IQ Score'] || 'N/A' },
     ]), [prospect]);
 
+    const handleExpand = (expanded: boolean) => {
+        setIsExpanded(expanded);
+    };
+
     return (
-        <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
-            <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
-                <div className="relative">
-                    {/* Main card container - add mouse event handlers here */}
-                    <div
-                        className={`
-            relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]
-            ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px] cursor-pointer'}
-          `}
-                        style={{ backgroundColor: '#19191A' }}
-                        onMouseEnter={handleMouseEnter}
-                        onMouseLeave={handleMouseLeave}
-                        onClick={() => {
-                            if (isMobile) {
-                                if (isMobileInfoExpanded) {
-                                    setIsMobileInfoExpanded(false);
-                                } else {
-                                    setIsExpanded(!isExpanded);
-                                }
-                            } else {
-                                setIsExpanded(!isExpanded);
-                                if (!isExpanded) {
-                                    setIsHovered(true);
-                                }
-                            }
-                        }}
-                    >
-                        {/* Rank Number - Now using the dynamic currentRank */}
-                        <motion.div
-                            layout="position"
-                            className={`
-              ${barlow.className}
-              ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20 transition-opacity duration-300'}
-              ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
-            `}
-                        >
-                            <div className={`
-              ${barlow.className}
-              ${isMobile ? 'text-1xl' : 'text-6xl'}
-              font-bold
-              text-white
-              select-none
-              ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''}
-            `}>
-                                {currentRank}
-                            </div>
-                        </motion.div>
-
-                        {/* Background Pre-NBA Logo */}
-                        <div className={`
-            absolute inset-0 flex items-center justify-start
-            ${isMobile ? 'pl-4' : 'pl-12'}
-            transition-opacity duration-300
-            ${((isHovered && !isMobile) || isExpanded) ? 'opacity-90' : 'opacity-20'}
-          `}>
-                            {!logoError ? (
-                                <Image
-                                    src={prenbalogoUrl}
-                                    alt={prospect['Pre-NBA']}
-                                    width={isMobile ? 70 : 200}
-                                    height={isMobile ? 70 : 200}
-                                    className={`object-contain transition-transform duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}`}
-                                    onError={() => setLogoError(true)}
-                                />
-                            ) : (
-                                <div className={`${isMobile ? 'w-24 h-24' : 'w-48 h-48'} bg-gray-800 rounded-full flex items-center justify-center`}>
-                                    <span className={`${isMobile ? 'text-sm' : 'text-xl'} text-gray-400`}>{prospect['Pre-NBA']}</span>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Player Image */}
-                        <div className="absolute inset-0 flex justify-center items-end overflow-hidden">
-                            <div className={`relative ${isMobile ? 'w-[90%] h-[90%]' : 'w-[90%] h-[90%]'}`}>
-                                {!imageError ? (
-                                    <div className="relative w-full h-full flex items-end justify-center">
-                                        <Image
-                                            src={playerImageUrl}  // Use the dynamic playerImageUrl instead of hardcoded path
-                                            alt={prospect.Name}
-                                            fill
-                                            className={`
-                      object-contain
-                      object-bottom
-                      transition-all duration-300
-                      ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}
-                    `}
-                                            onError={() => setImageError(true)}
-                                            sizes={isMobile ? "400px" : "800px"}
-                                            priority
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <LucideUser className="text-gray-500" size={isMobile ? 32 : 48} />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Large Centered Name */}
-                        <motion.div
-                            layout="position"
-                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-0' : 'opacity-100'}`}
-                        >
-                            <div className="text-center z-10">
-                                <h2 className={`
-                ${barlow.className}
-                ${isMobile ? 'text-1xl' : 'text-7xl'}
-                font-bold
-                text-white
-                uppercase
-                tracking-wider
-                [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
-              `}>
-                                    {prospect.Name}
-                                </h2>
-                            </div>
-                        </motion.div>
-
-                        {/* Info panel - different for mobile/desktop */}
-                        {isMobile ? (
-                            isExpanded && (
-                                <div style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}></div>
-                            )
-                        ) : (
-                            // Desktop hover info panel
-                            <div
-                                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-                                    }`}
-                                style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-                            >
-                                <div className="p-6 space-y-4 flex flex-col">
-                                    <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
-                                    <div className="space-y-2 text-sm text-gray-300">
-                                        <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
-                                        <div><span className="font-bold text-white">Wingspan  </span> {prospect.Wingspan}</div>
-                                        <div><span className="font-bold text-white">Wing - Height  </span> {prospect['Wing - Height']}</div>
-                                        <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
-                                    </div>
-
-                                    <div className="pt-4 border-t border-gray-700">
-                                        <div className="space-y-2 text-sm text-gray-300">
-                                            <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
-                                            <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
-                                            <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
-                                            <div>
-                                                <span className="font-bold text-white">Draft  </span>
-                                                {getDraftDisplayText(false)}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* NBA Team logo */}
-                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-                                        <NBATeamLogo NBA={prospect['NBA Team']} />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Click to View Text - Now properly positioned under the card, desktop only */}
-                    {!isExpanded && !isMobile && (
-                        <div className="text-center mt-2">
-                            <p className={`text-gray-500 text-sm font-bold ${isHovered ? 'animate-pulse' : ''}`}>
-                                Click Card to View More Information
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Mobile Info Dropdown */}
-                    {isMobile && isExpanded && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative"
-                            style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-                        >
-                            <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
-                            <div className="grid grid-cols-2 gap-2">
-                                {/* Draft Information Column */}
-                                <div>
-                                    <h4 className="font-semibold text-white text-sm mb-1">Draft Information</h4>
-                                    <div className="space-y-1 text-xs text-gray-300">
-                                        <div>
-                                            <span className="font-bold text-white">Pre-NBA </span>
-                                            {collegeNames.hasOwnProperty(prospect['Pre-NBA'])
-                                                ? collegeNames[prospect['Pre-NBA']]  // Fixed: Use dynamic key instead of hardcoded 'Duke'
-                                                : prospect['Pre-NBA']}
-                                        </div>
-                                        <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
-                                        <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
-                                        <div>
-                                            <span className="font-bold text-white">Draft </span>
-                                            {getDraftDisplayText(true)}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Physicals Column */}
-                                <div className="ml-2">
-                                    <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
-                                    <div className="space-y-1 text-xs text-gray-300">
-                                        <div><span className="font-bold text-white">Height </span> {prospect.Height}</div>
-                                        <div><span className="font-bold text-white">Wingspan </span> {prospect.Wingspan}</div>
-                                        <div><span className="font-bold text-white">Wing - Height </span> {prospect['Wing - Height']}</div>
-                                        <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Team Logo in Top Right */}
-                            <div className="absolute top-3.5 right-3.5 transform scale-50 origin-top-right">
-                                <NBATeamLogo NBA={prospect['NBA Team']} />
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Expanded View - Charts and Rankings */}
-                    {isExpanded && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="rounded-xl backdrop-blur-sm p-4 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
-                            style={{ backgroundColor: '#19191A' }}
-                        >
-
-                            {/* Expanded View Content */}
+        <BaseProspectCard
+            prospect={prospect}
+            rank={currentRank}
+            selectedYear={selectedYear}
+            isMobile={isMobile}
+            onExpand={handleExpand}
+        >
+            {/* Andre's specific dropdown content with layout optimization */}
+            {/* Expanded View Content with pre-allocated space */}
                             <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
                                 {/* Charts Column - Now on the left (first column) */}
-                                <div className="text-gray-300 px-2">
+                    <div className="text-gray-300 px-2 space-y-4 flex flex-col justify-start">
                                     {/* Tier display with color border */}
                                     <h3 className="font-semibold text-lg mb-3 text-white mt-2">
                                         Prospect Tier: <span
@@ -746,8 +434,8 @@ const ProspectCard: React.FC<{
                                         </span>
                                     </h3>
 
-                                    {/* Chart Container */}
-                                    <div className={`mb-4 ${!isMobile ? 'h-64' : 'h-[300px]'}`}>
+                        {/* Chart Container - Allow natural height */}
+                        <div className="mb-4 min-h-[250px]">
                                         {activeChart === 'spider' && (
                                             <SpiderChart
                                                 prospect={prospect}
@@ -812,19 +500,7 @@ const ProspectCard: React.FC<{
                                     )}
                                 </div>
                             </div>
-                        </motion.div>
-                    )}
-                </div>
-            </motion.div>
-
-            {/* Divider */}
-            {typeof window !== 'undefined' && window.innerWidth > 768 && (
-                <div>
-                    {/* Kept only the faded divider */}
-                    <div className="h-px w-full bg-gray-700/30 my-8" />
-                </div>
-            )}
-        </div>
+        </BaseProspectCard>
     );
 };
 
@@ -1318,7 +994,12 @@ export default function AndreDraftPage() {
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [selectedSortKey,] = useState<string>('Actual Pick');
     const tableContainerRef = useRef<HTMLDivElement>(null);
-    const [filterState, setFilterState] = useState<{ roleFilter: 'all' | 'Guard' | 'Wing' | 'Big', selectedTier: string | null }>({
+    const [filterState, setFilterState] = useState<{
+        selectedSortKey: string;
+        roleFilter: 'all' | 'Guard' | 'Wing' | 'Big';
+        selectedTier: string | null;
+    }>({
+        selectedSortKey: 'Actual Pick',
         roleFilter: 'all',
         selectedTier: null
     });
@@ -1447,11 +1128,11 @@ export default function AndreDraftPage() {
 
             // Helper function to check if a value is N/A, empty, or undefined
             const isNAValue = (value: string | number | undefined | null): boolean => {
-                return value === undefined || 
-                       value === null || 
-                       value === '' || 
-                       String(value).toLowerCase() === 'n/a' ||
-                       String(value).toLowerCase() === 'na';
+                return value === undefined ||
+                    value === null ||
+                    value === '' ||
+                    String(value).toLowerCase() === 'n/a' ||
+                    String(value).toLowerCase() === 'na';
             };
 
             // Check if either value is N/A - N/A values always go to the end
@@ -1498,7 +1179,7 @@ export default function AndreDraftPage() {
             // For numeric columns, try to parse as numbers
             const aNum = parseFloat(aValue as string);
             const bNum = parseFloat(bValue as string);
-            
+
             if (!isNaN(aNum) && !isNaN(bNum)) {
                 // Both are valid numbers
                 return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
@@ -1518,167 +1199,41 @@ export default function AndreDraftPage() {
         return sortableProspects;
     }, [filteredProspects, sortConfig]);
 
-    // Render the table with sorting functionality
-    const ProspectTable = ({
-        rankingSystem,
-        columns,
-        setColumns,
-        isOpen,
-        onToggle
-    }: {
-        prospects: DraftProspect[],
-        rank: Record<string, RankType>,
-        rankingSystem: Map<string, number>,
-        columns: ColumnConfig[],
-        setColumns: React.Dispatch<React.SetStateAction<ColumnConfig[]>>,
-        isOpen: boolean,
-        onToggle: () => void
-    }) => {
-        // Remove the local isColumnSelectorOpen state - it's now passed as props
+    // Replace the existing ProspectTable component with:
+    const AndreProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
+        const [columns, setColumns] = useState<ColumnConfig[]>([
+            { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
+            { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
+            { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
+            { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
+            { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
+            { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
+            { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
+            { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
+            { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+            { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
+            { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
+            { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
+            { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
+            { key: 'Age Score', label: 'Age Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'Athletic Score', label: 'Athletic Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'Scoring Score', label: 'Scoring Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'Defense Score', label: 'Defense Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'Measurables Score', label: 'Measurables Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'Self Creation Score', label: 'Self Creation Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'Touch Score', label: 'Touch Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'IQ Score', label: 'IQ Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'Usage Score', label: 'Usage Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'Cumulative Prospect Score', label: 'Cumulative Prospect Score', category: 'Scoring Information', visible: false, sortable: true },
+            { key: 'Cumulative PS/1000', label: 'Cumulative PS/1000', category: 'Scoring Information', visible: false, sortable: true },
+        ]);
 
         return (
-            <div className="max-w-6xl mx-auto px-4 pt-2">
-                {/* Column Selector */}
-                <div className="mb-2">
-                    <CustomSelector
+            <ProspectTable
+                prospects={prospects}
+                rankingSystem={rankingSystem}
                         columns={columns}
-                        onColumnsChange={setColumns}
-                        isOpen={isOpen}  // Use prop instead of local state
-                        onToggle={onToggle}  // Use prop instead of local state
-                    />
-                </div>
-                <div
-                    ref={tableContainerRef}
-                    className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                {columns.filter(col => col.visible).map((column) => (
-                                    <TableHead
-                                        key={column.key}
-                                        className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
-                                        onClick={() => column.sortable && handleSort(column.key as keyof DraftProspect | 'Rank')}
-                                    >
-                                        {column.label}
-                                        {column.sortable && sortConfig?.key === column.key && (
-                                            <span className="ml-1">
-                                                {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                            </span>
-                                        )}
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {sortedProspects.map((prospect) => {
-                                // Get the original rank from the ranking system
-                                const originalRank = rankingSystem.get(prospect.Name) || 1;
-
-                                return (
-                                    <TableRow
-                                        key={prospect.Name}
-                                        className="hover:bg-gray-800/20"
-                                    >
-                                        {columns.filter(col => col.visible).map((column) => {
-                                            const key = column.key as keyof DraftProspect;
-
-                                            // Handle special cases for different column types
-                                            if (column.key === 'Rank') {
-                                                return (
-                                                    <TableCell key={column.key} className="text-gray-300">
-                                                        {originalRank}
-                                                    </TableCell>
-                                                );
-                                            }
-
-                                            if (column.key === 'Name') {
-                                                return (
-                                                    <TableCell key={column.key} className="font-medium text-gray-300 whitespace-nowrap">
-                                                        {prospect.Name}
-                                                    </TableCell>
-                                                );
-                                            }
-
-                                            if (column.key === 'League') {
-                                                return (
-                                                    <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                        <div className="flex items-center gap-2">
-                                                            <LeagueLogo league={prospect.League} />
-                                                            <span>{prospect.League}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                );
-                                            }
-
-                                            if (column.key === 'Pre-NBA') {
-                                                return (
-                                                    <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                        <div className="flex items-center gap-2">
-                                                            <PreNBALogo preNBA={prospect['Pre-NBA']} />
-                                                            <span>{prospect['Pre-NBA']}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                );
-                                            }
-
-                                            if (column.key === 'Actual Pick') {
-                                                return (
-                                                    <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                        {(() => {
-                                                            const actualPick = prospect['Actual Pick'];
-                                                            if (actualPick && actualPick.trim() !== '') {
-                                                                return actualPick;
-                                                            } else {
-                                                                return "Undrafted";
-                                                            }
-                                                        })()}
-                                                    </TableCell>
-                                                );
-                                            }
-
-                                            if (column.key === 'NBA Team') {
-                                                return (
-                                                    <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                        <div className="flex items-center gap-2">
-                                                            <TableTeamLogo NBA={prospect['NBA Team']} />
-                                                            <span>{prospect['NBA Team']}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                );
-                                            }
-
-                                            if (column.key === 'Tier') {
-                                                return (
-                                                    <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                        <span
-                                                            className="px-2 py-1 rounded text-sm font-medium"
-                                                            style={{
-                                                                backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
-                                                                color: tierColors[prospect.Tier] || 'inherit',
-                                                                border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
-                                                            }}
-                                                        >
-                                                            Tier {prospect.Tier}
-                                                        </span>
-                                                    </TableCell>
-                                                );
-                                            }
-
-                                            // Default case for other columns
-                                            const cellValue = prospect[key];
-                                            return (
-                                                <TableCell key={column.key} className="text-gray-300">
-                                                    {String(cellValue || '')}
-                                                </TableCell>
-                                            );
-                                        })}
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </div>
-            </div>
+            />
         );
     };
 
@@ -1731,44 +1286,50 @@ export default function AndreDraftPage() {
                 onFilteredProspectsChange={setFilteredProspects}
                 rank={{}}
                 onViewModeChange={setViewMode}
-                onFilterStateChange={setFilterState}
+                onFilterStateChange={(newFilterState) => {
+                    setFilterState(prev => ({
+                        ...prev,
+                        ...newFilterState,
+                    }));
+                }}
             />
 
             <div className="max-w-6xl mx-auto px-4 pt-8">
                 {filteredProspects.length > 0 ? (
                     viewMode === 'card' ? (
-                        <div className="space-y-4">
-                            {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
-                                <ProspectCard
+                        <motion.div layout className="space-y-4">
+                            <AnimatePresence>
+                            {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect, index) => (
+                                    <motion.div
                                     key={prospect.Name}
+                                        layout
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <AndrePageProspectCard
                                     prospect={prospect}
-                                    filteredProspects={filteredProspects}
-                                    allProspects={prospects}
-                                    selectedSortKey={selectedSortKey}
-                                    rank={0}
-                                    selectedYear={0}
-                                    rankingSystem={rankingSystem} />
+                                            rank={rankingSystem.get(prospect.Name) || (index + 1)}
+                                            filteredProspects={filteredProspects}
+                                            allProspects={prospects}
+                                            selectedSortKey={filterState.selectedSortKey || 'default'}
+                                            selectedYear={2025}
+                                    rankingSystem={rankingSystem}
+                                />
+                                    </motion.div>
                             ))}
+                            </AnimatePresence>
                             {isLoading && !isMobile && (
                                 <div className="flex justify-center py-4">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
                                 </div>
                             )}
-                        </div>
+                        </motion.div>
                     ) : (
-                        <ProspectTable
+                        <AndreProspectTable
                             prospects={filteredProspects}
-                            rank={Object.fromEntries(
-                                filteredProspects.map((prospect) => [
-                                    prospect.Name,
-                                    prospect.originalRank ?? 'N/A'
-                                ])
-                            )}
                             rankingSystem={rankingSystem}
-                            columns={columns}
-                            setColumns={setColumns}
-                            isOpen={columnSelectorOpen}
-                            onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
                         />
                     )
                 ) : (
