@@ -24,10 +24,9 @@ import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import Head from 'next/head';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import { ColumnConfig } from '@/components/CustomSelector';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
 import { ProspectTable } from '@/components/ProspectTable';
-
+import { ColumnConfig } from '@/components/ProspectTable';
 
 type PositionRanks = {
   Y1: number;
@@ -121,34 +120,6 @@ const tierColors: { [key: string]: string } = {
   'Bench Reserve': '#FFA455',
   'Fringe NBA': '#FF5757',
 };
-
-const barlow = Barlow({
-  subsets: ['latin'],
-  weight: ['700'], // Use 700 for bold text
-});
-
-const collegeNames: { [key: string]: string } = {
-  "UC Santa Barbara": "UCSB",
-  "G League Ignite": "Ignite",
-  "JL Bourg-en-Bresse": "JL Bourg",
-  "Cholet Basket": "Cholet",
-  "KK Crvena Zvezda": "KK Crvena",
-  "Ratiopharm Ulm": "Ulm",
-  "Washington State": "Washington St.",
-  "KK Mega Basket": "KK Mega",
-  "Melbourne United": "Melbourne Utd",
-  "Eastern Kentucky": "EKU",
-  "Western Carolina": "WCU",
-  "KK Cedevita Olimpija": "KK C. Olimpija",
-  "North Dakota State": "NDSU",
-  "Delaware Blue Coats": "Del. Blue Coats",
-  "Pallacanestro Reggiana": "Reggiana"
-}
-
-const draftShort: { [key: string]: string } = {
-  "G League Elite Camp": "G League Elite",
-  "Portsmouth Invitational": "P.I.T."
-}
 
 // ALL GRAPHING NECESSITIES ARE HERE
 interface EPMModelProps {
@@ -931,75 +902,6 @@ const TimelineFilter = ({
   );
 };
 
-const NBATeamLogo = ({ NBA }: { NBA: string }) => {
-  const [logoError, setNBALogoError] = useState(false);
-  const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
-
-  if (logoError) {
-    return <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{NBA}</span>
-    </div>;
-  }
-
-  return (
-    <div className="h-16 w-16 relative">
-      <Image
-        src={teamLogoUrl}
-        alt={`${NBA} logo`}
-        fill
-        className={`object-contain ${NBA === 'Duke' ? 'brightness-125' : ''}`}
-        onError={() => setNBALogoError(true)}
-      />
-    </div>
-  );
-};
-
-const PreNBALogo = ({ preNBA }: { preNBA: string }) => {
-  const [logoError, setPreNBALogoError] = useState(false);
-  const teamLogoUrl = `/prenba_logos/${preNBA}.png`;
-
-  if (logoError) {
-    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{preNBA}</span>
-    </div>;
-  }
-
-  return (
-    <div className="h-6 w-6 relative">
-      <Image
-        src={teamLogoUrl}
-        alt={`${preNBA} logo`}
-        fill
-        className="object-contain"
-        onError={() => setPreNBALogoError(true)}
-      />
-    </div>
-  );
-};
-
-const TableTeamLogo = ({ NBA }: { NBA: string }) => {
-  const [logoError, setNBALogoError] = useState(false);
-  const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
-
-  if (logoError) {
-    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{NBA}</span>
-    </div>;
-  }
-
-  return (
-    <div className="h-6 w-6 relative">
-      <Image
-        src={teamLogoUrl}
-        alt={`${NBA} logo`}
-        fill
-        className="object-contain"
-        onError={() => setNBALogoError(true)}
-      />
-    </div>
-  );
-};
-
 const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   isOpen,
   onClose,
@@ -1669,9 +1571,8 @@ const MaxPageProspectCard: React.FC<{
   const [isGraphModelOpen, setIsGraphModelOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [graphType, setGraphType] = useState<'rankings' | 'EPM'>('rankings');
-  const [isMobileInfoExpanded, setIsMobileInfoExpanded] = useState(false);
   const [activeChart, setActiveChart] = useState('spider');
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [, setIsExpanded] = useState(false);
 
   // Create validProspects filter that will be used throughout the component
   const validProspects = useMemo(() => {
@@ -1990,7 +1891,17 @@ const MaxPageProspectCard: React.FC<{
 
 // Replace the existing ProspectTable component with:
 const MaxProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
-    const [columns, setColumns] = useState<ColumnConfig[]>([
+    const tierRankMap = {
+        'All-Time Great': 1,
+        'All-NBA Caliber': 2,
+        'Fringe All-Star': 3,
+        'Quality Starter': 4,
+        'Solid Rotation': 5,
+        'Bench Reserve': 6,
+        'Fringe NBA': 7
+    };
+
+    const initialColumns: ColumnConfig[] = [
         { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
         { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
         { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
@@ -2016,29 +1927,20 @@ const MaxProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspe
         { key: 'Comp3', label: 'Comp 3', category: 'Player Comparisons', visible: false, sortable: true },
         { key: 'Comp4', label: 'Comp 4', category: 'Player Comparisons', visible: false, sortable: true },
         { key: 'Comp5', label: 'Comp 5', category: 'Player Comparisons', visible: false, sortable: true },
-    ]);
-
-    const tierRankMap = {
-        'All-Time Great': 1,
-        'All-NBA Caliber': 2,
-        'Fringe All-Star': 3,
-        'Quality Starter': 4,
-        'Solid Rotation': 5,
-        'Bench Reserve': 6,
-        'Fringe NBA': 7
-    };
+    ];
 
     return (
         <ProspectTable
             prospects={prospects}
             rankingSystem={rankingSystem}
-            columns={columns}
             tierRankMap={tierRankMap}
+            initialColumns={initialColumns}
         />
     );
 };
 
 type RankType = string;
+
 {/* Filters */ }
 function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   initialProspects: DraftProspect[];
@@ -2412,30 +2314,6 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
     </div>
   );
 }
-
-// Add a new component for league logos
-const LeagueLogo = ({ league }: { league: string }) => {
-  const [logoError, setLogoError] = useState(false);
-  const logoUrl = `/league_logos/${league}.png`;
-
-  if (logoError) {
-    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{league}</span>
-    </div>;
-  }
-
-  return (
-    <div className="h-6 w-6 relative">
-      <Image
-        src={logoUrl}
-        alt={`${league} logo`}
-        fill
-        className="object-contain"
-        onError={() => setLogoError(true)}
-      />
-    </div>
-  );
-};
 
 export default function DraftProspectsPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);

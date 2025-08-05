@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
@@ -12,9 +12,8 @@ import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import { ColumnConfig } from '@/components/CustomSelector';
+import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
-import { ProspectTable } from '@/components/ProspectTable';
 
 
 export interface DraftProspect {
@@ -41,134 +40,6 @@ export interface DraftProspect {
   'ABV': string;
 
 }
-
-const barlow = Barlow({
-  subsets: ['latin'],
-  weight: ['700'], // Use 700 for bold text
-});
-
-const collegeNames: { [key: string]: string } = {
-  "UC Santa Barbara": "UCSB",
-  "G League Ignite": "Ignite",
-  "JL Bourg-en-Bresse": "JL Bourg",
-  "Cholet Basket": "Cholet",
-  "KK Crvena Zvezda": "KK Crvena",
-  "Ratiopharm Ulm": "Ulm",
-  "Washington State": "Washington St.",
-  "KK Mega Basket": "KK Mega",
-  "Melbourne United": "Melbourne Utd",
-  "Eastern Kentucky": "EKU",
-  "Western Carolina": "WCU",
-  "KK Cedevita Olimpija": "KK C. Olimpija",
-  "North Dakota State": "NDSU",
-  "Delaware Blue Coats": "Del. Blue Coats",
-  "Pallacanestro Reggiana": "Reggiana"
-}
-
-const draftShort: { [key: string]: string } = {
-  "G League Elite Camp": "G League Elite",
-  "Portsmouth Invitational": "P.I.T."
-}
-
-// interface MenuItem {
-//   name: string;
-//   href: string;
-//   available: boolean;
-//   stage?: 'brainstorming' | 'development' | 'testing';
-// }
-
-const NBATeamLogo = ({ NBA }: { NBA: string }) => {
-  const [logoError, setNBALogoError] = useState(false);
-  const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
-
-  if (logoError) {
-    return <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{NBA}</span>
-    </div>;
-  }
-
-  return (
-    <div className="h-16 w-16 relative">
-      <Image
-        src={teamLogoUrl}
-        alt={`${NBA} logo`}
-        fill
-        className="object-contain"
-        onError={() => setNBALogoError(true)}
-      />
-    </div>
-  );
-};
-
-const PreNBALogo = ({ preNBA }: { preNBA: string }) => {
-  const [logoError, setPreNBALogoError] = useState(false);
-  const teamLogoUrl = `/prenba_logos/${preNBA}.png`;
-
-  if (logoError) {
-    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{preNBA}</span>
-    </div>;
-  }
-
-  return (
-    <div className="h-6 w-6 relative">
-      <Image
-        src={teamLogoUrl}
-        alt={`${preNBA} logo`}
-        fill
-        className="object-contain"
-        onError={() => setPreNBALogoError(true)}
-      />
-    </div>
-  );
-};
-
-const TableTeamLogo = ({ NBA }: { NBA: string }) => {
-  const [logoError, setNBALogoError] = useState(false);
-  const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
-
-  if (logoError) {
-    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{NBA}</span>
-    </div>;
-  }
-
-  return (
-    <div className="h-6 w-6 relative">
-      <Image
-        src={teamLogoUrl}
-        alt={`${NBA} logo`}
-        fill
-        className="object-contain"
-        onError={() => setNBALogoError(true)}
-      />
-    </div>
-  );
-};
-
-// Add LeagueLogo component after the existing logo components
-const LeagueLogo = ({ league }: { league: string }) => {
-  const [logoError, setLogoError] = useState(false);
-  const logoUrl = `/league_logos/${league}.png`;
-
-  if (logoError) {
-    return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-      <span className="text-xs text-gray-400">{league}</span>
-    </div>;
-  }
-
-  return (
-    <div className="h-6 w-6 relative">
-      <Image
-        src={logoUrl}
-        alt={`${league} logo`}
-        fill
-        className="object-contain"
-        onError={() => setLogoError(true)}
-      />
-    </div>
-  );
-};
 
 const NickPageProspectCard: React.FC<{
   prospect: DraftProspect;
@@ -709,7 +580,7 @@ export default function NickDraftPage() {
     filter: 'NCAA',
     roleFilter: 'all'
   });
-  const [columns, setColumns] = useState<ColumnConfig[]>([
+  const initialColumns: ColumnConfig[] = [
     { key: 'Rank', label: 'Rank', category: 'Basic Info', visible: true, sortable: true },
     { key: 'Name', label: 'Name', category: 'Basic Info', visible: true, sortable: true },
     { key: 'Role', label: 'Position', category: 'Basic Info', visible: true, sortable: true },
@@ -722,8 +593,7 @@ export default function NickDraftPage() {
     { key: 'Wingspan', label: 'Wingspan', category: 'Physical', visible: false, sortable: true },
     { key: 'Wing - Height', label: 'Wing-Height', category: 'Physical', visible: false, sortable: true },
     { key: 'Weight (lbs)', label: 'Weight', category: 'Physical', visible: false, sortable: true },
-  ]);
-  const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
+  ];
 
   // Create a separate ranking system that's independent of search filters but includes position and other filters
   const rankingSystem = useMemo(() => {
@@ -901,33 +771,33 @@ export default function NickDraftPage() {
     return sortableProspects;
   }, [filteredProspects, sortConfig]);
 
-  // Render the table with sorting functionality
+  // Replace the existing NickProspectTable component with:
   const NickProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
-    const [columns, setColumns] = useState<ColumnConfig[]>([
-      { key: 'Rank', label: 'Rank', category: 'Basic Info', visible: true, sortable: true },
-      { key: 'Name', label: 'Name', category: 'Basic Info', visible: true, sortable: true },
-      { key: 'Role', label: 'Position', category: 'Basic Info', visible: true, sortable: true },
-      { key: 'League', label: 'League', category: 'Team Info', visible: true, sortable: true },
-      { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Team Info', visible: true, sortable: true },
-      { key: 'Actual Pick', label: 'Draft Pick', category: 'Team Info', visible: true, sortable: true },
-      { key: 'NBA Team', label: 'NBA Team', category: 'Team Info', visible: true, sortable: true },
-      { key: 'Age', label: 'Age', category: 'Basic Info', visible: false, sortable: true },
-      { key: 'Height', label: 'Height', category: 'Physical', visible: false, sortable: true },
-      { key: 'Wingspan', label: 'Wingspan', category: 'Physical', visible: false, sortable: true },
-      { key: 'Wing - Height', label: 'Wing-Height', category: 'Physical', visible: false, sortable: true },
-      { key: 'Weight (lbs)', label: 'Weight', category: 'Physical', visible: false, sortable: true },
-    ]);
+    const initialColumns: ColumnConfig[] = [
+        { key: 'Rank', label: 'Rank', category: 'Basic Info', visible: true, sortable: true },
+        { key: 'Name', label: 'Name', category: 'Basic Info', visible: true, sortable: true },
+        { key: 'Role', label: 'Position', category: 'Basic Info', visible: true, sortable: true },
+        { key: 'League', label: 'League', category: 'Team Info', visible: true, sortable: true },
+        { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Team Info', visible: true, sortable: true },
+        { key: 'Actual Pick', label: 'Draft Pick', category: 'Team Info', visible: true, sortable: true },
+        { key: 'NBA Team', label: 'NBA Team', category: 'Team Info', visible: true, sortable: true },
+        { key: 'Age', label: 'Age', category: 'Basic Info', visible: false, sortable: true },
+        { key: 'Height', label: 'Height', category: 'Physical', visible: false, sortable: true },
+        { key: 'Wingspan', label: 'Wingspan', category: 'Physical', visible: false, sortable: true },
+        { key: 'Wing - Height', label: 'Wing-Height', category: 'Physical', visible: false, sortable: true },
+        { key: 'Weight (lbs)', label: 'Weight', category: 'Physical', visible: false, sortable: true },
+    ];
 
     return (
-      <ProspectTable
-        prospects={prospects.map(p => ({ ...p, Tier: (p as { Tier?: string }).Tier ?? '' }))}
-        rankingSystem={rankingSystem}
-        columns={columns}
-      />
+        <ProspectTable
+            prospects={prospects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
+            rankingSystem={rankingSystem}
+            initialColumns={initialColumns}
+        />
     );
-  };
+};
 
-  // Handle scroll event for infinite loading - only on desktop
+// Handle scroll event for infinite loading - only on desktop
   useEffect(() => {
     if (viewMode !== 'card' || isLoading || !hasMore || isMobile) return;
 

@@ -1,14 +1,11 @@
 "use client";
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
-import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
 // import Link from 'next/link';
 import { Search, TrendingUp, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import {
@@ -23,7 +20,9 @@ import {
 } from "@/components/ui/chart"
 import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { GoogleAnalytics } from '@next/third-parties/google';
-import CustomSelector, { ColumnConfig, isMobileDevice } from '@/components/CustomSelector';
+import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
+import { BaseProspectCard } from '@/components/BaseProspectCard';
+
 
 export interface DraftProspect {
     //Player info for hover
@@ -625,6 +624,11 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
     prospect,
 
 }) => {
+    // Fix: Define isMobileDevice locally since it's not imported or defined elsewhere
+    const isMobileDevice = (): boolean => {
+        if (typeof window === 'undefined') return false;
+        return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent);
+    };
     const isMobile = isMobileDevice();
     const teamColor =
         typeof prospect['Team Color'] === 'string' &&
@@ -648,10 +652,10 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
             { label: '4-14', value: safeParseFloat(prospect['4 - 14']), range: '4-14' },
             { label: '15-30', value: safeParseFloat(prospect['15 - 30']), range: '15-30' },
             { label: '31-59', value: safeParseFloat(prospect['31 - 59']), range: '31-59' },
-            { 
-                label: isMobile ? 'UDFA' : 'Undrafted', 
-                value: safeParseFloat(prospect['Undrafted']), 
-                range: 'Undrafted' 
+            {
+                label: isMobile ? 'UDFA' : 'Undrafted',
+                value: safeParseFloat(prospect['Undrafted']),
+                range: 'Undrafted'
             }
         ];
 
@@ -761,125 +765,7 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
     );
 };
 
-const barlow = Barlow({
-    subsets: ['latin'],
-    weight: ['700'], // Use 700 for bold text
-});
-
-const collegeNames: { [key: string]: string } = {
-    "UC Santa Barbara": "UCSB",
-    "G League Ignite": "Ignite",
-    "JL Bourg-en-Bresse": "JL Bourg",
-    "Cholet Basket": "Cholet",
-    "KK Crvena Zvezda": "KK Crvena",
-    "Ratiopharm Ulm": "Ulm",
-    "Washington State": "Washington St.",
-    "KK Mega Basket": "KK Mega",
-    "Melbourne United": "Melbourne Utd",
-    "Eastern Kentucky": "EKU",
-    "Western Carolina": "WCU",
-    "KK Cedevita Olimpija": "KK C. Olimpija",
-    "North Dakota State": "NDSU",
-    "Delaware Blue Coats": "Del. Blue Coats",
-    "Pallacanestro Reggiana": "Reggiana",
-    "Poitiers Basket 86": "Poitiers"
-}
-
-
-const NBATeamLogo = ({ NBA }: { NBA: string }) => {
-    const [logoError, setNBALogoError] = useState(false);
-    const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
-
-    if (logoError) {
-        return <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{NBA}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-16 w-16 relative">
-            <Image
-                src={teamLogoUrl}
-                alt={`${NBA} logo`}
-                fill
-                className="object-contain"
-                onError={() => setNBALogoError(true)}
-            />
-        </div>
-    );
-};
-
-const PreNBALogo = ({ preNBA }: { preNBA: string }) => {
-    const [logoError, setLogoError] = useState(false);
-    const logoUrl = `/prenba_logos/${preNBA}.png`;
-
-    if (logoError) {
-        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{preNBA}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-6 w-6 relative">
-            <Image
-                src={logoUrl}
-                alt={`${preNBA} logo`}
-                fill
-                className="object-contain"
-                onError={() => setLogoError(true)}
-            />
-        </div>
-    );
-};
-
-const TableTeamLogo = ({ team }: { team: string }) => {
-    const [logoError, setLogoError] = useState(false);
-    const logoUrl = `/nbateam_logos/${team}.png`;
-
-    if (logoError) {
-        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{team}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-6 w-6 relative">
-            <Image
-                src={logoUrl}
-                alt={`${team} logo`}
-                fill
-                className="object-contain"
-                onError={() => setLogoError(true)}
-            />
-        </div>
-    );
-};
-
-// Add LeagueLogo component after the existing logo components
-const LeagueLogo = ({ league }: { league: string }) => {
-    const [logoError, setLogoError] = useState(false);
-    const logoUrl = `/league_logos/${league}.png`;
-
-    if (logoError) {
-        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{league}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-6 w-6 relative">
-            <Image
-                src={logoUrl}
-                alt={`${league} logo`}
-                fill
-                className="object-contain"
-                onError={() => setLogoError(true)}
-            />
-        </div>
-    );
-};
-
-const ProspectCard: React.FC<{
+const ConsensusPageProspectCard: React.FC<{
     prospect: DraftProspect;
     rank: RankType;
     filteredProspects: DraftProspect[];
@@ -890,11 +776,8 @@ const ProspectCard: React.FC<{
     rankingSystem: Map<string, number>;
 }> = ({ prospect, consensusData, rankingSystem }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    const [imageError, setImageError] = useState(false);
-    const [logoError, setLogoError] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [showRangeConsensus, setShowRangeConsensus] = useState(true);
+    const [showRangeConsensus, setShowRangeConsensus] = useState(true); // Add this back
 
     // Check if device is mobile
     useEffect(() => {
@@ -907,44 +790,13 @@ const ProspectCard: React.FC<{
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    const handleMouseEnter = () => {
-        if (!isMobile) {
-            setIsHovered(true);
-        }
-    };
-
-    const handleMouseLeave = () => {
-        if (!isMobile && !isExpanded) {
-            setIsHovered(false);
-        }
-    };
-
-    // Update hover state when dropdown is expanded
-    useEffect(() => {
-        if (isExpanded && !isMobile) {
-            setIsHovered(true);
-        }
-    }, [isExpanded, isMobile]);
-
-    const playerImageUrl = `/player_images2025/${prospect.Name} BG Removed.png`;
-    const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
-
     // Get the original rank from the ranking system
     const actualRank = rankingSystem.get(prospect.Name) || 1;
     const currentRank = actualRank.toString();
 
-    // Helper function to get draft display text
-    const getDraftDisplayText = (isMobileView: boolean = false) => {
-        const actualPick = prospect['Actual Pick'];
-        const teamName = prospect['NBA Team'];
-        const displayTeam = isMobileView ? prospect.ABV : teamName;
-        
-        if (actualPick && actualPick.trim() !== '') {
-          return `${actualPick} - ${displayTeam}`;
-        } else {
-          return displayTeam;
-        }
-      };
+    const handleExpand = (expanded: boolean) => {
+        setIsExpanded(expanded);
+    };
 
     // Consensus data for the table
     const consensusTableData = useMemo(() => [
@@ -959,7 +811,6 @@ const ProspectCard: React.FC<{
 
     // Range consensus data for the table
     const rangeConsensusTableData = useMemo(() => {
-        // Helper function to safely convert string to decimal percentage
         const safeParseFloat = (value: string | undefined): number => {
             if (!value || value.trim() === '') return 0;
             const parsed = parseFloat(value.trim());
@@ -967,341 +818,114 @@ const ProspectCard: React.FC<{
         };
 
         const ranges = [
-            { label: '1-3', value: safeParseFloat(prospect['1 - 3']) },
-            { label: '4-14', value: safeParseFloat(prospect['4 - 14']) },
-            { label: '15-30', value: safeParseFloat(prospect['15 - 30']) },
-            { label: '31-59', value: safeParseFloat(prospect['31 - 59']) },
-            { label: 'Undrafted', value: safeParseFloat(prospect['Undrafted']) },
+            { label: 'Picks 1-3', value: safeParseFloat(prospect['1 - 3']) },
+            { label: 'Picks 4-14', value: safeParseFloat(prospect['4 - 14']) },
+            { label: 'Picks 15-30', value: safeParseFloat(prospect['15 - 30']) },
+            { label: 'Picks 31-59', value: safeParseFloat(prospect['31 - 59']) },
+            { label: isMobile ? 'UDFA' : 'Undrafted', value: safeParseFloat(prospect['Undrafted']) }
         ];
 
-        console.log('Range values:', ranges.map(r => ({ label: r.label, value: r.value }))); // Debug log
-
-        // Convert decimal to percentage and return
+        // Return all ranges, including those with 0% values
         return ranges.map(item => ({
-            label: item.label,
-            value: item.value > 0 ? `${Math.round(item.value * 100)}%` : '0%'
+            ...item,
+            percentage: Math.round(item.value * 100)
         }));
-    }, [prospect]);
+    }, [prospect, isMobile]);
 
     return (
-        <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'}`}>
-            <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
-                <div className="relative">
-                    {/* Main card container */}
-                    <div
-                        className={`
-                            relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]
-                            ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px] cursor-pointer'}
-                        `}
-                        style={{ backgroundColor: '#19191A' }}
-                        onMouseEnter={handleMouseEnter}
-                        onMouseLeave={handleMouseLeave}
-                        onClick={() => {
-                            if (isMobile) {
-                                setIsExpanded(!isExpanded);
-                            } else {
-                                setIsExpanded(!isExpanded);
-                                if (!isExpanded) {
-                                    setIsHovered(true);
-                                }
-                            }
-                        }}
-                    >
-                        {/* Rank Number */}
-                        <motion.div
-                            layout="position"
-                            className={`
-                                ${barlow.className}
-                                ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20 transition-opacity duration-300'}
-                                ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
-                            `}
-                        >
-                            <div className={`
-                                ${barlow.className}
-                                ${isMobile ? 'text-1xl' : 'text-6xl'}
-                                font-bold
-                                text-white
-                                select-none
-                                ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''}
-                            `}>
-                                {currentRank}
-                            </div>
-                        </motion.div>
+        <BaseProspectCard
+            prospect={prospect}
+            rank={currentRank}
+            selectedYear={2025}
+            isMobile={isMobile}
+            onExpand={handleExpand}
+        >
+            {/* Consensus-specific dropdown content with toggle */}
+            <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
+                {/* Charts Column */}
+                <div className="text-gray-300 px-2 space-y-4 flex flex-col justify-start">
+                    <h3 className="font-semibold text-lg text-white">
+                        {showRangeConsensus ? 'Range Consensus Distribution' : 'Consensus Distribution'}
+                    </h3>
 
-                        {/* Background Pre-NBA Logo */}
-                        <div className={`
-                            absolute inset-0 flex items-center justify-start
-                            ${isMobile ? 'pl-4' : 'pl-12'}
-                            transition-opacity duration-300
-                            ${((isHovered && !isMobile) || isExpanded) ? 'opacity-90' : 'opacity-20'}
-                        `}>
-                            {!logoError ? (
-                                <Image
-                                    src={prenbalogoUrl}
-                                    alt={prospect['Pre-NBA']}
-                                    width={isMobile ? 70 : 200}
-                                    height={isMobile ? 70 : 200}
-                                    className={`object-contain transition-transform duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}`}
-                                    onError={() => setLogoError(true)}
+                    {/* Chart Container - Shows either histogram or range consensus */}
+                    <div className="mb-4 min-h-[250px]">
+                        {showRangeConsensus ? (
+                            // Range Consensus Graph
+                            <RangeConsensusGraph
+                                prospect={prospect}
+                                isMobile={isMobile}
+                            />
+                        ) : (
+                            // Consensus Histogram
+                            consensusData ? (
+                                <ConsensusHistogram
+                                    prospect={prospect}
+                                    consensusData={consensusData}
+                                    isMobile={isMobile}
                                 />
                             ) : (
-                                <div className={`${isMobile ? 'w-24 h-24' : 'w-48 h-48'} bg-gray-800 rounded-full flex items-center justify-center`}>
-                                    <span className={`${isMobile ? 'text-sm' : 'text-xl'} text-gray-400`}>{prospect['Pre-NBA']}</span>
+                                <div className="flex items-center justify-center h-48 text-gray-400">
+                                    <p>No consensus data available</p>
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Player Image */}
-                        <div className="absolute inset-0 flex justify-center items-end overflow-hidden">
-                            <div className={`relative ${isMobile ? 'w-[90%] h-[90%]' : 'w-[90%] h-[90%]'}`}>
-                                {!imageError ? (
-                                    <div className="relative w-full h-full flex items-end justify-center">
-                                        <Image
-                                            src={playerImageUrl}
-                                            alt={prospect.Name}
-                                            fill
-                                            className={`
-                                                object-contain
-                                                object-bottom
-                                                transition-all duration-300
-                                                ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}
-                                            `}
-                                            onError={() => setImageError(true)}
-                                            sizes={isMobile ? "400px" : "800px"}
-                                            priority
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <LucideUser className="text-gray-500" size={isMobile ? 32 : 48} />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Large Centered Name */}
-                        <motion.div
-                            layout="position"
-                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-0' : 'opacity-100'}`}
-                        >
-                            <div className="text-center z-10">
-                                <h2 className={`
-                                    ${barlow.className}
-                                    ${isMobile ? 'text-1xl' : 'text-7xl'}
-                                    font-bold
-                                    text-white
-                                    uppercase
-                                    tracking-wider
-                                    [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
-                                `}>
-                                    {prospect.Name}
-                                </h2>
-                            </div>
-                        </motion.div>
-
-                        {/* Desktop hover info panel */}
-                        {!isMobile && (
-                            <div
-                                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-                                    }`}
-                                style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-                            >
-                                <div className="p-6 space-y-4 flex flex-col">
-                                    <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
-                                    <div className="space-y-2 text-sm text-gray-300">
-                                        <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
-                                        <div><span className="font-bold text-white">Wingspan  </span> {prospect.Wingspan}</div>
-                                        <div><span className="font-bold text-white">Wing - Height  </span> {prospect['Wing - Height']}</div>
-                                        <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
-                                    </div>
-
-                                    <div className="pt-4 border-t border-gray-700">
-                                        <div className="space-y-2 text-sm text-gray-300">
-                                            <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
-                                            <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
-                                            <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
-                                            <div>
-                                                <span className="font-bold text-white">Draft  </span>
-                                                {getDraftDisplayText(false)}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* NBA Team logo */}
-                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-                                        <NBATeamLogo NBA={prospect['NBA Team']} />
-                                    </div>
-                                </div>
-                            </div>
+                            )
                         )}
                     </div>
+                </div>
 
-                    {/* Click to View Text - Desktop only */}
-                    {!isExpanded && !isMobile && (
-                        <div className="text-center mt-2">
-                            <p className={`text-gray-500 text-sm font-bold ${isHovered ? 'animate-pulse' : ''}`}>
-                                Click Card to View More Information
-                            </p>
+                {/* Consensus Data Tables */}
+                <div className="text-gray-300 px-2">
+                    {/* Title with Toggle Button positioned to the right */}
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-lg text-white">
+                            Consensus Information
+                        </h3>
+                        <div
+                            onClick={() => setShowRangeConsensus(!showRangeConsensus)}
+                            className={`
+                                relative w-12 h-6 bg-gray-800/20 rounded-full border border-gray-800 cursor-pointer transition-all duration-200 hover:bg-gray-800/30
+                            `}
+                        >
+                            <div
+                                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-200 ${showRangeConsensus ? 'left-6' : 'left-0.5'}`}
+                            />
+                        </div>
+                    </div>
+
+                    {showRangeConsensus ? (
+                        /* Range Consensus Table */
+                        <div>
+                            <div className="space-y-2.5">
+                                {rangeConsensusTableData.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className={`flex justify-between items-center py-2 ${index !== rangeConsensusTableData.length - 1 ? 'border-b border-gray-700/50' : ''}`}
+                                    >
+                                        <span className="font-bold text-white text-sm">{item.label}</span>
+                                        <span className="text-gray-300 text-sm">{item.percentage}%</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        /* Original Consensus Statistics Table */
+                        <div>
+                            <div className="space-y-0">
+                                {consensusTableData.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className={`flex justify-between items-center py-2 ${index !== consensusTableData.length - 1 ? 'border-b border-gray-700/50' : ''}`}
+                                    >
+                                        <span className="font-bold text-white text-sm">{item.label}</span>
+                                        <span className="text-gray-300 text-sm">{item.value}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
-
-                    {/* Mobile Info Dropdown */}
-                    {isMobile && isExpanded && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative"
-                            style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-                        >
-                            <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
-                            <div className="grid grid-cols-2 gap-2">
-                                {/* Draft Information Column */}
-                                <div>
-                                    <h4 className="font-semibold text-white text-sm mb-1">Draft Information</h4>
-                                    <div className="space-y-1 text-xs text-gray-300">
-                                        <div>
-                                            <span className="font-bold text-white">Pre-NBA </span>
-                                            {collegeNames.hasOwnProperty(prospect['Pre-NBA'])
-                                                ? collegeNames[prospect['Pre-NBA']]
-                                                : prospect['Pre-NBA']}
-                                        </div>
-                                        <div><span className="font-bold text-white">Position </span> {prospect.Role}</div>
-                                        <div><span className="font-bold text-white">Draft Age </span> {prospect.Age}</div>
-                                        <div>
-                                            <span className="font-bold text-white">Draft </span>
-                                            {getDraftDisplayText(true)}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Physicals Column */}
-                                <div className="ml-2">
-                                    <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
-                                    <div className="space-y-1 text-xs text-gray-300">
-                                        <div><span className="font-bold text-white">Height </span> {prospect.Height}</div>
-                                        <div><span className="font-bold text-white">Wingspan </span> {prospect.Wingspan}</div>
-                                        <div><span className="font-bold text-white">Wing - Height </span> {prospect['Wing - Height']}</div>
-                                        <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Team Logo in Top Right */}
-                            <div className="absolute top-3.5 right-3.5 transform scale-50 origin-top-right">
-                                <NBATeamLogo NBA={prospect['NBA Team']} />
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Expanded View - Charts and Consensus Table */}
-                    {isExpanded && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="rounded-xl backdrop-blur-sm p-4 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
-                            style={{ backgroundColor: '#19191A' }}
-                        >
-                            <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
-                                {/* Left side - Charts */}
-                                <div className="text-gray-300 px-2">
-                                    <h4 className="text-lg font-semibold text-white mb-4">
-                                        {showRangeConsensus ? 'Range Consensus Distribution' : 'Consensus Distribution'}
-                                    </h4>
-                                    {showRangeConsensus ? (
-                                        <div className="relative -left-5">
-                                            {consensusData ? (
-                                                <RangeConsensusGraph
-                                                    prospect={prospect}
-                                                    consensusData={consensusData}
-                                                    isMobile={isMobile}
-                                                />
-                                            ) : (
-                                                <div className="flex items-center justify-center h-48 text-gray-400">
-                                                    <p>No consensus data available</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {consensusData ? (
-                                                <div className="relative -left-5">
-                                                    <ConsensusHistogram
-                                                        prospect={prospect}
-                                                        consensusData={consensusData}
-                                                        isMobile={isMobile}
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center justify-center h-48 text-gray-400">
-                                                    <p>No consensus data available</p>
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
-
-                                {/* Right side - Information Tables */}
-                                <div className="text-gray-300 px-2">
-                                    {/* Title with Toggle Button */}
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h4 className="text-lg font-semibold text-white">
-                                            {showRangeConsensus ? 'Consensus Information' : 'Consensus Information'}
-                                        </h4>
-                                        <div
-                                            onClick={() => setShowRangeConsensus(!showRangeConsensus)}
-                                            className={`
-                                                relative w-12 h-6 bg-gray-800/20 rounded-full border border-gray-800 cursor-pointer transition-all duration-200 hover:bg-gray-800/30
-                                            `}
-                                        >
-                                            <div
-                                                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-200 ${showRangeConsensus ? 'left-6' : 'left-0.5'
-                                                    }`}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {showRangeConsensus ? (
-                                        /* Range Consensus Table */
-                                        <div className="space-y-0 px-2 pt-1">
-                                            {rangeConsensusTableData.map((item, index) => (
-                                                <div
-                                                    key={item.label}
-                                                    className={`flex justify-between items-center py-3 ${index !== rangeConsensusTableData.length - 1 ? 'border-b border-gray-700/50' : ''}`}
-                                                >
-                                                    <span className="font-bold text-white text-base text-sm">{item.label}</span>
-                                                    <span className="text-gray-300 text-base text-sm">{item.value}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        /* Original Consensus Tables */
-                                        <div className="space-y-0 px-2 pt-0 mt-[-8px]">
-                                            {consensusTableData.map((item, index) => (
-                                                <div
-                                                    key={item.label}
-                                                    className={`flex justify-between items-center py-2 ${index !== consensusTableData.length - 1 ? 'border-b border-gray-700/50' : ''}`}
-                                                >
-                                                    <span className="font-bold text-white text-sm">{item.label}</span>
-                                                    <span className="text-gray-300 text-sm">{item.value}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
                 </div>
-            </motion.div>
-
-            {/* Divider - Desktop only */}
-            {typeof window !== 'undefined' && window.innerWidth > 768 && (
-                <div className="h-px w-full bg-gray-700/30 my-8" />
-            )}
-        </div>
+            </div>
+        </BaseProspectCard>
     );
 };
 
@@ -1964,24 +1588,16 @@ export default function ConsensusPage() {
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
     const [consensusMap, setConsensusMap] = useState<Record<string, ConsensusColumns>>({});
     const [viewMode, setViewMode] = useState<'card' | 'table' | 'contributors'>('card');
-    const [sortConfig, setSortConfig] = useState<{
-        key: keyof DraftProspect | 'Rank';
-        direction: 'ascending' | 'descending';
-    } | null>(null);
     const [loadedProspects, setLoadedProspects] = useState<number>(5);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [selectedSortKey,] = useState<string>('Actual Pick');
-    const tableContainerRef = useRef<HTMLDivElement>(null);
     const [contributorSearch, setContributorSearch] = useState('');
-    const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
-   // const [scrollPosition, setScrollPosition] = useState(0);
-    
 
     // Define column configuration with proper Player Information order
-    const [columns, setColumns] = useState<ColumnConfig[]>([
+    const initialColumns: ColumnConfig[] = [
         // Player Information - Rank and Name are always visible
         { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
         { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
@@ -2013,13 +1629,13 @@ export default function ConsensusPage() {
         { key: '15 - 30', label: 'Picks 15-30', category: 'Range Consensus Information', visible: false, sortable: true },
         { key: '31 - 59', label: 'Picks 31-59', category: 'Range Consensus Information', visible: false, sortable: true },
         { key: 'Undrafted', label: 'Undrafted', category: 'Range Consensus Information', visible: false, sortable: true },
-    ]);
+    ];
 
     useEffect(() => {
         document.title = 'Consensus & NBA Draft Board';
     }, []);
 
-    
+
     // Global data analysis function
     const analyzeGlobalDataValidity = useCallback(() => {
         if (!consensusMap || Object.keys(consensusMap).length === 0) return;
@@ -2331,264 +1947,6 @@ export default function ConsensusPage() {
         fetchDraftProspects();
     }, []);
 
-    // Function to handle sorting
-    const handleSort = (key: keyof DraftProspect | 'Rank') => {
-        // Preserve current scroll position
-        const currentScrollLeft = tableContainerRef.current?.scrollLeft || 0;
-
-        let direction: 'ascending' | 'descending' = 'ascending';
-
-        // If already sorting by this key, toggle direction
-        if (sortConfig && sortConfig.key === key) {
-            direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
-        }
-
-        setSortConfig({ key, direction });
-
-        // Restore scroll position after state update using requestAnimationFrame
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                if (tableContainerRef.current) {
-                    tableContainerRef.current.scrollLeft = currentScrollLeft;
-                }
-            });
-        });
-    };
-
-    useEffect(() => {
-        if (tableContainerRef.current && sortConfig) {
-            // This runs after sorting state change
-            const preservedScrollLeft = tableContainerRef.current.scrollLeft;
-            requestAnimationFrame(() => {
-                if (tableContainerRef.current) {
-                    tableContainerRef.current.scrollLeft = preservedScrollLeft;
-                }
-            });
-        }
-    }, [sortConfig]);
-
-    // Apply sorting to the filtered prospects
-    const sortedProspects = useMemo(() => {
-        const sortableProspects = [...filteredProspects];
-
-        if (!sortConfig) {
-            return sortableProspects;
-        }
-
-        // List of columns that should be sorted numerically (float or int)
-        const numericColumns = [
-            'SCORE', 'MEAN', 'MEDIAN', 'MODE', 'HIGH', 'LOW', 'RANGE', 'STDEV', 'COUNT',
-            'Age', 'Height (in)', 'Wingspan (in)', 'Weight (lbs)', 'originalRank'
-        ];
-
-        sortableProspects.sort((a, b) => {
-            // Handle Rank column specially
-            if (sortConfig.key === 'Rank') {
-                const aIndex = filteredProspects.findIndex(p => p.Name === a.Name);
-                const bIndex = filteredProspects.findIndex(p => p.Name === b.Name);
-                return sortConfig.direction === 'ascending' ? aIndex - bIndex : bIndex - aIndex;
-            }
-
-            // Handle Actual Pick column specially - treat UDFA as after pick 60
-            if (sortConfig.key === 'Actual Pick') {
-                const aValue = a['Actual Pick'];
-                const bValue = b['Actual Pick'];
-
-                // Helper function to get numeric value for sorting
-                const getPickValue = (value: string): number => {
-                    if (!value || value.trim() === '') return 999; // Empty values go last
-                    if (value.toLowerCase() === 'udfa') return 999; // UDFA goes after all picks
-                    const num = parseInt(value);
-                    return isNaN(num) ? 999 : num; // Invalid numbers go last
-                };
-
-                const aNum = getPickValue(aValue);
-                const bNum = getPickValue(bValue);
-
-                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-            }
-
-            let aValue = a[sortConfig.key as keyof DraftProspect];
-            let bValue = b[sortConfig.key as keyof DraftProspect];
-
-            // Helper function to check if a value is N/A, empty, or undefined
-            const isNAValue = (value: string | number | undefined | null): boolean => {
-                return value === undefined ||
-                    value === null ||
-                    value === '' ||
-                    String(value).toLowerCase() === 'n/a' ||
-                    String(value).toLowerCase() === 'na';
-            };
-
-            // Check if either value is N/A - N/A values always go to the end
-            const aIsNA = isNAValue(aValue);
-            const bIsNA = isNAValue(bValue);
-
-            if (aIsNA && !bIsNA) return 1;  // a goes after b
-            if (!aIsNA && bIsNA) return -1; // a goes before b
-            if (aIsNA && bIsNA) return 0;   // both are N/A, maintain order
-
-            // Handle Height (convert to inches)
-            if (sortConfig.key === 'Height') {
-                const aNum = parseFloat(a['Height (in)'] as string) || 0;
-                const bNum = parseFloat(b['Height (in)'] as string) || 0;
-                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-            }
-
-            // Handle Wingspan (convert to inches)
-            if (sortConfig.key === 'Wingspan') {
-                const aNum = parseFloat(a['Wingspan (in)'] as string) || 0;
-                const bNum = parseFloat(b['Wingspan (in)'] as string) || 0;
-                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-            }
-
-            // Numeric columns: sort as numbers
-            if (numericColumns.includes(sortConfig.key as string)) {
-                const aNum = parseFloat(aValue as string) || 0;
-                const bNum = parseFloat(bValue as string) || 0;
-                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-            }
-
-            // Inclusion Rate: sort as percentage
-            if (sortConfig.key === 'Inclusion Rate') {
-                const aNum = parseFloat((aValue as string)?.replace('%', '')) || 0;
-                const bNum = parseFloat((bValue as string)?.replace('%', '')) || 0;
-                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-            }
-
-            // For numeric columns, try to parse as numbers
-            const aNum = parseFloat(aValue as string);
-            const bNum = parseFloat(bValue as string);
-
-            if (!isNaN(aNum) && !isNaN(bNum)) {
-                // Both are valid numbers
-                return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-            }
-
-            // Default string comparison for non-numeric values
-            if (aValue === undefined) aValue = '';
-            if (bValue === undefined) bValue = '';
-
-            if (sortConfig.direction === 'ascending') {
-                return String(aValue).localeCompare(String(bValue));
-            } else {
-                return String(bValue).localeCompare(String(aValue));
-            }
-        });
-
-        return sortableProspects;
-    }, [filteredProspects, sortConfig]);
-
-    // Render the table with sorting functionality
-    const ProspectTable = ({
-        rankingSystem
-    }: {
-        prospects: DraftProspect[],
-        rank: Record<string, RankType>,
-        rankingSystem: Map<string, number>
-    }) => {
-        const visibleColumns = columns.filter(col => col.visible);
-
-        const renderCell = (prospect: DraftProspect, column: ColumnConfig) => {
-            switch (column.key) {
-                case 'Pre-NBA':
-                    return (
-                        <div className="flex items-center gap-2">
-                            <PreNBALogo preNBA={prospect['Pre-NBA']} />
-                            <span>{prospect['Pre-NBA']}</span>
-                        </div>
-                    );
-                case 'League':
-                    return (
-                        <div className="flex items-center gap-2">
-                            <LeagueLogo league={prospect['League']} />
-                            <span>{prospect['League']}</span>
-                        </div>
-                    );
-                case 'NBA Team':
-                    return (
-                        <div className="flex items-center gap-2">
-                            <TableTeamLogo team={prospect['NBA Team']} />
-                            <span>{prospect['NBA Team']}</span>
-                        </div>
-                    );
-                case '1 - 3':
-                case '4 - 14':
-                case '15 - 30':
-                case '31 - 59':
-                case 'Undrafted':
-                    const value = prospect[column.key];
-                    return value ? `${Math.round(Number(value) * 100)}%` : '0%';
-                case 'Inclusion Rate':
-                    const inclusionRate = prospect['Inclusion Rate'];
-                    return inclusionRate ? `${Math.round(Number(inclusionRate) * 100)}%` : '0%';
-                default:
-                    return prospect[column.key as keyof DraftProspect];
-            }
-        };
-
-        return (
-            <div className="max-w-6xl mx-auto px-4 pt-0">
-                {/* Column Selector - now a collapsible dropdown */}
-                <CustomSelector
-                    columns={columns}
-                    onColumnsChange={setColumns}
-                    isOpen={columnSelectorOpen}
-                    onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
-                />
-
-                <div
-                    ref={tableContainerRef}
-                    className="w-full bg-[#19191A] rounded-lg border border-gray-800 overflow-x-auto">
-                    <Table
-                        className="min-w-[1800px] lg:min-w-full"
-                    >
-                        <TableHeader>
-                            <TableRow>
-                                {visibleColumns.map((column) => (
-                                    <TableHead
-                                        key={column.key as keyof DraftProspect}
-                                        className={`text-gray-400 whitespace-nowrap ${column.sortable ? 'cursor-pointer hover:text-gray-200' : ''}`}
-                                        onClick={column.sortable ? () => handleSort(column.key as keyof DraftProspect) : undefined}
-                                    >
-                                        {column.label}
-                                        {column.sortable && sortConfig?.key === column.key && (
-                                            <span className="ml-1">
-                                                {sortConfig.direction === 'ascending' ? '↑' : '↓'}
-                                            </span>
-                                        )}
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {sortedProspects.map((prospect) => {
-                                // Get the original rank from the ranking system
-                                const originalRank = rankingSystem.get(prospect.Name) || 1;
-
-                                return (
-                                    <TableRow
-                                        key={prospect.Name}
-                                        className="hover:bg-gray-800/20"
-                                    >
-                                        {visibleColumns.map((column) => (
-                                            <TableCell
-                                                key={column.key}
-                                                className={`${column.key === 'Name' ? 'font-medium text-gray-300 whitespace-nowrap' : 'text-gray-300'} ${column.key === 'Pre-NBA' || column.key === 'NBA Team' || column.key === 'Wing - Height' || column.key === 'Weight (lbs)' ? 'whitespace-nowrap' : ''}`}
-                                            >
-                                                {column.key === 'Rank' ? originalRank : renderCell(prospect, column)}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </div>
-            </div>
-        );
-    };
-
     // Handle scroll event for infinite loading - only on desktop
     useEffect(() => {
         if (viewMode !== 'card' || isLoading || !hasMore || isMobile) return;
@@ -2627,6 +1985,25 @@ export default function ConsensusPage() {
             setHasMore(filteredProspects.length > 5);
         }
     }, [filteredProspects, isMobile]);
+
+    // Custom cell renderer for consensus-specific columns
+    const customCellRenderer = (prospect: DraftProspect, column: ColumnConfig) => {
+        // Handle range consensus columns (display as percentages)
+        const rangeConsensusKeys = ['1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Undrafted'] as const;
+        type RangeConsensusKey = typeof rangeConsensusKeys[number];
+
+        if (rangeConsensusKeys.includes(column.key as RangeConsensusKey)) {
+            const value = prospect[column.key as RangeConsensusKey];
+            return value ? `${Math.round(Number(value) * 100)}%` : '0%';
+        }
+        if (column.key === 'Inclusion Rate') {
+            const inclusionRate = prospect['Inclusion Rate'];
+            return inclusionRate ? `${Math.round(Number(inclusionRate) * 100)}%` : '0%';
+        }
+
+        // Default handling - let ProspectTable handle it
+        return null;
+    };
 
     return (
         <div className="min-h-screen bg-[#19191A]">
@@ -2711,14 +2088,16 @@ export default function ConsensusPage() {
                     viewMode === 'card' ? (
                         <div className="space-y-4">
                             {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
-                                <ProspectCard
+                                <ConsensusPageProspectCard
                                     key={prospect.Name}
                                     prospect={prospect}
                                     filteredProspects={filteredProspects}
                                     allProspects={prospects}
-                                    selectedSortKey={selectedSortKey} rank={Number(prospect['Rank'])} selectedYear={0}
+                                    selectedSortKey={selectedSortKey}
+                                    selectedYear={0}
                                     consensusData={consensusMap[prospect.Name]}
                                     rankingSystem={rankingSystem}
+                                    rank={0}
                                 />
                             ))}
                             {isLoading && !isMobile && (
@@ -2729,14 +2108,9 @@ export default function ConsensusPage() {
                         </div>
                     ) : (
                         <ProspectTable
-                            prospects={filteredProspects}
-                            rank={Object.fromEntries(
-                                filteredProspects.map((prospect) => [
-                                    prospect.Name,
-                                    prospect.originalRank ?? 'N/A'
-                                ])
-                            )}
+                            prospects={prospects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
                             rankingSystem={rankingSystem}
+                            initialColumns={initialColumns}
                         />
                     )
                 ) : (

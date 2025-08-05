@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Image from 'next/image';
-import CustomSelector, { ColumnConfig } from '@/components/CustomSelector';
+import { ChevronDown, Settings } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // Logo components
 const NBATeamLogo = ({ NBA }: { NBA: string }) => {
@@ -95,6 +96,15 @@ const tierColors: { [key: string]: string } = {
     '1': '#FF5757',
 };
 
+// Column configuration interface
+export interface ColumnConfig {
+    key: string;
+    label: string;
+    category: string;
+    visible: boolean;
+    sortable: boolean;
+}
+
 // Generic prospect interface that can be extended
 export interface BaseProspect {
     Name: string;
@@ -117,20 +127,26 @@ export interface BaseProspect {
 export interface ProspectTableProps<T extends BaseProspect> {
     prospects: T[];
     rankingSystem: Map<string, number>;
-    columns: ColumnConfig[];
+    initialColumns: ColumnConfig[];
     tierRankMap?: { [key: string]: number }; // For custom tier sorting
     className?: string;
+    categories?: string[]; // Optional: pass custom categories
+    lockedColumns?: string[]; // Optional: specify which columns can't be toggled
 }
 
 export function ProspectTable<T extends BaseProspect>({
     prospects,
     rankingSystem,
-    columns,
+    initialColumns,
     tierRankMap,
-    className = ''
+    className = '',
+    categories,
+    lockedColumns = ['Rank', 'Name']
 }: ProspectTableProps<T>) {
     const [sortConfig, setSortConfig] = useState<{ key: keyof T | 'Rank'; direction: 'ascending' | 'descending' } | null>(null);
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
+    const [columns, setColumns] = useState<ColumnConfig[]>(initialColumns || []);
+    const rotationRef = useRef(0);
 
     const handleSort = (key: keyof T | 'Rank') => {
         setSortConfig(current => {
@@ -143,6 +159,49 @@ export function ProspectTable<T extends BaseProspect>({
             return { key, direction: 'ascending' };
         });
     };
+
+    // Column selector functionality built directly into the component
+    const handleToggleColumn = useCallback((key: string) => {
+        // Prevent toggling locked columns
+        if (lockedColumns.includes(key)) return;
+        
+        const updatedColumns = columns.map(col => 
+            col.key === key ? { ...col, visible: !col.visible } : col
+        );
+        
+        setColumns(updatedColumns);
+    }, [columns, lockedColumns]);
+
+    const handleToggleCategory = useCallback((category: string) => {
+        // Filter out locked columns from category columns
+        const categoryColumns = columns.filter(col => 
+            col.category === category && !lockedColumns.includes(col.key)
+        );
+        const allVisible = categoryColumns.every(col => col.visible);
+        
+        const updatedColumns = columns.map(col => {
+            if (col.category === category && !lockedColumns.includes(col.key)) {
+                return { ...col, visible: !allVisible };
+            }
+            return col;
+        });
+        
+        setColumns(updatedColumns);
+    }, [columns, lockedColumns]);
+
+    const visibleColumns = columns.filter(col => col.visible);
+    
+    // Group columns by category for the dropdown
+    const groupedColumns = useMemo(() => {
+        const groups: { [category: string]: ColumnConfig[] } = {};
+        columns.forEach(col => {
+            if (!groups[col.category]) {
+                groups[col.category] = [];
+            }
+            groups[col.category].push(col);
+        });
+        return groups;
+    }, [columns]);
 
     const sortedProspects = useMemo(() => {
         if (!sortConfig) return prospects;
@@ -245,27 +304,249 @@ export function ProspectTable<T extends BaseProspect>({
         return sortableProspects;
     }, [prospects, sortConfig, tierRankMap]);
 
+    // Get unique categories from columns or use passed categories
+    const displayCategories = categories || [...new Set((columns || []).map(col => col.category))];
+
+    // Helper function to render cell content
+    const renderCell = (prospect: T, column: ColumnConfig) => {
+        const key = column.key as keyof T;
+
+        // Handle special cases for different column types
+        if (column.key === 'Rank') {
+            return (
+                <TableCell key={column.key} className="text-gray-300">
+                    {rankingSystem.get(prospect.Name) || 'N/A'}
+                </TableCell>
+            );
+        }
+
+        if (column.key === 'Name') {
+            return (
+                <TableCell key={column.key} className="font-medium text-gray-300 whitespace-nowrap">
+                    {prospect.Name}
+                </TableCell>
+            );
+        }
+
+        if (column.key === 'League') {
+            return (
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                        <LeagueLogo league={prospect['League']} />
+                        <span>{prospect['League']}</span>
+                    </div>
+                </TableCell>
+            );
+        }
+
+        if (column.key === 'Pre-NBA') {
+            return (
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                        <PreNBALogo preNBA={prospect['Pre-NBA']} />
+                        <span>{prospect['Pre-NBA']}</span>
+                    </div>
+                </TableCell>
+            );
+        }
+
+        if (column.key === 'Actual Pick') {
+            return (
+                <TableCell key={column.key} className="text-gray-300">
+                    {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
+                </TableCell>
+            );
+        }
+
+        if (column.key === 'NBA Team') {
+            return (
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                        <NBATeamLogo NBA={prospect['NBA Team']} />
+                        <span>{prospect['NBA Team']}</span>
+                    </div>
+                </TableCell>
+            );
+        }
+
+        // Handle Rank columns - display as whole numbers
+        if (column.key.includes('Rank') && !column.key.includes('Position')) {
+            const rankValue = prospect[key];
+            return (
+                <TableCell key={column.key} className="text-gray-300">
+                    {typeof rankValue === 'number' ? rankValue.toString() : String(rankValue || '')}
+                </TableCell>
+            );
+        }
+
+        // Handle comparison columns
+        if (['Comp1', 'Comp2', 'Comp3', 'Comp4', 'Comp5'].includes(column.key)) {
+            const compValue = prospect[key];
+            return (
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                    {String(compValue || '')}
+                </TableCell>
+            );
+        }
+
+        // Handle Tier column with color styling
+        if (column.key === 'Tier') {
+            return (
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                    <span
+                        className="px-2 py-1 rounded text-sm font-medium"
+                        style={{
+                            backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
+                            color: tierColors[prospect.Tier] || 'inherit',
+                            border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
+                        }}
+                    >
+                        {prospect.Tier}
+                    </span>
+                </TableCell>
+            );
+        }
+
+        // Handle positionRanks object - skip it as it's not meant for display
+        if (column.key === 'positionRanks') {
+            return (
+                <TableCell key={column.key} className="text-gray-300">
+                    N/A
+                </TableCell>
+            );
+        }
+
+        // Default case for other columns
+        const cellValue = prospect[key];
+        return (
+            <TableCell key={column.key} className="text-gray-300">
+                {typeof cellValue === 'object' ? 'N/A' : String(cellValue || '')}
+            </TableCell>
+        );
+    };
+
     return (
         <div className={`max-w-6xl mx-auto px-4 pt-2 ${className}`}>
-            {/* Column Selector */}
-            <div className="mb-2">
-                <CustomSelector
-                    columns={columns}
-                    onColumnsChange={(newColumns) => {
-                        // This would need to be handled by the parent component
-                        // For now, we'll just log the change
-                        console.log('Columns changed:', newColumns);
+            {/* Built-in Column Selector - mimicking CustomSelector style */}
+            <div className="mb-4 relative">
+                {/* Toggle Button */}
+                <motion.button
+                    onClick={() => setColumnSelectorOpen(!columnSelectorOpen)}
+                    className="w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 bg-[#19191A] border border-gray-800 rounded-lg text-gray-400 hover:border-gray-700 transition-colors"
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                >
+                    <div className="flex items-center gap-2">
+                        <motion.div
+                            animate={{ 
+                                rotate: columnSelectorOpen ? (rotationRef.current += 360) : (rotationRef.current += 360)
+                            }}
+                            transition={{ duration: 0.5, ease: 'easeInOut' }}
+                            key={`settings-${columnSelectorOpen}`}
+                        >
+                            <Settings className="h-4 w-4" />
+                        </motion.div>
+                        <span className="font-medium text-sm md:text-base">Customize Table Columns</span>
+                    </div>
+                    <motion.div
+                        animate={{ rotate: columnSelectorOpen ? 180 : 0 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    >
+                        <ChevronDown className="h-4 w-4" />
+                    </motion.div>
+                </motion.button>
+
+                {/* Collapsible Content */}
+                <div 
+                    className="overflow-hidden transition-all duration-300 ease-in-out relative z-50"
+                    style={{ 
+                        maxHeight: columnSelectorOpen ? '1000px' : '0px',
+                        opacity: columnSelectorOpen ? 1 : 0
                     }}
-                    isOpen={columnSelectorOpen}
-                    onToggle={() => setColumnSelectorOpen(!columnSelectorOpen)}
-                />
+                >
+                    <div className="bg-[#19191A] border border-gray-800 rounded-lg p-3 md:p-4 mt-2 shadow-lg max-h-[80vh] overflow-y-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                            {displayCategories.map(category => {
+                                // Filter out locked columns from the dropdown options
+                                const categoryColumns = columns.filter(col => 
+                                    col.category === category && !lockedColumns.includes(col.key)
+                                );
+                                const visibleCount = categoryColumns.filter(col => col.visible).length;
+                                const totalCount = categoryColumns.length;
+                                
+                                return (
+                                    <div key={category} className="space-y-2 md:space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="text-gray-400 font-medium text-xs md:text-sm">{category}</h4>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleToggleCategory(category);
+                                                }}
+                                                className="text-xs text-gray-300 hover:text-white px-1.5 md:px-2 py-0.5 md:py-1 rounded hover:bg-gray-800/50 transition-colors"
+                                            >
+                                                {visibleCount === totalCount ? 'Hide All' : 'Show All'}
+                                            </button>
+                                        </div>
+                                        <div className="space-y-1 md:space-y-2">
+                                            {categoryColumns.map(column => (
+                                                <div
+                                                    key={column.key}
+                                                    className="flex items-center gap-2 md:gap-3 p-1.5 md:p-2 rounded hover:bg-gray-800/50 cursor-pointer transition-colors"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleToggleColumn(column.key);
+                                                    }}
+                                                >
+                                                    <div className="relative flex-shrink-0">
+                                                        <div className={`
+                                                            w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200
+                                                            ${column.visible 
+                                                                ? 'bg-blue-500 border-blue-500' 
+                                                                : 'bg-gray-800 border-gray-600 hover:border-gray-500'
+                                                            }
+                                                        `}>
+                                                            {column.visible && (
+                                                                <svg 
+                                                                    className="w-3 h-3 text-white transition-all duration-150" 
+                                                                    fill="none" 
+                                                                    stroke="currentColor" 
+                                                                    viewBox="0 0 24 24"
+                                                                    style={{
+                                                                        transform: column.visible ? 'scale(1)' : 'scale(0)',
+                                                                        opacity: column.visible ? 1 : 0
+                                                                    }}
+                                                                >
+                                                                    <path 
+                                                                        strokeLinecap="round" 
+                                                                        strokeLinejoin="round" 
+                                                                        strokeWidth={2} 
+                                                                        d="M5 13l4 4L19 7" 
+                                                                    />
+                                                                </svg>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-gray-400 text-xs md:text-sm cursor-pointer flex-1 select-none">
+                                                        {column.label}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            {/* Table */}
             <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
                 <Table>
-                    <TableHeader className="sticky top-0 z-10 bg-[#19191A] border-b border-gray-800">
+                    <TableHeader>
                         <TableRow>
-                            {columns.filter(col => col.visible).map((column) => (
+                            {visibleColumns.map((column) => (
                                 <TableHead
                                     key={column.key}
                                     className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
@@ -287,122 +568,7 @@ export function ProspectTable<T extends BaseProspect>({
                                 key={prospect.Name}
                                 className="hover:bg-gray-800/20"
                             >
-                                {columns.filter(col => col.visible).map((column) => {
-                                    const key = column.key as keyof T;
-
-                                    // Handle special cases for different column types
-                                    if (column.key === 'Rank') {
-                                        return (
-                                            <TableCell key={column.key} className="text-gray-300">
-                                                {rankingSystem.get(prospect.Name) || 'N/A'}
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    if (column.key === 'Name') {
-                                        return (
-                                            <TableCell key={column.key} className="font-medium text-gray-300 whitespace-nowrap">
-                                                {prospect.Name}
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    if (column.key === 'League') {
-                                        return (
-                                            <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                <div className="flex items-center gap-2">
-                                                    <LeagueLogo league={prospect['League']} />
-                                                    <span>{prospect['League']}</span>
-                                                </div>
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    if (column.key === 'Pre-NBA') {
-                                        return (
-                                            <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                <div className="flex items-center gap-2">
-                                                    <PreNBALogo preNBA={prospect['Pre-NBA']} />
-                                                    <span>{prospect['Pre-NBA']}</span>
-                                                </div>
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    if (column.key === 'Actual Pick') {
-                                        return (
-                                            <TableCell key={column.key} className="text-gray-300">
-                                                {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    if (column.key === 'NBA Team') {
-                                        return (
-                                            <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                <div className="flex items-center gap-2">
-                                                    <NBATeamLogo NBA={prospect['NBA Team']} />
-                                                    <span>{prospect['NBA Team']}</span>
-                                                </div>
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    // Handle Rank columns - display as whole numbers
-                                    if (column.key.includes('Rank') && !column.key.includes('Position')) {
-                                        const rankValue = prospect[key];
-                                        return (
-                                            <TableCell key={column.key} className="text-gray-300">
-                                                {typeof rankValue === 'number' ? rankValue.toString() : String(rankValue || '')}
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    // Handle comparison columns
-                                    if (['Comp1', 'Comp2', 'Comp3', 'Comp4', 'Comp5'].includes(column.key)) {
-                                        const compValue = prospect[key];
-                                        return (
-                                            <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                {String(compValue || '')}
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    // Handle Tier column with color styling
-                                    if (column.key === 'Tier') {
-                                        return (
-                                            <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
-                                                <span
-                                                    className="px-2 py-1 rounded text-sm font-medium"
-                                                    style={{
-                                                        backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
-                                                        color: tierColors[prospect.Tier] || 'inherit',
-                                                        border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
-                                                    }}
-                                                >
-                                                    {prospect.Tier}
-                                                </span>
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    // Handle positionRanks object - skip it as it's not meant for display
-                                    if (column.key === 'positionRanks') {
-                                        return (
-                                            <TableCell key={column.key} className="text-gray-300">
-                                                N/A
-                                            </TableCell>
-                                        );
-                                    }
-
-                                    // Default case for other columns
-                                    const cellValue = prospect[key];
-                                    return (
-                                        <TableCell key={column.key} className="text-gray-300">
-                                            {typeof cellValue === 'object' ? 'N/A' : String(cellValue || '')}
-                                        </TableCell>
-                                    );
-                                })}
+                                {visibleColumns.map((column) => renderCell(prospect, column))}
                             </TableRow>
                         ))}
                     </TableBody>
@@ -410,4 +576,4 @@ export function ProspectTable<T extends BaseProspect>({
             </div>
         </div>
     );
-} 
+}

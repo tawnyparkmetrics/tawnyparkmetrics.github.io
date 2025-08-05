@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
@@ -17,10 +17,8 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import { ColumnConfig } from '@/components/CustomSelector';
+import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
-import { AnimatePresence } from 'framer-motion';
-import { ProspectTable } from '@/components/ProspectTable';
 
 
 export interface DraftProspect {
@@ -551,18 +549,30 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-    useEffect(() => {
+    // Use useCallback to prevent infinite re-renders
+    const handleViewModeChange = useCallback((mode: 'card' | 'table') => {
+        setViewMode(mode);
         if (onViewModeChange) {
-            onViewModeChange(viewMode);
+            onViewModeChange(mode);
         }
-    }, [viewMode, onViewModeChange]);
+    }, [onViewModeChange]);
 
-    // Notify parent component of filter state changes (excluding search)
-    useEffect(() => {
+    // Use useCallback for filter state changes
+    const handleFilterStateChange = useCallback((newRoleFilter: 'all' | 'Guard' | 'Wing' | 'Big', newSelectedTier: string | null) => {
         if (onFilterStateChange) {
-            onFilterStateChange({ roleFilter, selectedTier });
+            onFilterStateChange({ roleFilter: newRoleFilter, selectedTier: newSelectedTier });
         }
-    }, [roleFilter, selectedTier, onFilterStateChange]);
+    }, [onFilterStateChange]);
+
+    // Update view mode when it changes
+    useEffect(() => {
+        handleViewModeChange(viewMode);
+    }, [viewMode, handleViewModeChange]);
+
+    // Update filter state when role or tier changes
+    useEffect(() => {
+        handleFilterStateChange(roleFilter, selectedTier);
+    }, [roleFilter, selectedTier, handleFilterStateChange]);
 
     const hasActiveFilters = () => {
         return (
@@ -988,12 +998,9 @@ export default function AndreDraftPage() {
         direction: 'ascending' | 'descending';
     } | null>(null);
     const [loadedProspects, setLoadedProspects] = useState<number>(5);
-    const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [isMobile, setIsMobile] = useState<boolean>(false);
-    const [selectedSortKey,] = useState<string>('Actual Pick');
-    const tableContainerRef = useRef<HTMLDivElement>(null);
     const [filterState, setFilterState] = useState<{
         selectedSortKey: string;
         roleFilter: 'all' | 'Guard' | 'Wing' | 'Big';
@@ -1003,32 +1010,7 @@ export default function AndreDraftPage() {
         roleFilter: 'all',
         selectedTier: null
     });
-    const [columns, setColumns] = useState<ColumnConfig[]>([
-        { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
-        { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
-        { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Age Score', label: 'Age Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'Athletic Score', label: 'Athletic Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'Scoring Score', label: 'Scoring Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'Defense Score', label: 'Defense Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'Measurables Score', label: 'Measurables Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'Self Creation Score', label: 'Self Creation Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'Touch Score', label: 'Touch Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'IQ Score', label: 'IQ Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'Usage Score', label: 'Usage Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'Cumulative Prospect Score', label: 'Cumulative Prospect Score', category: 'Scoring Information', visible: false, sortable: true },
-        { key: 'Cumulative PS/1000', label: 'Cumulative PS/1000', category: 'Scoring Information', visible: false, sortable: true },
-    ]);
+
 
     // Create a separate ranking system that's independent of search filters but includes position and tier filters
     const rankingSystem = useMemo(() => {
@@ -1094,18 +1076,6 @@ export default function AndreDraftPage() {
 
         fetchDraftProspects();
     }, []);
-
-    // Function to handle sorting
-    const handleSort = (key: keyof DraftProspect | 'Rank') => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-
-        // If already sorting by this key, toggle direction
-        if (sortConfig && sortConfig.key === key) {
-            direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
-        }
-
-        setSortConfig({ key, direction });
-    };
 
     // Apply sorting to the filtered prospects
     const sortedProspects = useMemo(() => {
@@ -1201,7 +1171,7 @@ export default function AndreDraftPage() {
 
     // Replace the existing ProspectTable component with:
     const AndreProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
-        const [columns, setColumns] = useState<ColumnConfig[]>([
+        const initialColumns: ColumnConfig[] = [
             { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
             { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
             { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
@@ -1226,13 +1196,13 @@ export default function AndreDraftPage() {
             { key: 'Usage Score', label: 'Usage Score', category: 'Scoring Information', visible: false, sortable: true },
             { key: 'Cumulative Prospect Score', label: 'Cumulative Prospect Score', category: 'Scoring Information', visible: false, sortable: true },
             { key: 'Cumulative PS/1000', label: 'Cumulative PS/1000', category: 'Scoring Information', visible: false, sortable: true },
-        ]);
+        ];
 
         return (
             <ProspectTable
                 prospects={prospects}
                 rankingSystem={rankingSystem}
-                        columns={columns}
+                initialColumns={initialColumns}
             />
         );
     };
@@ -1276,6 +1246,20 @@ export default function AndreDraftPage() {
         }
     }, [filteredProspects, isMobile]);
 
+    // Fix the filter state management to prevent infinite loops
+    const handleFilterStateChange = useCallback((newFilterState: { roleFilter: 'all' | 'Guard' | 'Wing' | 'Big', selectedTier: string | null }) => {
+        setFilterState(prev => {
+            // Only update if the values actually changed
+            if (prev.roleFilter !== newFilterState.roleFilter || prev.selectedTier !== newFilterState.selectedTier) {
+                return {
+                    ...prev,
+                    ...newFilterState,
+                };
+            }
+            return prev;
+        });
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Andre Liu" />
@@ -1286,19 +1270,14 @@ export default function AndreDraftPage() {
                 onFilteredProspectsChange={setFilteredProspects}
                 rank={{}}
                 onViewModeChange={setViewMode}
-                onFilterStateChange={(newFilterState) => {
-                    setFilterState(prev => ({
-                        ...prev,
-                        ...newFilterState,
-                    }));
-                }}
+                onFilterStateChange={handleFilterStateChange}
             />
 
             <div className="max-w-6xl mx-auto px-4 pt-8">
                 {filteredProspects.length > 0 ? (
                     viewMode === 'card' ? (
                         <motion.div layout className="space-y-4">
-                            <AnimatePresence>
+                            {/* AnimatePresence is removed as it's not used in the new ProspectTable */}
                             {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect, index) => (
                                     <motion.div
                                     key={prospect.Name}
@@ -1319,7 +1298,6 @@ export default function AndreDraftPage() {
                                 />
                                     </motion.div>
                             ))}
-                            </AnimatePresence>
                             {isLoading && !isMobile && (
                                 <div className="flex justify-center py-4">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
