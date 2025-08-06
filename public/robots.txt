@@ -15,4 +15,4 @@ Allow: /
 Host: https://tawnyparkmetrics.com
 
 # Sitemaps
-Sitemap: https://tawnyparkmetrics.com/sitemap.xml
+Sitemap: https://tawnyparkmetrics.com/sitemap-0.xml
