@@ -314,7 +314,7 @@ export function ProspectTable<T extends BaseProspect>({
         // Handle special cases for different column types
         if (column.key === 'Rank') {
             return (
-                <TableCell key={column.key} className="text-gray-300">
+                <TableCell key={column.key} className="text-gray-300 font-semibold">
                     {rankingSystem.get(prospect.Name) || 'N/A'}
                 </TableCell>
             );
@@ -322,7 +322,7 @@ export function ProspectTable<T extends BaseProspect>({
 
         if (column.key === 'Name') {
             return (
-                <TableCell key={column.key} className="font-medium text-gray-300 whitespace-nowrap">
+                <TableCell key={column.key} className="font-semibold text-gray-300 whitespace-nowrap">
                     {prospect.Name}
                 </TableCell>
             );
@@ -542,14 +542,14 @@ export function ProspectTable<T extends BaseProspect>({
             </div>
 
             {/* Table */}
-            <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-800">
+            <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-700/40">
                 <Table>
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="border-gray-700/30">
                             {visibleColumns.map((column) => (
                                 <TableHead
                                     key={column.key}
-                                    className={`text-gray-400 cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
+                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
                                 >
                                     {column.label}
@@ -566,7 +566,7 @@ export function ProspectTable<T extends BaseProspect>({
                         {sortedProspects.map((prospect) => (
                             <TableRow
                                 key={prospect.Name}
-                                className="hover:bg-gray-800/20"
+                                className="hover:bg-gray-800/20 border-gray-700/30"
                             >
                                 {visibleColumns.map((column) => renderCell(prospect, column))}
                             </TableRow>
