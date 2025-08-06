@@ -1,5 +1,14 @@
 # *
 User-agent: *
+Disallow: /images/
+Disallow: /data/
+Disallow: /*.csv
+Disallow: /*.png
+Disallow: /*.jpg
+Disallow: /*.jpeg
+Disallow: /*.gif
+Disallow: /*.webp
+
 Allow: /
 
 # Host

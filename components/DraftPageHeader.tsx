@@ -19,7 +19,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Andre Liu':
         return 'Analyzing prospects via original metrics and clustered tiers.';
       case 'Draft History':
-        return 'Displaying historical drafts.';
+        return '';
       case 'Consensus':
         return (
           <>
