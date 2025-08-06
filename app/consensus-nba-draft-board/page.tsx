@@ -3,7 +3,6 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
 import { motion } from 'framer-motion';
-// import Link from 'next/link';
 import { Search, TrendingUp, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
 import NavigationHeader from '@/components/NavigationHeader';
@@ -775,7 +774,7 @@ const ConsensusPageProspectCard: React.FC<{
     consensusData?: ConsensusColumns;
     rankingSystem: Map<string, number>;
 }> = ({ prospect, consensusData, rankingSystem }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [, setIsExpanded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [showRangeConsensus, setShowRangeConsensus] = useState(true); // Add this back
 

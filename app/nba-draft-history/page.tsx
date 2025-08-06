@@ -3,7 +3,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
 import { motion } from 'framer-motion';
-// import Link from 'next/link';
 import { Search, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
 import NavigationHeader from '@/components/NavigationHeader';

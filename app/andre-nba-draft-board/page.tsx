@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
 import { motion } from 'framer-motion';
@@ -54,52 +53,6 @@ export interface DraftProspect {
     'ABV': string;
 
 }
-
-const PreNBALogo = ({ preNBA }: { preNBA: string }) => {
-    const [logoError, setPreNBALogoError] = useState(false);
-    const teamLogoUrl = `/prenba_logos/${preNBA}.png`;
-
-    if (logoError) {
-        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{preNBA}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-6 w-6 relative">
-            <Image
-                src={teamLogoUrl}
-                alt={`${preNBA} logo`}
-                fill
-                className="object-contain"
-                onError={() => setPreNBALogoError(true)}
-            />
-        </div>
-    );
-};
-
-const TableTeamLogo = ({ NBA }: { NBA: string }) => {
-    const [logoError, setNBALogoError] = useState(false);
-    const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
-
-    if (logoError) {
-        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{NBA}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-6 w-6 relative">
-            <Image
-                src={teamLogoUrl}
-                alt={`${NBA} logo`}
-                fill
-                className="object-contain"
-                onError={() => setNBALogoError(true)}
-            />
-        </div>
-    );
-};
 
 const tierColors: { [key: string]: string } = {
     '10': '#FF66C4',
@@ -504,29 +457,6 @@ const AndrePageProspectCard: React.FC<{
 
 type RankType = number | 'N/A';
 
-// Add LeagueLogo component after the existing logo components
-const LeagueLogo = ({ league }: { league: string }) => {
-    const [logoError, setLogoError] = useState(false);
-    const logoUrl = `/league_logos/${league}.png`;
-
-    if (logoError) {
-        return <div className="w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{league}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-6 w-6 relative">
-            <Image
-                src={logoUrl}
-                alt={`${league} logo`}
-                fill
-                className="object-contain"
-                onError={() => setLogoError(true)}
-            />
-        </div>
-    );
-};
 
 interface ProspectFilterProps {
     prospects: DraftProspect[];
