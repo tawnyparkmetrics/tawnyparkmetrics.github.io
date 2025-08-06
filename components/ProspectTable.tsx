@@ -353,7 +353,7 @@ export function ProspectTable<T extends BaseProspect>({
         if (column.key === 'Actual Pick') {
             return (
                 <TableCell key={column.key} className="text-gray-300">
-                    {Number(prospect['Actual Pick']) >= 60 ? "Undrafted" : prospect['Actual Pick']}
+                    {Number(prospect['Actual Pick']) >= 61 ? "Undrafted" : prospect['Actual Pick']}
                 </TableCell>
             );
         }

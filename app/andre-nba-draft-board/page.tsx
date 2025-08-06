@@ -1169,7 +1169,6 @@ export default function AndreDraftPage() {
         return sortableProspects;
     }, [filteredProspects, sortConfig]);
 
-    // Replace the existing ProspectTable component with:
     const AndreProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
         const initialColumns: ColumnConfig[] = [
             { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },

@@ -138,10 +138,18 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
         onExpand?.(newExpanded);
     };
 
-    const playerImageUrl = selectedYear === 2025
-        ? `/player_images2025/${prospect.Name} BG Removed.png`
-        : `/player_images2024/${prospect.Name} BG Removed.png`;
+    // Dynamic player image URL for years 2020-2025
+    const getPlayerImageUrl = (year: number, playerName: string): string => {
+        // Validate year range
+        if (year < 2020 || year > 2025) {
+            console.warn(`Year ${year} is outside the supported range (2020-2025). Falling back to 2024.`);
+            year = 2024;
+        }
+        
+        return `/player_images${year}/${playerName} BG Removed.png`;
+    };
 
+    const playerImageUrl = getPlayerImageUrl(selectedYear, prospect.Name);
     const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
     // Helper function to get shortened college name
@@ -151,31 +159,29 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
 
     // Helper function to get draft team name (shortened for mobile)
     const getDraftTeamName = (isMobileView: boolean) => {
-        if (selectedYear === 2025) {
-            const actualPick = prospect['Actual Pick'];
-            const team = isMobileView ? prospect.ABV : prospect['NBA Team'];
-            if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 59) {
-                const pickTeam = `${actualPick} - ${team}`;
-                if (isMobileView) {
-                    return Object.keys(draftShort).reduce((name, longName) => {
-                        return name.replace(longName, draftShort[longName]);
-                    }, pickTeam);
-                }
-                return pickTeam;
-            } else {
-                const udfaTeam = `UDFA - ${team}`;
-                if (isMobileView) {
-                    return Object.keys(draftShort).reduce((name, longName) => {
-                        return name.replace(longName, draftShort[longName]);
-                    }, udfaTeam);
-                }
-                return udfaTeam;
+        // Determine draft picks limit based on year
+        const getDraftPicksLimit = (year: number): number => {
+            switch (year) {
+                case 2020:
+                case 2021:
+                case 2022:
+                    return 58; 
+                case 2023:
+                    return 58; 
+                case 2024:
+                    return 58; // 2024 had 58 picks
+                case 2025:
+                    return 59; // 2025 has 59 picks (or adjust based on actual)
+                default:
+                    return 60; // Default fallback
             }
-        }
-        // 2024 logic - 58 picks total
+        };
+
+        const picksLimit = getDraftPicksLimit(selectedYear);
         const actualPick = prospect['Actual Pick'];
         const team = isMobileView ? prospect.ABV : prospect['NBA Team'];
-        if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= 58) {
+        
+        if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= picksLimit) {
             const pickTeam = `${actualPick} - ${team}`;
             if (isMobileView) {
                 return Object.keys(draftShort).reduce((name, longName) => {

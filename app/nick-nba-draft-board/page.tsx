@@ -1,9 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from 'react';
-import Image from 'next/image';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
-import { Barlow } from 'next/font/google';
 import { motion } from 'framer-motion';
 // import Link from 'next/link';
 import { Search, Table as TableIcon } from 'lucide-react';
