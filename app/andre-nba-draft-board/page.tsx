@@ -923,7 +923,7 @@ export default function AndreDraftPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
     const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
-    const [sortConfig, setSortConfig] = useState<{
+    const [sortConfig] = useState<{
         key: keyof DraftProspect | 'Rank';
         direction: 'ascending' | 'descending';
     } | null>(null);

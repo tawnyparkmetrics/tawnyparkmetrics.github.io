@@ -424,17 +424,17 @@ const TimelineFilter = ({
               </motion.button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+            <DropdownMenuItem
+                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                onClick={() => handleYearChange(2025)}
+              >
+                2025
+              </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                 onClick={() => handleYearChange(2024)}
               >
                 2024
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
-                onClick={() => handleYearChange(2025)}
-              >
-                2025
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

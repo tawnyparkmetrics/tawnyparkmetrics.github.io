@@ -776,7 +776,8 @@ const ConsensusPageProspectCard: React.FC<{
 }> = ({ prospect, consensusData, rankingSystem }) => {
     const [, setIsExpanded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [showRangeConsensus, setShowRangeConsensus] = useState(true); // Add this back
+    const [showRangeConsensus, setShowRangeConsensus] = useState(true);
+    const [showTooltip, setShowTooltip] = useState(false);
 
     // Check if device is mobile
     useEffect(() => {
@@ -839,16 +840,80 @@ const ConsensusPageProspectCard: React.FC<{
             isMobile={isMobile}
             onExpand={handleExpand}
         >
-            {/* Consensus-specific dropdown content with toggle */}
-            <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
-                {/* Charts Column */}
-                <div className="text-gray-300 px-2 space-y-4 flex flex-col justify-start">
+            {/* Header with centered toggle */}
+            <div className="flex items-center px-2 mb-4">
+                <div className="flex-[0.8] flex justify-center pr-1">
                     <h3 className="font-semibold text-lg text-white">
-                        {showRangeConsensus ? 'Range Consensus Distribution' : 'Consensus Distribution'}
+                        Draft Rank Distribution
                     </h3>
+                </div>
+                
+                {/* Centered Segmented Control with Tooltip */}
+                <div className="flex items-center gap-2">
+                    <div className="flex bg-gray-800/20 border border-gray-700 rounded-lg p-1">
+                        <button
+                            onClick={() => setShowRangeConsensus(false)}
+                            className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-300 ${
+                                !showRangeConsensus 
+                                    ? 'text-white shadow-sm' 
+                                    : 'text-gray-400 hover:text-gray-200'
+                            }`}
+                            style={!showRangeConsensus ? {
+                                backgroundColor: `${prospect['Team Color']}60` // 60 for 60% opacity like the original /60
+                            } : {}}
+                        >
+                            Rank View
+                        </button>
+                        <button
+                            onClick={() => setShowRangeConsensus(true)}
+                            className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-300 ${
+                                showRangeConsensus 
+                                    ? 'text-white shadow-sm' 
+                                    : 'text-gray-400 hover:text-gray-200'
+                            }`}
+                            style={showRangeConsensus ? {
+                                backgroundColor: `${prospect['Team Color']}60` // 60 for 60% opacity like the original /60
+                            } : {}}
+                        >
+                            Range View
+                        </button>
+                    </div>
+                    
+                    {/* Clickable Tooltip Question Mark */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowTooltip(!showTooltip)}
+                            className="w-4 h-4 rounded-full bg-gray-600/50 text-gray-400 flex items-center justify-center text-xs cursor-pointer hover:text-gray-200 transition-colors"
+                        >
+                            ?
+                        </button>
+                        {showTooltip && (
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-3 bg-[#19191A] border border-white/20 text-white text-sm rounded-lg shadow-lg w-96 max-w-screen-sm z-[9999]">
+                                <div className="text-left leading-relaxed space-y-2">
+                                    <p>Both views show how each prospect is perceived across the boards that contribute to the consensus.</p>
+                                    <p><strong className="text-blue-400">Rank View</strong> displays individual rankings from each board, along with summary stats (average rank, median rank, high, low, etc.).</p>
+                                    <p><strong className="text-blue-400">Range View</strong> groups those rankings into broader draft tiers (Top 3, 2nd Round, Undrafted, etc.), showing how often the prospect falls into each tier (ex. ranked in the Top 3 on 50% of boards).</p>
+                                </div>
+                                {/* Arrow pointing up */}
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-b-[#19191A]"></div>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
+                <div className="flex-[0.8] flex justify-center pl-1">
+                    <h3 className="font-semibold text-lg text-white">
+                        Draft Rank Data
+                    </h3>
+                </div>
+            </div>
+
+            {/* Consensus-specific dropdown content */}
+            <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'} pb-0`}>
+                {/* Charts Column */}
+                <div className="text-gray-300 px-1 flex flex-col justify-start">
                     {/* Chart Container - Shows either histogram or range consensus */}
-                    <div className="mb-4 min-h-[250px]">
+                    <div className="-ml-2 w-[calc(100%+16px)]">
                         {showRangeConsensus ? (
                             // Range Consensus Graph
                             <RangeConsensusGraph
@@ -874,22 +939,6 @@ const ConsensusPageProspectCard: React.FC<{
 
                 {/* Consensus Data Tables */}
                 <div className="text-gray-300 px-2">
-                    {/* Title with Toggle Button positioned to the right */}
-                    <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-lg text-white">
-                            Consensus Information
-                        </h3>
-                        <div
-                            onClick={() => setShowRangeConsensus(!showRangeConsensus)}
-                            className={`
-                                relative w-12 h-6 bg-gray-800/20 rounded-full border border-gray-800 cursor-pointer transition-all duration-200 hover:bg-gray-800/30
-                            `}
-                        >
-                            <div
-                                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-200 ${showRangeConsensus ? 'left-6' : 'left-0.5'}`}
-                            />
-                        </div>
-                    </div>
 
                     {showRangeConsensus ? (
                         /* Range Consensus Table */
