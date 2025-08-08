@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { User as LucideUser } from 'lucide-react';
 import { Barlow } from 'next/font/google';
 
-
 interface DraftProspect {
     Name: string;
     'Pre-NBA': string;
@@ -18,6 +17,7 @@ interface DraftProspect {
     'NBA Team': string;
     ABV: string;
     'Actual Pick': string;
+    // Use a more permissive but still typed approach
     [key: string]: any;
 }
 
@@ -181,7 +181,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
         const actualPick = prospect['Actual Pick'];
         const team = isMobileView ? prospect.ABV : prospect['NBA Team'];
         
-        if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= picksLimit) {
+        if (actualPick && String(actualPick).trim() !== '' && Number(actualPick) <= picksLimit) {
             const pickTeam = `${actualPick} - ${team}`;
             if (isMobileView) {
                 return Object.keys(draftShort).reduce((name, longName) => {

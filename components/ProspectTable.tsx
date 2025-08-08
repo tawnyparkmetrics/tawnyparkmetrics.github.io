@@ -121,7 +121,7 @@ export interface BaseProspect {
     'Role': string;
     'Age': string;
     'Tier': string;
-    [key: string]: any; // Allow additional properties
+    [key: string]: any;
 }
 
 export interface ProspectTableProps<T extends BaseProspect> {
@@ -190,18 +190,7 @@ export function ProspectTable<T extends BaseProspect>({
     }, [columns, lockedColumns]);
 
     const visibleColumns = columns.filter(col => col.visible);
-    
-    // Group columns by category for the dropdown
-    const groupedColumns = useMemo(() => {
-        const groups: { [category: string]: ColumnConfig[] } = {};
-        columns.forEach(col => {
-            if (!groups[col.category]) {
-                groups[col.category] = [];
-            }
-            groups[col.category].push(col);
-        });
-        return groups;
-    }, [columns]);
+
 
     const sortedProspects = useMemo(() => {
         if (!sortConfig) return prospects;
