@@ -1,14 +1,14 @@
 import React from 'react';
 
 export interface DraftPageHeaderProps {
-  author: 'Max Savin' | 'Nick Kalinowski' | 'Andre Liu' | 'Consensus';
+  author: 'Max Savin' | 'Nick Kalinowski' | 'Andre Liu' | 'Consensus' | 'Draft History';
   className?: string;
 }
 
 const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '' }) => {
   // Get first name for the display
   const firstName = author.split(' ')[0];
-  
+
   // Get description based on author
   const getDescription = (author: string) => {
     switch (author) {
@@ -18,6 +18,8 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
         return 'Ranking prospects by predicted EPM using up to 535 unique predictors.';
       case 'Andre Liu':
         return 'Analyzing prospects via original metrics and clustered tiers.';
+      case 'Draft History':
+        return '';
       case 'Consensus':
         return (
           <>
@@ -28,21 +30,24 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
         return '';
     }
   };
-  
+
   const getTitle = (firstName: string, author: string) => {
     if (author === 'Andre Liu') {
       return `${firstName}'s Flagg Plant Score`;
     }
-    if (author === 'Consensus'){
+    if (author === 'Consensus') {
       return `2025 NBA Draft Internet Consensus`
+    }
+    if (author === 'Draft History') {
+      return `NBA Draft History`
     }
     return `${firstName}'s Draft Model`;
   };
-  
+
   const getDescriptionMaxWidth = (author: string) => {
     return author === 'Consensus' ? 'max-w-6xl' : 'max-w-2xl';
   };
-  
+
   return (
     <div className={`bg-[#19191A] border-b border-gray-800 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

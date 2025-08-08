@@ -27,7 +27,7 @@ const nextConfig = {
       },
       {
         source: '/Consensus',
-        destination: '/consensus-nba-board',
+        destination: '/consensus-nba-draft-board',
         permanent: true,
       },
     ];

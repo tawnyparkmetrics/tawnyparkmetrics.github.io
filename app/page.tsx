@@ -41,22 +41,36 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Consensus Section */}
+      {/* Consensus and NBA Draft History Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="bg-[#19191A] border border-white/20 rounded-xl p-8 hover:border-white/40 transition-all duration-300 group">
-          <div className="text-gray-300 text-lg leading-relaxed">
-            <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
-              2025 NBA Draft Consensus Board
-            </h2>
-            <p className="mb-6">
-              Aggregate of 158 boards, all published & submitted before the 2025 NBA Draft. Thank you to everyone who helps put this consensus together, including: <a href="https://twitter.com/mikegrib8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@mikegrib8</a>, <a href="https://twitter.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@thegrantedwards</a>, <a href="https://twitter.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@codyreeves14</a>, <a href="https://twitter.com/dualbarl" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@dualbarl</a>, <a href="https://twitter.com/CannibalSerb" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@CannibalSerb</a>, <a href="https://twitter.com/bendog28" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@bendog28</a>, <a href="https://twitter.com/BalaRavikumar5" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@BalaRavikumar5</a>, & <a href="https://twitter.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>.</p>
-            <Link href="/consensus-nba-board" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors group-hover:text-blue-300">
-              <span className="text-lg font-medium">View Consensus Board</span>
-              <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* NBA Draft History Section */}
+          <Link href="/nba-draft-history" className="block">
+            <div className="bg-[#19191A] border border-white/20 rounded-xl p-8 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
+              <div className="text-gray-300 text-lg leading-relaxed">
+                <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
+                  NBA Draft History
+                </h2>
+                <p>
+                  Review past NBA Draft classes (2020-2025).
+                </p>
+              </div>
+            </div>
+          </Link>
+
+          {/* Consensus Section */}
+          <Link href="/consensus-nba-board" className="block">
+            <div className="bg-[#19191A] border border-white/20 rounded-xl p-8 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
+              <div className="text-gray-300 text-lg leading-relaxed">
+                <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
+                  NBA Draft Consensus Board
+                </h2>
+                <p>
+                  Aggregate of individual boards published before each draft.
+                </p>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
 
@@ -64,52 +78,40 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           {/* Max Savin's Draft Board Card */}
-          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
-            <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
-              Max&apos;s Draft Board
-            </h2>
-            <p className="text-gray-400 mb-4">
-              Explore <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>&apos;s model featuring EPM projections, prospect tiers, skills graphs, and player comps.
-            </p>
-            <Link href="/max-nba-draft-board" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
-              <span className="text-sm font-medium">View Draft Board</span>
-              <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
+          <Link href="/max-nba-draft-board" className="block">
+            <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
+              <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
+                Max&apos;s Draft Board
+              </h2>
+              <p className="text-gray-400">
+                Explore <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@supersayansavin</a>&apos;s model featuring EPM projections, prospect tiers, skills graphs, and player comps.
+              </p>
+            </div>
+          </Link>
 
           {/* Nick Kalinowski's Draft Board Card */}
-          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
-            <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
-              Nick&apos;s Draft Board
-            </h2>
-            <p className="text-gray-400 mb-4">
-              Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@kalidrafts</a>&apos;s model ranking prospects by predicted EPM using up to 535 unique predictors.
-            </p>
-            <Link href="/nick-nba-draft-board" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
-              <span className="text-sm font-medium">View Draft Board</span>
-              <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
+          <Link href="/nick-nba-draft-board" className="block">
+            <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
+              <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
+                Nick&apos;s Draft Board
+              </h2>
+              <p className="text-gray-400">
+                Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@kalidrafts</a>&apos;s model ranking prospects by predicted EPM using up to 535 unique predictors.
+              </p>
+            </div>
+          </Link>
 
           {/* Andre Liu's Draft Board Card */}
-          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-white/40 transition-all duration-300 group">
-            <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-white/80 transition-colors">
-              Andre&apos;s Draft Board
-            </h2>
-            <p className="text-gray-400 mb-4">
-              Dive into <a href="https://x.com/undraliu?s=11&t=aZX-xts5orQ1PkjaZOO7FQ" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@undraliu</a>&apos;s &quot;Flagg Plant Score,&quot; which analyzes prospects via original metrics and clustered tiers.
-            </p>
-            <Link href="/andre-nba-draft-board" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
-              <span className="text-sm font-medium">View Draft Board</span>
-              <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
+          <Link href="/andre-nba-draft-board" className="block">
+            <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
+              <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
+                Andre&apos;s Draft Board
+              </h2>
+              <p className="text-gray-400">
+                Dive into <a href="https://x.com/undraliu?s=11&t=aZX-xts5orQ1PkjaZOO7FQ" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@undraliu</a>&apos;s &quot;Flagg Plant Score,&quot; which analyzes prospects via original metrics and clustered tiers.
+              </p>
+            </div>
+          </Link>
         </div>
 
         {/* Support TPM and Join TPM Section */}
