@@ -64,7 +64,12 @@ const collegeNames: { [key: string]: string } = {
     "KK Cedevita Olimpija": "KK C. Olimpija",
     "North Dakota State": "NDSU",
     "Delaware Blue Coats": "Del. Blue Coats",
-    "Pallacanestro Reggiana": "Reggiana"
+    "Pallacanestro Reggiana": "Reggiana",
+    "New Mexico State": "NMSU",
+    "Fortitudo Bologna": "Ft. Bologna",
+    "CB Gran Canaria": "Gran Canaria",
+    "Baloncesto Málaga": "Málaga",
+    "OTE City Reapers": "OTE Reapers",
 }
 
 const draftShort: { [key: string]: string } = {
@@ -145,7 +150,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
             console.warn(`Year ${year} is outside the supported range (2020-2025). Falling back to 2024.`);
             year = 2024;
         }
-        
+
         return `/player_images${year}/${playerName} BG Removed.png`;
     };
 
@@ -165,9 +170,9 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                 case 2020:
                 case 2021:
                 case 2022:
-                    return 58; 
+                    return 58;
                 case 2023:
-                    return 58; 
+                    return 58;
                 case 2024:
                     return 58; // 2024 had 58 picks
                 case 2025:
@@ -180,7 +185,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
         const picksLimit = getDraftPicksLimit(selectedYear);
         const actualPick = prospect['Actual Pick'];
         const team = isMobileView ? prospect.ABV : prospect['NBA Team'];
-        
+
         if (actualPick && actualPick.trim() !== '' && Number(actualPick) <= picksLimit) {
             const pickTeam = `${actualPick} - ${team}`;
             if (isMobileView) {
@@ -219,20 +224,71 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                         <motion.div
                             layout="position"
                             className={`
-                ${barlow.className}
-                ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20 transition-opacity duration-300'}
-                ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
-              `}
+        ${barlow.className}
+        ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20 transition-opacity duration-300'}
+        ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
+    `}
                         >
                             <div className={`
-                ${barlow.className} 
-                ${isMobile ? 'text-1xl' : 'text-6xl'} 
-                font-bold
-                text-white
-                select-none
-                ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
-              `}>
-                                {rank}
+        ${barlow.className} 
+        ${isMobile ? 'text-1xl' : 'text-6xl'} 
+        font-bold
+        text-white
+        select-none
+        ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
+    `}>
+                                {(() => {
+                                    // Determine draft picks limit based on year
+                                    const getDraftPicksLimit = (year: number): number => {
+                                        switch (year) {
+                                            case 2020:
+                                            case 2021:
+                                            case 2022:
+                                                return 58;
+                                            case 2023:
+                                                return 58;
+                                            case 2024:
+                                                return 58; // 2024 had 58 picks
+                                            case 2025:
+                                                return 59; // 2025 has 59 picks
+                                            default:
+                                                return 60; // Default fallback
+                                        }
+                                    };
+
+                                    const picksLimit = getDraftPicksLimit(selectedYear);
+                                    const actualPick = prospect['Actual Pick'];
+                                    const actualPickNum = Number(actualPick);
+
+                                    // Debug logging
+                                    console.log('Debug UDFA check:', {
+                                        playerName: prospect.Name,
+                                        actualPick: actualPick,
+                                        actualPickNum: actualPickNum,
+                                        selectedYear: selectedYear,
+                                        picksLimit: picksLimit,
+                                        isUndrafted: actualPick && actualPick.trim() !== '' && actualPickNum > picksLimit,
+                                        rank: rank
+                                    });
+
+                                    // Check if player is undrafted
+                                    if (actualPick && actualPick.trim() !== '') {
+                                        // Check if actualPick is already "UDFA" string
+                                        if (actualPick.toString().toUpperCase() === 'UDFA') {
+                                            console.log(`${prospect.Name} should show UDFA (string match)`);
+                                            return 'UDFA';
+                                        }
+                                        // Check if actualPick is a number greater than draft limit
+                                        if (!isNaN(actualPickNum) && actualPickNum > picksLimit) {
+                                            console.log(`${prospect.Name} should show UDFA (number > limit)`);
+                                            return 'UDFA';
+                                        }
+                                    }
+
+                                    // Return the original rank for drafted players
+                                    console.log(`${prospect.Name} should show rank: ${rank}`);
+                                    return rank;
+                                })()}
                             </div>
                         </motion.div>
 

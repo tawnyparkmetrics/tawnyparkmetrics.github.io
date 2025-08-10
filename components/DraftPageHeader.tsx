@@ -3,9 +3,10 @@ import React from 'react';
 export interface DraftPageHeaderProps {
   author: 'Max Savin' | 'Nick Kalinowski' | 'Andre Liu' | 'Consensus' | 'Draft History';
   className?: string;
+  selectedYear?: number; // Add optional selectedYear prop
 }
 
-const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '' }) => {
+const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '', selectedYear }) => {
   // Get first name for the display
   const firstName = author.split(' ')[0];
 
@@ -31,7 +32,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
     }
   };
 
-  const getTitle = (firstName: string, author: string) => {
+  const getTitle = (firstName: string, author: string, selectedYear?: number) => {
     if (author === 'Andre Liu') {
       return `${firstName}'s Flagg Plant Score`;
     }
@@ -39,7 +40,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       return `2025 NBA Draft Internet Consensus`
     }
     if (author === 'Draft History') {
-      return `NBA Draft History`
+      return selectedYear ? `${selectedYear} NBA Draft History` : `NBA Draft History`;
     }
     return `${firstName}'s Draft Model`;
   };
@@ -53,7 +54,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-3 pl-2 md:pl-0 md:ml-[3.25rem]">
           <h1 className="text-xl md:text-2xl font-semibold text-white">
-            {getTitle(firstName, author)}
+            {getTitle(firstName, author, selectedYear)}
           </h1>
           <p className={`mt-1 text-gray-400 text-xs md:text-sm ${getDescriptionMaxWidth(author)}`}>
             {getDescription(author)}

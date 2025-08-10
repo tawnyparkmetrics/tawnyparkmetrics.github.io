@@ -141,7 +141,15 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             const aPick = parseInt(aPickStr) || 999;
             const bPick = parseInt(bPickStr) || 999;
 
-            return aPick - bPick;
+            // For combined years (2020-2025), sort by pick number first, then by year (most recent first)
+            if (aPick !== bPick) {
+                return aPick - bPick;
+            }
+
+            // If same pick number, prioritize more recent years
+            const aYear = parseInt(a['Draft Year'] || '2020');
+            const bYear = parseInt(b['Draft Year'] || '2020');
+            return bYear - aYear; // Most recent first
         });
 
         // Notify parent component of filtered results
@@ -176,10 +184,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
         setIsMobileFilterOpen(false);
     };
 
-    function handleYearChange(year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020'): void {
-        onDraftYearChange(year);
+    function handleYearChange(year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020' | '2020-2025'): void {
+        onDraftYearChange(draftYear);
     }
-
 
     return (
         <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
@@ -218,6 +225,12 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 </motion.button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+                                <DropdownMenuItem
+                                    className="text-blue-400 hover:bg-gray-800/50 cursor-pointer font-medium border-b border-gray-700 mb-1"
+                                    onClick={() => handleYearChange('2020-2025')}
+                                >
+                                    2020-2025
+                                </DropdownMenuItem>
                                 <DropdownMenuItem
                                     className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                                     onClick={() => handleYearChange('2025')}
@@ -480,6 +493,12 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
+                            <DropdownMenuItem
+                                className="text-blue-400 hover:bg-gray-800/50 cursor-pointer font-medium border-b border-gray-700 mb-1"
+                                onClick={() => handleYearChange('2020-2025')}
+                            >
+                                2020-2025
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                                 className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                                 onClick={() => handleYearChange('2025')}
@@ -828,7 +847,10 @@ export default function DraftHistoryPage() {
     return (
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Draft History" />
-            <DraftPageHeader author="Draft History" />
+            <DraftPageHeader
+                author="Draft History"
+                selectedYear={parseInt(draftYear)}
+            />
             <GoogleAnalytics gaId="G-X22HKJ13B7" />
             <ProspectFilter
                 prospects={prospects}

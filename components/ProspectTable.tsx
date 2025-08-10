@@ -164,33 +164,33 @@ export function ProspectTable<T extends BaseProspect>({
     const handleToggleColumn = useCallback((key: string) => {
         // Prevent toggling locked columns
         if (lockedColumns.includes(key)) return;
-        
-        const updatedColumns = columns.map(col => 
+
+        const updatedColumns = columns.map(col =>
             col.key === key ? { ...col, visible: !col.visible } : col
         );
-        
+
         setColumns(updatedColumns);
     }, [columns, lockedColumns]);
 
     const handleToggleCategory = useCallback((category: string) => {
         // Filter out locked columns from category columns
-        const categoryColumns = columns.filter(col => 
+        const categoryColumns = columns.filter(col =>
             col.category === category && !lockedColumns.includes(col.key)
         );
         const allVisible = categoryColumns.every(col => col.visible);
-        
+
         const updatedColumns = columns.map(col => {
             if (col.category === category && !lockedColumns.includes(col.key)) {
                 return { ...col, visible: !allVisible };
             }
             return col;
         });
-        
+
         setColumns(updatedColumns);
     }, [columns, lockedColumns]);
 
     const visibleColumns = columns.filter(col => col.visible);
-    
+
     // Group columns by category for the dropdown
     const groupedColumns = useMemo(() => {
         const groups: { [category: string]: ColumnConfig[] } = {};
@@ -389,6 +389,27 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
+        if (['1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Undrafted'].includes(column.key)) {
+            const cellValue = prospect[key];
+            let displayValue = '';
+
+            if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
+                const numValue = parseFloat(String(cellValue));
+                if (!isNaN(numValue)) {
+                    // Convert decimal to percentage (multiply by 100) and format to 1 decimal place
+                    displayValue = `${(numValue * 100).toFixed(1)}%`;
+                } else {
+                    displayValue = String(cellValue);
+                }
+            }
+
+            return (
+                <TableCell key={column.key} className="text-gray-300">
+                    {displayValue}
+                </TableCell>
+            );
+        }
+
         // Handle Tier column with color styling
         if (column.key === 'Tier') {
             return (
@@ -438,7 +459,7 @@ export function ProspectTable<T extends BaseProspect>({
                 >
                     <div className="flex items-center gap-2">
                         <motion.div
-                            animate={{ 
+                            animate={{
                                 rotate: columnSelectorOpen ? (rotationRef.current += 360) : (rotationRef.current += 360)
                             }}
                             transition={{ duration: 0.5, ease: 'easeInOut' }}
@@ -457,9 +478,9 @@ export function ProspectTable<T extends BaseProspect>({
                 </motion.button>
 
                 {/* Collapsible Content */}
-                <div 
+                <div
                     className="overflow-hidden transition-all duration-300 ease-in-out relative z-50"
-                    style={{ 
+                    style={{
                         maxHeight: columnSelectorOpen ? '1000px' : '0px',
                         opacity: columnSelectorOpen ? 1 : 0
                     }}
@@ -468,12 +489,12 @@ export function ProspectTable<T extends BaseProspect>({
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                             {displayCategories.map(category => {
                                 // Filter out locked columns from the dropdown options
-                                const categoryColumns = columns.filter(col => 
+                                const categoryColumns = columns.filter(col =>
                                     col.category === category && !lockedColumns.includes(col.key)
                                 );
                                 const visibleCount = categoryColumns.filter(col => col.visible).length;
                                 const totalCount = categoryColumns.length;
-                                
+
                                 return (
                                     <div key={category} className="space-y-2 md:space-y-3">
                                         <div className="flex items-center justify-between">
@@ -501,27 +522,27 @@ export function ProspectTable<T extends BaseProspect>({
                                                     <div className="relative flex-shrink-0">
                                                         <div className={`
                                                             w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200
-                                                            ${column.visible 
-                                                                ? 'bg-blue-500 border-blue-500' 
+                                                            ${column.visible
+                                                                ? 'bg-blue-500 border-blue-500'
                                                                 : 'bg-gray-800 border-gray-600 hover:border-gray-500'
                                                             }
                                                         `}>
                                                             {column.visible && (
-                                                                <svg 
-                                                                    className="w-3 h-3 text-white transition-all duration-150" 
-                                                                    fill="none" 
-                                                                    stroke="currentColor" 
+                                                                <svg
+                                                                    className="w-3 h-3 text-white transition-all duration-150"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
                                                                     viewBox="0 0 24 24"
                                                                     style={{
                                                                         transform: column.visible ? 'scale(1)' : 'scale(0)',
                                                                         opacity: column.visible ? 1 : 0
                                                                     }}
                                                                 >
-                                                                    <path 
-                                                                        strokeLinecap="round" 
-                                                                        strokeLinejoin="round" 
-                                                                        strokeWidth={2} 
-                                                                        d="M5 13l4 4L19 7" 
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth={2}
+                                                                        d="M5 13l4 4L19 7"
                                                                     />
                                                                 </svg>
                                                             )}
@@ -552,7 +573,11 @@ export function ProspectTable<T extends BaseProspect>({
                                     className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
                                 >
-                                    {column.label}
+                                    {/* Display shortened labels for Range Consensus columns in table headers */}
+                                    {['1 - 3', '4 - 14', '15 - 30', '31 - 59'].includes(column.key)
+                                        ? column.key  // Show just "1 - 3", "4 - 14", etc.
+                                        : column.label  // Show full label for all other columns
+                                    }
                                     {column.sortable && sortConfig?.key === column.key && (
                                         <span className="ml-1">
                                             {sortConfig.direction === 'ascending' ? '↑' : '↓'}
