@@ -2034,25 +2034,6 @@ export default function ConsensusPage() {
         }
     }, [filteredProspects, isMobile]);
 
-    // Custom cell renderer for consensus-specific columns
-    const customCellRenderer = (prospect: DraftProspect, column: ColumnConfig) => {
-        // Handle range consensus columns (display as percentages)
-        const rangeConsensusKeys = ['1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Undrafted'] as const;
-        type RangeConsensusKey = typeof rangeConsensusKeys[number];
-
-        if (rangeConsensusKeys.includes(column.key as RangeConsensusKey)) {
-            const value = prospect[column.key as RangeConsensusKey];
-            return value ? `${Math.round(Number(value) * 100)}%` : '0%';
-        }
-        if (column.key === 'Inclusion Rate') {
-            const inclusionRate = prospect['Inclusion Rate'];
-            return inclusionRate ? `${Math.round(Number(inclusionRate) * 100)}%` : '0%';
-        }
-
-        // Default handling - let ProspectTable handle it
-        return null;
-    };
-
     return (
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Consensus" />

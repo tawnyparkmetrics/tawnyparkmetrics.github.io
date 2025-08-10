@@ -2103,7 +2103,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
     });
 
     return rankingMap;
-  }, [initialProspects, selectedSortKey, selectedPosition, selectedTier, tierRankActive, selectedYear]); // Include position and tier filters, but NOT searchQuery
+  }, [initialProspects, selectedSortKey, selectedPosition, selectedTier, tierRankActive]); // Include position and tier filters, but NOT searchQuery
 
   const filteredProspects = useMemo(() => {
     // Apply filters

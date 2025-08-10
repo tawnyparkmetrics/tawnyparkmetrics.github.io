@@ -578,20 +578,6 @@ export default function NickDraftPage() {
     filter: 'NCAA',
     roleFilter: 'all'
   });
-  const initialColumns: ColumnConfig[] = [
-    { key: 'Rank', label: 'Rank', category: 'Basic Info', visible: true, sortable: true },
-    { key: 'Name', label: 'Name', category: 'Basic Info', visible: true, sortable: true },
-    { key: 'Role', label: 'Position', category: 'Basic Info', visible: true, sortable: true },
-    { key: 'League', label: 'League', category: 'Team Info', visible: true, sortable: true },
-    { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Team Info', visible: true, sortable: true },
-    { key: 'Actual Pick', label: 'Draft Pick', category: 'Team Info', visible: true, sortable: true },
-    { key: 'NBA Team', label: 'NBA Team', category: 'Team Info', visible: true, sortable: true },
-    { key: 'Age', label: 'Age', category: 'Basic Info', visible: false, sortable: true },
-    { key: 'Height', label: 'Height', category: 'Physical', visible: false, sortable: true },
-    { key: 'Wingspan', label: 'Wingspan', category: 'Physical', visible: false, sortable: true },
-    { key: 'Wing - Height', label: 'Wing-Height', category: 'Physical', visible: false, sortable: true },
-    { key: 'Weight (lbs)', label: 'Weight', category: 'Physical', visible: false, sortable: true },
-  ];
 
   // Create a separate ranking system that's independent of search filters but includes position and other filters
   const rankingSystem = useMemo(() => {
@@ -670,104 +656,6 @@ export default function NickDraftPage() {
 
     fetchDraftProspects();
   }, [draftYear]);
-
-  // Function to handle sorting
-  const handleSort = (key: keyof DraftProspect | 'Rank') => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-
-    // If already sorting by this key, toggle direction
-    if (sortConfig && sortConfig.key === key) {
-      direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
-    }
-
-    setSortConfig({ key, direction });
-  };
-
-  // Apply sorting to the filtered prospects
-  const sortedProspects = useMemo(() => {
-    const sortableProspects = [...filteredProspects];
-
-    if (!sortConfig) {
-      return sortableProspects;
-    }
-
-    sortableProspects.sort((a, b) => {
-      // Handle Rank column specially
-      if (sortConfig.key === 'Rank') {
-        const aIndex = filteredProspects.findIndex(p => p.Name === a.Name);
-        const bIndex = filteredProspects.findIndex(p => p.Name === b.Name);
-        return sortConfig.direction === 'ascending' ? aIndex - bIndex : bIndex - aIndex;
-      }
-
-      let aValue = a[sortConfig.key as keyof DraftProspect];
-      let bValue = b[sortConfig.key as keyof DraftProspect];
-
-      // Helper function to check if a value is N/A, empty, or undefined
-      const isNAValue = (value: string | number | undefined | null): boolean => {
-        return value === undefined ||
-          value === null ||
-          value === '' ||
-          String(value).toLowerCase() === 'n/a' ||
-          String(value).toLowerCase() === 'na';
-      };
-
-      // Check if either value is N/A - N/A values always go to the end
-      const aIsNA = isNAValue(aValue);
-      const bIsNA = isNAValue(bValue);
-
-      if (aIsNA && !bIsNA) return 1;  // a goes after b
-      if (!aIsNA && bIsNA) return -1; // a goes before b
-      if (aIsNA && bIsNA) return 0;   // both are N/A, maintain order
-
-      // Handle specific columns
-      if (sortConfig.key === 'Actual Pick') {
-        const aNum = parseInt(aValue as string) || 99;
-        const bNum = parseInt(bValue as string) || 99;
-        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-      }
-
-      if (sortConfig.key === 'Height') {
-        // Use Height (in) for sorting instead of Height
-        const aNum = parseFloat(a['Height (in)'] as string) || 0;
-        const bNum = parseFloat(b['Height (in)'] as string) || 0;
-        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-      }
-
-      if (sortConfig.key === 'Wingspan') {
-        // Use Wingspan (in) for sorting instead of Wingspan
-        const aNum = parseFloat(a['Wingspan (in)'] as string) || 0;
-        const bNum = parseFloat(b['Wingspan (in)'] as string) || 0;
-        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-      }
-
-      if (sortConfig.key === 'Weight (lbs)') {
-        const aNum = parseInt(aValue as string) || 0;
-        const bNum = parseInt(bValue as string) || 0;
-        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-      }
-
-      // For numeric columns, try to parse as numbers
-      const aNum = parseFloat(aValue as string);
-      const bNum = parseFloat(bValue as string);
-
-      if (!isNaN(aNum) && !isNaN(bNum)) {
-        // Both are valid numbers
-        return sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
-      }
-
-      // Default string comparison for non-numeric values
-      if (aValue === undefined) aValue = '';
-      if (bValue === undefined) bValue = '';
-
-      if (sortConfig.direction === 'ascending') {
-        return String(aValue).localeCompare(String(bValue));
-      } else {
-        return String(bValue).localeCompare(String(aValue));
-      }
-    });
-
-    return sortableProspects;
-  }, [filteredProspects, sortConfig]);
 
   // Replace the existing NickProspectTable component with:
   const NickProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
