@@ -36,7 +36,7 @@ const HistoryPageProspectCard: React.FC<{
     filteredProspects: DraftProspect[];
     allProspects: DraftProspect[];
     selectedSortKey: string;
-    draftYear: '2025' | '2024' | '2023' | '2022' | '2021' | '2020';
+    draftYear: '2025' | '2024' | '2023' | '2022' | '2021' | '2020' | '2020-2025';
     rankingSystem: Map<string, number>;
 }> = ({ prospect, draftYear, rankingSystem }) => {
     const [, setIsExpanded] = useState(false);
@@ -81,12 +81,12 @@ type RankType = number | 'N/A';
 
 interface ProspectFilterProps {
     prospects: DraftProspect[];
-    onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
-    rank: Record<string, RankType>;
-    onViewModeChange?: (mode: 'card' | 'table') => void; // New prop
-    draftYear: '2025' | '2024' | '2023' | '2022' | '2021' | '2020';
-    onDraftYearChange: (year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020') => void;
-    onFilterStateChange?: (filterState: { roleFilter: 'all' | 'Guard' | 'Wing' | 'Big' }) => void;
+    onFilteredProspectsChange: (prospects: DraftProspect[]) => void;
+    rank: Record<string, any>;
+    onViewModeChange: (mode: 'card' | 'table') => void;
+    draftYear: '2025' | '2024' | '2023' | '2022' | '2021' | '2020' | '2020-2025';
+    onDraftYearChange: (year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020' | '2020-2025') => void;
+    onFilterStateChange: (state: { roleFilter: 'all' | 'Guard' | 'Wing' | 'Big' }) => void;
 }
 
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
@@ -185,8 +185,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     };
 
     function handleYearChange(year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020' | '2020-2025'): void {
-        onDraftYearChange(draftYear);
+        console.log('handleYearChange called with:', year); // Add this debug line
+        console.log('Current draftYear:', draftYear); // Add this debug line
+        onDraftYearChange(year);
     }
+
 
     return (
         <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
@@ -226,7 +229,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
                                 <DropdownMenuItem
-                                    className="text-blue-400 hover:bg-gray-800/50 cursor-pointer font-medium border-b border-gray-700 mb-1"
+                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                                     onClick={() => handleYearChange('2020-2025')}
                                 >
                                     2020-2025
@@ -494,7 +497,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
                             <DropdownMenuItem
-                                className="text-blue-400 hover:bg-gray-800/50 cursor-pointer font-medium border-b border-gray-700 mb-1"
+                                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                                 onClick={() => handleYearChange('2020-2025')}
                             >
                                 2020-2025
@@ -602,7 +605,7 @@ export default function DraftHistoryPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
     const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
-    const [draftYear, setDraftYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020'>('2025');
+    const [draftYear, setDraftYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020' | '2020-2025'>('2025');
     const [sortConfig, setSortConfig] = useState<{
         key: keyof DraftProspect | 'Rank';
         direction: 'ascending' | 'descending';

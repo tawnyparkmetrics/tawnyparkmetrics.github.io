@@ -80,7 +80,7 @@ const draftShort: { [key: string]: string } = {
 interface BaseProspectCardProps {
     prospect: DraftProspect;
     rank: string | number;
-    selectedYear: number;
+    selectedYear: number | string;
     isMobile?: boolean;
     children?: React.ReactNode; // For dropdown content
     onExpand?: (isExpanded: boolean) => void;
@@ -144,17 +144,34 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
     };
 
     // Dynamic player image URL for years 2020-2025
-    const getPlayerImageUrl = (year: number, playerName: string): string => {
-        // Validate year range
-        if (year < 2020 || year > 2025) {
-            console.warn(`Year ${year} is outside the supported range (2020-2025). Falling back to 2024.`);
-            year = 2024;
+    const getPlayerImageUrl = (selectedYear: number | string, prospect: DraftProspect): string => {
+        let yearToUse: number;
+        
+        if (selectedYear === '2020-2025') {
+            // Use the prospect's actual draft year from their data
+            const prospectYear = prospect['Draft Year'] ? parseInt(prospect['Draft Year'].toString()) : 2025;
+            yearToUse = prospectYear;
+            
+            // Debug log to verify
+            console.log(`🔍 ${prospect.Name}: selectedYear=${selectedYear}, Draft Year=${prospect['Draft Year']}, using year=${yearToUse}`);
+        } else {
+            yearToUse = typeof selectedYear === 'string' ? parseInt(selectedYear) : selectedYear;
+            console.log(`📅 ${prospect.Name}: selectedYear=${selectedYear}, using year=${yearToUse}`);
         }
-
-        return `/player_images${year}/${playerName} BG Removed.png`;
+        
+        // Validate year range
+        if (yearToUse < 2020 || yearToUse > 2025) {
+            console.warn(`⚠️ Year ${yearToUse} is outside the supported range (2020-2025). Falling back to 2024.`);
+            yearToUse = 2024;
+        }
+    
+        const finalPath = `/player_images${yearToUse}/${prospect.Name} BG Removed.png`;
+        console.log(`🖼️ Final image path: ${finalPath}`);
+        
+        return finalPath;
     };
 
-    const playerImageUrl = getPlayerImageUrl(selectedYear, prospect.Name);
+    const playerImageUrl = getPlayerImageUrl(selectedYear, prospect);
     const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
 
     // Helper function to get shortened college name
@@ -182,11 +199,19 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
             }
         };
 
-        const picksLimit = getDraftPicksLimit(selectedYear);
+        // Ensure selectedYear is a number for getDraftPicksLimit
+        const yearNum = typeof selectedYear === 'string' ? parseInt(selectedYear) : selectedYear;
+        const picksLimit = getDraftPicksLimit(yearNum);
         const actualPick = prospect['Actual Pick'];
         const team = isMobileView ? prospect.ABV : prospect['NBA Team'];
-        
-        if (actualPick && String(actualPick).trim() !== '' && Number(actualPick) <= picksLimit) {
+
+        if (
+            actualPick !== undefined &&
+            actualPick !== null &&
+            String(actualPick).trim() !== '' &&
+            !isNaN(Number(actualPick)) &&
+            Number(actualPick) <= picksLimit
+        ) {
             const pickTeam = `${actualPick} - ${team}`;
             if (isMobileView) {
                 return Object.keys(draftShort).reduce((name, longName) => {
@@ -256,7 +281,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                                         }
                                     };
 
-                                    const picksLimit = getDraftPicksLimit(selectedYear);
+                                    const picksLimit = getDraftPicksLimit(Number(selectedYear));
                                     const actualPick = prospect['Actual Pick'];
                                     const actualPickNum = Number(actualPick);
 
