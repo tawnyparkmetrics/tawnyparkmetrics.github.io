@@ -844,20 +844,19 @@ const ConsensusPageProspectCard: React.FC<{
             <div className="flex items-center px-2 mb-4">
                 <div className="flex-[0.8] flex justify-center pr-1">
                     <h3 className="font-semibold text-lg text-white">
-                        Draft Rank Distribution
+                        {showRangeConsensus ? 'Draft Range Distribution' : 'Draft Rank Distribution'}
                     </h3>
                 </div>
-                
+
                 {/* Centered Segmented Control with Tooltip */}
                 <div className="flex items-center gap-2">
                     <div className="flex bg-gray-800/20 border border-gray-700 rounded-lg p-1">
                         <button
                             onClick={() => setShowRangeConsensus(false)}
-                            className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-300 ${
-                                !showRangeConsensus 
-                                    ? 'text-white shadow-sm' 
+                            className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${!showRangeConsensus
+                                    ? 'text-white shadow-sm'
                                     : 'text-gray-400 hover:text-gray-200'
-                            }`}
+                                }`}
                             style={!showRangeConsensus ? {
                                 backgroundColor: `${prospect['Team Color']}60` // 60 for 60% opacity like the original /60
                             } : {}}
@@ -866,11 +865,10 @@ const ConsensusPageProspectCard: React.FC<{
                         </button>
                         <button
                             onClick={() => setShowRangeConsensus(true)}
-                            className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-300 ${
-                                showRangeConsensus 
-                                    ? 'text-white shadow-sm' 
+                            className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${showRangeConsensus
+                                    ? 'text-white shadow-sm'
                                     : 'text-gray-400 hover:text-gray-200'
-                            }`}
+                                }`}
                             style={showRangeConsensus ? {
                                 backgroundColor: `${prospect['Team Color']}60` // 60 for 60% opacity like the original /60
                             } : {}}
@@ -878,15 +876,16 @@ const ConsensusPageProspectCard: React.FC<{
                             Range View
                         </button>
                     </div>
-                    
+
                     {/* Clickable Tooltip Question Mark */}
                     <div className="relative">
-                        <button
-                            onClick={() => setShowTooltip(!showTooltip)}
+                        <div
+                            onMouseEnter={() => setShowTooltip(true)}
+                            onMouseLeave={() => setShowTooltip(false)}
                             className="w-4 h-4 rounded-full bg-gray-600/50 text-gray-400 flex items-center justify-center text-xs cursor-pointer hover:text-gray-200 transition-colors"
                         >
                             ?
-                        </button>
+                        </div>
                         {showTooltip && (
                             <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-3 bg-[#19191A] border border-white/20 text-white text-sm rounded-lg shadow-lg w-96 max-w-screen-sm z-[9999]">
                                 <div className="text-left leading-relaxed space-y-2">
@@ -903,7 +902,7 @@ const ConsensusPageProspectCard: React.FC<{
 
                 <div className="flex-[0.8] flex justify-center pl-1">
                     <h3 className="font-semibold text-lg text-white">
-                        Draft Rank Data
+                        {showRangeConsensus ? 'Draft Range Data' : 'Draft Rank Data'}
                     </h3>
                 </div>
             </div>
