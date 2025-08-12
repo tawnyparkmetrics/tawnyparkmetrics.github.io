@@ -40,7 +40,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       return `2025 NBA Draft Internet Consensus`
     }
     if (author === 'Draft History') {
-      return selectedYear ? `${selectedYear} NBA Draft History` : `NBA Draft History`;
+      return selectedYear ? `${selectedYear} NBA Draft` : `NBA Draft`;
     }
     return `${firstName}'s Draft Model`;
   };

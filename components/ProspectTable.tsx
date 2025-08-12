@@ -132,6 +132,7 @@ export interface ProspectTableProps<T extends BaseProspect> {
     className?: string;
     categories?: string[]; // Optional: pass custom categories
     lockedColumns?: string[]; // Optional: specify which columns can't be toggled
+    showTierPrefix?: boolean; // Optional: whether to show "Tier" prefix
 }
 
 export function ProspectTable<T extends BaseProspect>({
@@ -141,7 +142,8 @@ export function ProspectTable<T extends BaseProspect>({
     tierRankMap,
     className = '',
     categories,
-    lockedColumns = ['Rank', 'Name']
+    lockedColumns = ['Rank', 'Name'],
+    showTierPrefix = false
 }: ProspectTableProps<T>) {
     const [sortConfig, setSortConfig] = useState<{ key: keyof T | 'Rank'; direction: 'ascending' | 'descending' } | null>(null);
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
@@ -191,6 +193,13 @@ export function ProspectTable<T extends BaseProspect>({
 
     const visibleColumns = columns.filter(col => col.visible);
 
+    // Helper function to format tier display
+    const formatTierDisplay = (tierValue: string | number): string => {
+        if (!tierValue && tierValue !== 0) return '';
+        
+        // Always add "Tier" prefix to the number
+        return `Tier ${tierValue}`;
+    };
 
     const sortedProspects = useMemo(() => {
         if (!sortConfig) return prospects;
@@ -399,19 +408,23 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        // Handle Tier column with color styling
+        // Handle Tier column with color styling and conditional "Tier" prefix
         if (column.key === 'Tier') {
+            const displayValue = showTierPrefix ? formatTierDisplay(prospect.Tier) : prospect.Tier;
+            // Use the original tier value for color lookup
+            const tierColorKey = prospect.Tier;
+            
             return (
                 <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
                     <span
-                        className="px-2 py-1 rounded text-sm font-medium"
+                        className="px-2 py-1 rounded text-sm font-bold"
                         style={{
-                            backgroundColor: `${tierColors[prospect.Tier] ? tierColors[prospect.Tier] + '4D' : 'transparent'}`,
-                            color: tierColors[prospect.Tier] || 'inherit',
-                            border: `1px solid ${tierColors[prospect.Tier] || 'transparent'}`,
+                            backgroundColor: `${tierColors[tierColorKey] ? tierColors[tierColorKey] + '4D' : 'transparent'}`,
+                            color: tierColors[tierColorKey] || 'inherit',
+                            border: `1px solid ${tierColors[tierColorKey] || 'transparent'}`,
                         }}
                     >
-                        {prospect.Tier}
+                        {displayValue}
                     </span>
                 </TableCell>
             );

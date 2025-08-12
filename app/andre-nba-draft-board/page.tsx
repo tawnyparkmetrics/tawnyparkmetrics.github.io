@@ -418,7 +418,7 @@ const AndrePageProspectCard: React.FC<{
                                         </div>
                                     ) : (
                                         /* Desktop version - two column layout */
-                                        <div className="grid grid-cols-2 gap-4 text-sm h-64">
+                                        <div className="grid grid-cols-2 gap-4 text-sm h-72">
                                             {/* First 5x2 table */}
                                             <div className="flex flex-col justify-around">
                                                 {/* Subheaders for the first column group */}
@@ -672,7 +672,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                         <Input
                             type="text"
-                            placeholder="Search"
+                            placeholder="Search by name, pre-NBA team, or NBA team"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
@@ -923,10 +923,6 @@ export default function AndreDraftPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
     const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
-    const [sortConfig] = useState<{
-        key: keyof DraftProspect | 'Rank';
-        direction: 'ascending' | 'descending';
-    } | null>(null);
     const [loadedProspects, setLoadedProspects] = useState<number>(5);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
@@ -1040,6 +1036,7 @@ export default function AndreDraftPage() {
                 prospects={prospects}
                 rankingSystem={rankingSystem}
                 initialColumns={initialColumns}
+                showTierPrefix={true} 
             />
         );
     };

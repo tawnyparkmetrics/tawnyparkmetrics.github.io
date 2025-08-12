@@ -68,7 +68,7 @@ const collegeNames: { [key: string]: string } = {
     "New Mexico State": "NMSU",
     "Fortitudo Bologna": "Ft. Bologna",
     "CB Gran Canaria": "Gran Canaria",
-    "Baloncesto Málaga": "Málaga",
+    "Baloncesto Málaga": "Málaga",
     "OTE City Reapers": "OTE Reapers",
 }
 
@@ -239,90 +239,20 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                         className={`
               relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] 
               ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px] cursor-pointer'}
+              isolate
             `}
                         style={{ backgroundColor: '#19191A' }}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                         onClick={handleCardClick}
                     >
-                        {/* Rank Number */}
-                        <motion.div
-                            layout="position"
-                            className={`
-        ${barlow.className}
-        ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-20 transition-opacity duration-300'}
-        ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
-    `}
-                        >
-                            <div className={`
-        ${barlow.className} 
-        ${isMobile ? 'text-1xl' : 'text-6xl'} 
-        font-bold
-        text-white
-        select-none
-        ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
-    `}>
-                                {(() => {
-                                    // Determine draft picks limit based on year
-                                    const getDraftPicksLimit = (year: number): number => {
-                                        switch (year) {
-                                            case 2020:
-                                            case 2021:
-                                            case 2022:
-                                                return 58;
-                                            case 2023:
-                                                return 58;
-                                            case 2024:
-                                                return 58; // 2024 had 58 picks
-                                            case 2025:
-                                                return 59; // 2025 has 59 picks
-                                            default:
-                                                return 60; // Default fallback
-                                        }
-                                    };
-
-                                    const picksLimit = getDraftPicksLimit(Number(selectedYear));
-                                    const actualPick = prospect['Actual Pick'];
-                                    const actualPickNum = Number(actualPick);
-
-                                    // Debug logging
-                                    console.log('Debug UDFA check:', {
-                                        playerName: prospect.Name,
-                                        actualPick: actualPick,
-                                        actualPickNum: actualPickNum,
-                                        selectedYear: selectedYear,
-                                        picksLimit: picksLimit,
-                                        isUndrafted: actualPick && actualPick.trim() !== '' && actualPickNum > picksLimit,
-                                        rank: rank
-                                    });
-
-                                    // Check if player is undrafted
-                                    if (actualPick && actualPick.trim() !== '') {
-                                        // Check if actualPick is already "UDFA" string
-                                        if (actualPick.toString().toUpperCase() === 'UDFA') {
-                                            console.log(`${prospect.Name} should show UDFA (string match)`);
-                                            return 'UDFA';
-                                        }
-                                        // Check if actualPick is a number greater than draft limit
-                                        if (!isNaN(actualPickNum) && actualPickNum > picksLimit) {
-                                            console.log(`${prospect.Name} should show UDFA (number > limit)`);
-                                            return 'UDFA';
-                                        }
-                                    }
-
-                                    // Return the original rank for drafted players
-                                    console.log(`${prospect.Name} should show rank: ${rank}`);
-                                    return rank;
-                                })()}
-                            </div>
-                        </motion.div>
-
                         {/* Background Pre-NBA Logo */}
                         <div className={`
               absolute inset-0 flex items-center justify-start 
               ${isMobile ? 'pl-4' : 'pl-12'} 
               transition-opacity duration-300 
               ${((isHovered && !isMobile) || isExpanded) ? 'opacity-90' : 'opacity-20'}
+              z-10
             `}>
                             {!logoError ? (
                                 <Image
@@ -340,8 +270,99 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                             )}
                         </div>
 
-                        {/* Player Image */}
-                        <div className="absolute inset-0 flex justify-center items-end overflow-hidden">
+                        {/* Rank Number - Now behind player image */}
+                        <motion.div
+                            layout="position"
+                            className={`
+        ${barlow.className}
+        ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-45 transition-opacity duration-300'}
+        ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
+    `}
+                        >
+                            <div className={`
+        ${barlow.className} 
+        ${isMobile ? 'text-1xl' : 'text-6xl'} 
+        font-bold
+        text-white
+        select-none
+        ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
+    `}>
+                                {(() => {
+                                    // Check if this is the NBA draft history page by looking for specific indicators
+                                    // You can modify this condition based on how you identify the draft history page
+                                    const isDraftHistoryPage = window.location.pathname.includes('nba-draft-history') || 
+                                                              selectedYear !== '2020-2025'; // or any other identifier you use
+                                    
+                                    if (isDraftHistoryPage) {
+                                        // For draft history, always show the actual pick
+                                        const actualPick = prospect['Actual Pick'];
+                                        
+                                        // If actual pick exists and is a valid number, show it
+                                        if (actualPick && actualPick.trim() !== '' && !isNaN(Number(actualPick))) {
+                                            return actualPick;
+                                        } else {
+                                            // If no valid actual pick, show UDFA
+                                            return 'UDFA';
+                                        }
+                                    } else {
+                                        // For other pages (like prospect rankings), use the original dynamic logic
+                                        // Determine draft picks limit based on year
+                                        const getDraftPicksLimit = (year: number): number => {
+                                            switch (year) {
+                                                case 2020:
+                                                case 2021:
+                                                case 2022:
+                                                    return 58;
+                                                case 2023:
+                                                    return 58;
+                                                case 2024:
+                                                    return 58; // 2024 had 58 picks
+                                                case 2025:
+                                                    return 59; // 2025 has 59 picks
+                                                default:
+                                                    return 60; // Default fallback
+                                            }
+                                        };
+
+                                        const picksLimit = getDraftPicksLimit(Number(selectedYear));
+                                        const actualPick = prospect['Actual Pick'];
+                                        const actualPickNum = Number(actualPick);
+
+                                        // Debug logging
+                                        console.log('Debug UDFA check:', {
+                                            playerName: prospect.Name,
+                                            actualPick: actualPick,
+                                            actualPickNum: actualPickNum,
+                                            selectedYear: selectedYear,
+                                            picksLimit: picksLimit,
+                                            isUndrafted: actualPick && actualPick.trim() !== '' && actualPickNum > picksLimit,
+                                            rank: rank
+                                        });
+
+                                        // Check if player is undrafted
+                                        if (actualPick && actualPick.trim() !== '') {
+                                            // Check if actualPick is already "UDFA" string
+                                            if (actualPick.toString().toUpperCase() === 'UDFA') {
+                                                console.log(`${prospect.Name} should show UDFA (string match)`);
+                                                return 'UDFA';
+                                            }
+                                            // Check if actualPick is a number greater than draft limit
+                                            if (!isNaN(actualPickNum) && actualPickNum > picksLimit) {
+                                                console.log(`${prospect.Name} should show UDFA (number > limit)`);
+                                                return 'UDFA';
+                                            }
+                                        }
+
+                                        // Return the original rank for drafted players
+                                        console.log(`${prospect.Name} should show rank: ${rank}`);
+                                        return rank;
+                                    }
+                                })()}
+                            </div>
+                        </motion.div>
+
+                        {/* Player Image - Now in front of rank number */}
+                        <div className="absolute inset-0 flex justify-center items-end overflow-hidden z-30">
                             <div className={`relative ${isMobile ? 'w-[90%] h-[90%]' : 'w-[90%] h-[90%]'}`}>
                                 {!imageError ? (
                                     <div className="relative w-full h-full flex items-end justify-center">
@@ -371,7 +392,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                         {/* Large Centered Name */}
                         <motion.div
                             layout="position"
-                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-0' : 'opacity-100'}`}
+                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 z-40 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-0' : 'opacity-100'}`}
                         >
                             <div className="text-center z-10">
                                 <h2 className={`
@@ -391,7 +412,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                         {/* Desktop hover info panel */}
                         {!isMobile && (
                             <div
-                                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
+                                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg z-50 ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
                                     }`}
                                 style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
                             >
