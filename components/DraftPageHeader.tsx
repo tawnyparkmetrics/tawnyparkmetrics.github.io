@@ -1,9 +1,9 @@
 import React from 'react';
 
 export interface DraftPageHeaderProps {
-  author: 'Max Savin' | 'Nick Kalinowski' | 'Andre Liu' | 'Consensus' | 'Draft History';
+  author: 'Max Savin' | 'Nick Kalinowski' | 'Andre Liu' | 'Consensus' | 'Draft History' | '2020-2025 NBA Draft History'; // Added the new specific type
   className?: string;
-  selectedYear?: number; // Add optional selectedYear prop
+  selectedYear?: number | string; // Allow selectedYear to be a string (e.g., '2020-2025')
 }
 
 const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '', selectedYear }) => {
@@ -20,6 +20,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Andre Liu':
         return 'Analyzing prospects via original metrics and clustered tiers.';
       case 'Draft History':
+      case '2020-2025 NBA Draft History': // No description for this case
         return '';
       case 'Consensus':
         return (
@@ -32,15 +33,24 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
     }
   };
 
-  const getTitle = (firstName: string, author: string, selectedYear?: number) => {
+  const getTitle = (firstName: string, author: string, selectedYear?: number | string) => {
+    // Handle the explicit '2020-2025 NBA Draft History' author type
+    if (author === '2020-2025 NBA Draft History') {
+      return '2020-2025 NBA Draft History';
+    }
     if (author === 'Andre Liu') {
       return `${firstName}'s Flagg Plant Score`;
     }
     if (author === 'Consensus') {
-      return `2025 NBA Draft Internet Consensus`
+      return `2025 NBA Draft Internet Consensus`;
     }
+    // Updated logic for 'Draft History' author
     if (author === 'Draft History') {
-      return selectedYear ? `${selectedYear} NBA Draft` : `NBA Draft`;
+      // Check if selectedYear is the string '2020-2025'
+      if (selectedYear === '2020-2025') {
+        return '2020-2025 NBA Draft History'; // Specific title for the range
+      }
+      return selectedYear ? `${selectedYear} NBA Draft` : `NBA Draft`; // For single years
     }
     return `${firstName}'s Draft Model`;
   };

@@ -38,31 +38,28 @@ const HistoryPageProspectCard: React.FC<{
     selectedSortKey: string;
     draftYear: '2025' | '2024' | '2023' | '2022' | '2021' | '2020' | '2020-2025';
     rankingSystem: Map<string, number>;
-}> = ({ prospect, draftYear, rankingSystem }) => {
+}> = ({ prospect, draftYear, }) => {
     const [, setIsExpanded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
-    // Get the original rank from the ranking system (keep for potential future use)
-    const actualRank = rankingSystem.get(prospect.Name) || 1;
-
-    // For draft history, always use the actual draft pick instead of ranking
+    // For draft history, always show the actual draft pick number
     const getDraftHistoryRank = (): string => {
         const actualPick = prospect['Actual Pick'];
-        
+
         // If there's an actual pick value, use it
         if (actualPick && actualPick.trim() !== '') {
             // Check if it's already "UDFA" string
             if (actualPick.toString().toUpperCase() === 'UDFA') {
                 return 'UDFA';
             }
-            
+
             // If it's a number, return it as is
             const pickNum = Number(actualPick);
             if (!isNaN(pickNum)) {
                 return actualPick.toString();
             }
         }
-        
+
         // Fallback to UDFA if no valid actual pick
         return 'UDFA';
     };
@@ -90,16 +87,14 @@ const HistoryPageProspectCard: React.FC<{
     return (
         <BaseProspectCard
             prospect={prospect}
-            rank={getDraftHistoryRank()} // Use actual draft pick instead of ranking system
-            selectedYear={parseInt(draftYear)}
+            rank={getDraftHistoryRank()} // Always show actual draft pick number
+            selectedYear={parseInt(draftYear === '2020-2025' ? prospect['Draft Year'] : draftYear)}
             isMobile={isMobile}
             onExpand={handleExpand}
         >
         </BaseProspectCard>
     );
 };
-
-type RankType = number | 'N/A';
 
 interface ProspectFilterProps {
     prospects: DraftProspect[];
@@ -151,34 +146,55 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             const bPickStr = b['Actual Pick'];
 
             // Handle undrafted players or missing values
-            const aIsUndrafted = !aPickStr || aPickStr.toLowerCase() === 'undrafted' || aPickStr.toLowerCase() === 'n/a';
-            const bIsUndrafted = !bPickStr || bPickStr.toLowerCase() === 'undrafted' || bPickStr.toLowerCase() === 'n/a';
+            const aIsUndrafted = !aPickStr ||
+                aPickStr.toString().toLowerCase() === 'udfa' ||
+                aPickStr.toString().toLowerCase() === 'undrafted' ||
+                aPickStr.toString().toLowerCase() === 'n/a' ||
+                aPickStr.toString().trim() === '';
+
+            const bIsUndrafted = !bPickStr ||
+                bPickStr.toString().toLowerCase() === 'udfa' ||
+                bPickStr.toString().toLowerCase() === 'undrafted' ||
+                bPickStr.toString().toLowerCase() === 'n/a' ||
+                bPickStr.toString().trim() === '';
 
             // Undrafted players go to the end
             if (aIsUndrafted && !bIsUndrafted) return 1;
             if (!aIsUndrafted && bIsUndrafted) return -1;
-            if (aIsUndrafted && bIsUndrafted) return 0; // Both undrafted, maintain order
-
-            // Parse pick numbers and sort
-            const aPick = parseInt(aPickStr) || 999;
-            const bPick = parseInt(bPickStr) || 999;
-
-            // For combined years (2020-2025), sort by pick number first, then by year (most recent first)
-            if (aPick !== bPick) {
-                return aPick - bPick;
+            if (aIsUndrafted && bIsUndrafted) {
+                // Both undrafted, sort by year (most recent first)
+                const aYear = parseInt(a['Draft Year'] || '2020');
+                const bYear = parseInt(b['Draft Year'] || '2020');
+                return bYear - aYear;
             }
 
-            // If same pick number, prioritize more recent years
-            const aYear = parseInt(a['Draft Year'] || '2020');
-            const bYear = parseInt(b['Draft Year'] || '2020');
-            return bYear - aYear; // Most recent first
+            // Parse pick numbers and sort
+            const aPick = parseInt(aPickStr.toString()) || 999;
+            const bPick = parseInt(bPickStr.toString()) || 999;
+
+            // For combined years (2020-2025), sort by pick number first, then by year (most recent first)
+            if (draftYear === '2020-2025') {
+                if (aPick !== bPick) {
+                    return aPick - bPick; // All #1 picks, then all #2 picks, etc.
+                }
+
+                // If same pick number, prioritize more recent years (2025 → 2020)
+                const aYear = parseInt(a['Draft Year'] || '2020');
+                const bYear = parseInt(b['Draft Year'] || '2020');
+                return bYear - aYear; // Most recent first
+            } else {
+                // For individual years, just sort by pick number
+                return aPick - bPick;
+            }
         });
 
         // Notify parent component of filtered results
         if (onFilteredProspectsChange) {
             onFilteredProspectsChange(filtered);
         }
-    }, [prospects, searchQuery, roleFilter, onFilteredProspectsChange]);
+    }, [prospects, searchQuery, roleFilter, draftYear, onFilteredProspectsChange]);
+
+
 
     // Notify parent component of filter state changes (excluding search)
     useEffect(() => {
@@ -252,12 +268,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
                                 <DropdownMenuItem
                                     className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
-                                    onClick={() => handleYearChange('2020-2025')}
-                                >
-                                    2020-2025
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                                     onClick={() => handleYearChange('2025')}
                                 >
                                     2025
@@ -291,6 +301,12 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     onClick={() => handleYearChange('2020')}
                                 >
                                     2020
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                                    onClick={() => handleYearChange('2020-2025')}
+                                >
+                                    2020-2025
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -520,12 +536,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
                             <DropdownMenuItem
                                 className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
-                                onClick={() => handleYearChange('2020-2025')}
-                            >
-                                2020-2025
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                                 onClick={() => handleYearChange('2025')}
                             >
                                 2025
@@ -559,6 +569,12 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 onClick={() => handleYearChange('2020')}
                             >
                                 2020
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
+                                onClick={() => handleYearChange('2020-2025')}
+                            >
+                                2020-2025
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -628,10 +644,6 @@ export default function DraftHistoryPage() {
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
     const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
     const [draftYear, setDraftYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020' | '2020-2025'>('2025');
-    const [sortConfig, setSortConfig] = useState<{
-        key: keyof DraftProspect | 'Rank';
-        direction: 'ascending' | 'descending';
-    } | null>(null);
     const [loadedProspects, setLoadedProspects] = useState<number>(5);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
@@ -679,30 +691,83 @@ export default function DraftHistoryPage() {
                 // Reset state when switching years
                 setLoadedProspects(5);
                 setHasMore(true);
-
-                const response = await fetch(`/NBA Draft History - ${draftYear} NBA Draft.csv`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+    
+                if (draftYear === '2020-2025') {
+                    // Load all years and combine them
+                    const years = ['2025', '2024', '2023', '2022', '2021', '2020'];
+                    const allProspects: DraftProspect[] = [];
+    
+                    for (const year of years) {
+                        try {
+                            const response = await fetch(`/NBA Draft History - ${year} NBA Draft.csv`);
+                            
+                            if (!response.ok) {
+                                console.warn(`Could not load ${year} draft data: ${response.status}`);
+                                continue; // Skip this year if file doesn't exist
+                            }
+    
+                            const csvText = await response.text();
+    
+                            await new Promise<void>((resolve) => {
+                                Papa.parse(csvText, {
+                                    header: true,
+                                    skipEmptyLines: true,
+                                    complete: (results) => {
+                                        const yearProspects = results.data as DraftProspect[];
+                                        // Ensure each prospect has the correct Draft Year
+                                        const prospectsWithYear = yearProspects.map(prospect => ({
+                                            ...prospect,
+                                            'Draft Year': year // Make sure the year is set correctly
+                                        }));
+                                        allProspects.push(...prospectsWithYear);
+                                        console.log(`Loaded ${prospectsWithYear.length} prospects for ${year}`);
+                                        resolve();
+                                    },
+                                });
+                            });
+                        } catch (error) {
+                            console.warn(`Error loading ${year} draft data:`, error);
+                            continue; // Continue loading other years even if one fails
+                        }
+                    }
+    
+                    console.log(`Total loaded prospects for 2020-2025: ${allProspects.length}`);
+                    setProspects(allProspects);
+                    setFilteredProspects(allProspects);
+                } else {
+                    // Load single year (existing logic)
+                    const response = await fetch(`/NBA Draft History - ${draftYear} NBA Draft.csv`);
+    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+    
+                    const csvText = await response.text();
+    
+                    Papa.parse(csvText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: (results) => {
+                            const prospectData = results.data as DraftProspect[];
+                            // Ensure Draft Year is set for single year data too
+                            const prospectDataWithYear = prospectData.map(prospect => ({
+                                ...prospect,
+                                'Draft Year': prospect['Draft Year'] || draftYear
+                            }));
+                            console.log(`Loaded ${prospectDataWithYear.length} prospects for ${draftYear}`);
+                            setProspects(prospectDataWithYear);
+                            setFilteredProspects(prospectDataWithYear);
+                        },
+                    });
                 }
-
-                const csvText = await response.text();
-
-                Papa.parse(csvText, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: (results) => {
-                        const prospectData = results.data as DraftProspect[];
-                        console.log(`Loaded ${prospectData.length} prospects for ${draftYear}`);
-                        setProspects(prospectData);
-                        setFilteredProspects(prospectData);
-                    },
-                });
             } catch (error) {
-                console.error(`Error fetching ${draftYear} draft prospects:`, error);
+                console.error(`Error fetching draft prospects:`, error);
+                // Set empty arrays on error
+                setProspects([]);
+                setFilteredProspects([]);
             }
         }
-
+    
         fetchDraftProspects();
     }, [draftYear]);
 
@@ -710,7 +775,6 @@ export default function DraftHistoryPage() {
     // Replace the existing NickProspectTable component with:
     const HistoryProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
         const initialColumns: ColumnConfig[] = [
-            { key: 'Rank', label: 'Rank', category: 'Basic Info', visible: true, sortable: true },
             { key: 'Name', label: 'Name', category: 'Basic Info', visible: true, sortable: true },
             { key: 'Role', label: 'Position', category: 'Basic Info', visible: true, sortable: true },
             { key: 'League', label: 'League', category: 'Team Info', visible: true, sortable: true },
@@ -777,7 +841,7 @@ export default function DraftHistoryPage() {
             <NavigationHeader activeTab="Draft History" />
             <DraftPageHeader
                 author="Draft History"
-                selectedYear={parseInt(draftYear)}
+                selectedYear={draftYear}
             />
             <GoogleAnalytics gaId="G-X22HKJ13B7" />
             <ProspectFilter
@@ -794,9 +858,9 @@ export default function DraftHistoryPage() {
                 {filteredProspects.length > 0 ? (
                     viewMode === 'card' ? (
                         <div className="space-y-4">
-                            {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
+                            {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect, index) => (
                                 <HistoryPageProspectCard
-                                    key={prospect.Name}
+                                    key={`${prospect.Name}-${prospect['Draft Year']}`} // Use unique key
                                     prospect={prospect}
                                     filteredProspects={filteredProspects}
                                     allProspects={prospects}

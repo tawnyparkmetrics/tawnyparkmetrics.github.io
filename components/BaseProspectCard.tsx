@@ -85,6 +85,7 @@ interface BaseProspectCardProps {
     children?: React.ReactNode; // For dropdown content
     onExpand?: (isExpanded: boolean) => void;
     className?: string;
+    isDraftMode?: boolean; // NEW PROP: Indicates if we're viewing draft results vs rankings
 }
 
 export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
@@ -94,7 +95,8 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
     isMobile = false,
     children,
     onExpand,
-    className = ''
+    className = '',
+    isDraftMode = false // NEW PROP: Default to false (rankings mode)
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -288,7 +290,15 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
         ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
     `}>
                                 {(() => {
-                                    // Determine draft picks limit based on year
+                                    // FIXED LOGIC: Only show UDFA in draft mode, otherwise always show rank
+                                    if (!isDraftMode) {
+                                        // For rankings mode (Max's page, Nick's page, Andre's page, Consensus page)
+                                        // Always show the actual rank regardless of draft outcome
+                                        console.log(`${prospect.Name} in rankings mode - showing rank: ${rank}`);
+                                        return rank;
+                                    }
+
+                                    // For draft mode only - check if player should show UDFA
                                     const getDraftPicksLimit = (year: number): number => {
                                         switch (year) {
                                             case 2020:
@@ -310,8 +320,8 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                                     const actualPick = prospect['Actual Pick'];
                                     const actualPickNum = Number(actualPick);
 
-                                    // Debug logging
-                                    console.log('Debug UDFA check:', {
+                                    // Debug logging for draft mode
+                                    console.log('Debug UDFA check (draft mode):', {
                                         playerName: prospect.Name,
                                         actualPick: actualPick,
                                         actualPickNum: actualPickNum,
@@ -335,7 +345,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                                         }
                                     }
 
-                                    // Return the original rank for drafted players
+                                    // Return the original rank for drafted players in draft mode
                                     console.log(`${prospect.Name} should show rank: ${rank}`);
                                     return rank;
                                 })()}

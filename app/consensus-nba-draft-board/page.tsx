@@ -996,7 +996,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     const [roleFilter, setRoleFilter] = useState<'all' | 'Guard' | 'Wing' | 'Big'>('all');
     const [, setLocalFilteredProspects] = useState(prospects);
     const [viewMode, setViewMode] = useState<'card' | 'table' | 'contributors'>('card');
-    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(true);
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
     // Handle view mode changes with debugging
     const handleViewModeChange = useCallback((mode: 'card' | 'table' | 'contributors') => {
