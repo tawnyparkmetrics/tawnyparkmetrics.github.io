@@ -59,7 +59,7 @@ export default function Home() {
           </Link>
 
           {/* Consensus Section */}
-          <Link href="/consensus-nba-board" className="block">
+          <Link href="/consensus-nba-draft-board" className="block">
             <div className="bg-[#19191A] border border-white/20 rounded-xl p-8 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
               <div className="text-gray-300 text-lg leading-relaxed">
                 <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">

@@ -42,8 +42,30 @@ const HistoryPageProspectCard: React.FC<{
     const [, setIsExpanded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
-    // Get the original rank from the ranking system
+    // Get the original rank from the ranking system (keep for potential future use)
     const actualRank = rankingSystem.get(prospect.Name) || 1;
+
+    // For draft history, always use the actual draft pick instead of ranking
+    const getDraftHistoryRank = (): string => {
+        const actualPick = prospect['Actual Pick'];
+        
+        // If there's an actual pick value, use it
+        if (actualPick && actualPick.trim() !== '') {
+            // Check if it's already "UDFA" string
+            if (actualPick.toString().toUpperCase() === 'UDFA') {
+                return 'UDFA';
+            }
+            
+            // If it's a number, return it as is
+            const pickNum = Number(actualPick);
+            if (!isNaN(pickNum)) {
+                return actualPick.toString();
+            }
+        }
+        
+        // Fallback to UDFA if no valid actual pick
+        return 'UDFA';
+    };
 
     // Check if device is mobile
     useEffect(() => {
@@ -68,7 +90,7 @@ const HistoryPageProspectCard: React.FC<{
     return (
         <BaseProspectCard
             prospect={prospect}
-            rank={actualRank}
+            rank={getDraftHistoryRank()} // Use actual draft pick instead of ranking system
             selectedYear={parseInt(draftYear)}
             isMobile={isMobile}
             onExpand={handleExpand}

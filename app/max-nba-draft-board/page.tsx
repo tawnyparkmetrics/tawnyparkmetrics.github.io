@@ -370,7 +370,7 @@ const TimelineFilter = ({
             <span>Filter</span>
             {showFilterSection ? <ChevronUp className="h-3 w-3 md:h-4 md:w-4 ml-1" /> : <ChevronDown className="h-3 w-3 md:h-4 md:w-4 ml-1" />}
           </motion.button>
-
+  
           {/* Mobile Reset Button - only show when filters are active */}
           {hasActiveFilters() && (
             <motion.button
@@ -382,12 +382,12 @@ const TimelineFilter = ({
               <X className="h-3 w-3" />
             </motion.button>
           )}
-
+  
           {/* Filter summary text - shows when collapsed */}
           {!showFilterSection && (
             <div className="hidden md:flex text-sm text-gray-400 items-center ml-2">
               {getFilterSummary() || "No filters applied"}
-
+  
               {/* Reset button when filter is collapsed */}
               {hasActiveFilters() && (
                 <motion.button
@@ -403,7 +403,7 @@ const TimelineFilter = ({
             </div>
           )}
         </div>
-
+  
         {/* View mode toggle and Year dropdown */}
         <div className="flex items-center space-x-1 md:space-x-2">
           {/* Year Dropdown */}
@@ -438,10 +438,10 @@ const TimelineFilter = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
+  
           {/* Divider */}
           <div className="h-6 md:h-8 w-px bg-gray-700/30 mx-1 md:mx-2" />
-
+  
           {/* View Mode Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -526,7 +526,7 @@ const TimelineFilter = ({
           </DropdownMenu>
         </div>
       </div>
-
+  
       {/* Collapsible content */}
       <AnimatePresence>
         {showFilterSection && (
@@ -542,7 +542,7 @@ const TimelineFilter = ({
                 {/* Timeline Track - Responsive */}
                 <div className="relative h-20 md:h-24 flex items-center justify-center mb-4 md:mb-8">
                   <div className="absolute w-full h-1 bg-gray-700/30" />
-
+  
                   {selectedSortKey && (
                     <motion.div
                       className="absolute h-1 bg-white-500/4"
@@ -551,7 +551,7 @@ const TimelineFilter = ({
                       transition={{ duration: 0.5 }}
                     />
                   )}
-
+  
                   <div className="relative w-full flex justify-between items-center px-2 md:px-12">
                     {yearSortKeys.map((item) => (
                       <motion.button
@@ -586,7 +586,7 @@ const TimelineFilter = ({
                             className="w-full h-full rounded-full"
                           />
                         </motion.div>
-
+  
                         <motion.span
                           className={`
                             absolute -bottom-6 whitespace-nowrap text-xs md:text-sm font-medium
@@ -603,11 +603,11 @@ const TimelineFilter = ({
                     ))}
                   </div>
                 </div>
-
+  
                 {/* Desktop filter bar - hidden on mobile */}
-                <div className="hidden md:flex justify-between items-center space-x-4 mt-4">
+                <div className="hidden md:flex justify-between items-center space-x-2 mt-4">
                   {/* Left section: Reset Button and Search */}
-                  <div className="flex items-center space-x-2 flex-grow max-w-md">
+                  <div className="flex items-center space-x-2 flex-grow max-w-lg">
                     {/* Search field */}
                     <div className="relative flex-grow">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -620,15 +620,15 @@ const TimelineFilter = ({
                       />
                     </div>
                   </div>
-
+  
                   {/* Reset Button */}
                   <motion.button
                     onClick={resetFilters}
                     className={`
-                      flex items-center gap-1 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all duration-200
+                      flex items-center gap-1 px-2 py-2 rounded-lg text-sm whitespace-nowrap transition-all duration-200
                       ${hasActiveFilters()
-                        ? 'bg-gray-800/20 text-red-400 hover:text-red-300 border border-gray-800 hover:border-red-700/30'
-                        : 'bg-gray-800/10 text-gray-500 border border-gray-800/50 opacity-60'
+                            ? 'text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30'
+                            : 'text-gray-500 bg-gray-800/10 border border-gray-800/50 cursor-not-allowed opacity-50'
                       }
                     `}
                     whileHover={{ scale: hasActiveFilters() ? 1.05 : 1 }}
@@ -638,18 +638,18 @@ const TimelineFilter = ({
                     <X className="h-4 w-4" />
                     Reset
                   </motion.button>
-
+  
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
+                  <div className="h-8 w-px bg-gray-700/30 mx-1" />
+  
                   {/* Position Filters */}
                   {positions.map((position) => (
                     <motion.button
                       key={position.key}
                       onClick={() => handlePositionClick(position.key)}
                       className={`
-                        px-3 py-2 rounded-lg text-sm font-medium
-                        transition-all duration-300 justify-center
+                        w-20 px-2 py-2 rounded-lg text-sm font-medium
+                        transition-all duration-300 justify-center 
                         ${selectedPosition === position.key
                           ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                           : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
@@ -661,17 +661,17 @@ const TimelineFilter = ({
                       {position.label}
                     </motion.button>
                   ))}
-
+  
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
+                  <div className="h-8 w-px bg-gray-700/30 mx-1" />
+  
                   {/* Average Filters */}
                   {averageKeys.map((item) => (
                     <motion.button
                       key={item.key}
                       onClick={() => setSelectedSortKey(item.key)}
                       className={`
-                        px-4 py-2 rounded-lg text-sm font-medium
+                        px-3 py-2 rounded-lg text-sm font-medium
                         transition-all duration-300
                         ${selectedSortKey === item.key
                           ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
@@ -684,17 +684,17 @@ const TimelineFilter = ({
                       {item.label}
                     </motion.button>
                   ))}
-
+  
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
+                  <div className="h-8 w-px bg-gray-700/30 mx-1" />
+  
                   {/* Right section: Tier buttons */}
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     {/* Tier Ranked button */}
                     <motion.button
                       onClick={handleTierRankToggle}
                       className={`
-                        px-4 py-2 rounded-lg text-sm font-medium
+                        px-3 py-2 rounded-lg text-sm font-medium
                         flex items-center gap-2
                         transition-all duration-300
                         ${tierRankActive
@@ -708,13 +708,13 @@ const TimelineFilter = ({
                       Tiers
                       {tierRankActive ? <LockIcon className="h-4 w-4" /> : <UnlockIcon className="h-4 w-4" />}
                     </motion.button>
-
+  
                     {/* Tier Filters dropdown */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <motion.button
                           className={`
-                            relative px-4 py-2 rounded-lg text-sm font-medium
+                            relative px-3 py-2 rounded-lg text-sm font-medium
                             flex items-center gap-2
                             transition-all duration-300
                             ${selectedTier
@@ -759,7 +759,7 @@ const TimelineFilter = ({
                 </div>
               </div>
             </div>
-
+  
             {/* Mobile search field */}
             <div className="md:hidden relative mx-2 my-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -771,7 +771,7 @@ const TimelineFilter = ({
                 className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
               />
             </div>
-
+  
             {/* Mobile filter content */}
             <div className="md:hidden space-y-3 mb-4 p-3 bg-gray-800/10 rounded-lg border border-gray-800">
               {/* Tier Ranking Toggle for Mobile */}
@@ -870,7 +870,7 @@ const TimelineFilter = ({
                   </motion.button>
                 ))}
               </div>
-
+  
               {/* Average Filters for Mobile */}
               <div className="flex flex-wrap gap-2">
                 <div className="w-full text-xs text-gray-400 mb-1">Average:</div>
@@ -899,7 +899,7 @@ const TimelineFilter = ({
       </AnimatePresence>
     </div>
   );
-};
+}
 
 const IndividualProspectGraphs: React.FC<EPMModelProps> = ({
   isOpen,

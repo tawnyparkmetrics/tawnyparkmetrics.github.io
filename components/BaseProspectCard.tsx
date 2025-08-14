@@ -288,75 +288,56 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
         ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
     `}>
                                 {(() => {
-                                    // Check if this is the NBA draft history page by looking for specific indicators
-                                    // You can modify this condition based on how you identify the draft history page
-                                    const isDraftHistoryPage = window.location.pathname.includes('nba-draft-history') || 
-                                                              selectedYear !== '2020-2025'; // or any other identifier you use
-                                    
-                                    if (isDraftHistoryPage) {
-                                        // For draft history, always show the actual pick
-                                        const actualPick = prospect['Actual Pick'];
-                                        
-                                        // If actual pick exists and is a valid number, show it
-                                        if (actualPick && actualPick.trim() !== '' && !isNaN(Number(actualPick))) {
-                                            return actualPick;
-                                        } else {
-                                            // If no valid actual pick, show UDFA
+                                    // Determine draft picks limit based on year
+                                    const getDraftPicksLimit = (year: number): number => {
+                                        switch (year) {
+                                            case 2020:
+                                            case 2021:
+                                            case 2022:
+                                                return 58;
+                                            case 2023:
+                                                return 58;
+                                            case 2024:
+                                                return 58; // 2024 had 58 picks
+                                            case 2025:
+                                                return 59; // 2025 has 59 picks
+                                            default:
+                                                return 60; // Default fallback
+                                        }
+                                    };
+
+                                    const picksLimit = getDraftPicksLimit(Number(selectedYear));
+                                    const actualPick = prospect['Actual Pick'];
+                                    const actualPickNum = Number(actualPick);
+
+                                    // Debug logging
+                                    console.log('Debug UDFA check:', {
+                                        playerName: prospect.Name,
+                                        actualPick: actualPick,
+                                        actualPickNum: actualPickNum,
+                                        selectedYear: selectedYear,
+                                        picksLimit: picksLimit,
+                                        isUndrafted: actualPick && actualPick.trim() !== '' && actualPickNum > picksLimit,
+                                        rank: rank
+                                    });
+
+                                    // Check if player is undrafted
+                                    if (actualPick && actualPick.trim() !== '') {
+                                        // Check if actualPick is already "UDFA" string
+                                        if (actualPick.toString().toUpperCase() === 'UDFA') {
+                                            console.log(`${prospect.Name} should show UDFA (string match)`);
                                             return 'UDFA';
                                         }
-                                    } else {
-                                        // For other pages (like prospect rankings), use the original dynamic logic
-                                        // Determine draft picks limit based on year
-                                        const getDraftPicksLimit = (year: number): number => {
-                                            switch (year) {
-                                                case 2020:
-                                                case 2021:
-                                                case 2022:
-                                                    return 58;
-                                                case 2023:
-                                                    return 58;
-                                                case 2024:
-                                                    return 58; // 2024 had 58 picks
-                                                case 2025:
-                                                    return 59; // 2025 has 59 picks
-                                                default:
-                                                    return 60; // Default fallback
-                                            }
-                                        };
-
-                                        const picksLimit = getDraftPicksLimit(Number(selectedYear));
-                                        const actualPick = prospect['Actual Pick'];
-                                        const actualPickNum = Number(actualPick);
-
-                                        // Debug logging
-                                        console.log('Debug UDFA check:', {
-                                            playerName: prospect.Name,
-                                            actualPick: actualPick,
-                                            actualPickNum: actualPickNum,
-                                            selectedYear: selectedYear,
-                                            picksLimit: picksLimit,
-                                            isUndrafted: actualPick && actualPick.trim() !== '' && actualPickNum > picksLimit,
-                                            rank: rank
-                                        });
-
-                                        // Check if player is undrafted
-                                        if (actualPick && actualPick.trim() !== '') {
-                                            // Check if actualPick is already "UDFA" string
-                                            if (actualPick.toString().toUpperCase() === 'UDFA') {
-                                                console.log(`${prospect.Name} should show UDFA (string match)`);
-                                                return 'UDFA';
-                                            }
-                                            // Check if actualPick is a number greater than draft limit
-                                            if (!isNaN(actualPickNum) && actualPickNum > picksLimit) {
-                                                console.log(`${prospect.Name} should show UDFA (number > limit)`);
-                                                return 'UDFA';
-                                            }
+                                        // Check if actualPick is a number greater than draft limit
+                                        if (!isNaN(actualPickNum) && actualPickNum > picksLimit) {
+                                            console.log(`${prospect.Name} should show UDFA (number > limit)`);
+                                            return 'UDFA';
                                         }
-
-                                        // Return the original rank for drafted players
-                                        console.log(`${prospect.Name} should show rank: ${rank}`);
-                                        return rank;
                                     }
+
+                                    // Return the original rank for drafted players
+                                    console.log(`${prospect.Name} should show rank: ${rank}`);
+                                    return rank;
                                 })()}
                             </div>
                         </motion.div>

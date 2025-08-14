@@ -387,7 +387,7 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        if (['1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Undrafted'].includes(column.key)) {
+        if (['1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Undrafted', 'Inclusion Rate'].includes(column.key)) {
             const cellValue = prospect[key];
             let displayValue = '';
 
