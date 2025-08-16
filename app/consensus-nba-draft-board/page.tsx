@@ -2136,7 +2136,7 @@ export default function ConsensusPage() {
                         </div>
                     ) : (
                         <ProspectTable
-                            prospects={prospects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
+                            prospects={filteredProspects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
                             rankingSystem={rankingSystem}
                             initialColumns={initialColumns}
                         />

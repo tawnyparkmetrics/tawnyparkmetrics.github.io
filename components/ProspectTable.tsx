@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Image from 'next/image';
 import { ChevronDown, Settings } from 'lucide-react';
@@ -150,6 +150,60 @@ export function ProspectTable<T extends BaseProspect>({
     const [columns, setColumns] = useState<ColumnConfig[]>(initialColumns || []);
     const rotationRef = useRef(0);
 
+    // Auto-generate a unique identifier based on the column structure
+    const tableId = useMemo(() => {
+        // Create a hash-like identifier from the column keys and categories
+        const columnSignature = initialColumns
+            .map(col => `${col.key}:${col.category}`)
+            .sort()
+            .join('|');
+        
+        // Simple hash function to create a shorter, consistent identifier
+        let hash = 0;
+        for (let i = 0; i < columnSignature.length; i++) {
+            const char = columnSignature.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        
+        return `table-${Math.abs(hash)}`;
+    }, [initialColumns]);
+
+    // Create a storage key based on auto-generated tableId for persistence
+    const storageKey = `prospect-table-columns-${tableId}`;
+
+    // Load saved column visibility state on component mount
+    useEffect(() => {
+        try {
+            const savedState = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            
+            // Merge saved visibility state with initial columns
+            const updatedColumns = initialColumns.map(col => ({
+                ...col,
+                visible: savedState[col.key] !== undefined ? savedState[col.key] : col.visible
+            }));
+            
+            setColumns(updatedColumns);
+        } catch (error) {
+            console.warn('Failed to load saved column state:', error);
+            setColumns(initialColumns);
+        }
+    }, [initialColumns, storageKey]);
+
+    // Save column visibility state whenever it changes
+    const saveColumnState = useCallback((updatedColumns: ColumnConfig[]) => {
+        try {
+            const visibilityState = updatedColumns.reduce((acc, col) => {
+                acc[col.key] = col.visible;
+                return acc;
+            }, {} as Record<string, boolean>);
+            
+            localStorage.setItem(storageKey, JSON.stringify(visibilityState));
+        } catch (error) {
+            console.warn('Failed to save column state:', error);
+        }
+    }, [storageKey]);
+
     const handleSort = (key: keyof T | 'Rank') => {
         setSortConfig(current => {
             if (current?.key === key) {
@@ -172,7 +226,8 @@ export function ProspectTable<T extends BaseProspect>({
         );
 
         setColumns(updatedColumns);
-    }, [columns, lockedColumns]);
+        saveColumnState(updatedColumns);
+    }, [columns, lockedColumns, saveColumnState]);
 
     const handleToggleCategory = useCallback((category: string) => {
         // Filter out locked columns from category columns
@@ -189,7 +244,8 @@ export function ProspectTable<T extends BaseProspect>({
         });
 
         setColumns(updatedColumns);
-    }, [columns, lockedColumns]);
+        saveColumnState(updatedColumns);
+    }, [columns, lockedColumns, saveColumnState]);
 
     const visibleColumns = columns.filter(col => col.visible);
 

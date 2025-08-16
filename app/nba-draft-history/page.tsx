@@ -410,7 +410,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                         <Input
                             type="text"
-                            placeholder="Search by name, pre-NBA team, or NBA team"
+                            placeholder="Search by name, pre-NBA team/league, or NBA team"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
@@ -775,11 +775,11 @@ export default function DraftHistoryPage() {
     // Replace the existing NickProspectTable component with:
     const HistoryProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
         const initialColumns: ColumnConfig[] = [
+            { key: 'Actual Pick', label: 'Draft Pick', category: 'Basic Info', visible: true, sortable: true },
             { key: 'Name', label: 'Name', category: 'Basic Info', visible: true, sortable: true },
             { key: 'Role', label: 'Position', category: 'Basic Info', visible: true, sortable: true },
             { key: 'League', label: 'League', category: 'Team Info', visible: true, sortable: true },
             { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Team Info', visible: true, sortable: true },
-            { key: 'Actual Pick', label: 'Draft Pick', category: 'Team Info', visible: true, sortable: true },
             { key: 'NBA Team', label: 'NBA Team', category: 'Team Info', visible: true, sortable: true },
             { key: 'Age', label: 'Age', category: 'Basic Info', visible: false, sortable: true },
             { key: 'Height', label: 'Height', category: 'Physical', visible: false, sortable: true },
