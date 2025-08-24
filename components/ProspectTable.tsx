@@ -455,7 +455,7 @@ export function ProspectTable<T extends BaseProspect>({
 
         if (column.key === 'Name') {
             return (
-                <TableCell key={column.key} className="font-semibold text-gray-300 whitespace-nowrap text-center">
+                <TableCell key={column.key} className="font-semibold text-gray-300 whitespace-nowrap">
                     {prospect.Name}
                 </TableCell>
             );
@@ -463,8 +463,8 @@ export function ProspectTable<T extends BaseProspect>({
 
         if (column.key === 'League') {
             return (
-                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-2">
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                    <div className="flex gap-2">
                         <LeagueLogo league={prospect['League']} />
                         <span>{prospect['League']}</span>
                     </div>
@@ -474,8 +474,8 @@ export function ProspectTable<T extends BaseProspect>({
 
         if (column.key === 'Pre-NBA') {
             return (
-                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-2">
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                    <div className="flex gap-2">
                         <PreNBALogo preNBA={prospect['Pre-NBA']} />
                         <span>{prospect['Pre-NBA']}</span>
                     </div>
@@ -493,8 +493,8 @@ export function ProspectTable<T extends BaseProspect>({
 
         if (column.key === 'NBA Team') {
             return (
-                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-2">
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                    <div className="flex gap-2">
                         <NBATeamLogo NBA={prospect['NBA Team']} />
                         <span>{prospect['NBA Team']}</span>
                     </div>
@@ -504,8 +504,8 @@ export function ProspectTable<T extends BaseProspect>({
 
         if (column.key === 'Nationality') {
             return (
-                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-2">
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
+                    <div className="flex gap-2">
                         {prospect['Nationality'] ? (
                             <>
                                 <NationalityLogo nationality={prospect['Nationality'] as string} />
@@ -523,7 +523,7 @@ export function ProspectTable<T extends BaseProspect>({
         if (column.key.includes('Rank') && !column.key.includes('Position')) {
             const rankValue = prospect[key];
             return (
-                <TableCell key={column.key} className="text-gray-300 text-center">
+                <TableCell key={column.key} className="text-gray-300">
                     {typeof rankValue === 'number' ? rankValue.toString() : String(rankValue || '')}
                 </TableCell>
             );
@@ -533,7 +533,7 @@ export function ProspectTable<T extends BaseProspect>({
         if (['Comp1', 'Comp2', 'Comp3', 'Comp4', 'Comp5'].includes(column.key)) {
             const compValue = prospect[key];
             return (
-                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap text-center">
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
                     {String(compValue || '')}
                 </TableCell>
             );
@@ -554,7 +554,7 @@ export function ProspectTable<T extends BaseProspect>({
             }
 
             return (
-                <TableCell key={column.key} className="text-gray-300 text-center">
+                <TableCell key={column.key} className="text-gray-300">
                     {displayValue}
                 </TableCell>
             );
@@ -567,7 +567,7 @@ export function ProspectTable<T extends BaseProspect>({
             const tierColorKey = prospect.Tier;
             
             return (
-                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap text-center">
+                <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
                     <div className="flex justify-center">
                         <span
                             className="px-2 py-1 rounded text-sm font-bold"
@@ -587,7 +587,7 @@ export function ProspectTable<T extends BaseProspect>({
         // Handle positionRanks object - skip it as it's not meant for display
         if (column.key === 'positionRanks') {
             return (
-                <TableCell key={column.key} className="text-gray-300 text-center">
+                <TableCell key={column.key} className="text-gray-300">
                     N/A
                 </TableCell>
             );
@@ -596,7 +596,7 @@ export function ProspectTable<T extends BaseProspect>({
         // Default case for other columns
         const cellValue = prospect[key];
         return (
-            <TableCell key={column.key} className="text-gray-300 text-center">
+            <TableCell key={column.key} className="text-gray-300">
                 {typeof cellValue === 'object' ? 'N/A' : String(cellValue || '')}
             </TableCell>
         );
@@ -726,7 +726,7 @@ export function ProspectTable<T extends BaseProspect>({
                             {visibleColumns.map((column) => (
                                 <TableHead
                                     key={column.key}
-                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap text-center ${column.sortable ? '' : 'cursor-default'}`}
+                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
                                 >
                                     {/* Display shortened labels for Range Consensus columns in table headers */}
