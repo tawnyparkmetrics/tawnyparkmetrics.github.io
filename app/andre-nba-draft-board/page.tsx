@@ -777,9 +777,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         </div>
                     </div>
 
-                    {/* Divider */}
-                    <div className="h-8 w-px bg-gray-700/30 mx-2" />
-
                     {/* Desktop Filters */}
                     <div className="hidden sm:flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
                         {/* Position Filters */}
@@ -1015,7 +1012,7 @@ export default function AndreDraftPage() {
             { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
             { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
             { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
-            { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+            { key: 'Age', label: 'Draft Age', category: 'Player Information', visible: false, sortable: true },
             { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
             { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
             { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },

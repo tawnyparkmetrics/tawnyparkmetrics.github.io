@@ -187,7 +187,9 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
         const getDraftPicksLimit = (year: number): number => {
             switch (year) {
                 case 2020:
+                    return 60;
                 case 2021:
+                    return 60;
                 case 2022:
                     return 58;
                 case 2023:
@@ -302,7 +304,9 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                                     const getDraftPicksLimit = (year: number): number => {
                                         switch (year) {
                                             case 2020:
+                                                return 60;
                                             case 2021:
+                                                return 60;
                                             case 2022:
                                                 return 58;
                                             case 2023:

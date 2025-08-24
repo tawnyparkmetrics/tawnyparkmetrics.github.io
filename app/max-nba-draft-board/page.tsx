@@ -765,7 +765,7 @@ const TimelineFilter = ({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
-                placeholder="Search by name, pre-NBA team, or NBA team"
+                placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
@@ -1909,18 +1909,18 @@ const MaxProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspe
         { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
         { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
         { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Age', label: 'Draft Age', category: 'Player Information', visible: false, sortable: true },
         { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
         { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
         { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
         { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Pred. Y1 Rank', label: 'Y1 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Pred. Y2 Rank', label: 'Y2 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Pred. Y3 Rank', label: 'Y3 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Pred. Y4 Rank', label: 'Y4 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Pred. Y5 Rank', label: 'Y5 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Rank Y1-Y3', label: '3Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Rank Y1-Y5', label: '5Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+        { key: 'Pred. Y1 Rank', label: 'Y1 Rank', category: 'EPM Projections', visible: false, sortable: true },
+        { key: 'Pred. Y2 Rank', label: 'Y2 Rank', category: 'EPM Projections', visible: false, sortable: true },
+        { key: 'Pred. Y3 Rank', label: 'Y3 Rank', category: 'EPM Projections', visible: false, sortable: true },
+        { key: 'Pred. Y4 Rank', label: 'Y4 Rank', category: 'EPM Projections', visible: false, sortable: true },
+        { key: 'Pred. Y5 Rank', label: 'Y5 Rank', category: 'EPM Projections', visible: false, sortable: true },
+        { key: 'Rank Y1-Y3', label: '3Y Avg Rank', category: 'EPM Projections', visible: false, sortable: true },
+        { key: 'Rank Y1-Y5', label: '5Y Avg Rank', category: 'EPM Projections', visible: false, sortable: true },
         { key: 'Comp1', label: 'Comp 1', category: 'Player Comparisons', visible: false, sortable: true },
         { key: 'Comp2', label: 'Comp 2', category: 'Player Comparisons', visible: false, sortable: true },
         { key: 'Comp3', label: 'Comp 3', category: 'Player Comparisons', visible: false, sortable: true },

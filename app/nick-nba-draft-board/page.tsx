@@ -385,7 +385,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             {/* Position Filters */}
             <motion.button
               onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-              className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -393,7 +393,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             </motion.button>
             <motion.button
               onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-              className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -401,7 +401,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             </motion.button>
             <motion.button
               onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-              className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -565,10 +565,6 @@ export default function NickDraftPage() {
   const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
   const [draftYear, setDraftYear] = useState<'2025' | '2024'>('2025');
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof DraftProspect | 'Rank';
-    direction: 'ascending' | 'descending';
-  } | null>(null);
   const [loadedProspects, setLoadedProspects] = useState<number>(5);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -667,7 +663,7 @@ export default function NickDraftPage() {
         { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Team Info', visible: true, sortable: true },
         { key: 'Actual Pick', label: 'Draft Pick', category: 'Team Info', visible: true, sortable: true },
         { key: 'NBA Team', label: 'NBA Team', category: 'Team Info', visible: true, sortable: true },
-        { key: 'Age', label: 'Age', category: 'Basic Info', visible: false, sortable: true },
+        { key: 'Age', label: 'Draft Age', category: 'Basic Info', visible: false, sortable: true },
         { key: 'Height', label: 'Height', category: 'Physical', visible: false, sortable: true },
         { key: 'Wingspan', label: 'Wingspan', category: 'Physical', visible: false, sortable: true },
         { key: 'Wing - Height', label: 'Wing-Height', category: 'Physical', visible: false, sortable: true },

@@ -19,6 +19,7 @@ export interface DraftProspect {
     'League': string;
     'Pre-NBA': string;
     'Team Color': string;
+    'Nationality': string;
     'Actual Pick': string;
     'NBA Team': string;
     'ABV': string;
@@ -442,9 +443,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                     <div className="flex items-center gap-2 flex-wrap">
                         {/* League Filters */}
 
-                        {/* Divider */}
-                        <div className="h-6 w-px bg-gray-700/30 mx-1" />
-
                         {/* Position Filters */}
                         <div className="flex items-center space-x-2 mb-2 sm:mb-0">
                             <motion.button
@@ -488,7 +486,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                     <div className="flex items-center space-x-2 mb-2 sm:mb-0">
                         <motion.button
                             onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                            className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
@@ -496,7 +494,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         </motion.button>
                         <motion.button
                             onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                            className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
@@ -504,7 +502,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         </motion.button>
                         <motion.button
                             onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                            className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
@@ -778,10 +776,11 @@ export default function DraftHistoryPage() {
             { key: 'Actual Pick', label: 'Draft Pick', category: 'Basic Info', visible: true, sortable: true },
             { key: 'Name', label: 'Name', category: 'Basic Info', visible: true, sortable: true },
             { key: 'Role', label: 'Position', category: 'Basic Info', visible: true, sortable: true },
+            { key: 'Nationality', label: 'Nationality', category: 'Basic Info', visible: true, sortable: true },
             { key: 'League', label: 'League', category: 'Team Info', visible: true, sortable: true },
             { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Team Info', visible: true, sortable: true },
             { key: 'NBA Team', label: 'NBA Team', category: 'Team Info', visible: true, sortable: true },
-            { key: 'Age', label: 'Age', category: 'Basic Info', visible: false, sortable: true },
+            { key: 'Age', label: 'Draft Age', category: 'Basic Info', visible: false, sortable: true },
             { key: 'Height', label: 'Height', category: 'Physical', visible: false, sortable: true },
             { key: 'Wingspan', label: 'Wingspan', category: 'Physical', visible: false, sortable: true },
             { key: 'Wing - Height', label: 'Wing-Height', category: 'Physical', visible: false, sortable: true },

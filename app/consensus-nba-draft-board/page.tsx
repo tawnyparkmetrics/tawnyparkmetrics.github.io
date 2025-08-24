@@ -841,78 +841,143 @@ const ConsensusPageProspectCard: React.FC<{
             onExpand={handleExpand}
         >
             {/* Header with centered toggle */}
-            <div className="flex items-center px-2 mb-4">
-                <div className="flex-[0.8] flex justify-center pr-1">
-                    <h3 className="font-semibold text-lg text-white">
-                        {showRangeConsensus ? 'Draft Range Distribution' : 'Draft Rank Distribution'}
-                    </h3>
-                </div>
-
-                {/* Centered Segmented Control with Tooltip */}
-                <div className="flex items-center gap-2">
-                    <div className="flex bg-gray-800/20 border border-gray-700 rounded-lg p-1">
-                        <button
-                            onClick={() => setShowRangeConsensus(false)}
-                            className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${!showRangeConsensus
-                                    ? 'text-white shadow-sm'
-                                    : 'text-gray-400 hover:text-gray-200'
-                                }`}
-                            style={!showRangeConsensus ? {
-                                backgroundColor: `${prospect['Team Color']}60` // 60 for 60% opacity like the original /60
-                            } : {}}
-                        >
-                            Rank View
-                        </button>
-                        <button
-                            onClick={() => setShowRangeConsensus(true)}
-                            className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${showRangeConsensus
-                                    ? 'text-white shadow-sm'
-                                    : 'text-gray-400 hover:text-gray-200'
-                                }`}
-                            style={showRangeConsensus ? {
-                                backgroundColor: `${prospect['Team Color']}60` // 60 for 60% opacity like the original /60
-                            } : {}}
-                        >
-                            Range View
-                        </button>
-                    </div>
-
-                    {/* Clickable Tooltip Question Mark */}
-                    <div className="relative">
-                        <div
-                            onMouseEnter={() => setShowTooltip(true)}
-                            onMouseLeave={() => setShowTooltip(false)}
-                            className="w-4 h-4 rounded-full bg-gray-600/50 text-gray-400 flex items-center justify-center text-xs cursor-pointer hover:text-gray-200 transition-colors"
-                        >
-                            ?
-                        </div>
-                        {showTooltip && (
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-3 bg-[#19191A] border border-white/20 text-white text-sm rounded-lg shadow-lg w-96 max-w-screen-sm z-[9999]">
-                                <div className="text-left leading-relaxed space-y-2">
-                                    <p>Both views show how each prospect is perceived across the boards that contribute to the consensus.</p>
-                                    <p><strong className="text-blue-400">Rank View</strong> displays individual rankings from each board, along with summary stats (average rank, median rank, high, low, etc.).</p>
-                                    <p><strong className="text-blue-400">Range View</strong> groups those rankings into broader draft tiers (Top 3, 2nd Round, Undrafted, etc.), showing how often the prospect falls into each tier (ex. ranked in the Top 3 on 50% of boards).</p>
-                                </div>
-                                {/* Arrow pointing up */}
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-b-[#19191A]"></div>
+            <div className={`flex items-center mb-4 ${isMobile ? 'px-2 flex-col gap-3' : 'px-2'}`}>
+                {isMobile ? (
+                    <>
+                        {/* Mobile: Stacked layout */}
+                        <h3 className="font-semibold text-lg text-white text-center">
+                            {showRangeConsensus ? 'Draft Range Distribution' : 'Draft Rank Distribution'}
+                        </h3>
+                        
+                        {/* Centered Segmented Control with Tooltip */}
+                        <div className="flex items-center gap-2">
+                            <div className="flex bg-gray-800/20 border border-gray-700 rounded-lg p-1">
+                                <button
+                                    onClick={() => setShowRangeConsensus(false)}
+                                    className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${!showRangeConsensus
+                                            ? 'text-white shadow-sm'
+                                            : 'text-gray-400 hover:text-gray-200'
+                                        }`}
+                                    style={!showRangeConsensus ? {
+                                        backgroundColor: `${prospect['Team Color']}60`
+                                    } : {}}
+                                >
+                                    Rank View
+                                </button>
+                                <button
+                                    onClick={() => setShowRangeConsensus(true)}
+                                    className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${showRangeConsensus
+                                            ? 'text-white shadow-sm'
+                                            : 'text-gray-400 hover:text-gray-200'
+                                        }`}
+                                    style={showRangeConsensus ? {
+                                        backgroundColor: `${prospect['Team Color']}60`
+                                    } : {}}
+                                >
+                                    Range View
+                                </button>
                             </div>
-                        )}
-                    </div>
-                </div>
 
-                <div className="flex-[0.8] flex justify-center pl-1">
-                    <h3 className="font-semibold text-lg text-white">
-                        {showRangeConsensus ? 'Draft Range Data' : 'Draft Rank Data'}
-                    </h3>
-                </div>
+                            {/* Tooltip */}
+                            <div className="relative">
+                                <div
+                                    onMouseEnter={() => setShowTooltip(true)}
+                                    onMouseLeave={() => setShowTooltip(false)}
+                                    className="w-4 h-4 rounded-full bg-gray-600/50 text-gray-400 flex items-center justify-center text-xs cursor-pointer hover:text-gray-200 transition-colors"
+                                >
+                                    ?
+                                </div>
+                                {showTooltip && (
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-3 bg-[#19191A] border border-white/20 text-white text-sm rounded-lg shadow-lg w-80 max-w-[90vw] z-[9999]">
+                                        <div className="text-left leading-relaxed space-y-2">
+                                            <p>Both views show how each prospect is perceived across the boards that contribute to the consensus.</p>
+                                            <p><strong className="text-blue-400">Rank View</strong> displays individual rankings from each board, along with summary stats (average rank, median rank, high, low, etc.).</p>
+                                            <p><strong className="text-blue-400">Range View</strong> groups those rankings into broader draft tiers (Top 3, 2nd Round, Undrafted, etc.), showing how often the prospect falls into each tier (ex. ranked in the Top 3 on 50% of boards).</p>
+                                        </div>
+                                        {/* Arrow pointing up */}
+                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-b-[#19191A]"></div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <h3 className="font-semibold text-lg text-white text-center">
+                            {showRangeConsensus ? 'Draft Range Data' : 'Draft Rank Data'}
+                        </h3>
+                    </>
+                ) : (
+                    <>
+                        {/* Desktop: Original layout */}
+                        <div className="flex-[0.8] flex justify-center pr-1">
+                            <h3 className="italic text-lg text-white">
+                                {showRangeConsensus ? 'draft range distribution' : 'draft rank distribution'}
+                            </h3>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <div className="flex bg-gray-800/20 border border-gray-700 rounded-lg p-1">
+                                <button
+                                    onClick={() => setShowRangeConsensus(false)}
+                                    className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${!showRangeConsensus
+                                            ? 'text-white shadow-sm'
+                                            : 'text-gray-400 hover:text-gray-200'
+                                        }`}
+                                    style={!showRangeConsensus ? {
+                                        backgroundColor: `${prospect['Team Color']}`
+                                    } : {}}
+                                >
+                                    Rank View
+                                </button>
+                                <button
+                                    onClick={() => setShowRangeConsensus(true)}
+                                    className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${showRangeConsensus
+                                            ? 'text-white shadow-sm'
+                                            : 'text-gray-400 hover:text-gray-200'
+                                        }`}
+                                    style={showRangeConsensus ? {
+                                        backgroundColor: `${prospect['Team Color']}`
+                                    } : {}}
+                                >
+                                    Range View
+                                </button>
+                            </div>
+
+                            <div className="relative">
+                                <div
+                                    onMouseEnter={() => setShowTooltip(true)}
+                                    onMouseLeave={() => setShowTooltip(false)}
+                                    className="w-4 h-4 rounded-full bg-gray-600/50 text-gray-400 flex items-center justify-center text-xs cursor-pointer hover:text-gray-200 transition-colors"
+                                >
+                                    ?
+                                </div>
+                                {showTooltip && (
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-3 bg-[#19191A] border border-white/20 text-white text-sm rounded-lg shadow-lg w-96 max-w-screen-sm z-[9999]">
+                                        <div className="text-left leading-relaxed space-y-2">
+                                            <p>Both views show how each prospect is perceived across the boards that contribute to the consensus.</p>
+                                            <p><strong className="text-blue-400">Rank View</strong> displays individual rankings from each board, along with summary stats (average rank, median rank, high, low, etc.).</p>
+                                            <p><strong className="text-blue-400">Range View</strong> groups those rankings into broader draft tiers (Top 3, 2nd Round, Undrafted, etc.), showing how often the prospect falls into each tier (ex. ranked in the Top 3 on 50% of boards).</p>
+                                        </div>
+                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-b-[#19191A]"></div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex-[0.8] flex justify-center pl-1">
+                            <h3 className="italic text-lg text-white">
+                                {showRangeConsensus ? 'draft range data' : 'draft rank data'}
+                            </h3>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Consensus-specific dropdown content */}
-            <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'} pb-0`}>
+            <div className={`pb-0 ${isMobile ? 'space-y-4' : 'grid grid-cols-2 gap-4'}`}>
                 {/* Charts Column */}
-                <div className="text-gray-300 px-1 flex flex-col justify-start">
+                <div className={`text-gray-300 flex flex-col justify-start ${isMobile ? 'px-2' : 'px-1'}`}>
                     {/* Chart Container - Shows either histogram or range consensus */}
-                    <div className="-ml-2 w-[calc(100%+16px)]">
+                    <div className={isMobile ? 'w-full' : '-ml-4 w-[calc(100%+32px)]'}>
                         {showRangeConsensus ? (
                             // Range Consensus Graph
                             <RangeConsensusGraph
@@ -938,7 +1003,6 @@ const ConsensusPageProspectCard: React.FC<{
 
                 {/* Consensus Data Tables */}
                 <div className="text-gray-300 px-2">
-
                     {showRangeConsensus ? (
                         /* Range Consensus Table */
                         <div>
@@ -1653,29 +1717,29 @@ export default function ConsensusPage() {
         { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
         { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
         { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Age', label: 'Age', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Age', label: 'Draft Age', category: 'Player Information', visible: true, sortable: true },
         { key: 'Height', label: 'Height', category: 'Player Information', visible: true, sortable: true },
         { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: true, sortable: true },
         { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: true, sortable: true },
         { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: true, sortable: true },
 
-        // Consensus Information
-        { key: 'MEAN', label: 'Mean', category: 'Consensus Information', visible: false, sortable: true },
-        { key: 'MEDIAN', label: 'Median', category: 'Consensus Information', visible: false, sortable: true },
-        { key: 'MODE', label: 'Mode', category: 'Consensus Information', visible: false, sortable: true },
-        { key: 'HIGH', label: 'High', category: 'Consensus Information', visible: false, sortable: true },
-        { key: 'LOW', label: 'Low', category: 'Consensus Information', visible: false, sortable: true },
-        { key: 'RANGE', label: 'Range', category: 'Consensus Information', visible: false, sortable: true },
-        { key: 'STDEV', label: 'StDev', category: 'Consensus Information', visible: false, sortable: true },
-        { key: 'COUNT', label: 'Count', category: 'Consensus Information', visible: false, sortable: true },
-        { key: 'Inclusion Rate', label: 'Inclusion Rate', category: 'Consensus Information', visible: false, sortable: true },
+        // Consensus Rank
+        { key: 'MEAN', label: 'Mean', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'MEDIAN', label: 'Median', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'MODE', label: 'Mode', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'HIGH', label: 'High', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'LOW', label: 'Low', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'RANGE', label: 'Range', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'STDEV', label: 'StDev', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'COUNT', label: 'Count', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'Inclusion Rate', label: 'Inclusion Rate', category: 'Consensus Rank', visible: false, sortable: true },
 
         // Range Consensus Info
-        { key: '1 - 3', label: 'Picks 1-3', category: 'Range Consensus Information', visible: false, sortable: true },
-        { key: '4 - 14', label: 'Picks 4-14', category: 'Range Consensus Information', visible: false, sortable: true },
-        { key: '15 - 30', label: 'Picks 15-30', category: 'Range Consensus Information', visible: false, sortable: true },
-        { key: '31 - 59', label: 'Picks 31-59', category: 'Range Consensus Information', visible: false, sortable: true },
-        { key: 'Undrafted', label: 'Undrafted', category: 'Range Consensus Information', visible: false, sortable: true },
+        { key: '1 - 3', label: 'Picks 1-3', category: 'Consensus Range', visible: false, sortable: true },
+        { key: '4 - 14', label: 'Picks 4-14', category: 'Consensus Range', visible: false, sortable: true },
+        { key: '15 - 30', label: 'Picks 15-30', category: 'Consensus Range', visible: false, sortable: true },
+        { key: '31 - 59', label: 'Picks 31-59', category: 'Consensus Range', visible: false, sortable: true },
+        { key: 'Undrafted', label: 'Undrafted', category: 'Consensus Range', visible: false, sortable: true },
     ];
 
     useEffect(() => {
