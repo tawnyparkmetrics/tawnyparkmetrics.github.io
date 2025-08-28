@@ -86,6 +86,7 @@ interface BaseProspectCardProps {
     onExpand?: (isExpanded: boolean) => void;
     className?: string;
     isDraftMode?: boolean; // NEW PROP: Indicates if we're viewing draft results vs rankings
+    draftYear?: string; // NEW PROP: To indicate if we're in 2020-2025 view
 }
 
 export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
@@ -96,7 +97,8 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
     children,
     onExpand,
     className = '',
-    isDraftMode = false // NEW PROP: Default to false (rankings mode)
+    isDraftMode = false, // NEW PROP: Default to false (rankings mode)
+    draftYear // NEW PROP: To indicate if we're in 2020-2025 view
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -208,6 +210,9 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
         const picksLimit = getDraftPicksLimit(yearNum);
         const actualPick = prospect['Actual Pick'];
         const team = isMobileView ? prospect.ABV : prospect['NBA Team'];
+        
+        // Add draft year in parentheses for 2020-2025 view
+        const draftYearSuffix = draftYear === '2020-2025' && prospect['Draft Year'] ? ` (${prospect['Draft Year']})` : '';
 
         if (
             actualPick !== undefined &&
@@ -216,7 +221,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
             !isNaN(Number(actualPick)) &&
             Number(actualPick) <= picksLimit
         ) {
-            const pickTeam = `${actualPick} - ${team}`;
+            const pickTeam = `${actualPick} - ${team}${draftYearSuffix}`;
             if (isMobileView) {
                 return Object.keys(draftShort).reduce((name, longName) => {
                     return name.replace(longName, draftShort[longName]);
@@ -224,7 +229,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
             }
             return pickTeam;
         } else {
-            const udfaTeam = `UDFA - ${team}`;
+            const udfaTeam = `UDFA - ${team}${draftYearSuffix}`;
             if (isMobileView) {
                 return Object.keys(draftShort).reduce((name, longName) => {
                     return name.replace(longName, draftShort[longName]);

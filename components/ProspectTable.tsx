@@ -158,6 +158,7 @@ export interface ProspectTableProps<T extends BaseProspect> {
     categories?: string[]; // Optional: pass custom categories
     lockedColumns?: string[]; // Optional: specify which columns can't be toggled
     showTierPrefix?: boolean; // Optional: whether to show "Tier" prefix
+    draftYear?: string; // Add draftYear prop to conditionally show Draft Year column
 }
 
 export function ProspectTable<T extends BaseProspect>({
@@ -168,17 +169,29 @@ export function ProspectTable<T extends BaseProspect>({
     className = '',
     categories,
     lockedColumns = ['Rank', 'Name'],
-    showTierPrefix = false
+    showTierPrefix = false,
+    draftYear
 }: ProspectTableProps<T>) {
     const [sortConfig, setSortConfig] = useState<{ key: keyof T | 'Rank'; direction: 'ascending' | 'descending' } | null>(null);
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
-    const [columns, setColumns] = useState<ColumnConfig[]>(initialColumns || []);
+    const [columns, setColumns] = useState<ColumnConfig[]>([]);
     const rotationRef = useRef(0);
+
+    // Filter columns based on draftYear - only show Draft Year column for 2020-2025
+    const filteredInitialColumns = useMemo(() => {
+        if (draftYear === '2020-2025') {
+            // Show all columns including Draft Year
+            return initialColumns;
+        } else {
+            // Filter out Draft Year column for single year views
+            return initialColumns.filter(col => col.key !== 'Draft Year');
+        }
+    }, [initialColumns, draftYear]);
 
     // Auto-generate a unique identifier based on the column structure
     const tableId = useMemo(() => {
         // Create a hash-like identifier from the column keys and categories
-        const columnSignature = initialColumns
+        const columnSignature = filteredInitialColumns
             .map(col => `${col.key}:${col.category}`)
             .sort()
             .join('|');
@@ -192,7 +205,7 @@ export function ProspectTable<T extends BaseProspect>({
         }
         
         return `table-${Math.abs(hash)}`;
-    }, [initialColumns]);
+    }, [filteredInitialColumns]);
 
     // Create a storage key based on auto-generated tableId for persistence
     const storageKey = `prospect-table-columns-${tableId}`;
@@ -202,8 +215,8 @@ export function ProspectTable<T extends BaseProspect>({
         try {
             const savedState = JSON.parse(localStorage.getItem(storageKey) || '{}');
             
-            // Merge saved visibility state with initial columns
-            const updatedColumns = initialColumns.map(col => ({
+            // Merge saved visibility state with filtered initial columns
+            const updatedColumns = filteredInitialColumns.map(col => ({
                 ...col,
                 visible: savedState[col.key] !== undefined ? savedState[col.key] : col.visible
             }));
@@ -211,9 +224,9 @@ export function ProspectTable<T extends BaseProspect>({
             setColumns(updatedColumns);
         } catch (error) {
             console.warn('Failed to load saved column state:', error);
-            setColumns(initialColumns);
+            setColumns(filteredInitialColumns);
         }
-    }, [initialColumns, storageKey]);
+    }, [filteredInitialColumns, storageKey]);
 
     // Save column visibility state whenever it changes
     const saveColumnState = useCallback((updatedColumns: ColumnConfig[]) => {
@@ -405,6 +418,17 @@ export function ProspectTable<T extends BaseProspect>({
                 return ageCompare !== 0 ? ageCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
+            // Handle Draft Year
+            if (sortConfig.key === 'Draft Year') {
+                const aNum = parseInt(aValue as string) || 0;
+                const bNum = parseInt(bValue as string) || 0;
+                const yearCompare = sortConfig.direction === 'ascending'
+                    ? aNum - bNum
+                    : bNum - aNum;
+                
+                return yearCompare !== 0 ? yearCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
+            }
+
             // For numeric columns, try to parse as numbers
             const aNum = parseFloat(aValue as string);
             const bNum = parseFloat(bValue as string);
@@ -426,8 +450,26 @@ export function ProspectTable<T extends BaseProspect>({
                 stringCompare = bStr.localeCompare(aStr);
             }
 
-            // If string comparison is equal, use stable sort
-            return stringCompare !== 0 ? stringCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
+            // If string comparison is equal, use secondary sort by Draft Pick (ascending - lower pick numbers first)
+            if (stringCompare === 0) {
+                const aPickValue = a['Actual Pick'];
+                const bPickValue = b['Actual Pick'];
+                
+                // Handle "Undrafted" or picks >= 61 as higher numbers
+                const getPickNumber = (pick: any): number => {
+                    if (!pick) return 999;
+                    const pickNum = Number(pick);
+                    return pickNum >= 61 ? 999 : pickNum;
+                };
+                
+                const aPickNum = getPickNumber(aPickValue);
+                const bPickNum = getPickNumber(bPickValue);
+                
+                const pickCompare = aPickNum - bPickNum; // Always ascending for draft pick
+                return pickCompare !== 0 ? pickCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
+            }
+
+            return stringCompare;
         });
 
         // Remove the added properties before returning
@@ -491,6 +533,7 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
+
         if (column.key === 'NBA Team') {
             return (
                 <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
@@ -519,6 +562,25 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
+        // Handle Draft Year column
+        if (column.key === 'Draft Year') {
+            return (
+                <TableCell key={column.key} className="text-gray-300 text-center">
+                    {prospect['Draft Year'] || 'N/A'}
+                </TableCell>
+            );
+        }
+
+        // Handle Height, Wingspan, Wing - Height, Weight, and Age columns with centering
+        if (['Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', 'Age'].includes(column.key)) {
+            return (
+                <TableCell key={column.key} className="text-gray-300 text-center">
+                    {prospect[key] || 'N/A'}
+                </TableCell>
+            );
+        }
+
+
         // Handle Rank columns - display as whole numbers
         if (column.key.includes('Rank') && !column.key.includes('Position')) {
             const rankValue = prospect[key];
@@ -539,6 +601,103 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
+        // Helper function to get blue gradient intensity for consensus range columns
+        const getConsensusRankGradient = (value: any, key: string): { backgroundColor: string; color: string } => {
+            if (value === null || value === undefined || value === '' || isNaN(parseFloat(String(value)))) {
+                return { backgroundColor: 'transparent', color: '#d1d5db' }; // gray-300
+            }
+
+            const numValue = parseFloat(String(value));
+            let intensity: number;
+
+            if (key === 'COUNT') {
+                // For COUNT, higher values are better (more consensus)
+                // Normalize based on typical range (assume max around 150 contributors)
+                intensity = Math.min(numValue / 150, 1);
+            } else if (key === 'RANGE') {
+                // For RANGE, lower values are better (less spread in rankings)
+                // Normalize based on typical range (assume max around 60)
+                const normalizedValue = Math.min(numValue / 60, 1);
+                intensity = 1 - normalizedValue; // Invert so lower range = brighter
+            } else if (key === 'STDEV') {
+                // For STDEV, lower values are better (less deviation)
+                // Normalize based on typical range (assume max around 20)
+                const normalizedValue = Math.min(numValue / 20, 1);
+                intensity = 1 - normalizedValue; // Invert so lower stdev = brighter
+            } else {
+                // For MEAN, MEDIAN, MODE, HIGH, LOW - lower ranks are better
+                // Normalize based on draft range (1-60)
+                const normalizedValue = Math.min(numValue / 60, 1);
+                intensity = 1 - normalizedValue; // Invert so lower rank = brighter
+            }
+
+            // Ensure minimum visibility
+            intensity = Math.max(0.1, Math.min(1, intensity));
+            
+            // Create blue gradient
+            const backgroundColor = `rgba(59, 130, 246, ${0.1 + intensity * 0.4})`;
+            const textColor = intensity > 0.3 ? '#ffffff' : '#e5e7eb';
+            
+            return { backgroundColor, color: textColor };
+        };
+
+        // Helper function to get blue gradient intensity for consensus range columns
+        const getConsensusRangeGradient = (value: any, key: string): { backgroundColor: string; color: string } => {
+            if (value === null || value === undefined || value === '' || isNaN(parseFloat(String(value)))) {
+                return { backgroundColor: 'transparent', color: '#d1d5db' }; // gray-300
+            }
+
+            const numValue = parseFloat(String(value));
+            
+            // For percentage values, higher percentages should be brighter blue
+            // Normalize to 0-1 range where 1 is brightest blue
+            const intensity = Math.min(numValue, 1); // Cap at 1 (100%)
+            
+            // Create blue gradient - brighter blue for higher values, darker for lower
+            const blueIntensity = Math.max(0.1, intensity); // Minimum 10% intensity for visibility
+            const backgroundColor = `rgba(59, 130, 246, ${0.1 + blueIntensity * 0.4})`; // Blue with variable alpha
+            const textColor = intensity > 0.3 ? '#ffffff' : '#e5e7eb'; // White text for high intensity, light gray for low
+            
+            return { backgroundColor, color: textColor };
+        };
+
+        // Handle Consensus Rank columns with blue gradient
+        if (['MEAN', 'MEDIAN', 'MODE', 'HIGH', 'LOW', 'RANGE', 'STDEV', 'COUNT'].includes(column.key)) {
+            const cellValue = prospect[key];
+            let displayValue = '';
+
+            if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
+                const numValue = parseFloat(String(cellValue));
+                if (!isNaN(numValue)) {
+                    // Format based on column type
+                    if (column.key === 'STDEV') {
+                        displayValue = numValue.toFixed(1);
+                    } else if (column.key === 'COUNT') {
+                        displayValue = numValue.toString();
+                    } else {
+                        // For rank columns, show as whole numbers or 1 decimal if needed
+                        displayValue = numValue % 1 === 0 ? numValue.toString() : numValue.toFixed(1);
+                    }
+                } else {
+                    displayValue = String(cellValue);
+                }
+            }
+
+            const gradientStyle = getConsensusRankGradient(cellValue, column.key);
+
+            return (
+                <TableCell 
+                    key={column.key} 
+                    className="text-center font-medium"
+                    style={gradientStyle}
+                >
+                    {displayValue}
+                </TableCell>
+            );
+        }
+
+        
+
         if (['1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Undrafted', 'Inclusion Rate'].includes(column.key)) {
             const cellValue = prospect[key];
             let displayValue = '';
@@ -553,8 +712,14 @@ export function ProspectTable<T extends BaseProspect>({
                 }
             }
 
+            const gradientStyle = getConsensusRangeGradient(cellValue, column.key);
+
             return (
-                <TableCell key={column.key} className="text-gray-300">
+                <TableCell 
+                    key={column.key} 
+                    className="text-center font-medium"
+                    style={gradientStyle}
+                >
                     {displayValue}
                 </TableCell>
             );
@@ -726,7 +891,10 @@ export function ProspectTable<T extends BaseProspect>({
                             {visibleColumns.map((column) => (
                                 <TableHead
                                     key={column.key}
-                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'}`}
+                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'} ${
+                                        // Center specific columns that should be centered
+                                        ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '31 - 59'].includes(column.key) ? 'text-center' : ''
+                                    }`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
                                 >
                                     {/* Display shortened labels for Range Consensus columns in table headers */}
