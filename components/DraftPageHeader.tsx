@@ -35,7 +35,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
 
   const getTitle = (firstName: string, author: string, selectedYear?: number | string) => {
     // Handle the explicit '2020-2025 NBA Draft History' author type
-    if (author === '2020-2025 NBA Drafts') {
+    if (author === '2020-2025 NBA Draft History') {
       return '2020-2025 NBA Draft History';
     }
     if (author === 'Andre Liu') {
@@ -48,7 +48,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
     if (author === 'Draft History') {
       // Check if selectedYear is the string '2020-2025'
       if (selectedYear === '2020-2025') {
-        return '2020-2025 NBA Drafts'; // Specific title for the range
+        return '2020-2025 NBA Draft History'; // Specific title for the range
       }
       return selectedYear ? `${selectedYear} NBA Draft` : `NBA Draft`; // For single years
     }

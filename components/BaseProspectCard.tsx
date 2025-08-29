@@ -87,6 +87,7 @@ interface BaseProspectCardProps {
     className?: string;
     isDraftMode?: boolean; // NEW PROP: Indicates if we're viewing draft results vs rankings
     draftYear?: string; // NEW PROP: To indicate if we're in 2020-2025 view
+    imageYear?: string; // NEW PROP: For specifying which player_images folder to use
 }
 
 export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
@@ -98,7 +99,8 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
     onExpand,
     className = '',
     isDraftMode = false, // NEW PROP: Default to false (rankings mode)
-    draftYear // NEW PROP: To indicate if we're in 2020-2025 view
+    draftYear, // NEW PROP: To indicate if we're in 2020-2025 view
+    imageYear // NEW PROP: For specifying which player_images folder to use
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -151,7 +153,11 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
     const getPlayerImageUrl = (selectedYear: number | string, prospect: DraftProspect): string => {
         let yearToUse: number;
         
-        if (selectedYear === '2020-2025') {
+        // If imageYear is provided, use it directly
+        if (imageYear) {
+            yearToUse = parseInt(imageYear);
+            console.log(`🖼️ ${prospect.Name}: Using imageYear=${imageYear}, using year=${yearToUse}`);
+        } else if (selectedYear === '2020-2025') {
             // Use the prospect's actual draft year from their data
             const prospectYear = prospect['Draft Year'] ? parseInt(prospect['Draft Year'].toString()) : 2025;
             yearToUse = prospectYear;

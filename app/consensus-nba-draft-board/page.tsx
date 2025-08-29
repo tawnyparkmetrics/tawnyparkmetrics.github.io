@@ -7,6 +7,7 @@ import { Search, TrendingUp, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
 import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
+import ContributorsData from '@/components/ContributorsData';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -770,10 +771,10 @@ const ConsensusPageProspectCard: React.FC<{
     filteredProspects: DraftProspect[];
     allProspects: DraftProspect[];
     selectedSortKey: string;
-    selectedYear: number;
+    selectedYear: string; // Add this prop - should match the type from ConsensusPage
     consensusData?: ConsensusColumns;
     rankingSystem: Map<string, number>;
-}> = ({ prospect, consensusData, rankingSystem }) => {
+}> = ({ prospect, consensusData, rankingSystem, selectedYear }) => { // Add selectedYear to destructuring
     const [, setIsExpanded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [showRangeConsensus, setShowRangeConsensus] = useState(true);
@@ -798,7 +799,7 @@ const ConsensusPageProspectCard: React.FC<{
         setIsExpanded(expanded);
     };
 
-    // Consensus data for the table
+    // Rest of your component logic...
     const consensusTableData = useMemo(() => [
         { label: 'Mean', value: prospect['MEAN'] || 'N/A' },
         { label: 'Median', value: prospect['MEDIAN'] || 'N/A' },
@@ -809,7 +810,6 @@ const ConsensusPageProspectCard: React.FC<{
         { label: 'Inclusion Rate', value: prospect['Inclusion Rate'] ? `${Math.round(Number(prospect['Inclusion Rate']) * 100)}%` : 'N/A' },
     ], [prospect]);
 
-    // Range consensus data for the table
     const rangeConsensusTableData = useMemo(() => {
         const safeParseFloat = (value: string | undefined): number => {
             if (!value || value.trim() === '') return 0;
@@ -825,7 +825,6 @@ const ConsensusPageProspectCard: React.FC<{
             { label: isMobile ? 'UDFA' : 'Undrafted', value: safeParseFloat(prospect['Undrafted']) }
         ];
 
-        // Return all ranges, including those with 0% values
         return ranges.map(item => ({
             ...item,
             percentage: Math.round(item.value * 100)
@@ -836,7 +835,7 @@ const ConsensusPageProspectCard: React.FC<{
         <BaseProspectCard
             prospect={prospect}
             rank={currentRank}
-            selectedYear={2025}
+            selectedYear={selectedYear}
             isMobile={isMobile}
             onExpand={handleExpand}
         >
@@ -848,15 +847,15 @@ const ConsensusPageProspectCard: React.FC<{
                         <h3 className="font-semibold text-lg text-white text-center">
                             {showRangeConsensus ? '' : ''}
                         </h3>
-                        
+
                         {/* Centered Segmented Control with Tooltip */}
                         <div className="flex items-center gap-2">
                             <div className="flex bg-gray-800/20 border border-gray-700 rounded-lg p-1">
                                 <button
                                     onClick={() => setShowRangeConsensus(false)}
                                     className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${!showRangeConsensus
-                                            ? 'text-white shadow-sm'
-                                            : 'text-gray-400 hover:text-gray-200'
+                                        ? 'text-white shadow-sm'
+                                        : 'text-gray-400 hover:text-gray-200'
                                         }`}
                                     style={!showRangeConsensus ? {
                                         backgroundColor: `${prospect['Team Color']}60`
@@ -867,8 +866,8 @@ const ConsensusPageProspectCard: React.FC<{
                                 <button
                                     onClick={() => setShowRangeConsensus(true)}
                                     className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${showRangeConsensus
-                                            ? 'text-white shadow-sm'
-                                            : 'text-gray-400 hover:text-gray-200'
+                                        ? 'text-white shadow-sm'
+                                        : 'text-gray-400 hover:text-gray-200'
                                         }`}
                                     style={showRangeConsensus ? {
                                         backgroundColor: `${prospect['Team Color']}60`
@@ -919,8 +918,8 @@ const ConsensusPageProspectCard: React.FC<{
                                 <button
                                     onClick={() => setShowRangeConsensus(false)}
                                     className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${!showRangeConsensus
-                                            ? 'text-white shadow-sm'
-                                            : 'text-gray-400 hover:text-gray-200'
+                                        ? 'text-white shadow-sm'
+                                        : 'text-gray-400 hover:text-gray-200'
                                         }`}
                                     style={!showRangeConsensus ? {
                                         backgroundColor: `${prospect['Team Color']}`
@@ -931,8 +930,8 @@ const ConsensusPageProspectCard: React.FC<{
                                 <button
                                     onClick={() => setShowRangeConsensus(true)}
                                     className={`px-3 py-1 text-sm font-bold rounded-md transition-all duration-300 ${showRangeConsensus
-                                            ? 'text-white shadow-sm'
-                                            : 'text-gray-400 hover:text-gray-200'
+                                        ? 'text-white shadow-sm'
+                                        : 'text-gray-400 hover:text-gray-200'
                                         }`}
                                     style={showRangeConsensus ? {
                                         backgroundColor: `${prospect['Team Color']}`
@@ -1048,21 +1047,23 @@ interface ProspectFilterProps {
     onRankingSystemChange?: (rankingSystem: Map<string, number>) => void;
     rank: Record<string, RankType>;
     onViewModeChange?: (mode: 'card' | 'table' | 'contributors') => void;
+    selectedYear?: '2025' | '2024' | '2023' | '2022' | '2021' | '2020';
+    onYearChange?: (year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020') => void;
 }
 
 const ProspectFilter: React.FC<ProspectFilterProps> = ({
     prospects,
     onFilteredProspectsChange,
     onRankingSystemChange,
-    onViewModeChange
+    onViewModeChange,
+    selectedYear,
+    onYearChange
 }) => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [roleFilter, setRoleFilter] = useState<'all' | 'Guard' | 'Wing' | 'Big'>('all');
-    const [, setLocalFilteredProspects] = useState(prospects);
+    const [, setLocalFilteredProspects] = useState<DraftProspect[]>(prospects); // Explicitly type as DraftProspect[]
     const [viewMode, setViewMode] = useState<'card' | 'table' | 'contributors'>('card');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-
-    // Handle view mode changes with debugging
     const handleViewModeChange = useCallback((mode: 'card' | 'table' | 'contributors') => {
         console.log('handleViewModeChange called with:', mode);
         console.log('Current viewMode before change:', viewMode);
@@ -1074,7 +1075,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             console.log('Calling onViewModeChange with:', mode);
             onViewModeChange(mode);
         }
-    }, [onViewModeChange]);
+    }, [onViewModeChange, viewMode]); // Added viewMode to dependencies for correct logging
 
     // Add effect to log when viewMode actually changes
     useEffect(() => {
@@ -1100,7 +1101,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     };
 
     useEffect(() => {
-        let results = prospects;
+        let results = [...prospects]; // Create a copy to avoid mutating props directly
 
         if (roleFilter !== 'all') {
             results = results.filter((prospect) => prospect.Role === roleFilter);
@@ -1108,7 +1109,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
         // Create ranking system based on filters (excluding search)
         const rankingSystem = new Map<string, number>();
-        const filteredForRanking = prospects.filter((prospect) => {
+        const filteredForRanking = [...prospects].filter((prospect) => { // Create copy for ranking system
             if (roleFilter !== 'all') {
                 return prospect.Role === roleFilter;
             }
@@ -1389,6 +1390,42 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         {/* Divider */}
                         <div className="h-6 md:h-8 w-px bg-gray-700/30 mx-1 md:mx-2" />
 
+                        {/* Year Dropdown */}
+                        <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <motion.button
+                                        className={`
+                                            px-3 py-2 rounded-lg text-sm font-medium
+                                            transition-all duration-300
+                                            bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                                            flex items-center gap-1
+                                        `}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        {selectedYear || '2025'}
+                                        <ChevronDown className="h-4 w-4" />
+                                    </motion.button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
+                                        <DropdownMenuItem
+                                            key={year}
+                                            className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
+                                                }`}
+                                            onClick={() => onYearChange?.(year)}
+                                        >
+                                            {year}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="h-6 md:h-8 w-px bg-gray-700/30 mx-1 md:mx-2" />
+
                         {/* Desktop View Mode Dropdown */}
                         <div className="flex items-center gap-2">
                             {/* Contributors Button */}
@@ -1495,214 +1532,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     );
 };
 
-const ContributorsView: React.FC<{ searchQuery?: string }> = ({ searchQuery }) => {
-    // Mapping object for contributors with their URLs - easy to copy-paste from CSV
-    const contributorsData = {
-        'The Athletic (Sam Vecenie)': 'https://theathletic.com/author/sam-vecenie/',
-        'CBS Sports': 'https://www.cbssports.com/nba/draft/prospect-rankings/',
-        '@KevinOConnorNBA (Yahoo)': 'https://twitter.com/KevinOConnorNBA',
-        'The Ringer': 'https://nbadraft.theringer.com/',
-        'Tankathon': 'https://www.tankathon.com/big_board',
-        'NBADraft.net': 'https://www.nbadraft.net/ranking/bigboard/',
-        'CraftedNBA': 'https://craftednba.com/draft/2025',
-        '@KlineNBA (Fansided)': 'https://twitter.com/KlineNBA',
-        'Swish Theory': 'https://theswishtheory.com/scouting-report/nba-draft/2025-nba-draft/',
-        'No Ceilings': 'https://noceilingsnba.com/',
-        'ESPN': 'https://www.espn.com/nba/draft',
-        'Kevin Pelton (ESPN)': 'https://www.espn.co.uk/nba/story/_/id/44888875/nba-draft-2025-projecting-30-best-prospects',
-        'Opta': 'https://theanalyst.com/articles/nba-draft-rankings-2025-big-board',
-        'the center hub': 'https://the-center-hub.com/2025/06/19/2025-nba-draft-guide/',
-        '@supersayansavin (TPM)': 'https://twitter.com/supersayansavin',
-        '@CRiehl30': 'https://twitter.com/CRiehl30',
-        '@JoelHinkieMaxey': 'https://twitter.com/JoelHinkieMaxey',
-        '@draymottishaw': 'https://twitter.com/draymottishaw',
-        '@ZP12Hoops': 'https://twitter.com/ZP12Hoops',
-        '@kimonsjaer24': 'https://twitter.com/kimonsjaer24',
-        '@Jackmatthewss_': 'https://twitter.com/Jackmatthewss_',
-        '@rowankent': 'https://twitter.com/rowankent',
-        '@CannibalSerb': 'https://twitter.com/CannibalSerb',
-        'Jishnu': '',
-        '@fra_sempru': 'https://twitter.com/fra_sempru',
-        '@FPL_Mou': 'https://twitter.com/FPL_Mou',
-        '@ryanhammer09': 'https://twitter.com/ryanhammer09',
-        '@thezonemaster': 'https://twitter.com/thezonemaster',
-        '@hutsonboggs': 'https://twitter.com/hutsonboggs',
-        '@PAKA_FLOCKA': 'https://twitter.com/PAKA_FLOCKA',
-        '@drew_cant_hoop': 'https://twitter.com/drew_cant_hoop',
-        '@PenguinHoops': 'https://twitter.com/PenguinHoops',
-        'PK': '',
-        '@nore4dh': 'https://twitter.com/nore4dh',
-        '@LeftFieldSoup': 'https://twitter.com/LeftFieldSoup',
-        '@OranjeGuerrero': 'https://twitter.com/OranjeGuerrero',
-        '@503sbest': 'https://twitter.com/503sbest',
-        '@BrianJNBA': 'https://twitter.com/BrianJNBA',
-        '@CediBetter': 'https://twitter.com/CediBetter',
-        '@JEnnisNBADraft': 'https://twitter.com/JEnnisNBADraft',
-        '@report_court': 'https://twitter.com/report_court',
-        '@esotericloserr': 'https://twitter.com/esotericloserr',
-        '@atthelevel': 'https://twitter.com/atthelevel',
-        '@freewave3': 'https://twitter.com/freewave3',
-        'Andrea Cannici': 'https://twitter.com/andrecannici',
-        '@LoganH_utk': 'https://twitter.com/LoganH_utk',
-        'JoshW': '',
-        '@double_pg': 'https://twitter.com/double_pg',
-        '@TaouTi959': 'https://twitter.com/TaouTi959',
-        '@Alley_Oop_Coop': 'https://twitter.com/Alley_Oop_Coop',
-        '@perspectivehoop': 'https://twitter.com/perspectivehoop',
-        '@chipwilliamsjr': 'https://twitter.com/chipwilliamsjr',
-        '@DraftCasual': 'https://twitter.com/DraftCasual',
-        '@thebigwafe': 'https://twitter.com/thebigwafe',
-        '@NPComplete34': 'https://twitter.com/NPComplete34',
-        '@SPTSJUNKIE (NBA Draft Network)': 'https://twitter.com/SPTSJUNKIE',
-        '@bjpf_': 'https://twitter.com/bjpf_',
-        '@ram_dub': 'https://twitter.com/ram_dub',
-        'ReverseEnigma (databallr)': 'https://bsky.app/profile/reverseenigma.bsky.social',
-        '@OpticalHoops': 'https://twitter.com/OpticalHoops',
-        '@Rileybushh': 'https://twitter.com/Rileybushh',
-        '@jhirsh03': 'https://twitter.com/jhirsh03',
-        '@who_____knows': 'https://twitter.com/who_____knows',
-        '@GrizzliesFilm': 'https://twitter.com/GrizzliesFilm',
-        '@Juul__Embiid': 'https://twitter.com/Juul__Embiid',
-        '@redrock_bball': 'https://twitter.com/redrock_bball',
-        '@matwnba': 'https://twitter.com/matwnba',
-        '@SpencerVonNBA': 'https://twitter.com/SpencerVonNBA',
-        'Jack Chambers': '',
-        'NBA Draft Room': 'https://nbadraftroom.com/2025-nba-draft-big-board-10-0-final-edition/',
-        '@LoganPAdams': 'https://twitter.com/LoganPAdams',
-        '@bballstrategy': 'https://twitter.com/bballstrategy',
-        '@movedmypivot': 'https://twitter.com/movedmypivot',
-        '@drakemayefc': 'https://twitter.com/drakemayefc',
-        '@Trellinterlude': 'https://twitter.com/Trellinterlude',
-        '@TrashPanda': 'https://twitter.com/TrashPanda',
-        '@Duydidt': 'https://twitter.com/Duydidt',
-        '@Hoops_Haven1': 'https://twitter.com/Hoops_Haven1',
-        'Isaiah Silas': 'https://twitter.com/ProspectReportt',
-        '@codyreeves14': 'https://twitter.com/codyreeves14',
-        '@nikoza2': 'https://twitter.com/nikoza2',
-        '@zjy2000': 'https://twitter.com/zjy2000',
-        '@Quinnfishburne': 'https://twitter.com/Quinnfishburne',
-        '@antoniodias_pt': 'https://twitter.com/antoniodias_pt',
-        '@cparkernba': 'https://twitter.com/cparkernba',
-        '@ChuckingDarts': 'https://twitter.com/ChuckingDarts',
-        '@ShoryLogan': 'https://twitter.com/ShoryLogan',
-        '@Ethan387': 'https://twitter.com/Ethan387',
-        '@IFIMINC': 'https://twitter.com/IFIMINC',
-        '@TStapletonNBA': 'https://twitter.com/TStapletonNBA',
-        '@WillC': 'https://twitter.com/WillC_NBA',
-        '@mobanks10': 'https://twitter.com/mobanks10',
-        '@RichStayman': 'https://twitter.com/RichStayman',
-        '@_thedealzone': 'https://twitter.com/_thedealzone',
-        '@_GatheringIntel': 'https://twitter.com/_GatheringIntel',
-        '@DraftPow': 'https://twitter.com/DraftPow',
-        '@Dkphisports': 'https://twitter.com/Dkphisports',
-        '@NicThomasNBA': 'https://twitter.com/NicThomasNBA',
-        'Giddf': '',
-        '@BeyondTheRK': 'https://twitter.com/BeyondTheRK',
-        '@greg23m': 'https://twitter.com/greg23m',
-        'DrewDataDesign': '',
-        'Kam H': '',
-        '@dancingwithnoah': 'https://twitter.com/dancingwithnoah',
-        'atheballhaus': 'https://twitter.com/theballhaus',
-        'Oneiric': '',
-        '@undraliu': 'https://twitter.com/undraliu',
-        '@corbannba': 'https://twitter.com/corbannba',
-        '@_LarroHoops': 'https://twitter.com/_LarroHoops',
-        'salvador cali': '',
-        '@LoganRoA_': 'https://twitter.com/LoganRoA_',
-        '@sammygprops': 'https://twitter.com/sammygprops',
-        '@wilkomcv': 'https://twitter.com/wilkomcv',
-        '@wheatonbrando': 'https://twitter.com/wheatonbrando',
-        '@Flawlesslikeeli': 'https://twitter.com/Flawlesslikeeli',
-        '@_R_M_M': 'https://twitter.com/_R_M_M',
-        '@mcfNBA': 'https://twitter.com/mcfNBA',
-        '@evidenceforZ': 'https://twitter.com/evidenceforZ',
-        '@sixringsofsteeI': 'https://twitter.com/sixringsofsteeI',
-        '@CozyLito': 'https://twitter.com/CozyLito',
-        '@HoopsMetrOx': 'https://twitter.com/HoopsMetrOx',
-        '@SBNRicky': 'https://twitter.com/SBNRicky',
-        '@redcooteay': 'https://twitter.com/redcooteay',
-        '@jessefischer': 'https://twitter.com/jessefischer',
-        '@henrynbadraft': 'https://twitter.com/henrynbadraft',
-        '@spursbeliever': 'https://twitter.com/spursbeliever',
-        'SMILODON': '',
-        '@ayush_batra15': 'https://twitter.com/ayush_batra15',
-        '@AmericanNumbers': 'https://twitter.com/AmericanNumbers',
-        '@100guaranteed': 'https://twitter.com/100guaranteed',
-        '@jaynay1': 'https://twitter.com/jaynay1',
-        '@NileHoops': 'https://twitter.com/NileHoops',
-        '@HuntHoops': 'https://twitter.com/HuntHoops',
-        'Mike Gribanov': 'https://twitter.com/mikegrib8',
-        '@bendog28': 'https://twitter.com/bendog28',
-        '@JHM Basketball': 'https://twitter.com/JHMBasketball',
-        '@halfwaketakes': 'https://twitter.com/halfwaketakes',
-        '@criggsnba': 'https://twitter.com/criggsnba',
-        '@NBADraftFuture': 'https://twitter.com/NBADraftFuture',
-        '@JoeHulbertNBA': 'https://twitter.com/JoeHulbertNBA',
-        '@CTFazio24': 'https://twitter.com/CTFazio24',
-        '@JozhNBA': 'https://twitter.com/JozhNBA',
-        '@hoop_tetris': 'https://twitter.com/hoop_tetris',
-        '@tobibuehner': 'https://twitter.com/tobibuehner',
-        '@Josh_markowitz': 'https://twitter.com/Josh_markowitz',
-        '@onlyonepodcastt': 'https://twitter.com/onlyonepodcastt',
-        '@akaCK_': 'https://twitter.com/akaCK_',
-        '@TheNicolau15': 'https://twitter.com/TheNicolau15',
-        '@British_Buzz': 'https://twitter.com/British_Buzz',
-        '@hellyymarco': 'https://twitter.com/hellyymarco',
-        '@SaucyTakez': 'https://twitter.com/SaucyTakez',
-        '@j0nzzzz': 'https://twitter.com/j0nzzzz',
-        '@JackDAnder': 'https://twitter.com/JackDAnder',
-        '@nbadrafting': 'https://twitter.com/nbadrafting',
-        'TheProcess': '',
-        '@canpekerpekcan': 'https://twitter.com/canpekerpekcan',
-        '@ByAnthonyRizzo': 'https://twitter.com/ByAnthonyRizzo',
-        '@TwoWayMurray': 'https://twitter.com/TwoWayMurray'
-    };
-
-    let contributors = Object.keys(contributorsData);
-    if (searchQuery) {
-        const lower = searchQuery.toLowerCase();
-        contributors = contributors.filter(c => c.toLowerCase().includes(lower));
-    }
-
-    return (
-        <div className="max-w-6xl mx-auto px-4">
-            <div className="bg-[#19191A] rounded-lg border border-gray-800 p-6">
-                <h2 className="text-2xl font-bold text-white mb-6">Consensus Contributors</h2>
-                <div className="mt-8 pt-6 border-t border-gray-700/50">
-                    <p className="text-gray-400 mb-5">
-                        Total Contributors: <span className="text-white font-semibold">158</span>, Total Ranks: <span className="text-white font-semibold">8963</span>, Prospects Per Board <span className="text-white font-semibold">59.3</span>
-                    </p>
-                </div>
-                <p className="text-gray-400 mb-8">
-                    Our consensus board is compiled from rankings provided by the following analysts, scouts, and platforms:
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {contributors.map((contributor, index) => (
-                        <a
-                            key={contributor}
-                            href={contributorsData[contributor as keyof typeof contributorsData]}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-gray-800/20 border border-gray-700/50 rounded-lg p-4 hover:bg-gray-800/30 transition-colors duration-200 hover:border-blue-500/50 group"
-                        >
-                            <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-                                    <span className="text-blue-400 font-semibold text-sm group-hover:text-blue-300">
-                                        {index + 1}
-                                    </span>
-                                </div>
-                                <span className="text-gray-300 font-medium group-hover:text-white transition-colors">
-                                    {contributor}
-                                </span>
-                            </div>
-                        </a>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-};
-
 export default function ConsensusPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
@@ -1715,6 +1544,7 @@ export default function ConsensusPage() {
     const [selectedSortKey,] = useState<string>('Actual Pick');
     const [contributorSearch, setContributorSearch] = useState('');
     const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
+    const [selectedYear, setSelectedYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020'>('2025');
 
     // Define column configuration with proper Player Information order
     const initialColumns: ColumnConfig[] = [
@@ -1867,7 +1697,8 @@ export default function ConsensusPage() {
     useEffect(() => {
         async function fetchDraftProspects() {
             try {
-                const response = await fetch('/2025 Draft Twitter Consensus Big Board.csv');
+                const csvFileName = `${selectedYear} Draft Twitter Consensus Big Board.csv`;
+                const response = await fetch(`/${csvFileName}`);
                 const csvText = await response.text();
 
                 Papa.parse(csvText, {
@@ -2065,7 +1896,7 @@ export default function ConsensusPage() {
             }
         }
         fetchDraftProspects();
-    }, []);
+    }, [selectedYear]);
 
     // Handle scroll event for infinite loading - only on desktop
     useEffect(() => {
@@ -2118,6 +1949,8 @@ export default function ConsensusPage() {
                     onRankingSystemChange={setRankingSystem}
                     rank={{}}
                     onViewModeChange={setViewMode}
+                    selectedYear={selectedYear}
+                    onYearChange={setSelectedYear}
                 />
             ) : (
                 <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
@@ -2191,44 +2024,45 @@ export default function ConsensusPage() {
                 </div>
             )}
 
-            <div className="max-w-6xl mx-auto px-4 pt-8">
-                {viewMode === 'contributors' ? (
-                    <ContributorsView searchQuery={contributorSearch} />
-                ) : filteredProspects.length > 0 ? (
-                    viewMode === 'card' ? (
-                        <div className="space-y-4">
-                            {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
-                                <ConsensusPageProspectCard
-                                    key={prospect.Name}
-                                    prospect={prospect}
-                                    filteredProspects={filteredProspects}
-                                    allProspects={prospects}
-                                    selectedSortKey={selectedSortKey}
-                                    selectedYear={0}
-                                    consensusData={consensusMap[prospect.Name]}
-                                    rankingSystem={rankingSystem}
-                                    rank={0}
-                                />
-                            ))}
-                            {isLoading && !isMobile && (
-                                <div className="flex justify-center py-4">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <ProspectTable
-                            prospects={filteredProspects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
-                            rankingSystem={rankingSystem}
-                            initialColumns={initialColumns}
-                        />
-                    )
-                ) : (
-                    <div className="text-center py-8 text-gray-400">
-                        No prospects found matching your search criteria
+            {viewMode === 'contributors' ? (
+                <ContributorsData
+                    selectedYear={selectedYear}
+                    searchQuery={contributorSearch}
+                />
+            ) : filteredProspects.length > 0 ? (
+                viewMode === 'card' ? (
+                    <div className="space-y-4">
+                        {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
+                            <ConsensusPageProspectCard
+                                key={prospect.Name}
+                                prospect={prospect}
+                                filteredProspects={filteredProspects}
+                                allProspects={prospects}
+                                selectedSortKey={selectedSortKey}
+                                selectedYear={selectedYear}
+                                consensusData={consensusMap[prospect.Name]}
+                                rankingSystem={rankingSystem}
+                                rank={0}
+                            />
+                        ))}
+                        {isLoading && !isMobile && (
+                            <div className="flex justify-center py-4">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                ) : (
+                    <ProspectTable
+                        prospects={filteredProspects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
+                        rankingSystem={rankingSystem}
+                        initialColumns={initialColumns}
+                    />
+                )
+            ) : (
+                <div className="text-center py-8 text-gray-400">
+                    No prospects found matching your search criteria
+                </div>
+            )}
         </div>
     );
 }
