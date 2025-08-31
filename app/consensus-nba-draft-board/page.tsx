@@ -23,7 +23,6 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
 
-
 export interface DraftProspect {
     //Player info for hover
     'Name': string;
@@ -1061,9 +1060,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 }) => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [roleFilter, setRoleFilter] = useState<'all' | 'Guard' | 'Wing' | 'Big'>('all');
-    const [, setLocalFilteredProspects] = useState<DraftProspect[]>(prospects); // Explicitly type as DraftProspect[]
+    const [, setLocalFilteredProspects] = useState(prospects);
     const [viewMode, setViewMode] = useState<'card' | 'table' | 'contributors'>('card');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+    // Handle view mode changes with debugging
     const handleViewModeChange = useCallback((mode: 'card' | 'table' | 'contributors') => {
         console.log('handleViewModeChange called with:', mode);
         console.log('Current viewMode before change:', viewMode);
@@ -1075,7 +1076,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             console.log('Calling onViewModeChange with:', mode);
             onViewModeChange(mode);
         }
-    }, [onViewModeChange, viewMode]); // Added viewMode to dependencies for correct logging
+    }, [onViewModeChange]);
 
     // Add effect to log when viewMode actually changes
     useEffect(() => {
@@ -1101,7 +1102,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     };
 
     useEffect(() => {
-        let results = [...prospects]; // Create a copy to avoid mutating props directly
+        let results = prospects;
 
         if (roleFilter !== 'all') {
             results = results.filter((prospect) => prospect.Role === roleFilter);
@@ -1109,7 +1110,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
         // Create ranking system based on filters (excluding search)
         const rankingSystem = new Map<string, number>();
-        const filteredForRanking = [...prospects].filter((prospect) => { // Create copy for ranking system
+        const filteredForRanking = prospects.filter((prospect) => {
             if (roleFilter !== 'all') {
                 return prospect.Role === roleFilter;
             }
@@ -1940,7 +1941,10 @@ export default function ConsensusPage() {
     return (
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Consensus" />
-            <DraftPageHeader author="Consensus" />
+            <DraftPageHeader 
+                author="Consensus"
+                selectedYear={selectedYear}
+            />
             <GoogleAnalytics gaId="G-X22HKJ13B7" />
             {viewMode !== 'contributors' ? (
                 <ProspectFilter
@@ -1954,7 +1958,7 @@ export default function ConsensusPage() {
                 />
             ) : (
                 <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
-                    <div className="px-4 py-3 flex items-center justify-between">
+                    <div className="px-4 py-3 flex items-center justify-between gap-2">
                         <div className="relative flex-grow max-w-full mr-2">
                             <div className="relative w-full">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
@@ -1974,55 +1978,92 @@ export default function ConsensusPage() {
                                 />
                             </div>
                         </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <motion.button
-                                    className={`
-                                        px-3 py-2 rounded-lg text-sm font-medium flex items-center
-                                        transition-all duration-300
-                                        bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
-                                    `}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    <TrendingUp className="mr-1 h-4 w-4" />
-                                    Contributors
-                                    <ChevronDown className="ml-1 h-4 w-4" />
-                                </motion.button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                <DropdownMenuItem
-                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                    onClick={() => setViewMode('card')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <LucideUser className="h-4 w-4" />
-                                        Card View
-                                    </div>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                    onClick={() => setViewMode('table')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <TableIcon className="h-4 w-4" />
-                                        Table View
-                                    </div>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
-                                    onClick={() => setViewMode('contributors')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <TrendingUp className="h-4 w-4" />
+                        
+                        <div className="flex items-center gap-2">
+                            {/* Year Dropdown */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <motion.button
+                                        className={`
+                                            px-3 py-2 rounded-lg text-sm font-medium
+                                            transition-all duration-300
+                                            bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                                            flex items-center gap-1
+                                        `}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        {selectedYear || '2025'}
+                                        <ChevronDown className="h-4 w-4" />
+                                    </motion.button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
+                                        <DropdownMenuItem
+                                            key={year}
+                                            className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
+                                                }`}
+                                            onClick={() => setSelectedYear(year)}
+                                        >
+                                            {year}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+            
+                            {/* View Mode Dropdown */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <motion.button
+                                        className={`
+                                            px-3 py-2 rounded-lg text-sm font-medium flex items-center
+                                            transition-all duration-300
+                                            bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                                        `}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <TrendingUp className="mr-1 h-4 w-4" />
                                         Contributors
-                                    </div>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                        <ChevronDown className="ml-1 h-4 w-4" />
+                                    </motion.button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    <DropdownMenuItem
+                                        className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                        onClick={() => setViewMode('card')}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <LucideUser className="h-4 w-4" />
+                                            Card View
+                                        </div>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                        onClick={() => setViewMode('table')}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <TableIcon className="h-4 w-4" />
+                                            Table View
+                                        </div>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
+                                        onClick={() => setViewMode('contributors')}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <TrendingUp className="h-4 w-4" />
+                                            Contributors
+                                        </div>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </div>
                 </div>
             )}
+            
+            
 
             {viewMode === 'contributors' ? (
                 <ContributorsData

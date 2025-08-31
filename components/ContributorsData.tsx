@@ -19,12 +19,12 @@ interface ContributorStats {
 interface ContributorsDataProps {
     selectedYear: '2025' | '2024' | '2023' | '2022' | '2021' | '2020';
     searchQuery?: string;
+    onYearChange?: (year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020') => void;
 }
 
-// Declare Papa globally so TypeScript knows about it after CDN load
 declare const Papa: any;
 
-const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searchQuery }) => {
+const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searchQuery, onYearChange }) => {
     // State to store the list of contributors
     const [contributors, setContributors] = useState<ContributorInfo[]>([]);
     // State to store overall statistics
@@ -42,6 +42,9 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
 
     // Ref to ensure the script is only added once
     const scriptLoadedRef = useRef(false);
+
+    // Available years for the dropdown
+    const availableYears: ('2025' | '2024' | '2023' | '2022' | '2021' | '2020')[] = ['2025', '2024', '2023', '2022', '2021', '2020'];
 
     // Effect hook to dynamically load the PapaParse CDN script
     useEffect(() => {
@@ -90,7 +93,6 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
             }
         };
     }, []); // Empty dependency array means this effect runs only once on mount
-
 
     // Effect hook to load contributor data when selectedYear or PapaParse loading state changes
     useEffect(() => {
@@ -238,9 +240,32 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
         <div className="max-w-6xl mx-auto px-4">
             {/* Tailwind CSS CDN is assumed to be available or loaded elsewhere */}
             <div className="bg-[#19191A] rounded-lg border border-gray-800 p-6">
-                <h2 className="text-2xl font-bold text-white mb-6">
-                    {selectedYear} Consensus Contributors
-                </h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                    <h2 className="text-2xl font-bold text-white">
+                        {selectedYear} Consensus Contributors
+                    </h2>
+                    
+                    {/* Year Selection Dropdown */}
+                    {onYearChange && (
+                        <div className="flex items-center space-x-2">
+                            <label htmlFor="year-select" className="text-gray-400 text-sm">
+                                Year:
+                            </label>
+                            <select
+                                id="year-select"
+                                value={selectedYear}
+                                onChange={(e) => onYearChange(e.target.value as '2025' | '2024' | '2023' | '2022' | '2021' | '2020')}
+                                className="bg-gray-800 border border-gray-600 text-blue-400 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-400 transition-colors"
+                            >
+                                {availableYears.map(year => (
+                                    <option key={year} value={year} className="bg-gray-800 text-blue-400">
+                                        {year}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                </div>
                 
                 <div className="mt-8 pt-6 border-t border-gray-700/50">
                     <p className="text-gray-400 mb-5">

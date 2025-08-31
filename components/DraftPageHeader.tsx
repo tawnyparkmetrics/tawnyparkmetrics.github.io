@@ -42,7 +42,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       return `${firstName}'s Flagg Plant Score`;
     }
     if (author === 'Consensus') {
-      return `2025 NBA Draft Internet Consensus`;
+      return selectedYear ? `${selectedYear} NBA Draft Internet Consensus` : `NBA Draft Internet Consensus`;
     }
     // Updated logic for 'Draft History' author
     if (author === 'Draft History') {
