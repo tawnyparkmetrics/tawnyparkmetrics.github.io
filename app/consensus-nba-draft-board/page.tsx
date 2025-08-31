@@ -1333,7 +1333,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <div className="flex items-center gap-2">
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                className={`flex-1 px-2 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -1341,7 +1341,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                className={`flex-1 px-2 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -1349,12 +1349,43 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                className={`flex-1 px-2 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 Bigs
                             </motion.button>
+
+                            {/* Mobile Year Dropdown - Inline */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <motion.button
+                                        className={`
+                                            px-3 py-2 rounded-lg text-xs font-medium
+                                            transition-all duration-300
+                                            bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                                            flex items-center gap-1
+                                        `}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        {selectedYear || '2025'}
+                                        <ChevronDown className="h-4 w-4" />
+                                    </motion.button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
+                                        <DropdownMenuItem
+                                            key={year}
+                                            className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
+                                                }`}
+                                            onClick={() => onYearChange?.(year)}
+                                        >
+                                            {year}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
 
@@ -2063,7 +2094,7 @@ export default function ConsensusPage() {
                 </div>
             )}
             
-            
+
 
             {viewMode === 'contributors' ? (
                 <ContributorsData
