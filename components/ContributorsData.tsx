@@ -8,6 +8,61 @@ interface ContributorInfo {
     averageProspectsRanked: number; // For individual contributors, this will be the same as totalRanks
 }
 
+
+// Add this library at the top of your ContributorsData component file, outside the component
+const CONTRIBUTOR_URLS: Record<string, string> = {
+    // Media Outlets
+    'Sam Vecenie (The Athletic)': 'https://theathletic.com/author/sam-vecenie/',
+    'John Hollinger (The Athletic)': 'https://www.nytimes.com/athletic/3365655/2022/06/16/nba-draft-2022-top-75-prospects/',
+    'Nick Heintzman':'https://www.nba-draft-scouting.com/post/2022-nba-draft-big-board',
+    'CBS Sports': 'https://www.cbssports.com/nba/draft/',
+    'ESPN': 'https://www.espn.com/nba/draft/',
+    'The Ringer': 'https://www.theringer.com/nba',
+    'Yahoo': 'https://sports.yahoo.com/nba/',
+    'Fansided': 'https://fansided.com/nba/',
+    'TPM': 'https://www.theplayersmedia.com/',
+    'MavsDraft': 'https://mavsdraft.com/final-2022-nba-draft-big-board/',
+    "Kevin O'Conner (The Ringer)": 'https://nbadraft.theringer.com/2021/',
+
+    // Draft Sites
+    'Tankathon': 'https://www.tankathon.com/',
+    'NBADraft.net': 'https://www.nbadraft.net/',
+    'NBA Draft Room': 'https://www.nbadraftroom.com/',
+    'NBA Draft Network': 'https://www.nbadraftnetwork.com/',
+    'NBADraftFuture': 'https://nbadraftfuture.com/',
+
+    // Analytics Sites
+    'No Ceilings': 'https://www.noceilings.com/',
+    'CraftedNBA': 'https://craftednba.com/',
+    'Swish Theory': 'https://swishtheory.com/',
+    'Opta': 'https://www.optasports.com/',
+    'the center hub': 'https://thecenterhub.net/',
+    'databallr': 'https://databallr.com/',
+};
+
+// Helper function to generate Twitter URL from handle
+const getTwitterUrl = (handle: string): string => {
+    // Remove @ if present and any extra characters
+    const cleanHandle = handle.replace('@', '').trim();
+    return `https://twitter.com/${cleanHandle}`;
+};
+
+// Helper function to get URL for a contributor
+const getContributorUrl = (contributorName: string): string => {
+    // Check if it's a Twitter handle (starts with @)
+    if (contributorName.startsWith('@')) {
+        return getTwitterUrl(contributorName);
+    }
+
+    // Check if it's in our library
+    if (CONTRIBUTOR_URLS[contributorName]) {
+        return CONTRIBUTOR_URLS[contributorName];
+    }
+
+    // Return empty string if no URL found
+    return '';
+};
+
 // Interface for overall contributor statistics
 interface ContributorStats {
     totalContributors: number;
@@ -28,10 +83,10 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
     // State to store the list of contributors
     const [contributors, setContributors] = useState<ContributorInfo[]>([]);
     // State to store overall statistics
-    const [stats, setStats] = useState<ContributorStats>({ 
-        totalContributors: 0, 
-        totalRanks: 0, 
-        averageProspectsPerBoard: 0 
+    const [stats, setStats] = useState<ContributorStats>({
+        totalContributors: 0,
+        totalRanks: 0,
+        averageProspectsPerBoard: 0
     });
     // State to manage overall loading status (including script and data)
     const [loading, setLoading] = useState<boolean>(true);
@@ -112,18 +167,18 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
                 setLoading(true); // Reset loading for data fetch
             }
             setError(null); // Clear any previous errors
-            
+
             try {
                 // *** IMPORTANT CHANGE ***
                 // Use the new CSV file specifically for contributor information
                 const csvFileName = `${selectedYear} Boards Submitted Consensus.csv`;
                 const response = await fetch(`/${csvFileName}`); // Fetch the CSV file
-                
+
                 // Check if the network request was successful
                 if (!response.ok) {
                     throw new Error(`Failed to load ${csvFileName}. Please ensure the file exists.`);
                 }
-                
+
                 const csvText = await response.text(); // Get the CSV content as text
 
                 // Parse the CSV text using PapaParse
@@ -135,7 +190,7 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
                             // Cast the parsed data to an array of records where keys are strings
                             // and values are also strings (as read from CSV)
                             const data = results.data as Record<string, string>[];
-                            
+
                             // If no data is found, set an error
                             if (data.length === 0) {
                                 setError(`No contributor data found in ${csvFileName}`);
@@ -146,20 +201,13 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
                             // Updated to use the actual column names from the provided image
                             const contributorInfoArray: ContributorInfo[] = data
                                 .map(row => ({
-                                    // 'Board' column in CSV maps to 'name'
                                     name: row['Board'] || 'Unknown Contributor',
-                                    // There is no 'URL' column in the provided CSV.
-                                    // For now, we'll keep it an empty string. If you have a way to derive URLs,
-                                    // this is where you'd implement that logic.
-                                    url: '', 
-                                    // 'Names Entered' column in CSV maps to 'totalRanks'
+                                    // Use the helper function to get the appropriate URL
+                                    url: getContributorUrl(row['Board'] || ''),
                                     totalRanks: parseInt(row['Names Entered'] || '0') || 0,
-                                    // For individual contributors, average prospects ranked is simply their total ranks
                                     averageProspectsRanked: parseInt(row['Names Entered'] || '0') || 0,
                                 }))
-                                // Filter out contributors who haven't ranked any prospects (totalRanks > 0)
                                 .filter(contributor => contributor.totalRanks > 0)
-                                // Sort contributors by their total ranks in descending order
                                 .sort((a, b) => b.totalRanks - a.totalRanks);
 
                             // Calculate overall statistics from the processed contributor array
@@ -202,9 +250,9 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
     // Memoize the filtered contributors based on the search query
     const filteredContributors = useMemo(() => {
         if (!searchQuery) return contributors; // If no search query, return all contributors
-        
+
         const query = searchQuery.toLowerCase(); // Convert query to lowercase for case-insensitive search
-        return contributors.filter(contributor => 
+        return contributors.filter(contributor =>
             contributor.name.toLowerCase().includes(query) // Filter by contributor name
         );
     }, [contributors, searchQuery]); // Re-calculate when contributors or searchQuery changes
@@ -244,7 +292,7 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
                     <h2 className="text-2xl font-bold text-white">
                         {selectedYear} Consensus Contributors
                     </h2>
-                    
+
                     {/* Year Selection Dropdown */}
                     {onYearChange && (
                         <div className="flex items-center space-x-2">
@@ -266,19 +314,19 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
                         </div>
                     )}
                 </div>
-                
+
                 <div className="mt-8 pt-6 border-t border-gray-700/50">
                     <p className="text-gray-400 mb-5">
-                        Total Contributors: <span className="text-white font-semibold">{stats.totalContributors}</span>, 
-                        Total Ranks: <span className="text-white font-semibold">{stats.totalRanks}</span>, 
+                        Total Contributors: <span className="text-white font-semibold">{stats.totalContributors}</span>,
+                        Total Ranks: <span className="text-white font-semibold">{stats.totalRanks}</span>,
                         Prospects Per Board: <span className="text-white font-semibold">{stats.averageProspectsPerBoard}</span>
                     </p>
                 </div>
-                
+
                 <p className="text-gray-400 mb-8">
                     Our {selectedYear} consensus board is compiled from rankings provided by the following analysts, scouts, and platforms:
                 </p>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {/* Map through filtered contributors to render each one */}
                     {filteredContributors.map((contributor, index) => (
@@ -329,7 +377,7 @@ const ContributorsData: React.FC<ContributorsDataProps> = ({ selectedYear, searc
                         </div>
                     ))}
                 </div>
-                
+
                 {/* Display message if no contributors match the search query */}
                 {filteredContributors.length === 0 && searchQuery && (
                     <div className="text-center py-8 text-gray-400">

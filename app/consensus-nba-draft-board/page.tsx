@@ -1040,6 +1040,7 @@ const ConsensusPageProspectCard: React.FC<{
 
 type RankType = number | 'N/A';
 
+
 interface ProspectFilterProps {
     prospects: DraftProspect[];
     onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
@@ -1063,6 +1064,31 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     const [, setLocalFilteredProspects] = useState(prospects);
     const [viewMode, setViewMode] = useState<'card' | 'table' | 'contributors'>('card');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+    const RANK_THRESHOLDS_BY_YEAR: Record<string, number> = {
+        '2020': 97,
+        '2021': 91,
+        '2022': 90,
+    };
+    
+    const shouldShowInCardView = (prospect: DraftProspect, selectedYear: string, viewMode: 'card' | 'table' | 'contributors') => {
+        // Always show in table view
+        if (viewMode === 'table' || viewMode === 'contributors') {
+            return true;
+        }
+        
+        // Check if there's a rank threshold for the selected year
+        const threshold = RANK_THRESHOLDS_BY_YEAR[selectedYear];
+        if (!threshold) {
+            return true; // No threshold set, show all prospects
+        }
+        
+        // Parse the prospect's rank
+        const prospectRank = parseInt(prospect.Rank) || 999;
+        
+        // Only show prospects with rank below threshold in card view
+        return prospectRank < threshold;
+    };
 
     // Handle view mode changes with debugging
     const handleViewModeChange = useCallback((mode: 'card' | 'table' | 'contributors') => {
@@ -1103,11 +1129,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
     useEffect(() => {
         let results = prospects;
-
+    
         if (roleFilter !== 'all') {
             results = results.filter((prospect) => prospect.Role === roleFilter);
         }
-
+    
         // Create ranking system based on filters (excluding search)
         const rankingSystem = new Map<string, number>();
         const filteredForRanking = prospects.filter((prospect) => {
@@ -1116,19 +1142,19 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             }
             return true;
         });
-
+    
         // Sort by Rank (ascending order - 1, 2, 3, etc.)
         const sortedForRanking = filteredForRanking.sort((a, b) => {
-            const rankA = parseInt(a.Rank) || 999; // Default to 999 if no rank
+            const rankA = parseInt(a.Rank) || 999;
             const rankB = parseInt(b.Rank) || 999;
             return rankA - rankB;
         });
-
+    
         // Assign ranks based on filtered and sorted data
         sortedForRanking.forEach((prospect, index) => {
             rankingSystem.set(prospect.Name, index + 1);
         });
-
+    
         // Apply search filter after creating ranking system
         if (searchQuery) {
             const searchTermLower = searchQuery.toLowerCase();
@@ -1139,24 +1165,28 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                     (prospect['NBA Team'] && prospect['NBA Team'].toLowerCase().includes(searchTermLower))
             );
         }
-
+    
+        // IMPORTANT: Apply rank-based view filtering here
+        // This filtering happens AFTER role and search filters but BEFORE sorting
+        results = results.filter((prospect) => shouldShowInCardView(prospect, selectedYear || '2025', viewMode));
+    
         // Sort by Rank (ascending order - 1, 2, 3, etc.)
         results = results.sort((a, b) => {
-            const rankA = parseInt(a.Rank) || 999; // Default to 999 if no rank
+            const rankA = parseInt(a.Rank) || 999;
             const rankB = parseInt(b.Rank) || 999;
             return rankA - rankB;
         });
-
+    
         setLocalFilteredProspects(results);
-
+    
         if (onFilteredProspectsChange) {
             onFilteredProspectsChange(results);
         }
-
+    
         if (onRankingSystemChange) {
             onRankingSystemChange(rankingSystem);
         }
-    }, [prospects, searchQuery, roleFilter, onFilteredProspectsChange, onRankingSystemChange]);
+    }, [prospects, searchQuery, roleFilter, selectedYear, viewMode, onFilteredProspectsChange, onRankingSystemChange]);
 
     // Debug the current view mode
     console.log('Current viewMode in render:', viewMode);
@@ -1578,6 +1608,7 @@ export default function ConsensusPage() {
     const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
     const [selectedYear, setSelectedYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020'>('2025');
 
+    
     // Define column configuration with proper Player Information order
     const initialColumns: ColumnConfig[] = [
         // Player Information - Rank and Name are always visible

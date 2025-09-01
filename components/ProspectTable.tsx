@@ -697,16 +697,16 @@ export function ProspectTable<T extends BaseProspect>({
         }
 
         
-
         if (['1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Undrafted', 'Inclusion Rate'].includes(column.key)) {
             const cellValue = prospect[key];
             let displayValue = '';
-
+        
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
                 const numValue = parseFloat(String(cellValue));
                 if (!isNaN(numValue)) {
-                    // Convert decimal to percentage (multiply by 100) and format to 1 decimal place
-                    displayValue = `${(numValue * 100).toFixed(1)}%`;
+                    // Convert decimal to percentage (multiply by 100) and format without unnecessary .0
+                    const percentage = numValue * 100;
+                    displayValue = `${percentage % 1 === 0 ? percentage.toFixed(0) : percentage.toFixed(1)}%`;
                 } else {
                     displayValue = String(cellValue);
                 }
@@ -893,13 +893,15 @@ export function ProspectTable<T extends BaseProspect>({
                                     key={column.key}
                                     className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'} ${
                                         // Center specific columns that should be centered
-                                        ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '31 - 59'].includes(column.key) ? 'text-center' : ''
+                                        ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Inclusion Rate'].includes(column.key) ? 'text-center' : ''
                                     }`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
                                 >
                                     {/* Display shortened labels for Range Consensus columns in table headers */}
                                     {['1 - 3', '4 - 14', '15 - 30', '31 - 59'].includes(column.key)
                                         ? column.key  // Show just "1 - 3", "4 - 14", etc.
+                                        : column.key === 'Inclusion Rate'
+                                        ? 'IR'
                                         : column.label  // Show full label for all other columns
                                     }
                                     {column.sortable && sortConfig?.key === column.key && (
