@@ -339,7 +339,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
               />
               <Input
                 type="text"
-                placeholder="Search"
+                placeholder="Search by name, pre-NBA team, or NBA team"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 hidden sm:block"

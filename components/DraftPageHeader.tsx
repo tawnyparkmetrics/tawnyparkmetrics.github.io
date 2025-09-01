@@ -6,6 +6,27 @@ export interface DraftPageHeaderProps {
   selectedYear?: number | string; // Allow selectedYear to be a string (e.g., '2020-2025')
 }
 
+const getBoardCount = (year: number | string | undefined) => {
+  const numericYear = typeof year === 'string' ? parseInt(year) : year;
+
+  switch (numericYear) {
+    case 2020:
+      return 64; // or whatever value you want for 2020
+    case 2021:
+      return 104; // or whatever value you want for 2021
+    case 2022:
+      return 100; // or whatever value you want for 2022
+    case 2023:
+      return 71; // or whatever value you want for 2023
+    case 2024:
+      return 111; // or whatever value you want for 2024
+    case 2025:
+      return 164; // or whatever value you want for 2025
+    default:
+      return 20; // default fallback value
+  }
+};
+
 const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '', selectedYear }) => {
   // Get first name for the display
   const firstName = author.split(' ')[0];
@@ -25,7 +46,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Consensus':
         return (
           <>
-            Aggregate of 158 boards, all published & submitted before the 2025 NBA Draft. Thank you to everyone who helps put this consensus together, including: <a href="https://twitter.com/mikegrib8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@mikegrib8</a>, <a href="https://twitter.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@thegrantedwards</a>, <a href="https://twitter.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@codyreeves14</a>, <a href="https://twitter.com/dualbarl" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@dualbarl</a>, <a href="https://twitter.com/CannibalSerb" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@CannibalSerb</a>, <a href="https://twitter.com/bendog28" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@bendog28</a>, <a href="https://twitter.com/BalaRavikumar5" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@BalaRavikumar5</a>, & <a href="https://twitter.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>. Only displaying prospects who appear on at least 10 boards. Prospects are ordered via a weighted combination of average (mean) rank & inclusion rate.
+            Aggregate of {getBoardCount(selectedYear || 2025)} boards, all published before the {selectedYear ?? ''} NBA Draft. Only displaying prospects who appear on at least ~5% of boards. Prospects are ordered via a weighted combination of average (mean) rank & inclusion rate.
           </>
         );
       default:

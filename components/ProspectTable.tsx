@@ -195,7 +195,7 @@ export function ProspectTable<T extends BaseProspect>({
             .map(col => `${col.key}:${col.category}`)
             .sort()
             .join('|');
-        
+
         // Simple hash function to create a shorter, consistent identifier
         let hash = 0;
         for (let i = 0; i < columnSignature.length; i++) {
@@ -203,7 +203,7 @@ export function ProspectTable<T extends BaseProspect>({
             hash = ((hash << 5) - hash) + char;
             hash = hash & hash; // Convert to 32-bit integer
         }
-        
+
         return `table-${Math.abs(hash)}`;
     }, [filteredInitialColumns]);
 
@@ -214,13 +214,13 @@ export function ProspectTable<T extends BaseProspect>({
     useEffect(() => {
         try {
             const savedState = JSON.parse(localStorage.getItem(storageKey) || '{}');
-            
+
             // Merge saved visibility state with filtered initial columns
             const updatedColumns = filteredInitialColumns.map(col => ({
                 ...col,
                 visible: savedState[col.key] !== undefined ? savedState[col.key] : col.visible
             }));
-            
+
             setColumns(updatedColumns);
         } catch (error) {
             console.warn('Failed to load saved column state:', error);
@@ -235,7 +235,7 @@ export function ProspectTable<T extends BaseProspect>({
                 acc[col.key] = col.visible;
                 return acc;
             }, {} as Record<string, boolean>);
-            
+
             localStorage.setItem(storageKey, JSON.stringify(visibilityState));
         } catch (error) {
             console.warn('Failed to save column state:', error);
@@ -290,7 +290,7 @@ export function ProspectTable<T extends BaseProspect>({
     // Helper function to format tier display
     const formatTierDisplay = (tierValue: string | number): string => {
         if (!tierValue && tierValue !== 0) return '';
-        
+
         // Always add "Tier" prefix to the number
         return `Tier ${tierValue}`;
     };
@@ -359,7 +359,7 @@ export function ProspectTable<T extends BaseProspect>({
                     const tierCompare = sortConfig.direction === 'ascending'
                         ? aRank - bRank
                         : bRank - aRank;
-                    
+
                     // If tier ranks are equal, use stable sort
                     return tierCompare !== 0 ? tierCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
                 } else {
@@ -369,7 +369,7 @@ export function ProspectTable<T extends BaseProspect>({
                     const tierCompare = sortConfig.direction === 'ascending'
                         ? aNum - bNum
                         : bNum - aNum;
-                    
+
                     return tierCompare !== 0 ? tierCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
                 }
             }
@@ -381,7 +381,7 @@ export function ProspectTable<T extends BaseProspect>({
                 const heightCompare = sortConfig.direction === 'ascending'
                     ? aNum - bNum
                     : bNum - aNum;
-                
+
                 return heightCompare !== 0 ? heightCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
@@ -392,7 +392,7 @@ export function ProspectTable<T extends BaseProspect>({
                 const wingspanCompare = sortConfig.direction === 'ascending'
                     ? aNum - bNum
                     : bNum - aNum;
-                
+
                 return wingspanCompare !== 0 ? wingspanCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
@@ -403,7 +403,7 @@ export function ProspectTable<T extends BaseProspect>({
                 const weightCompare = sortConfig.direction === 'ascending'
                     ? aNum - bNum
                     : bNum - aNum;
-                
+
                 return weightCompare !== 0 ? weightCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
@@ -414,7 +414,7 @@ export function ProspectTable<T extends BaseProspect>({
                 const ageCompare = sortConfig.direction === 'ascending'
                     ? aNum - bNum
                     : bNum - aNum;
-                
+
                 return ageCompare !== 0 ? ageCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
@@ -425,7 +425,7 @@ export function ProspectTable<T extends BaseProspect>({
                 const yearCompare = sortConfig.direction === 'ascending'
                     ? aNum - bNum
                     : bNum - aNum;
-                
+
                 return yearCompare !== 0 ? yearCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
@@ -454,17 +454,17 @@ export function ProspectTable<T extends BaseProspect>({
             if (stringCompare === 0) {
                 const aPickValue = a['Actual Pick'];
                 const bPickValue = b['Actual Pick'];
-                
+
                 // Handle "Undrafted" or picks >= 61 as higher numbers
                 const getPickNumber = (pick: any): number => {
                     if (!pick) return 999;
                     const pickNum = Number(pick);
                     return pickNum >= 61 ? 999 : pickNum;
                 };
-                
+
                 const aPickNum = getPickNumber(aPickValue);
                 const bPickNum = getPickNumber(bPickValue);
-                
+
                 const pickCompare = aPickNum - bPickNum; // Always ascending for draft pick
                 return pickCompare !== 0 ? pickCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
@@ -633,11 +633,11 @@ export function ProspectTable<T extends BaseProspect>({
 
             // Ensure minimum visibility
             intensity = Math.max(0.1, Math.min(1, intensity));
-            
+
             // Create blue gradient
             const backgroundColor = `rgba(59, 130, 246, ${0.1 + intensity * 0.4})`;
             const textColor = intensity > 0.3 ? '#ffffff' : '#e5e7eb';
-            
+
             return { backgroundColor, color: textColor };
         };
 
@@ -647,17 +647,41 @@ export function ProspectTable<T extends BaseProspect>({
                 return { backgroundColor: 'transparent', color: '#d1d5db' }; // gray-300
             }
 
+
+
             const numValue = parseFloat(String(value));
-            
+
             // For percentage values, higher percentages should be brighter blue
             // Normalize to 0-1 range where 1 is brightest blue
             const intensity = Math.min(numValue, 1); // Cap at 1 (100%)
-            
+
             // Create blue gradient - brighter blue for higher values, darker for lower
             const blueIntensity = Math.max(0.1, intensity); // Minimum 10% intensity for visibility
             const backgroundColor = `rgba(59, 130, 246, ${0.1 + blueIntensity * 0.4})`; // Blue with variable alpha
             const textColor = intensity > 0.3 ? '#ffffff' : '#e5e7eb'; // White text for high intensity, light gray for low
-            
+
+            return { backgroundColor, color: textColor };
+        };
+
+        const getEPMProjectionGradient = (value: any, key: string): { backgroundColor: string; color: string } => {
+            if (value === null || value === undefined || value === '' || isNaN(parseFloat(String(value)))) {
+                return { backgroundColor: 'transparent', color: '#d1d5db' }; // gray-300
+            }
+
+            const numValue = parseFloat(String(value));
+
+            // For EPM projections, lower rank numbers are better (rank 1 = brightest, rank 100 = darkest)
+            // Normalize based on 1-100 range
+            const normalizedValue = Math.min((numValue - 1) / 99, 1); // Convert 1-100 to 0-1 range
+            const intensity = 1 - normalizedValue; // Invert so rank 1 = intensity 1, rank 100 = intensity 0
+
+            // Ensure minimum visibility for very high ranks
+            const finalIntensity = Math.max(0.05, Math.min(1, intensity));
+
+            // Create blue gradient
+            const backgroundColor = `rgba(59, 130, 246, ${0.1 + finalIntensity * 0.5})`;
+            const textColor = finalIntensity > 0.4 ? '#ffffff' : '#e5e7eb';
+
             return { backgroundColor, color: textColor };
         };
 
@@ -686,8 +710,8 @@ export function ProspectTable<T extends BaseProspect>({
             const gradientStyle = getConsensusRankGradient(cellValue, column.key);
 
             return (
-                <TableCell 
-                    key={column.key} 
+                <TableCell
+                    key={column.key}
                     className="text-center font-medium"
                     style={gradientStyle}
                 >
@@ -696,17 +720,15 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        
         if (['1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Undrafted', 'Inclusion Rate'].includes(column.key)) {
             const cellValue = prospect[key];
             let displayValue = '';
-        
+
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
                 const numValue = parseFloat(String(cellValue));
                 if (!isNaN(numValue)) {
-                    // Convert decimal to percentage (multiply by 100) and format without unnecessary .0
-                    const percentage = numValue * 100;
-                    displayValue = `${percentage % 1 === 0 ? percentage.toFixed(0) : percentage.toFixed(1)}%`;
+                    // Convert decimal to percentage (multiply by 100) and format to 1 decimal place
+                    displayValue = `${(numValue * 100).toFixed(1)}%`;
                 } else {
                     displayValue = String(cellValue);
                 }
@@ -715,8 +737,37 @@ export function ProspectTable<T extends BaseProspect>({
             const gradientStyle = getConsensusRangeGradient(cellValue, column.key);
 
             return (
-                <TableCell 
-                    key={column.key} 
+                <TableCell
+                    key={column.key}
+                    className="text-center font-medium"
+                    style={gradientStyle}
+                >
+                    {displayValue}
+                </TableCell>
+            );
+        }
+
+        if (['Pred. Y1 Rank', 'Pred. Y2 Rank', 'Pred. Y3 Rank', 'Pred. Y4 Rank', 'Pred. Y5 Rank', 'Rank Y1-Y3', 'Rank Y1-Y5'].includes(column.key)) {
+            const cellValue = prospect[key];
+            let displayValue = '';
+
+            if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
+                const numValue = parseFloat(String(cellValue));
+                if (!isNaN(numValue)) {
+                    // Show as whole numbers or 1 decimal if needed
+                    displayValue = numValue % 1 === 0 ? numValue.toString() : numValue.toFixed(1);
+                } else {
+                    displayValue = String(cellValue);
+                }
+            } else {
+                displayValue = 'N/A';
+            }
+
+            const gradientStyle = getEPMProjectionGradient(cellValue, column.key);
+
+            return (
+                <TableCell
+                    key={column.key}
                     className="text-center font-medium"
                     style={gradientStyle}
                 >
@@ -730,7 +781,7 @@ export function ProspectTable<T extends BaseProspect>({
             const displayValue = showTierPrefix ? formatTierDisplay(prospect.Tier) : prospect.Tier;
             // Use the original tier value for color lookup
             const tierColorKey = prospect.Tier;
-            
+
             return (
                 <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
                     <div className="flex justify-center">
@@ -893,15 +944,13 @@ export function ProspectTable<T extends BaseProspect>({
                                     key={column.key}
                                     className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'} ${
                                         // Center specific columns that should be centered
-                                        ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Inclusion Rate'].includes(column.key) ? 'text-center' : ''
-                                    }`}
+                                        ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '31 - 59'].includes(column.key) ? 'text-center' : ''
+                                        }`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
                                 >
                                     {/* Display shortened labels for Range Consensus columns in table headers */}
                                     {['1 - 3', '4 - 14', '15 - 30', '31 - 59'].includes(column.key)
                                         ? column.key  // Show just "1 - 3", "4 - 14", etc.
-                                        : column.key === 'Inclusion Rate'
-                                        ? 'IR'
                                         : column.label  // Show full label for all other columns
                                     }
                                     {column.sortable && sortConfig?.key === column.key && (

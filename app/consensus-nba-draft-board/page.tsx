@@ -23,6 +23,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
 
+
 export interface DraftProspect {
     //Player info for hover
     'Name': string;
@@ -1040,7 +1041,6 @@ const ConsensusPageProspectCard: React.FC<{
 
 type RankType = number | 'N/A';
 
-
 interface ProspectFilterProps {
     prospects: DraftProspect[];
     onFilteredProspectsChange?: (filteredProspects: DraftProspect[]) => void;
@@ -1064,31 +1064,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     const [, setLocalFilteredProspects] = useState(prospects);
     const [viewMode, setViewMode] = useState<'card' | 'table' | 'contributors'>('card');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-
-    const RANK_THRESHOLDS_BY_YEAR: Record<string, number> = {
-        '2020': 97,
-        '2021': 91,
-        '2022': 90,
-    };
-    
-    const shouldShowInCardView = (prospect: DraftProspect, selectedYear: string, viewMode: 'card' | 'table' | 'contributors') => {
-        // Always show in table view
-        if (viewMode === 'table' || viewMode === 'contributors') {
-            return true;
-        }
-        
-        // Check if there's a rank threshold for the selected year
-        const threshold = RANK_THRESHOLDS_BY_YEAR[selectedYear];
-        if (!threshold) {
-            return true; // No threshold set, show all prospects
-        }
-        
-        // Parse the prospect's rank
-        const prospectRank = parseInt(prospect.Rank) || 999;
-        
-        // Only show prospects with rank below threshold in card view
-        return prospectRank < threshold;
-    };
 
     // Handle view mode changes with debugging
     const handleViewModeChange = useCallback((mode: 'card' | 'table' | 'contributors') => {
@@ -1129,11 +1104,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
     useEffect(() => {
         let results = prospects;
-    
+
         if (roleFilter !== 'all') {
             results = results.filter((prospect) => prospect.Role === roleFilter);
         }
-    
+
         // Create ranking system based on filters (excluding search)
         const rankingSystem = new Map<string, number>();
         const filteredForRanking = prospects.filter((prospect) => {
@@ -1142,19 +1117,19 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             }
             return true;
         });
-    
+
         // Sort by Rank (ascending order - 1, 2, 3, etc.)
         const sortedForRanking = filteredForRanking.sort((a, b) => {
-            const rankA = parseInt(a.Rank) || 999;
+            const rankA = parseInt(a.Rank) || 999; // Default to 999 if no rank
             const rankB = parseInt(b.Rank) || 999;
             return rankA - rankB;
         });
-    
+
         // Assign ranks based on filtered and sorted data
         sortedForRanking.forEach((prospect, index) => {
             rankingSystem.set(prospect.Name, index + 1);
         });
-    
+
         // Apply search filter after creating ranking system
         if (searchQuery) {
             const searchTermLower = searchQuery.toLowerCase();
@@ -1165,28 +1140,24 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                     (prospect['NBA Team'] && prospect['NBA Team'].toLowerCase().includes(searchTermLower))
             );
         }
-    
-        // IMPORTANT: Apply rank-based view filtering here
-        // This filtering happens AFTER role and search filters but BEFORE sorting
-        results = results.filter((prospect) => shouldShowInCardView(prospect, selectedYear || '2025', viewMode));
-    
+
         // Sort by Rank (ascending order - 1, 2, 3, etc.)
         results = results.sort((a, b) => {
-            const rankA = parseInt(a.Rank) || 999;
+            const rankA = parseInt(a.Rank) || 999; // Default to 999 if no rank
             const rankB = parseInt(b.Rank) || 999;
             return rankA - rankB;
         });
-    
+
         setLocalFilteredProspects(results);
-    
+
         if (onFilteredProspectsChange) {
             onFilteredProspectsChange(results);
         }
-    
+
         if (onRankingSystemChange) {
             onRankingSystemChange(rankingSystem);
         }
-    }, [prospects, searchQuery, roleFilter, selectedYear, viewMode, onFilteredProspectsChange, onRankingSystemChange]);
+    }, [prospects, searchQuery, roleFilter, onFilteredProspectsChange, onRankingSystemChange]);
 
     // Debug the current view mode
     console.log('Current viewMode in render:', viewMode);
@@ -1363,7 +1334,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <div className="flex items-center gap-2">
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-                                className={`flex-1 px-2 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -1371,7 +1342,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-                                className={`flex-1 px-2 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -1379,43 +1350,12 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                             </motion.button>
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-                                className={`flex-1 px-2 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 Bigs
                             </motion.button>
-
-                            {/* Mobile Year Dropdown - Inline */}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <motion.button
-                                        className={`
-                                            px-3 py-2 rounded-lg text-xs font-medium
-                                            transition-all duration-300
-                                            bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
-                                            flex items-center gap-1
-                                        `}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        {selectedYear || '2025'}
-                                        <ChevronDown className="h-4 w-4" />
-                                    </motion.button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                    {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
-                                        <DropdownMenuItem
-                                            key={year}
-                                            className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
-                                                }`}
-                                            onClick={() => onYearChange?.(year)}
-                                        >
-                                            {year}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
                         </div>
                     </div>
 
@@ -1594,6 +1534,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     );
 };
 
+
 export default function ConsensusPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
@@ -1608,7 +1549,6 @@ export default function ConsensusPage() {
     const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
     const [selectedYear, setSelectedYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020'>('2025');
 
-    
     // Define column configuration with proper Player Information order
     const initialColumns: ColumnConfig[] = [
         // Player Information - Rank and Name are always visible
@@ -2003,10 +1943,7 @@ export default function ConsensusPage() {
     return (
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Consensus" />
-            <DraftPageHeader 
-                author="Consensus"
-                selectedYear={selectedYear}
-            />
+            <DraftPageHeader author="Consensus" />
             <GoogleAnalytics gaId="G-X22HKJ13B7" />
             {viewMode !== 'contributors' ? (
                 <ProspectFilter
@@ -2020,7 +1957,7 @@ export default function ConsensusPage() {
                 />
             ) : (
                 <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
-                    <div className="px-4 py-3 flex items-center justify-between gap-2">
+                    <div className="px-4 py-3 flex items-center justify-between">
                         <div className="relative flex-grow max-w-full mr-2">
                             <div className="relative w-full">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
@@ -2040,92 +1977,55 @@ export default function ConsensusPage() {
                                 />
                             </div>
                         </div>
-                        
-                        <div className="flex items-center gap-2">
-                            {/* Year Dropdown */}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <motion.button
-                                        className={`
-                                            px-3 py-2 rounded-lg text-sm font-medium
-                                            transition-all duration-300
-                                            bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
-                                            flex items-center gap-1
-                                        `}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        {selectedYear || '2025'}
-                                        <ChevronDown className="h-4 w-4" />
-                                    </motion.button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                    {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
-                                        <DropdownMenuItem
-                                            key={year}
-                                            className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
-                                                }`}
-                                            onClick={() => setSelectedYear(year)}
-                                        >
-                                            {year}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-            
-                            {/* View Mode Dropdown */}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <motion.button
-                                        className={`
-                                            px-3 py-2 rounded-lg text-sm font-medium flex items-center
-                                            transition-all duration-300
-                                            bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
-                                        `}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        <TrendingUp className="mr-1 h-4 w-4" />
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <motion.button
+                                    className={`
+                                        px-3 py-2 rounded-lg text-sm font-medium flex items-center
+                                        transition-all duration-300
+                                        bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                                    `}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <TrendingUp className="mr-1 h-4 w-4" />
+                                    Contributors
+                                    <ChevronDown className="ml-1 h-4 w-4" />
+                                </motion.button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                <DropdownMenuItem
+                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                    onClick={() => setViewMode('card')}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <LucideUser className="h-4 w-4" />
+                                        Card View
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                    onClick={() => setViewMode('table')}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <TableIcon className="h-4 w-4" />
+                                        Table View
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
+                                    onClick={() => setViewMode('contributors')}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="h-4 w-4" />
                                         Contributors
-                                        <ChevronDown className="ml-1 h-4 w-4" />
-                                    </motion.button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                    <DropdownMenuItem
-                                        className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                        onClick={() => setViewMode('card')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <LucideUser className="h-4 w-4" />
-                                            Card View
-                                        </div>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                        onClick={() => setViewMode('table')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <TableIcon className="h-4 w-4" />
-                                            Table View
-                                        </div>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
-                                        onClick={() => setViewMode('contributors')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <TrendingUp className="h-4 w-4" />
-                                            Contributors
-                                        </div>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
             )}
-            
-
 
             {viewMode === 'contributors' ? (
                 <ContributorsData
