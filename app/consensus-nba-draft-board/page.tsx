@@ -23,7 +23,6 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
 
-
 export interface DraftProspect {
     //Player info for hover
     'Name': string;
@@ -61,7 +60,7 @@ export interface DraftProspect {
     '1 - 3': string;
     '4 - 14': string;
     '15 - 30': string;
-    '31 - 59': string;
+    '2nd Round': string;
     'Undrafted': string;
 
     Summary?: string;
@@ -651,7 +650,7 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
             { label: '1-3', value: safeParseFloat(prospect['1 - 3']), range: '1-3' },
             { label: '4-14', value: safeParseFloat(prospect['4 - 14']), range: '4-14' },
             { label: '15-30', value: safeParseFloat(prospect['15 - 30']), range: '15-30' },
-            { label: '31-59', value: safeParseFloat(prospect['31 - 59']), range: '31-59' },
+            { label: '2nd Round', value: safeParseFloat(prospect['2nd Round']), range: '2nd Round' },
             {
                 label: isMobile ? 'UDFA' : 'Undrafted',
                 value: safeParseFloat(prospect['Undrafted']),
@@ -821,7 +820,7 @@ const ConsensusPageProspectCard: React.FC<{
             { label: 'Picks 1-3', value: safeParseFloat(prospect['1 - 3']) },
             { label: 'Picks 4-14', value: safeParseFloat(prospect['4 - 14']) },
             { label: 'Picks 15-30', value: safeParseFloat(prospect['15 - 30']) },
-            { label: 'Picks 31-59', value: safeParseFloat(prospect['31 - 59']) },
+            { label: '2nd Round', value: safeParseFloat(prospect['2nd Round']) },
             { label: isMobile ? 'UDFA' : 'Undrafted', value: safeParseFloat(prospect['Undrafted']) }
         ];
 
@@ -1331,31 +1330,65 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                     {/* Mobile Only: Position Section */}
                     <div className="w-full sm:hidden mb-4">
                         <div className="text-sm text-gray-400 mb-3"></div>
-                        <div className="flex items-center gap-2">
-                            <motion.button
-                                onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
-                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                Guards
-                            </motion.button>
-                            <motion.button
-                                onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
-                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                Wings
-                            </motion.button>
-                            <motion.button
-                                onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
-                                className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                Bigs
-                            </motion.button>
+                        <div className="flex items-center justify-between gap-1">
+                            {/* Position Filters */}
+                            <div className="flex items-center gap-1 flex-1">
+                                <motion.button
+                                    onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
+                                    className={`flex-1 px-2 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Guards
+                                </motion.button>
+                                <motion.button
+                                    onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
+                                    className={`flex-1 px-2 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Wings
+                                </motion.button>
+                                <motion.button
+                                    onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
+                                    className={`flex-1 px-2 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Bigs
+                                </motion.button>
+                            </div>
+
+                            {/* Year Dropdown */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <motion.button
+                                        className={`
+                                            px-3 py-2 rounded-lg text-xs font-medium
+                                            transition-all duration-300
+                                            bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                                            flex items-center gap-1 flex-shrink-0
+                                        `}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        {selectedYear || '2025'}
+                                        <ChevronDown className="h-3 w-3" />
+                                    </motion.button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
+                                        <DropdownMenuItem
+                                            key={year}
+                                            className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
+                                                }`}
+                                            onClick={() => onYearChange?.(year)}
+                                        >
+                                            {year}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
 
@@ -1534,7 +1567,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     );
 };
 
-
 export default function ConsensusPage() {
     const [prospects, setProspects] = useState<DraftProspect[]>([]);
     const [filteredProspects, setFilteredProspects] = useState<DraftProspect[]>([]);
@@ -1580,7 +1612,7 @@ export default function ConsensusPage() {
         { key: '1 - 3', label: 'Picks 1-3', category: 'Consensus Range', visible: false, sortable: true },
         { key: '4 - 14', label: 'Picks 4-14', category: 'Consensus Range', visible: false, sortable: true },
         { key: '15 - 30', label: 'Picks 15-30', category: 'Consensus Range', visible: false, sortable: true },
-        { key: '31 - 59', label: 'Picks 31-59', category: 'Consensus Range', visible: false, sortable: true },
+        { key: '2nd Round', label: '2nd Round', category: 'Consensus Range', visible: false, sortable: true },
         { key: 'Undrafted', label: 'Undrafted', category: 'Consensus Range', visible: false, sortable: true },
     ];
 
@@ -1943,7 +1975,7 @@ export default function ConsensusPage() {
     return (
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Consensus" />
-            <DraftPageHeader author="Consensus" />
+            <DraftPageHeader author="Consensus" selectedYear={selectedYear} />
             <GoogleAnalytics gaId="G-X22HKJ13B7" />
             {viewMode !== 'contributors' ? (
                 <ProspectFilter
@@ -1956,75 +1988,111 @@ export default function ConsensusPage() {
                     onYearChange={setSelectedYear}
                 />
             ) : (
-                <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
-                    <div className="px-4 py-3 flex items-center justify-between">
-                        <div className="relative flex-grow max-w-full mr-2">
-                            <div className="relative w-full">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
-                                <Input
-                                    type="text"
-                                    placeholder="Search"
-                                    value={contributorSearch}
-                                    onChange={(e) => setContributorSearch(e.target.value)}
-                                    className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 sm:hidden"
-                                />
-                                <Input
-                                    type="text"
-                                    placeholder="Search Contributors"
-                                    value={contributorSearch}
-                                    onChange={(e) => setContributorSearch(e.target.value)}
-                                    className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 hidden sm:block"
-                                />
+                    <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
+                        <div className="px-4 py-3 flex items-center justify-between gap-2">
+                            <div className="relative flex-grow max-w-full mr-2">
+                                <div className="relative w-full">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+                                    <Input
+                                        type="text"
+                                        placeholder="Search"
+                                        value={contributorSearch}
+                                        onChange={(e) => setContributorSearch(e.target.value)}
+                                        className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 sm:hidden"
+                                    />
+                                    <Input
+                                        type="text"
+                                        placeholder="Search Contributors"
+                                        value={contributorSearch}
+                                        onChange={(e) => setContributorSearch(e.target.value)}
+                                        className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 hidden sm:block"
+                                    />
+                                </div>
+                            </div>
+                            
+                            {/* Year Dropdown for Contributors */}
+                            <div className="flex items-center gap-2">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <motion.button
+                                            className={`
+                                                px-3 py-2 rounded-lg text-sm font-medium
+                                                transition-all duration-300
+                                                bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                                                flex items-center gap-1 flex-shrink-0
+                                            `}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            {selectedYear || '2025'}
+                                            <ChevronDown className="h-4 w-4" />
+                                        </motion.button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                        {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
+                                            <DropdownMenuItem
+                                                key={year}
+                                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
+                                                    }`}
+                                                onClick={() => setSelectedYear(year)}
+                                            >
+                                                {year}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                
+                                {/* View Mode Dropdown */}
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <motion.button
+                                            className={`
+                                                px-3 py-2 rounded-lg text-sm font-medium flex items-center
+                                                transition-all duration-300
+                                                bg-blue-500/20 text-blue-400 border border-blue-500/30
+                                            `}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <TrendingUp className="mr-1 h-4 w-4" />
+                                            Contributors
+                                            <ChevronDown className="ml-1 h-4 w-4" />
+                                        </motion.button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                        <DropdownMenuItem
+                                            className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                            onClick={() => setViewMode('card')}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <LucideUser className="h-4 w-4" />
+                                                Card View
+                                            </div>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                            onClick={() => setViewMode('table')}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <TableIcon className="h-4 w-4" />
+                                                Table View
+                                            </div>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
+                                            onClick={() => setViewMode('contributors')}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <TrendingUp className="h-4 w-4" />
+                                                Contributors
+                                            </div>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
                         </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <motion.button
-                                    className={`
-                                        px-3 py-2 rounded-lg text-sm font-medium flex items-center
-                                        transition-all duration-300
-                                        bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
-                                    `}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    <TrendingUp className="mr-1 h-4 w-4" />
-                                    Contributors
-                                    <ChevronDown className="ml-1 h-4 w-4" />
-                                </motion.button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                <DropdownMenuItem
-                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                    onClick={() => setViewMode('card')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <LucideUser className="h-4 w-4" />
-                                        Card View
-                                    </div>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                    onClick={() => setViewMode('table')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <TableIcon className="h-4 w-4" />
-                                        Table View
-                                    </div>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
-                                    onClick={() => setViewMode('contributors')}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <TrendingUp className="h-4 w-4" />
-                                        Contributors
-                                    </div>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                     </div>
-                </div>
+
             )}
 
             {viewMode === 'contributors' ? (

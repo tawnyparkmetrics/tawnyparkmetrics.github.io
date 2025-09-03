@@ -682,6 +682,8 @@ export function ProspectTable<T extends BaseProspect>({
             const backgroundColor = `rgba(59, 130, 246, ${0.1 + finalIntensity * 0.5})`;
             const textColor = finalIntensity > 0.4 ? '#ffffff' : '#e5e7eb';
 
+            console.log(`EPM Gradient for key ${key}: bg=${backgroundColor}, color=${textColor}`);
+
             return { backgroundColor, color: textColor };
         };
 
@@ -720,7 +722,7 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        if (['1 - 3', '4 - 14', '15 - 30', '31 - 59', 'Undrafted', 'Inclusion Rate'].includes(column.key)) {
+        if (['1 - 3', '4 - 14', '15 - 30', '2nd Round', 'Undrafted', 'Inclusion Rate'].includes(column.key)) {
             const cellValue = prospect[key];
             let displayValue = '';
 
@@ -769,9 +771,11 @@ export function ProspectTable<T extends BaseProspect>({
                 <TableCell
                     key={column.key}
                     className="text-center font-medium"
-                    style={gradientStyle}
+                    style={{
+                        backgroundColor: gradientStyle.backgroundColor,
+                        color: gradientStyle.color
+                    }}
                 >
-                    {displayValue}
                 </TableCell>
             );
         }
@@ -944,12 +948,12 @@ export function ProspectTable<T extends BaseProspect>({
                                     key={column.key}
                                     className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'} ${
                                         // Center specific columns that should be centered
-                                        ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '31 - 59'].includes(column.key) ? 'text-center' : ''
+                                        ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '2nd Round'].includes(column.key) ? 'text-center' : ''
                                         }`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
                                 >
                                     {/* Display shortened labels for Range Consensus columns in table headers */}
-                                    {['1 - 3', '4 - 14', '15 - 30', '31 - 59'].includes(column.key)
+                                    {['1 - 3', '4 - 14', '15 - 30', '2nd Round'].includes(column.key)
                                         ? column.key  // Show just "1 - 3", "4 - 14", etc.
                                         : column.label  // Show full label for all other columns
                                     }

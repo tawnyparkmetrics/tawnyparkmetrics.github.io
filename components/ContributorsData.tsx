@@ -8,7 +8,6 @@ interface ContributorInfo {
     averageProspectsRanked: number; // For individual contributors, this will be the same as totalRanks
 }
 
-
 // Add this library at the top of your ContributorsData component file, outside the component
 const CONTRIBUTOR_URLS: Record<string, string> = {
     // Media Outlets
