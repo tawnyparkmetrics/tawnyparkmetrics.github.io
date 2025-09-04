@@ -729,8 +729,9 @@ export function ProspectTable<T extends BaseProspect>({
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
                 const numValue = parseFloat(String(cellValue));
                 if (!isNaN(numValue)) {
-                    // Convert decimal to percentage (multiply by 100) and format to 1 decimal place
-                    displayValue = `${(numValue * 100).toFixed(1)}%`;
+                    // Convert decimal to percentage (multiply by 100) and format without unnecessary decimals
+                    const percentage = numValue * 100;
+                    displayValue = `${percentage % 1 === 0 ? percentage.toString() : percentage.toFixed(1)}%`;
                 } else {
                     displayValue = String(cellValue);
                 }
@@ -955,6 +956,8 @@ export function ProspectTable<T extends BaseProspect>({
                                     {/* Display shortened labels for Range Consensus columns in table headers */}
                                     {['1 - 3', '4 - 14', '15 - 30', '2nd Round'].includes(column.key)
                                         ? column.key  // Show just "1 - 3", "4 - 14", etc.
+                                        : column.key === 'Inclusion Rate'
+                                        ? 'IR'  // Show "IR" for Inclusion Rate
                                         : column.label  // Show full label for all other columns
                                     }
                                     {column.sortable && sortConfig?.key === column.key && (
