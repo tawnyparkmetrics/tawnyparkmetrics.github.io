@@ -146,8 +146,9 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       {/* Fixed header */}
       <div className="fixed top-0 left-0 right-0 z-40 bg-[#19191A] border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Navigation Tabs */}
+          <div className="flex justify-between items-center h-16 relative">
+            
+            {/* Left Navigation */}
             <div className="flex space-x-4">
               {/* Home tab */}
               <Link
@@ -263,7 +264,26 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
               </div>
             </div>
 
-            {/* TPM Logo and Support button on the right */}
+            {/* Centered Brand Text Only */}
+            <Link 
+              href="/"
+              className="absolute left-1/2 transform -translate-x-1/2 group cursor-pointer"
+            >
+              {/* Animated text */}
+              <div className="hidden md:block">
+                <div className="text-2xl font-bold text-white tracking-wide group-hover:text-transparent group-hover:scale-110 group-hover:bg-gradient-to-r group-hover:from-blue-500 group-hover:via-blue-400 group-hover:to-blue-500 group-hover:bg-clip-text transition-all duration-500 ease-out relative overflow-hidden">
+                  TAWNY PARK METRICS
+                
+                </div>
+              </div>
+              
+              {/* Mobile version - just TPM */}
+              <div className="md:hidden text-2xl font-bold text-white group-hover:text-transparent group-hover:scale-110 group-hover:bg-gradient-to-r group-hover:from-blue-500 group-hover:via-blue-400 group-hover:to-blue-500 group-hover:bg-clip-text transition-all duration-500">
+                TPM
+              </div>
+            </Link>
+
+            {/* Right side - Support button and Logo */}
             <div className="flex items-center space-x-4">
               <button
                 onClick={handleSupportClick}
@@ -271,17 +291,15 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
               >
                 Support
               </button>
-              <div className="flex items-center">
+              <Link href="/" className="flex items-center group">
                 <Image
                   src="/TPM_logo_designs/TPM Square (Dark with Map - no wordmark).png"
                   alt="TPM Logo"
                   width={60}
                   height={60}
+                  className="transition-transform duration-300 cursor-pointer"
                 />
-                <div className={`ml-2 text-4xl font-bold text-white hidden sm:block`}>
-                  TPM
-                </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
