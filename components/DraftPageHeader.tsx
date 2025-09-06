@@ -37,7 +37,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Max Savin':
         return 'Featuring EPM projections, prospect tiers, skills graphs, and player comps.';
       case 'Nick Kalinowski':
-        return 'Ranking prospects by predicted EPM using up to 535 unique predictors.';
+        return 'Ranking prospects by predicted EPM using up to 500+ unique predictors.';
       case 'Andre Liu':
         return 'Analyzing prospects via original metrics and clustered tiers.';
       case 'Draft History':

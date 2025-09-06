@@ -1040,10 +1040,10 @@ const ConsensusPageProspectCard: React.FC<{
                 </div>
 
                 {/* Consensus Data Tables */}
-                <div className="text-gray-300 px-2">
+                <div className="text-gray-300 px-2 flex items-center"> {/* Add flex items-center here */}
                     {showRangeConsensus ? (
-                        /* Range Consensus Table */
-                        <div>
+                        /* Range Consensus Table - This one gets centered */
+                        <div className="w-full"> {/* Add w-full to ensure it takes full width */}
                             <div className="space-y-2.5">
                                 {rangeConsensusTableData.map((item, index) => (
                                     <div
@@ -1058,7 +1058,7 @@ const ConsensusPageProspectCard: React.FC<{
                         </div>
                     ) : (
                         /* Original Consensus Statistics Table */
-                        <div>
+                        <div className="w-full"> {/* Add w-full for consistency */}
                             <div className="space-y-0">
                                 {consensusTableData.map((item, index) => (
                                     <div
