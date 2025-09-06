@@ -650,7 +650,11 @@ const RangeConsensusGraph: React.FC<RangeConsensusProps> = ({
             { label: '1-3', value: safeParseFloat(prospect['1 - 3']), range: '1-3' },
             { label: '4-14', value: safeParseFloat(prospect['4 - 14']), range: '4-14' },
             { label: '15-30', value: safeParseFloat(prospect['15 - 30']), range: '15-30' },
-            { label: '2nd Round', value: safeParseFloat(prospect['2nd Round']), range: '2nd Round' },
+            {
+                label: isMobile ? '2nd Rd' : '2nd Round',
+                value: safeParseFloat(prospect['2nd Round']),
+                range: '2nd Round'
+            },
             {
                 label: isMobile ? 'UDFA' : 'Undrafted',
                 value: safeParseFloat(prospect['Undrafted']),
@@ -857,7 +861,7 @@ const ConsensusPageProspectCard: React.FC<{
                                         : 'text-gray-400 hover:text-gray-200'
                                         }`}
                                     style={!showRangeConsensus ? {
-                                        backgroundColor: `${prospect['Team Color']}60`
+                                        backgroundColor: `${prospect['Team Color']}`
                                     } : {}}
                                 >
                                     Rank View
@@ -869,7 +873,7 @@ const ConsensusPageProspectCard: React.FC<{
                                         : 'text-gray-400 hover:text-gray-200'
                                         }`}
                                     style={showRangeConsensus ? {
-                                        backgroundColor: `${prospect['Team Color']}60`
+                                        backgroundColor: `${prospect['Team Color']}`
                                     } : {}}
                                 >
                                     Range View
@@ -879,22 +883,58 @@ const ConsensusPageProspectCard: React.FC<{
                             {/* Tooltip */}
                             <div className="relative">
                                 <div
-                                    onMouseEnter={() => setShowTooltip(true)}
-                                    onMouseLeave={() => setShowTooltip(false)}
+                                    onMouseEnter={() => !isMobile && setShowTooltip(true)}
+                                    onMouseLeave={() => !isMobile && setShowTooltip(false)}
+                                    onClick={() => isMobile && setShowTooltip(true)}
                                     className="w-4 h-4 rounded-full bg-gray-600/50 text-gray-400 flex items-center justify-center text-xs cursor-pointer hover:text-gray-200 transition-colors"
                                 >
                                     ?
                                 </div>
-                                {showTooltip && (
-                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-3 bg-[#19191A] border border-white/20 text-white text-sm rounded-lg shadow-lg w-80 max-w-[90vw] z-[9999]">
+
+                                {/* Desktop tooltip */}
+                                {showTooltip && !isMobile && (
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-3 bg-[#19191A] border border-white/20 text-white text-sm rounded-lg shadow-lg w-96 max-w-screen-sm z-[9999]">
                                         <div className="text-left leading-relaxed space-y-2">
                                             <p>Both views show how each prospect is perceived across the boards that contribute to the consensus.</p>
                                             <p><strong className="text-blue-400">Rank View</strong> displays individual rankings from each board, along with summary stats (average rank, median rank, high, low, etc.).</p>
                                             <p><strong className="text-blue-400">Range View</strong> groups those rankings into broader draft tiers (Top 3, 2nd Round, Undrafted, etc.), showing how often the prospect falls into each tier (ex. ranked in the Top 3 on 50% of boards).</p>
                                         </div>
-                                        {/* Arrow pointing up */}
                                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-b-[#19191A]"></div>
                                     </div>
+                                )}
+
+                                {/* Mobile modal */}
+                                {showTooltip && isMobile && (
+                                    <>
+                                        {/* Backdrop */}
+                                        <div
+                                            className="fixed inset-0 bg-black/50 z-[9998] flex items-center justify-center p-4"
+                                            onClick={() => setShowTooltip(false)}
+                                        >
+                                            {/* Modal */}
+                                            <div
+                                                className="bg-[#19191A] border border-white/20 text-white rounded-lg shadow-xl max-w-sm w-full mx-4 relative"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                {/* Close button */}
+                                                <button
+                                                    onClick={() => setShowTooltip(false)}
+                                                    className="absolute top-3 right-3 w-6 h-6 rounded-full bg-gray-600/50 text-gray-400 flex items-center justify-center text-sm hover:text-gray-200 hover:bg-gray-600/70 transition-colors"
+                                                >
+                                                    ×
+                                                </button>
+
+                                                {/* Content */}
+                                                <div className="p-6 pr-10">
+                                                    <div className="text-left leading-relaxed space-y-3">
+                                                        <p>Both views show how each prospect is perceived across the boards that contribute to the consensus.</p>
+                                                        <p><strong className="text-blue-400">Rank View</strong> displays individual rankings from each board, along with summary stats (average rank, median rank, high, low, etc.).</p>
+                                                        <p><strong className="text-blue-400">Range View</strong> groups those rankings into broader draft tiers (Top 3, 2nd Round, Undrafted, etc.), showing how often the prospect falls into each tier (ex. ranked in the Top 3 on 50% of boards).</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -1988,110 +2028,110 @@ export default function ConsensusPage() {
                     onYearChange={setSelectedYear}
                 />
             ) : (
-                    <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
-                        <div className="px-4 py-3 flex items-center justify-between gap-2">
-                            <div className="relative flex-grow max-w-full mr-2">
-                                <div className="relative w-full">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
-                                    <Input
-                                        type="text"
-                                        placeholder="Search"
-                                        value={contributorSearch}
-                                        onChange={(e) => setContributorSearch(e.target.value)}
-                                        className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 sm:hidden"
-                                    />
-                                    <Input
-                                        type="text"
-                                        placeholder="Search Contributors"
-                                        value={contributorSearch}
-                                        onChange={(e) => setContributorSearch(e.target.value)}
-                                        className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 hidden sm:block"
-                                    />
-                                </div>
+                <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
+                    <div className="px-4 py-3 flex items-center justify-between gap-2">
+                        <div className="relative flex-grow max-w-full mr-2">
+                            <div className="relative w-full">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search"
+                                    value={contributorSearch}
+                                    onChange={(e) => setContributorSearch(e.target.value)}
+                                    className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 sm:hidden"
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Search Contributors"
+                                    value={contributorSearch}
+                                    onChange={(e) => setContributorSearch(e.target.value)}
+                                    className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 hidden sm:block"
+                                />
                             </div>
-                            
-                            {/* Year Dropdown for Contributors */}
-                            <div className="flex items-center gap-2">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <motion.button
-                                            className={`
+                        </div>
+
+                        {/* Year Dropdown for Contributors */}
+                        <div className="flex items-center gap-2">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <motion.button
+                                        className={`
                                                 px-3 py-2 rounded-lg text-sm font-medium
                                                 transition-all duration-300
                                                 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
                                                 flex items-center gap-1 flex-shrink-0
                                             `}
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        {selectedYear || '2025'}
+                                        <ChevronDown className="h-4 w-4" />
+                                    </motion.button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
+                                        <DropdownMenuItem
+                                            key={year}
+                                            className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
+                                                }`}
+                                            onClick={() => setSelectedYear(year)}
                                         >
-                                            {selectedYear || '2025'}
-                                            <ChevronDown className="h-4 w-4" />
-                                        </motion.button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                        {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
-                                            <DropdownMenuItem
-                                                key={year}
-                                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
-                                                    }`}
-                                                onClick={() => setSelectedYear(year)}
-                                            >
-                                                {year}
-                                            </DropdownMenuItem>
-                                        ))}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                
-                                {/* View Mode Dropdown */}
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <motion.button
-                                            className={`
+                                            {year}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+
+                            {/* View Mode Dropdown */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <motion.button
+                                        className={`
                                                 px-3 py-2 rounded-lg text-sm font-medium flex items-center
                                                 transition-all duration-300
                                                 bg-blue-500/20 text-blue-400 border border-blue-500/30
                                             `}
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            <TrendingUp className="mr-1 h-4 w-4" />
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <TrendingUp className="mr-1 h-4 w-4" />
+                                        Contributors
+                                        <ChevronDown className="ml-1 h-4 w-4" />
+                                    </motion.button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                    <DropdownMenuItem
+                                        className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                        onClick={() => setViewMode('card')}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <LucideUser className="h-4 w-4" />
+                                            Card View
+                                        </div>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
+                                        onClick={() => setViewMode('table')}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <TableIcon className="h-4 w-4" />
+                                            Table View
+                                        </div>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
+                                        onClick={() => setViewMode('contributors')}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <TrendingUp className="h-4 w-4" />
                                             Contributors
-                                            <ChevronDown className="ml-1 h-4 w-4" />
-                                        </motion.button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                        <DropdownMenuItem
-                                            className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                            onClick={() => setViewMode('card')}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <LucideUser className="h-4 w-4" />
-                                                Card View
-                                            </div>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                            onClick={() => setViewMode('table')}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <TableIcon className="h-4 w-4" />
-                                                Table View
-                                            </div>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
-                                            onClick={() => setViewMode('contributors')}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <TrendingUp className="h-4 w-4" />
-                                                Contributors
-                                            </div>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
+                                        </div>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
+                </div>
 
             )}
 
