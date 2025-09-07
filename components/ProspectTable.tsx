@@ -750,7 +750,7 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        if (['Pred. Y1 Rank', 'Pred. Y2 Rank', 'Pred. Y3 Rank', 'Pred. Y4 Rank', 'Pred. Y5 Rank', 'Rank Y1-Y3', 'Rank Y1-Y5'].includes(column.key)) {
+        if (['Pred. Y1 Rank', 'Pred. Y2 Rank', 'Pred. Y3 Rank', 'Pred. Y4 Rank', 'Pred. Y5 Rank', 'Pred. Y1 Position Rank', 'Pred. Y2 Position Rank', 'Pred. Y3 Position Rank', 'Pred. Y4 Position Rank', 'Pred. Y5 Position Rank', 'Rank Y1-Y3', 'Rank Y1-Y5'].includes(column.key)) {
             const cellValue = prospect[key];
             let displayValue = '';
 
@@ -777,6 +777,7 @@ export function ProspectTable<T extends BaseProspect>({
                         color: gradientStyle.color
                     }}
                 >
+                    {displayValue}
                 </TableCell>
             );
         }

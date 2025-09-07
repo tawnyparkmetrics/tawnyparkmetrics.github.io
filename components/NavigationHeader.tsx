@@ -271,14 +271,14 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
             >
               {/* Animated text */}
               <div className="hidden md:block">
-                <div className="text-2xl font-bold text-gray-400 tracking-wide group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-500 group-hover:via-blue-400 group-hover:to-blue-500 group-hover:bg-clip-text transition-all duration-500 ease-out relative overflow-hidden">
+                <div className="text-2xl font-bold text-gray-500 tracking-wide group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-white group-hover:to-white group-hover:bg-clip-text transition-all duration-500 ease-out relative overflow-hidden">
                   TAWNY PARK METRICS
                 
                 </div>
               </div>
               
               {/* Mobile version - just TPM */}
-              <div className="md:hidden text-2xl font-bold text-gray-400 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-500 group-hover:via-blue-400 group-hover:to-blue-500 group-hover:bg-clip-text transition-all duration-500">
+              <div className="md:hidden text-2xl font-bold text-gray-500 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-white group-hover:to-white group-hover:bg-clip-text transition-all duration-500">
                 TPM
               </div>
             </Link>

@@ -1202,7 +1202,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     console.log('Current viewMode in render:', viewMode);
 
     return (
-        <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto pb-2">
+        <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
             {/* Mobile Initial Filter Section */}
             <div className="sm:hidden px-4 py-2">
                 <div className="flex items-center justify-between gap-2">
