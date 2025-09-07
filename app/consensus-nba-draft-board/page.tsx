@@ -1015,7 +1015,7 @@ const ConsensusPageProspectCard: React.FC<{
                 {/* Charts Column */}
                 <div className={`text-gray-300 flex flex-col justify-start ${isMobile ? 'px-2' : 'px-1'}`}>
                     {/* Chart Container - Shows either histogram or range consensus */}
-                    <div className={isMobile ? 'w-full' : '-ml-4 w-[calc(100%+32px)]'}>
+                    <div className={isMobile ? 'w-full -ml-2' : '-ml-8 w-[calc(100%+48px)]'}>
                         {showRangeConsensus ? (
                             // Range Consensus Graph
                             <RangeConsensusGraph
