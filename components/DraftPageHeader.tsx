@@ -46,7 +46,8 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Consensus':
         return (
           <>
-            Aggregate of {getBoardCount(selectedYear || 2025)} boards, all published before the {selectedYear ?? ''} NBA Draft. Only displaying prospects who appear on at least ~5% of boards. Prospects are ordered via a weighted combination of average (mean) rank & inclusion rate.
+            <div>Aggregate of {getBoardCount(selectedYear || 2025)} boards, all published before the {selectedYear ?? ''} NBA Draft. Only displaying prospects who appear on at least ~5% of boards. </div>
+            <div>Prospects are ordered via a weighted combination of average (mean) rank & inclusion rate.</div>
           </>
         );
       default:

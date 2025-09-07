@@ -1202,9 +1202,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
     console.log('Current viewMode in render:', viewMode);
 
     return (
-        <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
+        <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto pb-2">
             {/* Mobile Initial Filter Section */}
-            <div className="sm:hidden px-4 py-3">
+            <div className="sm:hidden px-4 py-2">
                 <div className="flex items-center justify-between gap-2">
                     {/* Filter Toggle Button - Left Side */}
                     <motion.button
@@ -1218,23 +1218,40 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         <ChevronDown className={`ml-1 h-4 w-4 transform transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`} />
                     </motion.button>
 
-                    {/* View Mode Dropdown - Right Side */}
+                    {/* Year Dropdown and View Mode Dropdown - Right Side */}
                     <div className="flex items-center gap-2">
-                        {/* Contributors Button */}
-                        <motion.button
-                            onClick={() => handleViewModeChange('contributors')}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 ${viewMode === 'contributors'
-                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                }`}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <TrendingUp className="mr-1 h-4 w-4" />
-                            Contributors
-                        </motion.button>
+                        {/* Year Dropdown */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <motion.button
+                                    className={`
+                                        px-3 py-2 rounded-lg text-sm font-medium
+                                        transition-all duration-300
+                                        bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
+                                        flex items-center gap-1 flex-shrink-0
+                                    `}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    {selectedYear || '2025'}
+                                    <ChevronDown className="h-4 w-4" />
+                                </motion.button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#19191A] border-gray-700">
+                                {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
+                                    <DropdownMenuItem
+                                        key={year}
+                                        className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
+                                            }`}
+                                        onClick={() => onYearChange?.(year)}
+                                    >
+                                        {year}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
 
-                        {/* View Mode Dropdown */}
+                        {/* View Mode Dropdown (now includes Contributors) */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <motion.button
@@ -1242,8 +1259,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
-                                    {/* Only show icons on desktop, not on mobile */}
-                                    <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
+                                    {/* Mobile view - show current mode text */}
+                                    <span className="sm:hidden">
+                                        {viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Contributors'}
+                                    </span>
+                                    {/* Desktop view - show icons */}
                                     <span className="hidden sm:flex items-center">
                                         {viewMode === 'card' ? (
                                             <>
@@ -1254,6 +1274,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                             <>
                                                 <TableIcon className="mr-1 h-4 w-4" />
                                                 Table View
+                                            </>
+                                        ) : viewMode === 'contributors' ? (
+                                            <>
+                                                <TrendingUp className="mr-1 h-4 w-4" />
+                                                Contributors
                                             </>
                                         ) : (
                                             <>
@@ -1266,7 +1291,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 </motion.button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                {/* Mobile: No icons, single-line text */}
+                                {/* Mobile: No icons, single-line text - now includes Contributors */}
                                 <DropdownMenuItem
                                     className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
                                     onClick={(e) => {
@@ -1286,6 +1311,16 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     }}
                                 >
                                     Table View
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'contributors' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleViewModeChange('contributors');
+                                    }}
+                                >
+                                    Contributors
                                 </DropdownMenuItem>
                                 {/* Desktop: With icons */}
                                 <DropdownMenuItem
@@ -1314,6 +1349,19 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         Table View
                                     </div>
                                 </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className={`hidden sm:flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'contributors' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleViewModeChange('contributors');
+                                    }}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="h-4 w-4" />
+                                        Contributors
+                                    </div>
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -1322,7 +1370,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
             {/* Filter Content (Desktop and Mobile Dropdown) */}
             <div className={`
-          px-4 py-3
+          px-4 py-2
           sm:grid sm:grid-cols-[1fr_auto] sm:gap-4
           flex flex-col
           ${isMobileFilterOpen ? 'block' : 'hidden sm:grid'}
@@ -1367,11 +1415,11 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
 
                 {/* Filters and View Mode Container */}
                 <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end space-x-2">
-                    {/* Mobile Only: Position Section */}
+                    {/* Mobile Only: Position Section (Year dropdown removed from here) */}
                     <div className="w-full sm:hidden mb-4">
                         <div className="text-sm text-gray-400 mb-3"></div>
                         <div className="flex items-center justify-between gap-1">
-                            {/* Position Filters */}
+                            {/* Position Filters - Now takes full width */}
                             <div className="flex items-center gap-1 flex-1">
                                 <motion.button
                                     onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
@@ -1398,37 +1446,6 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     Bigs
                                 </motion.button>
                             </div>
-
-                            {/* Year Dropdown */}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <motion.button
-                                        className={`
-                                            px-3 py-2 rounded-lg text-xs font-medium
-                                            transition-all duration-300
-                                            bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
-                                            flex items-center gap-1 flex-shrink-0
-                                        `}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        {selectedYear || '2025'}
-                                        <ChevronDown className="h-3 w-3" />
-                                    </motion.button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                    {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
-                                        <DropdownMenuItem
-                                            key={year}
-                                            className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${(selectedYear || '2025') === year ? 'bg-blue-500/20 text-blue-400' : ''
-                                                }`}
-                                            onClick={() => onYearChange?.(year)}
-                                        >
-                                            {year}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
                         </div>
                     </div>
 
@@ -1501,7 +1518,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                         {/* Divider */}
                         <div className="h-6 md:h-8 w-px bg-gray-700/30 mx-1 md:mx-2" />
 
-                        {/* Desktop View Mode Dropdown */}
+                        {/* Desktop View Mode Dropdown (Contributors still separate here) */}
                         <div className="flex items-center gap-2">
                             {/* Contributors Button */}
                             <motion.button
@@ -1525,9 +1542,8 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        {/* Only show icons on desktop, not on mobile */}
-                                        <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
-                                        <span className="hidden sm:flex items-center">
+                                        {/* Desktop view - show icons */}
+                                        <span className="flex items-center">
                                             {viewMode === 'card' ? (
                                                 <>
                                                     <LucideUser className="mr-1 h-4 w-4" />
@@ -1549,30 +1565,9 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     </motion.button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                    {/* Mobile: No icons, single-line text */}
-                                    <DropdownMenuItem
-                                        className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            handleViewModeChange('card');
-                                        }}
-                                    >
-                                        Card View
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md sm:hidden ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            handleViewModeChange('table');
-                                        }}
-                                    >
-                                        Table View
-                                    </DropdownMenuItem>
                                     {/* Desktop: With icons */}
                                     <DropdownMenuItem
-                                        className={`hidden sm:flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                        className={`flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'card' ? 'bg-blue-500/20 text-blue-400' : ''}`}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
@@ -1585,7 +1580,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         </div>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                        className={`hidden sm:flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                        className={`flex text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${viewMode === 'table' ? 'bg-blue-500/20 text-blue-400' : ''}`}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
@@ -2142,7 +2137,7 @@ export default function ConsensusPage() {
                 />
             ) : filteredProspects.length > 0 ? (
                 viewMode === 'card' ? (
-                    <div className="space-y-4">
+                    <div className="space-y mt-6">
                         {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
                             <ConsensusPageProspectCard
                                 key={prospect.Name}
