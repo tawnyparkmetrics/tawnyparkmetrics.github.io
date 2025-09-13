@@ -1,8 +1,7 @@
-// BaseProspectCard.tsx
+// BaseProspectCard.tsx - Mobile optimized version
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { User as LucideUser } from 'lucide-react';
 import { Barlow } from 'next/font/google';
 
 interface DraftProspect {
@@ -14,6 +13,8 @@ interface DraftProspect {
     Wingspan: string;
     'Wing - Height': string;
     'Weight (lbs)': string;
+    'Wingspan (in)': string;
+    'Height (in)': string;
     'NBA Team': string;
     ABV: string;
     'Actual Pick': string;
@@ -21,33 +22,15 @@ interface DraftProspect {
     [key: string]: any;
 }
 
-const NBATeamLogo = ({ NBA }: { NBA: string }) => {
-    const [logoError, setNBALogoError] = useState(false);
-    const teamLogoUrl = `/nbateam_logos/${NBA}.png`;
-
-    if (logoError) {
-        return <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-400">{NBA}</span>
-        </div>;
-    }
-
-    return (
-        <div className="h-16 w-16 relative">
-            <Image
-                src={teamLogoUrl}
-                alt={`${NBA} logo`}
-                fill
-                className={`object-contain ${NBA === 'Duke' ? 'brightness-125' : ''}`}
-                onError={() => setNBALogoError(true)}
-            />
-        </div>
-    );
-};
-
 const barlow = Barlow({
     subsets: ['latin'],
-    weight: ['700'], // Use 700 for bold text
+    weight: ['400', '700'], // Added regular weight
 });
+
+const mobileViewPlayerName: { [key: string]: string} = {
+    "Cameron Matthews": "Cam Matthews",
+    "Matthew Cleveland": "Matt Cleveland"
+}
 
 const collegeNames: { [key: string]: string } = {
     "UC Santa Barbara": "UCSB",
@@ -85,9 +68,9 @@ interface BaseProspectCardProps {
     children?: React.ReactNode; // For dropdown content
     onExpand?: (isExpanded: boolean) => void;
     className?: string;
-    isDraftMode?: boolean; // NEW PROP: Indicates if we're viewing draft results vs rankings
-    draftYear?: string; // NEW PROP: To indicate if we're in 2020-2025 view
-    imageYear?: string; // NEW PROP: For specifying which player_images folder to use
+    isDraftMode?: boolean;
+    draftYear?: string;
+    imageYear?: string;
 }
 
 export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
@@ -98,20 +81,18 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
     children,
     onExpand,
     className = '',
-    isDraftMode = false, // NEW PROP: Default to false (rankings mode)
-    draftYear, // NEW PROP: To indicate if we're in 2020-2025 view
-    imageYear // NEW PROP: For specifying which player_images folder to use
+    isDraftMode = false,
+    draftYear,
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [imageError, setImageError] = useState(false);
-    const [logoError, setLogoError] = useState(false);
+    const [preNBALogoError, setPreNBALogoError] = useState(false);
+    const [nbaLogoError, setNbaLogoError] = useState(false);
 
     // Check if device is mobile
     useEffect(() => {
         const checkMobile = () => {
             const mobile = window.innerWidth < 768;
-            // You can pass this back to parent if needed
         };
 
         checkMobile();
@@ -149,40 +130,16 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
         onExpand?.(newExpanded);
     };
 
-    // Dynamic player image URL for years 2020-2025
-    const getPlayerImageUrl = (selectedYear: number | string, prospect: DraftProspect): string => {
-        let yearToUse: number;
-        
-        // If imageYear is provided, use it directly
-        if (imageYear) {
-            yearToUse = parseInt(imageYear);
-            console.log(`🖼️ ${prospect.Name}: Using imageYear=${imageYear}, using year=${yearToUse}`);
-        } else if (selectedYear === '2020-2025') {
-            // Use the prospect's actual draft year from their data
-            const prospectYear = prospect['Draft Year'] ? parseInt(prospect['Draft Year'].toString()) : 2025;
-            yearToUse = prospectYear;
-            
-            // Debug log to verify
-            console.log(`🔍 ${prospect.Name}: selectedYear=${selectedYear}, Draft Year=${prospect['Draft Year']}, using year=${yearToUse}`);
-        } else {
-            yearToUse = typeof selectedYear === 'string' ? parseInt(selectedYear) : selectedYear;
-            console.log(`📅 ${prospect.Name}: selectedYear=${selectedYear}, using year=${yearToUse}`);
-        }
-        
-        // Validate year range
-        if (yearToUse < 2020 || yearToUse > 2025) {
-            console.warn(`⚠️ Year ${yearToUse} is outside the supported range (2020-2025). Falling back to 2024.`);
-            yearToUse = 2024;
-        }
-    
-        const finalPath = `/player_images${yearToUse}/${prospect.Name} BG Removed.png`;
-        console.log(`🖼️ Final image path: ${finalPath}`);
-        
-        return finalPath;
-    };
-
-    const playerImageUrl = getPlayerImageUrl(selectedYear, prospect);
     const prenbalogoUrl = `/prenba_logos/${prospect['Pre-NBA']}.png`;
+    const nbalogoUrl = `/nbateam_logos/${prospect['NBA Team']}.png`
+
+    // Helper function to get player display name
+    const getPlayerDisplayName = (isMobileView: boolean): string => {
+        if (isMobileView && mobileViewPlayerName[prospect.Name]) {
+            return mobileViewPlayerName[prospect.Name];
+        }
+        return prospect.Name;
+    };
 
     // Helper function to get shortened college name
     const getShortenedCollegeName = (collegeName: string): string => {
@@ -191,7 +148,6 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
 
     // Helper function to get draft team name (shortened for mobile)
     const getDraftTeamName = (isMobileView: boolean) => {
-        // Determine draft picks limit based on year
         const getDraftPicksLimit = (year: number): number => {
             switch (year) {
                 case 2020:
@@ -203,21 +159,19 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                 case 2023:
                     return 58;
                 case 2024:
-                    return 58; // 2024 had 58 picks
+                    return 58;
                 case 2025:
-                    return 59; // 2025 has 59 picks (or adjust based on actual)
+                    return 59;
                 default:
-                    return 60; // Default fallback
+                    return 60;
             }
         };
 
-        // Ensure selectedYear is a number for getDraftPicksLimit
         const yearNum = typeof selectedYear === 'string' ? parseInt(selectedYear) : selectedYear;
         const picksLimit = getDraftPicksLimit(yearNum);
         const actualPick = prospect['Actual Pick'];
         const team = isMobileView ? prospect.ABV : prospect['NBA Team'];
-        
-        // Add draft year in parentheses for 2020-2025 view
+
         const draftYearSuffix = draftYear === '2020-2025' && prospect['Draft Year'] ? ` (${prospect['Draft Year']})` : '';
 
         if (
@@ -246,208 +200,254 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
     };
 
     return (
-        <div className={`mx-auto px-4 mb-4 ${isMobile ? 'max-w-sm' : 'max-w-5xl'} ${className}`}>
+        <div className={`mx-auto px-4 mb-2 ${isMobile ? 'max-w-sm' : 'max-w-5xl'} ${className}`}>
             <motion.div layout="position" transition={{ layout: { duration: 0.3, ease: "easeInOut" } }}>
                 <div className="relative">
                     {/* Main card container */}
                     <div
                         className={`
-              relative overflow-hidden transition-all duration-300 border rounded-xl border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] 
-              ${!isMobile ? 'h-[400px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-gray-600/50 cursor-pointer' : 'h-[100px] cursor-pointer'}
-              isolate
-            `}
-                        style={{ backgroundColor: '#19191A' }}
+                            relative overflow-hidden transition-all duration-300 border rounded-xl cursor-pointer
+                            ${isMobile ? 'h-[80px]' : 'h-[180px]'}
+                            ${((isHovered && !isMobile) || isExpanded)
+                                ? 'bg-gray-800/20 border-gray-600/50 shadow-[0_0_20px_rgba(255,255,255,0.1)]'
+                                : 'bg-[#19191A] border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]'
+                            }
+                        `}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                         onClick={handleCardClick}
                     >
                         {/* Background Pre-NBA Logo */}
                         <div className={`
-              absolute inset-0 flex items-center justify-start 
-              ${isMobile ? 'pl-4' : 'pl-12'} 
-              transition-opacity duration-300 
-              ${((isHovered && !isMobile) || isExpanded) ? 'opacity-90' : 'opacity-20'}
-              z-10
-            `}>
-                            {!logoError ? (
+                            absolute inset-0 flex items-center justify-start 
+                            ${isMobile ? 'pl-5' : 'pl-12'} 
+                            transition-opacity duration-300
+                            ${((isHovered && !isMobile) || isExpanded) ? 'opacity-75' : 'opacity-20'}
+                            z-10
+                        `}>
+                            {!preNBALogoError ? (
                                 <Image
                                     src={prenbalogoUrl}
                                     alt={prospect['Pre-NBA']}
-                                    width={isMobile ? 70 : 200}
-                                    height={isMobile ? 70 : 200}
+                                    width={isMobile ? 50 : 120}
+                                    height={isMobile ? 50 : 120}
                                     className={`object-contain transition-transform duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}`}
-                                    onError={() => setLogoError(true)}
+                                    onError={() => setPreNBALogoError(true)}
                                 />
                             ) : (
-                                <div className={`${isMobile ? 'w-24 h-24' : 'w-48 h-48'} bg-gray-800 rounded-full flex items-center justify-center`}>
-                                    <span className={`${isMobile ? 'text-sm' : 'text-xl'} text-gray-400`}>{prospect['Pre-NBA']}</span>
+                                <div className={`${isMobile ? 'w-8 h-8' : 'w-32 h-32'} bg-gray-800 rounded-full flex items-center justify-center`}>
+                                    <span className={`${isMobile ? 'text-xs' : 'text-lg'} text-gray-400`}>{prospect['Pre-NBA']}</span>
                                 </div>
                             )}
                         </div>
 
-                        {/* Rank Number - Now behind player image */}
-                        <motion.div
-                            layout="position"
-                            className={`
-        ${barlow.className}
-        ${isMobile ? 'absolute top-1 right-3 z-20' : 'absolute top-6 right-8 z-45 transition-opacity duration-300'}
-        ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-100'}
-    `}
-                        >
+                        {/* Background NBA Logo - Mobile only */}
+                        {isMobile && (
                             <div className={`
-        ${barlow.className} 
-        ${isMobile ? 'text-1xl' : 'text-6xl'} 
-        font-bold
-        text-white
-        select-none
-        ${((isHovered && !isMobile) || isExpanded) ? (!isMobile ? 'mr-[300px]' : '') : ''} 
-    `}>
-                                {(() => {
-                                    // FIXED LOGIC: Only show UDFA in draft mode, otherwise always show rank
-                                    if (!isDraftMode) {
-                                        // For rankings mode (Max's page, Nick's page, Andre's page, Consensus page)
-                                        // Always show the actual rank regardless of draft outcome
-                                        console.log(`${prospect.Name} in rankings mode - showing rank: ${rank}`);
-                                        return rank;
-                                    }
-
-                                    // For draft mode only - check if player should show UDFA
-                                    const getDraftPicksLimit = (year: number): number => {
-                                        switch (year) {
-                                            case 2020:
-                                                return 60;
-                                            case 2021:
-                                                return 60;
-                                            case 2022:
-                                                return 58;
-                                            case 2023:
-                                                return 58;
-                                            case 2024:
-                                                return 58; // 2024 had 58 picks
-                                            case 2025:
-                                                return 59; // 2025 has 59 picks
-                                            default:
-                                                return 60; // Default fallback
-                                        }
-                                    };
-
-                                    const picksLimit = getDraftPicksLimit(Number(selectedYear));
-                                    const actualPick = prospect['Actual Pick'];
-                                    const actualPickNum = Number(actualPick);
-
-                                    // Debug logging for draft mode
-                                    console.log('Debug UDFA check (draft mode):', {
-                                        playerName: prospect.Name,
-                                        actualPick: actualPick,
-                                        actualPickNum: actualPickNum,
-                                        selectedYear: selectedYear,
-                                        picksLimit: picksLimit,
-                                        isUndrafted: actualPick && actualPick.trim() !== '' && actualPickNum > picksLimit,
-                                        rank: rank
-                                    });
-
-                                    // Check if player is undrafted
-                                    if (actualPick && actualPick.trim() !== '') {
-                                        // Check if actualPick is already "UDFA" string
-                                        if (actualPick.toString().toUpperCase() === 'UDFA') {
-                                            console.log(`${prospect.Name} should show UDFA (string match)`);
-                                            return 'UDFA';
-                                        }
-                                        // Check if actualPick is a number greater than draft limit
-                                        if (!isNaN(actualPickNum) && actualPickNum > picksLimit) {
-                                            console.log(`${prospect.Name} should show UDFA (number > limit)`);
-                                            return 'UDFA';
-                                        }
-                                    }
-
-                                    // Return the original rank for drafted players in draft mode
-                                    console.log(`${prospect.Name} should show rank: ${rank}`);
-                                    return rank;
-                                })()}
-                            </div>
-                        </motion.div>
-
-                        {/* Player Image - Now in front of rank number */}
-                        <div className="absolute inset-0 flex justify-center items-end overflow-hidden z-30">
-                            <div className={`relative ${isMobile ? 'w-[90%] h-[90%]' : 'w-[90%] h-[90%]'}`}>
-                                {!imageError ? (
-                                    <div className="relative w-full h-full flex items-end justify-center">
-                                        <Image
-                                            src={playerImageUrl}
-                                            alt={prospect.Name}
-                                            fill
-                                            className={`
-                        object-contain 
-                        object-bottom
-                        transition-all duration-300 
-                        ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}
-                      `}
-                                            onError={() => setImageError(true)}
-                                            sizes={isMobile ? "400px" : "800px"}
-                                            priority
-                                        />
-                                    </div>
+                                absolute inset-0 flex items-center justify-end 
+                                pr-3
+                                transition-all duration-300
+                                opacity-5
+                                z-10
+                            `}>
+                                {!nbaLogoError ? (
+                                    <Image
+                                        src={nbalogoUrl}
+                                        alt={prospect['NBA Team']}
+                                        width={100}
+                                        height={100}
+                                        className={`object-contain transition-all duration-300 ${isExpanded ? 'grayscale-0' : 'grayscale'}`}
+                                        onError={() => setNbaLogoError(true)}
+                                    />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <LucideUser className="text-gray-500" size={isMobile ? 32 : 48} />
+                                    <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+                                        <span className="text-xs text-gray-400">{prospect['NBA Team']}</span>
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        )}
 
-                        {/* Large Centered Name */}
-                        <motion.div
-                            layout="position"
-                            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 z-40 ${((isHovered && !isMobile) || isExpanded) ? 'opacity-0' : 'opacity-100'}`}
-                        >
-                            <div className="text-center z-10">
-                                <h2 className={`
-                  ${barlow.className} 
-                  ${isMobile ? 'text-1xl' : 'text-7xl'}
-                  font-bold 
-                  text-white 
-                  uppercase 
-                  tracking-wider
-                  [text-shadow:_0_1px_2px_rgb(0_0_0_/_0.4),_0_2px_4px_rgb(0_0_0_/_0.3),_0_4px_8px_rgb(0_0_0_/_0.5),_0_8px_16px_rgb(0_0_0_/_0.2)]
-                `}>
-                                    {prospect.Name}
-                                </h2>
-                            </div>
-                        </motion.div>
+                        {/* Mobile: Player Name - Centered */}
+                        {isMobile ? (
+                            <>
+                                {/* Player Name - Absolutely centered */}
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <h2 className={`
+                                        ${barlow.className} 
+                                        text-xl font-bold tracking-wide transition-all duration-300
+                                        ${((isHovered && !isMobile) || isExpanded) 
+                                            ? 'text-white drop-shadow-[0_8px_16px_rgba(0,0,0,2)]' 
+                                            : 'text-[#6c727f] drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]'
+                                        }
+                                        z-10
+                                    `}>
+                                        {getPlayerDisplayName(true).toUpperCase()}
+                                    </h2>
+                                </div>
+                                
+                                {/* Rank Number - Top right */}
+                                <div className="absolute top-5 right-3 transform -translate-y-1/2 z-25">
+                                    <div className={`
+                                        ${barlow.className} 
+                                        text-m font-bold tracking-wide transition-all duration-300
+                                        ${((isHovered && !isMobile) || isExpanded) 
+                                            ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]' 
+                                            : 'text-[#6c727f] drop-shadow-[0_1px_4px_rgba(0,0,0,1)]'
+                                        }
+                                    `}>
+                                        {(() => {
+                                            if (!isDraftMode) {
+                                                return rank;
+                                            }
 
-                        {/* Desktop hover info panel */}
-                        {!isMobile && (
-                            <div
-                                className={`absolute top-0 right-0 h-full w-[300px] backdrop-blur-sm transition-all duration-300 rounded-r-lg z-50 ${(isHovered || isExpanded) ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'
-                                    }`}
-                                style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
-                            >
-                                <div className="p-6 space-y-4 flex flex-col">
-                                    <h3 className="text-lg font-semibold text-white">{prospect.Name}</h3>
-                                    <div className="space-y-2 text-sm text-gray-300">
-                                        <div><span className="font-bold text-white">Height  </span> {prospect.Height}</div>
-                                        <div><span className="font-bold text-white">Wingspan  </span> {prospect.Wingspan}</div>
-                                        <div><span className="font-bold text-white">Wing - Height  </span> {prospect['Wing - Height']}</div>
-                                        <div><span className="font-bold text-white">Weight </span> {prospect['Weight (lbs)']}</div>
-                                    </div>
+                                            const getDraftPicksLimit = (year: number): number => {
+                                                switch (year) {
+                                                    case 2020: return 60;
+                                                    case 2021: return 60;
+                                                    case 2022: return 58;
+                                                    case 2023: return 58;
+                                                    case 2024: return 58;
+                                                    case 2025: return 59;
+                                                    default: return 60;
+                                                }
+                                            };
 
-                                    <div className="pt-4 border-t border-gray-700">
-                                        <div className="space-y-2 text-sm text-gray-300">
-                                            <div><span className="font-bold text-white">Pre-NBA  </span> {prospect['Pre-NBA']}</div>
-                                            <div><span className="font-bold text-white">Position  </span> {prospect.Role}</div>
-                                            <div><span className="font-bold text-white">Draft Age  </span> {prospect.Age}</div>
-                                            <div>
-                                                <span className="font-bold text-white">Draft  </span>
-                                                {getDraftTeamName(false)}
-                                            </div>
-                                        </div>
-                                    </div>
+                                            const picksLimit = getDraftPicksLimit(Number(selectedYear));
+                                            const actualPick = prospect['Actual Pick'];
+                                            const actualPickNum = Number(actualPick);
 
-                                    {/* NBA Team logo */}
-                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-                                        <NBATeamLogo NBA={prospect['NBA Team']} />
+                                            if (actualPick && actualPick.trim() !== '') {
+                                                if (actualPick.toString().toUpperCase() === 'UDFA') {
+                                                    return 'UDFA';
+                                                }
+                                                if (!isNaN(actualPickNum) && actualPickNum > picksLimit) {
+                                                    return 'UDFA';
+                                                }
+                                            }
+
+                                            return rank;
+                                        })()}
                                     </div>
                                 </div>
+                            </>
+                        ) : (
+                            <>
+                                {/* Desktop: Rank Number - Top right */}
+                                <div className="absolute top-2 right-3 z-25">
+                                    <div className={`
+                                        ${barlow.className} 
+                                        text-4xl font-bold tracking-wide transition-all duration-300
+                                        ${((isHovered && !isMobile) || isExpanded) 
+                                            ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]' 
+                                            : 'text-[#6c727f] drop-shadow-[0_1px_4px_rgba(0,0,0,1)]'
+                                        }
+                                    `}>
+                                        {(() => {
+                                            if (!isDraftMode) {
+                                                return rank;
+                                            }
+
+                                            const getDraftPicksLimit = (year: number): number => {
+                                                switch (year) {
+                                                    case 2020: return 60;
+                                                    case 2021: return 60;
+                                                    case 2022: return 58;
+                                                    case 2023: return 58;
+                                                    case 2024: return 58;
+                                                    case 2025: return 59;
+                                                    default: return 60;
+                                                }
+                                            };
+
+                                            const picksLimit = getDraftPicksLimit(Number(selectedYear));
+                                            const actualPick = prospect['Actual Pick'];
+                                            const actualPickNum = Number(actualPick);
+
+                                            if (actualPick && actualPick.trim() !== '') {
+                                                if (actualPick.toString().toUpperCase() === 'UDFA') {
+                                                    return 'UDFA';
+                                                }
+                                                if (!isNaN(actualPickNum) && actualPickNum > picksLimit) {
+                                                    return 'UDFA';
+                                                }
+                                            }
+
+                                            return rank;
+                                        })()}
+                                    </div>
+                                </div>
+
+                                {/* Desktop: Player Name - Centered */}
+                                <div className="absolute inset-0 flex items-center justify-center -mt-4">
+                                    <h2 className={`
+                                        ${barlow.className} 
+                                        text-5xl font-bold tracking-wide transition-all duration-300
+                                        ${((isHovered && !isMobile) || isExpanded) 
+                                            ? 'text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]' 
+                                            : 'text-[#6c727f] drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]'
+                                        }
+                                        z-10
+                                    `}>
+                                        {getPlayerDisplayName(false).toUpperCase()}
+                                    </h2>
+                                </div>
+                            </>
+                        )}
+
+                        {/* NBA Team Logo - Desktop only */}
+                        {!isMobile && (
+                            <div className={`
+                                absolute inset-0 flex items-center justify-end 
+                                pr-12
+                                transition-opacity duration-300
+                                ${((isHovered && !isMobile) || isExpanded) ? 'opacity-100' : 'opacity-20'}
+                                z-10
+                            `}>
+                                {!nbaLogoError ? (
+                                    <Image
+                                        src={nbalogoUrl}
+                                        alt={prospect['NBA Team']}
+                                        width={120}
+                                        height={120}
+                                        className={`object-contain transition-transform duration-300 ${((isHovered && !isMobile) || isExpanded) ? 'scale-105 grayscale-0' : 'grayscale'}`}
+                                        onError={() => setNbaLogoError(true)}
+                                    />
+                                ) : (
+                                    <div className="w-32 h-32 bg-gray-800 rounded-full flex items-center justify-center">
+                                        <span className="text-lg text-gray-400">{prospect['NBA Team']}</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Additional Info Bar (Desktop only) */}
+                        {!isMobile && (
+                            <div className={`
+                                absolute bottom-12 left-1/2 -translate-x-1/2
+                                flex items-center whitespace-nowrap transition-opacity duration-300 tracking-wide text-sm duration-300
+                                ${((isHovered && !isMobile) || isExpanded) 
+                                    ? 'text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]' 
+                                    : 'text-[#6c727f] drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]'
+                        }
+                            `}>
+                                <span>{prospect['Pre-NBA']}</span>
+                                <span className="mx-1 text-gray-500">|</span>
+                                <span>{prospect.Role.toUpperCase()}</span>
+                                <span className="mx-1 text-gray-500">|</span>
+                                <span>H: {prospect.Height}</span>
+                                <span className="mx-1 text-gray-500">|</span>
+                                <span>WS: {prospect.Wingspan} ({(() => {
+                                    const heightIn = parseFloat(prospect['Height (in)']) || 0;
+                                    const wingspanIn = parseFloat(prospect['Wingspan (in)']) || 0;
+                                    const diff = wingspanIn - heightIn;
+                                    return diff >= 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
+                                })()})</span>
+                                <span className="mx-1 text-gray-500">|</span>
+                                <span>W: {prospect['Weight (lbs)']} (lbs)</span>
+                                <span className="mx-1 text-gray-500">|</span>
+                                <span>AGE: {prospect.Age}</span>
+                                <span className="mx-1 text-gray-500">|</span>
+                                <span>{getDraftTeamName(true)}</span>
                             </div>
                         )}
                     </div>
@@ -455,7 +455,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                     {/* Click to View Text - Desktop only */}
                     {!isExpanded && !isMobile && children && (
                         <div className="text-center mt-2">
-                            <p className={`text-gray-500 text-sm font-bold ${isHovered ? 'animate-pulse' : ''}`}>
+                            <p className={`text-gray-500 text-sm font-bold ${isHovered ? 'animate-pulse' : 'opacity-50'}`}>
                                 Click Card to View More Information
                             </p>
                         </div>
@@ -468,10 +468,8 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.3 }}
-                            className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative"
-                            style={{ backgroundColor: 'rgba(25, 25, 26, 0.9)' }}
+                            className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative bg-gray-800/20"
                         >
-                            <h3 className="text-lg font-semibold text-white mb-2">{prospect.Name}</h3>
                             <div className="grid grid-cols-2 gap-2">
                                 {/* Draft Information Column */}
                                 <div>
@@ -501,10 +499,6 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                                     </div>
                                 </div>
                             </div>
-                            {/* Team Logo in Top Right */}
-                            <div className="absolute top-3.5 right-3.5 transform scale-50 origin-top-right">
-                                <NBATeamLogo NBA={prospect['NBA Team']} />
-                            </div>
                         </motion.div>
                     )}
 
@@ -514,8 +508,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                             className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
                                 }`}
                         >
-                            <div className="rounded-xl backdrop-blur-sm p-4 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)]"
-                                style={{ backgroundColor: '#19191A' }}>
+                            <div className="rounded-xl backdrop-blur-sm p-4 mt-2 border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] bg-gray-800/20">
                                 {children}
                             </div>
                         </div>
@@ -526,9 +519,9 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
             {/* Divider - Desktop only */}
             {!isMobile && (
                 <div>
-                    <div className="h-px w-3/4 bg-gray my-5" />
-                    <div className="h-px w-full bg-gray-700/30 my-8" />
-                    <div className="h-px w-3/4 bg-gray my-5" />
+                    <div className="h-px w-3/4 bg-gray my-3" />
+                    <div className="h-px w-full bg-gray-800/20 my-3" />
+                    <div className="h-px w-3/4 bg-gray my-3" />
                 </div>
             )}
         </div>

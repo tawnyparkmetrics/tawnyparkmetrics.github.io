@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Home" />
-      <GoogleAnalytics  gaId="G-X22HKJ13B7" />
+      <GoogleAnalytics gaId="G-X22HKJ13B7" />
       {/* Hero Section - Reduced top padding from pt-20 to pt-12 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
         <div className="bg-[#19191A] border border-white/20 rounded-xl p-8">
@@ -27,7 +27,7 @@ export default function Home() {
                 priority // Add priority since this is above the fold
               />
             </div>
-            
+
             {/* Text Content */}
             <div className="flex-grow text-gray-300 text-lg leading-relaxed">
               <p className="mb-4">
@@ -84,7 +84,15 @@ export default function Home() {
                 Max&apos;s Draft Board
               </h2>
               <p className="text-gray-400">
-                Explore <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@supersayansavin</a>&apos;s model featuring EPM projections, prospect tiers, skills graphs, and player comps.
+                Explore <a
+                  href="https://x.com/supersayansavin"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  @supersayansavin
+                </a> &apos;s model featuring EPM projections, prospect tiers, skills graphs, and player comps.
               </p>
             </div>
           </Link>
