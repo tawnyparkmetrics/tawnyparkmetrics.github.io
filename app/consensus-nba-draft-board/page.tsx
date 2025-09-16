@@ -22,6 +22,8 @@ import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis } from "rec
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
+import { ContributorEvaluationTable, BaseContributorEvaluation, ContributorColumnConfig } from '@/components/ContributorEvaluationTable';
+
 
 export interface DraftProspect {
     //Player info for hover
@@ -946,7 +948,7 @@ const ConsensusPageProspectCard: React.FC<{
                 ) : (
                     <>
                         {/* Desktop: Original layout */}
-                        <div className="flex-[0.8] flex justify-center pr-1">
+                        <div className="flex-[0.8] flex justify-center pr-1/2">
                             <h3 className="italic text-lg text-white">
                                 {showRangeConsensus ? 'draft range distribution' : 'draft rank distribution'}
                             </h3>
@@ -1001,7 +1003,7 @@ const ConsensusPageProspectCard: React.FC<{
                             </div>
                         </div>
 
-                        <div className="flex-[0.8] flex justify-center pl-1">
+                        <div className="flex-[0.8] flex justify-center pl-1/2">
                             <h3 className="italic text-lg text-white">
                                 {showRangeConsensus ? 'draft range data' : 'draft rank data'}
                             </h3>
@@ -1615,6 +1617,8 @@ export default function ConsensusPage() {
     const [contributorSearch, setContributorSearch] = useState('');
     const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
     const [selectedYear, setSelectedYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020'>('2025');
+    const [contributorEvaluations, setContributorEvaluations] = useState<BaseContributorEvaluation[]>([]);
+
 
     // Define column configuration with proper Player Information order
     const initialColumns: ColumnConfig[] = [
@@ -1655,6 +1659,70 @@ export default function ConsensusPage() {
         document.title = 'Consensus NBA Draft Board';
     }, []);
 
+    const contributorColumns: ContributorColumnConfig[] = [
+        // Board Information
+        { key: 'Board', label: 'Board', category: 'Board Information', visible: true, sortable: true },
+        { key: 'Board Size', label: 'Size', category: 'Board Information', visible: true, sortable: true },
+
+        // Consensus Performance
+        { key: 'Consensus Lottery', label: 'Consensus Lottery', category: 'Consensus', visible: true, sortable: true },
+        { key: 'Consensus Top 30', label: 'Consensus Top 30', category: 'Consensus', visible: true, sortable: true },
+        { key: 'Consensus Top 60', label: 'Consensus Top 60', category: 'Consensus', visible: false, sortable: true },
+
+        // NBA Draft Performance
+        { key: 'NBA Draft Lottery', label: 'NBA Draft Lottery', category: 'NBA Draft', visible: true, sortable: true },
+        { key: 'NBA Draft Top 30', label: 'NBA Draft  Top 30', category: 'NBA Draft', visible: true, sortable: true },
+        { key: 'NBA Draft Top 60', label: ' NBA Draft Top 60', category: 'NBA Draft', visible: false, sortable: true },
+
+        // Redraft Performance
+        { key: 'Redraft Lottery', label: 'Redraft Lottery', category: 'Redraft', visible: true, sortable: true },
+        { key: 'Redraft Top 30', label: 'Redraft Top 30', category: 'Redraft', visible: true, sortable: true },
+        { key: 'Redraft Top 60', label: 'Redraft Top 60', category: 'Redraft', visible: false, sortable: true },
+
+        // EPM Performance
+        { key: 'EPM Lottery', label: 'EPM Lottery', category: 'EPM', visible: false, sortable: true },
+        { key: 'EPM Top 30', label: 'EPM Top 30', category: 'EPM', visible: false, sortable: true },
+        { key: 'EPM Top 60', label: 'EPM Top 60', category: 'EPM', visible: false, sortable: true },
+
+        // EW Performance
+        { key: 'EW Lottery', label: 'EW Lottery', category: 'EW', visible: false, sortable: true },
+        { key: 'EW Top 30', label: 'EW Top 30', category: 'EW', visible: false, sortable: true },
+        { key: 'EW Top 60', label: 'EW Top 60', category: 'EW', visible: false, sortable: true },
+
+        // Overall Rankings
+        { key: 'Lottery Rank', label: 'Lottery Rank', category: 'Rankings', visible: true, sortable: true },
+        { key: 'Top 30 Rank', label: 'Top 30 Rank', category: 'Rankings', visible: true, sortable: true },
+        { key: 'Top 60 Rank', label: 'Top 60 Rank', category: 'Rankings', visible: false, sortable: true },
+    ];
+
+    useEffect(() => {
+        async function fetchContributorEvaluations() {
+            // Only fetch for 2020 and 2021
+            if (selectedYear !== '2020' && selectedYear !== '2021') {
+                setContributorEvaluations([]);
+                return;
+            }
+
+            try {
+                const csvFileName = `${selectedYear} Consensus Evaluation.csv`;
+                const response = await fetch(`/${csvFileName}`);
+                const csvText = await response.text();
+
+                Papa.parse(csvText, {
+                    header: true,
+                    complete: (results) => {
+                        const evaluationData = results.data as BaseContributorEvaluation[];
+                        setContributorEvaluations(evaluationData);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching contributor evaluations:', error);
+                setContributorEvaluations([]);
+            }
+        }
+
+        fetchContributorEvaluations();
+    }, [selectedYear]);
 
     // Global data analysis function
     const analyzeGlobalDataValidity = useCallback(() => {
@@ -2131,10 +2199,18 @@ export default function ConsensusPage() {
             )}
 
             {viewMode === 'contributors' ? (
-                <ContributorsData
-                    selectedYear={selectedYear}
-                    searchQuery={contributorSearch}
-                />
+                (selectedYear === '2020' || selectedYear === '2021') ? (
+                    <ContributorEvaluationTable
+                        evaluations={contributorEvaluations}
+                        initialColumns={contributorColumns}
+                        categories={['Board Information', 'Consensus', 'NBA Draft', 'Redraft', 'EPM', 'EW', 'Rankings']}
+                    />
+                ) : (
+                    <ContributorsData
+                        selectedYear={selectedYear}
+                        searchQuery={contributorSearch}
+                    />
+                )
             ) : filteredProspects.length > 0 ? (
                 viewMode === 'card' ? (
                     <div className="space-y mt-6">

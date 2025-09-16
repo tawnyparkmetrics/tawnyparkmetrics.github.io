@@ -605,15 +605,15 @@ const TimelineFilter = ({
                 </div>
 
                 {/* Desktop filter bar - hidden on mobile */}
-                <div className="hidden md:flex justify-between items-center space-x-4 mt-4">
-                  {/* Left section: Reset Button and Search */}
-                  <div className="flex items-center space-x-2 flex-grow max-w-md">
+                <div className="hidden md:flex items-center space-x-3 mt-4">
+                  {/* Left section: Search - now takes more space */}
+                  <div className="flex-1 max-w-lg">
                     {/* Search field */}
-                    <div className="relative flex-grow">
+                    <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                       <Input
                         type="text"
-                        placeholder="Search"
+                        placeholder="Search by name, pre-NBA team, or NBA team"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
@@ -621,7 +621,7 @@ const TimelineFilter = ({
                     </div>
                   </div>
 
-                  {/* Reset Button */}
+                  {/* Reset Button - moved to be next to search */}
                   <motion.button
                     onClick={resetFilters}
                     className={`
@@ -640,53 +640,57 @@ const TimelineFilter = ({
                   </motion.button>
 
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+                  <div className="h-8 w-px bg-gray-700/30" />
 
-                  {/* Position Filters */}
-                  {positions.map((position) => (
-                    <motion.button
-                      key={position.key}
-                      onClick={() => handlePositionClick(position.key)}
-                      className={`
-                        px-3 py-2 rounded-lg text-sm font-medium
-                        transition-all duration-300 justify-center
-                        ${selectedPosition === position.key
-                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                          : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                        }
-                      `}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {position.label}
-                    </motion.button>
-                  ))}
+                  {/* Tighter button group - Position Filters */}
+                  <div className="flex items-center space-x-2">
+                    {positions.map((position) => (
+                      <motion.button
+                        key={position.key}
+                        onClick={() => handlePositionClick(position.key)}
+                        className={`
+                          px-3 py-2 rounded-lg text-sm font-medium
+                          transition-all duration-300 w-20
+                          ${selectedPosition === position.key
+                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                          }
+                        `}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {position.label}
+                      </motion.button>
+                    ))}
+                  </div>
 
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+                  <div className="h-8 w-px bg-gray-700/30" />
 
                   {/* Average Filters */}
-                  {averageKeys.map((item) => (
-                    <motion.button
-                      key={item.key}
-                      onClick={() => setSelectedSortKey(item.key)}
-                      className={`
-                        px-4 py-2 rounded-lg text-sm font-medium
-                        transition-all duration-300
-                        ${selectedSortKey === item.key
-                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                          : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                        }
-                      `}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {item.label}
-                    </motion.button>
-                  ))}
+                  <div className="flex items-center space-x-2">
+                    {averageKeys.map((item) => (
+                      <motion.button
+                        key={item.key}
+                        onClick={() => setSelectedSortKey(item.key)}
+                        className={`
+                          px-3 py-2 rounded-lg text-sm font-medium
+                          transition-all duration-300
+                          ${selectedSortKey === item.key
+                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                          }
+                        `}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {item.label}
+                      </motion.button>
+                    ))}
+                  </div>
 
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-700/30 mx-2" />
+                  <div className="h-8 w-px bg-gray-700/30" />
 
                   {/* Right section: Tier buttons */}
                   <div className="flex items-center space-x-2">
@@ -694,7 +698,7 @@ const TimelineFilter = ({
                     <motion.button
                       onClick={handleTierRankToggle}
                       className={`
-                        px-4 py-2 rounded-lg text-sm font-medium
+                        px-3 py-2 rounded-lg text-sm font-medium
                         flex items-center gap-2
                         transition-all duration-300
                         ${tierRankActive
@@ -714,7 +718,7 @@ const TimelineFilter = ({
                       <DropdownMenuTrigger asChild>
                         <motion.button
                           className={`
-                            relative px-4 py-2 rounded-lg text-sm font-medium
+                            relative px-3 py-2 rounded-lg text-sm font-medium
                             flex items-center gap-2
                             transition-all duration-300
                             ${selectedTier

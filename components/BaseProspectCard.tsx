@@ -68,6 +68,7 @@ const mobileCollegeNames: { [key: string]: string } = {
     "CB Gran Canaria": "Gran Canaria",
     "Baloncesto Málaga": "Málaga",
     "OTE City Reapers": "OTE Reapers",
+    "Northwest Missouri": "NW Missouri"
 }
 
 const draftShort: { [key: string]: string } = {
@@ -134,7 +135,7 @@ const mobileViewPlayerName: { [key: string]: string } = {
     "TyTy Washington Jr.": "Tyty Washington",
     "Brandon Boston Jr.": "BJ Boston",
     "Jeremiah Robinson-Earl": "J. Robinson-Earl",
-    "Sandro Mamukelashvili": "Sando Mamu",
+    "Sandro Mamukelashvili": "Sandro Mamu",
     "Duane Washington Jr.": "Duane Washington",
     "Chaundee Brown Jr.": "Chaundee Brown",
     "De'Riante Jenkins": "De'Rian Jenkins",
@@ -561,20 +562,20 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                         {/* Additional Info Bar (Desktop only) */}
                         {!isMobile && (
                             <div className={`
-        absolute bottom-12 left-1/2 -translate-x-1/2
-        flex items-center whitespace-nowrap tracking-wide text-sm
-        transition-all duration-300 
-        ${((isHovered && !isMobile) || isExpanded)
+                                absolute bottom-12 left-1/2 -translate-x-1/2
+                                flex items-center whitespace-nowrap tracking-wide text-sm
+                                transition-all duration-300 
+                                ${((isHovered && !isMobile) || isExpanded)
                                     ? 'text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]'
                                     : 'text-[#6c727f] drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]'
                                 }
-    `}>
+                            `}>
                                 <span>{getShortenedCollegeNameDesktop(prospect['Pre-NBA'])}</span>
-                                <div className="mx-2 h-4 w-px bg-gray-500"></div>
+                                <div className="mx-1.5 h-4 w-px bg-gray-500"></div>
                                 <span>{prospect.Role.toUpperCase()}</span>
-                                <div className="mx-2 h-4 w-px bg-gray-500"></div>
+                                <div className="mx-1.5 h-4 w-px bg-gray-500"></div>
                                 <span>H: {prospect.Height}</span>
-                                <div className="mx-2 h-4 w-px bg-gray-500"></div>
+                                <div className="mx-1.5 h-4 w-px bg-gray-500"></div>
                                 <span>WS: {prospect.Wingspan} {(() => {
                                     const wingspan = prospect.Wingspan;
                                     const heightIn = parseFloat(prospect['Height (in)']) || 0;
@@ -593,11 +594,11 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                                         return `(${formattedDiff})`;
                                     }
                                 })()}</span>
-                                <div className="mx-2 h-4 w-px bg-gray-500"></div>
+                                <div className="mx-1.5 h-4 w-px bg-gray-500"></div>
                                 <span>W: {prospect['Weight (lbs)']} lbs</span>
-                                <div className="mx-2 h-4 w-px bg-gray-500"></div>
+                                <div className="mx-1.5 h-4 w-px bg-gray-500"></div>
                                 <span>AGE: {prospect.Age}</span>
-                                <div className="mx-2 h-4 w-px bg-gray-500"></div>
+                                <div className="mx-1.5 h-4 w-px bg-gray-500"></div>
                                 <span>{getDraftTeamName(true)}</span>
                             </div>
                         )}
