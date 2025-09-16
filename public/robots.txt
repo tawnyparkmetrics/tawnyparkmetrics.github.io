@@ -9,7 +9,7 @@ Disallow: /*.jpeg
 Disallow: /*.gif
 Disallow: /*.webp
 
-Allow: /
+Allow: public/TPM_logo_designs/
 
 # Host
 Host: https://tawnyparkmetrics.com

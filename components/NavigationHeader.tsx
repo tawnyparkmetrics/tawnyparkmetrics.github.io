@@ -147,7 +147,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
       <div className="fixed top-0 left-0 right-0 z-40 bg-[#19191A] border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 relative">
-            
+
             {/* Left Navigation */}
             <div className="flex space-x-4">
               {/* Home tab */}
@@ -191,12 +191,11 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                               >
                                 <span>{item.name}</span>
                                 <ChevronDown
-                                  className={`h-4 w-4 transition-transform duration-200 ${
-                                    expandedSection === item.name ? 'rotate-180' : ''
-                                  }`} 
+                                  className={`h-4 w-4 transition-transform duration-200 ${expandedSection === item.name ? 'rotate-180' : ''
+                                    }`}
                                 />
                               </button>
-                              
+
                               {/* Expanded sub-items */}
                               {expandedSection === item.name && (
                                 <div className="bg-gray-800/30 border-t border-gray-700">
@@ -265,20 +264,21 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
             </div>
 
             {/* Centered Brand Text Only */}
-            <Link 
+            <Link
               href="/"
               className="absolute left-1/2 transform -translate-x-1/2 group cursor-pointer"
             >
               {/* Animated text */}
               <div className="hidden md:block">
-                <div className="text-2xl font-bold text-gray-500 tracking-wide group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-white group-hover:to-white group-hover:bg-clip-text transition-all duration-1000 ease-out relative overflow-hidden">
+                <div className="text-2xl font-bold text-gray-500 tracking-wide
+                  transition-all duration-500 ease-out relative overflow-hidden
+                  group-hover:text-white group-hover:drop-shadow-glow">
                   TAWNY PARK METRICS
-                
                 </div>
               </div>
-              
+
               {/* Mobile version - just TPM */}
-              <div className="md:hidden text-2xl font-bold text-gray-500 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-white group-hover:to-white group-hover:bg-clip-text transition-all duration-1000 ease-out">
+              <div className="md:hidden text-2xl font-bold text-gray-500 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-white group-hover:to-white group-hover:bg-clip-text transition-all duration-500 ease-out">
                 TPM
               </div>
             </Link>
