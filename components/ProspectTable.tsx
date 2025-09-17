@@ -948,22 +948,18 @@ export function ProspectTable<T extends BaseProspect>({
                             {visibleColumns.map((column) => (
                                 <TableHead
                                     key={column.key}
-                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'} ${['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '2nd Round', 'Inclusion Rate'].includes(column.key) ? 'text-center' : ''
+                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'} ${
+                                        // Center specific columns that should be centered
+                                        ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '2nd Round', 'Inclusion Rate'].includes(column.key) ? 'text-center' : ''
                                         }`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
-                                    style={{
-                                        position: 'sticky',
-                                        top: 0,
-                                        backgroundColor: '#19191A',
-                                        zIndex: 10,
-                                        borderBottom: '1px solid rgb(55, 65, 81, 0.3)'
-                                    }}
                                 >
+                                    {/* Display shortened labels for Range Consensus columns in table headers */}
                                     {['1 - 3', '4 - 14', '15 - 30', '2nd Round'].includes(column.key)
-                                        ? column.key
+                                        ? column.key  // Show just "1 - 3", "4 - 14", etc.
                                         : column.key === 'Inclusion Rate'
-                                            ? 'IR'
-                                            : column.label
+                                            ? 'IR'  // Show "IR" for Inclusion Rate
+                                            : column.label  // Show full label for all other columns
                                     }
                                     {column.sortable && sortConfig?.key === column.key && (
                                         <span className="ml-1">
