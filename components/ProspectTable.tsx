@@ -580,17 +580,6 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-
-        // Handle Rank columns - display as whole numbers
-        if (column.key.includes('Rank') && !column.key.includes('Position')) {
-            const rankValue = prospect[key];
-            return (
-                <TableCell key={column.key} className="text-gray-300">
-                    {typeof rankValue === 'number' ? rankValue.toString() : String(rankValue || '')}
-                </TableCell>
-            );
-        }
-
         // Handle comparison columns
         if (['Comp1', 'Comp2', 'Comp3', 'Comp4', 'Comp5'].includes(column.key)) {
             const compValue = prospect[key];
@@ -647,8 +636,6 @@ export function ProspectTable<T extends BaseProspect>({
                 return { backgroundColor: 'transparent', color: '#d1d5db' }; // gray-300
             }
 
-
-
             const numValue = parseFloat(String(value));
 
             // For percentage values, higher percentages should be brighter blue
@@ -681,8 +668,6 @@ export function ProspectTable<T extends BaseProspect>({
             // Create blue gradient
             const backgroundColor = `rgba(59, 130, 246, ${0.1 + finalIntensity * 0.5})`;
             const textColor = finalIntensity > 0.4 ? '#ffffff' : '#e5e7eb';
-
-            console.log(`EPM Gradient for key ${key}: bg=${backgroundColor}, color=${textColor}`);
 
             return { backgroundColor, color: textColor };
         };
@@ -750,14 +735,15 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
+
         if (['Pred. Y1 Rank', 'Pred. Y2 Rank', 'Pred. Y3 Rank', 'Pred. Y4 Rank', 'Pred. Y5 Rank', 'Y1 Rank', 'Y2 Rank', 'Y3 Rank', 'Y4 Rank', 'Y5 Rank', 'Rank Y1-Y3', 'Rank Y1-Y5'].includes(column.key)) {
             const cellValue = prospect[key];
+
             let displayValue = '';
 
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
                 const numValue = parseFloat(String(cellValue));
                 if (!isNaN(numValue)) {
-                    // Show as whole numbers or 1 decimal if needed
                     displayValue = numValue % 1 === 0 ? numValue.toString() : numValue.toFixed(1);
                 } else {
                     displayValue = String(cellValue);
@@ -767,6 +753,9 @@ export function ProspectTable<T extends BaseProspect>({
             }
 
             const gradientStyle = getEPMProjectionGradient(cellValue, column.key);
+
+            // Debug the gradient style
+            console.log(`Gradient style for ${column.key}:`, gradientStyle);
 
             return (
                 <TableCell
@@ -778,6 +767,17 @@ export function ProspectTable<T extends BaseProspect>({
                     }}
                 >
                     {displayValue}
+                </TableCell>
+            );
+        }
+
+
+        // Handle Rank columns - display as whole numbers
+        if (column.key.includes('Rank') && !column.key.includes('Position')) {
+            const rankValue = prospect[key];
+            return (
+                <TableCell key={column.key} className="text-gray-300">
+                    {typeof rankValue === 'number' ? rankValue.toString() : String(rankValue || '')}
                 </TableCell>
             );
         }
@@ -857,7 +857,7 @@ export function ProspectTable<T extends BaseProspect>({
 
                 {/* Collapsible Content */}
                 <div
-                    className="overflow-hidden transition-all duration-300 ease-in-out relative z-50"
+                    className="overflow-hidden transition-all duration-300 ease-in-out absolute left-0 right-0 z-10"
                     style={{
                         maxHeight: columnSelectorOpen ? '1000px' : '0px',
                         opacity: columnSelectorOpen ? 1 : 0
@@ -948,18 +948,22 @@ export function ProspectTable<T extends BaseProspect>({
                             {visibleColumns.map((column) => (
                                 <TableHead
                                     key={column.key}
-                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'} ${
-                                        // Center specific columns that should be centered
-                                        ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '2nd Round'].includes(column.key) ? 'text-center' : ''
+                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'} ${['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '2nd Round', 'Inclusion Rate'].includes(column.key) ? 'text-center' : ''
                                         }`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
+                                    style={{
+                                        position: 'sticky',
+                                        top: 0,
+                                        backgroundColor: '#19191A',
+                                        zIndex: 10,
+                                        borderBottom: '1px solid rgb(55, 65, 81, 0.3)'
+                                    }}
                                 >
-                                    {/* Display shortened labels for Range Consensus columns in table headers */}
                                     {['1 - 3', '4 - 14', '15 - 30', '2nd Round'].includes(column.key)
-                                        ? column.key  // Show just "1 - 3", "4 - 14", etc.
+                                        ? column.key
                                         : column.key === 'Inclusion Rate'
-                                        ? 'IR'  // Show "IR" for Inclusion Rate
-                                        : column.label  // Show full label for all other columns
+                                            ? 'IR'
+                                            : column.label
                                     }
                                     {column.sortable && sortConfig?.key === column.key && (
                                         <span className="ml-1">

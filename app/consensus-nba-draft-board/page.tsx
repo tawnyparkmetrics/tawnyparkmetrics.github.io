@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { LucideUser, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Papa from 'papaparse';
 import { motion } from 'framer-motion';
@@ -1263,7 +1263,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 >
                                     {/* Mobile view - show current mode text */}
                                     <span className="sm:hidden">
-                                        {viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Contributors'}
+                                        {viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Evaluation'}
                                     </span>
                                     {/* Desktop view - show icons */}
                                     <span className="hidden sm:flex items-center">
@@ -1280,7 +1280,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         ) : viewMode === 'contributors' ? (
                                             <>
                                                 <TrendingUp className="mr-1 h-4 w-4" />
-                                                Contributors
+                                                Evaluation
                                             </>
                                         ) : (
                                             <>
@@ -1361,7 +1361,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 >
                                     <div className="flex items-center gap-2">
                                         <TrendingUp className="h-4 w-4" />
-                                        Contributors
+                                        Evaluation
                                     </div>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -1533,7 +1533,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 whileTap={{ scale: 0.95 }}
                             >
                                 <TrendingUp className="mr-1 h-4 w-4" />
-                                Contributors
+                                Evaluation
                             </motion.button>
 
                             {/* View Mode Dropdown */}
@@ -1618,6 +1618,8 @@ export default function ConsensusPage() {
     const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
     const [selectedYear, setSelectedYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020'>('2025');
     const [contributorEvaluations, setContributorEvaluations] = useState<BaseContributorEvaluation[]>([]);
+    const [consensusFilter, setConsensusFilter] = useState<'lottery' | 'top30' | 'top60'>('lottery');
+
 
 
     // Define column configuration with proper Player Information order
@@ -1694,6 +1696,10 @@ export default function ConsensusPage() {
         { key: 'Top 30 Rank', label: 'Top 30 Rank', category: 'Rankings', visible: true, sortable: true },
         { key: 'Top 60 Rank', label: 'Top 60 Rank', category: 'Rankings', visible: false, sortable: true },
     ];
+
+    const handleConsensusFilterChange = useCallback((filter: 'lottery' | 'top30' | 'top60') => {
+        setConsensusFilter(filter);
+    }, []);
 
     useEffect(() => {
         async function fetchContributorEvaluations() {
@@ -2113,8 +2119,48 @@ export default function ConsensusPage() {
                             </div>
                         </div>
 
-                        {/* Year Dropdown for Contributors */}
                         <div className="flex items-center gap-2">
+                            {/* Consensus Filter Switcher - only show for 2020/2021 */}
+                            {(selectedYear === '2020' || selectedYear === '2021') && (
+                                <>
+                                    <div className="flex items-center gap-1 p-1 bg-[#19191A] border border-gray-800 rounded-lg">
+                                        <motion.button
+                                            onClick={() => handleConsensusFilterChange('lottery')}
+                                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${consensusFilter === 'lottery'
+                                                    ? 'bg-blue-500/20 text-blue-400 border-blue-400 shadow-sm'
+                                                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+                                                }`}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            Lottery
+                                        </motion.button>
+                                        <motion.button
+                                            onClick={() => handleConsensusFilterChange('top30')}
+                                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${consensusFilter === 'top30'
+                                                    ? 'bg-blue-500/20 text-blue-400 border-blue-400 shadow-sm'
+                                                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+                                                }`}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            Top 30
+                                        </motion.button>
+                                        <motion.button
+                                            onClick={() => handleConsensusFilterChange('top60')}
+                                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${consensusFilter === 'top60'
+                                                    ? 'bg-blue-500/20 text-blue-400 border-blue-400 shadow-sm'
+                                                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+                                                }`}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            Top 60
+                                        </motion.button>
+                                    </div>
+                                    {/* Divider */}
+                                    <div className="h-6 w-px bg-gray-700/30 mx-1" />
+                                </>
+                            )}
+
+                            {/* Year Dropdown for Contributors */}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <motion.button
@@ -2158,7 +2204,7 @@ export default function ConsensusPage() {
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         <TrendingUp className="mr-1 h-4 w-4" />
-                                        Contributors
+                                        Evaluation
                                         <ChevronDown className="ml-1 h-4 w-4" />
                                     </motion.button>
                                 </DropdownMenuTrigger>
@@ -2187,7 +2233,7 @@ export default function ConsensusPage() {
                                     >
                                         <div className="flex items-center gap-2">
                                             <TrendingUp className="h-4 w-4" />
-                                            Contributors
+                                            Evaluation
                                         </div>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -2195,7 +2241,6 @@ export default function ConsensusPage() {
                         </div>
                     </div>
                 </div>
-
             )}
 
             {viewMode === 'contributors' ? (
@@ -2204,6 +2249,8 @@ export default function ConsensusPage() {
                         evaluations={contributorEvaluations}
                         initialColumns={contributorColumns}
                         categories={['Board Information', 'Consensus', 'NBA Draft', 'Redraft', 'EPM', 'EW', 'Rankings']}
+                        consensusFilter={consensusFilter}
+                        onConsensusFilterChange={handleConsensusFilterChange}
                     />
                 ) : (
                     <ContributorsData

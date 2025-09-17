@@ -104,7 +104,7 @@ export default function Home() {
                 Nick&apos;s Draft Board
               </h2>
               <p className="text-gray-400">
-                Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@kalidrafts</a>&apos;s model ranking prospects by predicted EPM using up to 535 unique predictors.
+                Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@kalidrafts</a>&apos;s model ranking prospects by predicted EPM using 500+ unique predictors.
               </p>
             </div>
           </Link>

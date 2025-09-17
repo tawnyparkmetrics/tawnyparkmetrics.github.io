@@ -1,9 +1,9 @@
 import React from 'react';
 
 export interface DraftPageHeaderProps {
-  author: 'Max Savin' | 'Nick Kalinowski' | 'Andre Liu' | 'Consensus' | 'Draft History' | '2020-2025 NBA Draft History'; // Added the new specific type
+  author: 'Max Savin' | 'Nick Kalinowski' | 'Andre Liu' | 'Consensus' | 'Draft History' | '2020-2025 NBA Draft History';
   className?: string;
-  selectedYear?: number | string; // Allow selectedYear to be a string (e.g., '2020-2025')
+  selectedYear?: number | string;
 }
 
 const getBoardCount = (year: number | string | undefined) => {
@@ -11,27 +11,25 @@ const getBoardCount = (year: number | string | undefined) => {
 
   switch (numericYear) {
     case 2020:
-      return 64; // or whatever value you want for 2020
+      return 64;
     case 2021:
-      return 104; // or whatever value you want for 2021
+      return 104;
     case 2022:
-      return 100; // or whatever value you want for 2022
+      return 100;
     case 2023:
-      return 71; // or whatever value you want for 2023
+      return 71;
     case 2024:
-      return 111; // or whatever value you want for 2024
+      return 111;
     case 2025:
-      return 164; // or whatever value you want for 2025
+      return 164;
     default:
-      return 20; // default fallback value
+      return 20;
   }
 };
 
 const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '', selectedYear }) => {
-  // Get first name for the display
   const firstName = author.split(' ')[0];
 
-  // Get description based on author
   const getDescription = (author: string) => {
     switch (author) {
       case 'Max Savin':
@@ -41,7 +39,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Andre Liu':
         return 'Analyzing prospects via original metrics and clustered tiers.';
       case 'Draft History':
-      case '2020-2025 NBA Draft History': // No description for this case
+      case '2020-2025 NBA Draft History':
         return '';
       case 'Consensus':
         return (
@@ -55,7 +53,6 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
   };
 
   const getTitle = (firstName: string, author: string, selectedYear?: number | string) => {
-    // Handle the explicit '2020-2025 NBA Draft History' author type
     if (author === '2020-2025 NBA Draft History') {
       return '2020-2025 NBA Draft History';
     }
@@ -65,13 +62,11 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
     if (author === 'Consensus') {
       return selectedYear ? `${selectedYear} NBA Draft Internet Consensus` : `NBA Draft Internet Consensus`;
     }
-    // Updated logic for 'Draft History' author
     if (author === 'Draft History') {
-      // Check if selectedYear is the string '2020-2025'
       if (selectedYear === '2020-2025') {
-        return '2020-2025 NBA Draft History'; // Specific title for the range
+        return '2020-2025 NBA Draft History';
       }
-      return selectedYear ? `${selectedYear} NBA Draft` : `NBA Draft`; // For single years
+      return selectedYear ? `${selectedYear} NBA Draft` : `NBA Draft`;
     }
     return `${firstName}'s Draft Model`;
   };
@@ -80,10 +75,14 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
     return author === 'Consensus' ? 'max-w-6xl' : 'max-w-2xl';
   };
 
+  // Add more padding specifically for Draft History pages
+  const isDraftHistory = author === 'Draft History' || author === '2020-2025 NBA Draft History';
+  const paddingClass = isDraftHistory ? 'py-6' : 'py-3';
+
   return (
     <div className={`bg-[#19191A] border-b border-gray-800 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-3 pl-2 md:pl-0 md:ml-[3.25rem]">
+        <div className={`${paddingClass} pl-2 md:pl-0 md:ml-[3.25rem]`}>
           <h1 className="text-xl md:text-2xl font-semibold text-white">
             {getTitle(firstName, author, selectedYear)}
           </h1>

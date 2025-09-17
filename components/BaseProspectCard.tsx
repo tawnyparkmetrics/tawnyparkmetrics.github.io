@@ -54,7 +54,7 @@ const mobileCollegeNames: { [key: string]: string } = {
     "Cholet Basket": "Cholet",
     "KK Crvena Zvezda": "KK Crvena",
     "Ratiopharm Ulm": "Ulm",
-    "Washington State": "Washington St.",
+    "Washington State": "WSU",
     "KK Mega Basket": "KK Mega",
     "Melbourne United": "Melbourne Utd",
     "Eastern Kentucky": "EKU",
@@ -68,7 +68,7 @@ const mobileCollegeNames: { [key: string]: string } = {
     "CB Gran Canaria": "Gran Canaria",
     "Baloncesto Málaga": "Málaga",
     "OTE City Reapers": "OTE Reapers",
-    "Northwest Missouri": "NW Missouri"
+    "Northwest Missouri": "NW Missouri St.",
 }
 
 const draftShort: { [key: string]: string } = {
@@ -101,6 +101,7 @@ const preNBALogoSizes: { [key: string]: { width: number; height: number; leftOff
     "North Dakota State": { width: 150, height: 150, leftOffset: -15 },
     "Providence": { width: 150, height: 150, leftOffset: -20 },
     "Penn State": { width: 150, height: 150, leftOffset: -20 },
+    "Nebraska": { width: 100, height: 100 },
     "Georgia": { width: 125, height: 125 }, //off on mobile
     "Liberty": { width: 125, height: 125 },
 }
@@ -622,7 +623,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                             transition={{ duration: 0.3 }}
                             className="mt-2 p-4 rounded-xl border border-gray-700/50 shadow-[0_0_15px_rgba(255,255,255,0.07)] relative bg-gray-800/20"
                         >
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="flex justify-center gap-8">
                                 {/* Draft Information Column */}
                                 <div>
                                     <h4 className="font-semibold text-white text-sm mb-1">Draft Information</h4>
@@ -641,7 +642,7 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                                 </div>
 
                                 {/* Physicals Column */}
-                                <div className="ml-2">
+                                <div>
                                     <h4 className="font-semibold text-white text-sm mb-1">Physicals</h4>
                                     <div className="space-y-1 text-xs text-gray-300">
                                         <div><span className="font-bold text-white">Height </span> {prospect.Height}</div>
