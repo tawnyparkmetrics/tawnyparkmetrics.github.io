@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronDown, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Column configuration interface for contributor evaluations
@@ -45,7 +44,29 @@ export interface ContributorEvaluationTableProps<T extends BaseContributorEvalua
     lockedColumns?: string[];
     consensusFilter?: 'lottery' | 'top30' | 'top60';
     onConsensusFilterChange?: (filter: 'lottery' | 'top30' | 'top60') => void;
+    searchQuery?: string;
+    onSearchChange?: (query: string) => void;
 }
+
+// Board anonymization configuration
+const ANONYMOUS_BOARD_NAMES: Record<string, string> = {
+    '@marx_posts': '[redacted]',
+    // Add more anonymous boards here as needed
+    // '@another_board': '[anonymous]',
+    // '@secret_board': '[classified]',
+};
+
+// Helper function to anonymize board names
+const anonymizeBoardName = (boardName: string): string => {
+    // Check if this board should be anonymized
+    const anonymizedName = ANONYMOUS_BOARD_NAMES[boardName];
+    if (anonymizedName) {
+        return anonymizedName;
+    }
+    
+    // If no anonymization needed, remove @ symbol for display
+    return boardName.replace(/^@/, '');
+};
 
 export function ContributorEvaluationTable<T extends BaseContributorEvaluation>({
     evaluations,
@@ -54,10 +75,12 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
     categories,
     lockedColumns = ['Board'],
     consensusFilter = 'lottery',
+    onConsensusFilterChange,
+    searchQuery = '',
+    onSearchChange,
 }: ContributorEvaluationTableProps<T>) {
     const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'ascending' | 'descending' } | null>(null);
     const [columns, setColumns] = useState<ContributorColumnConfig[]>([]);
-    // Remove this line: const [consensusFilter, setConsensusFilter] = useState<'lottery' | 'top30' | 'top60'>('lottery');
 
     // Auto-generate a unique identifier for storage
     const tableId = useMemo(() => {
@@ -202,6 +225,39 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
         }
     }, [consensusFilter, initialColumns.length, storageKey]); // Only essential dependencies
 
+    // Filter evaluations based on search query
+    const filteredEvaluations = useMemo(() => {
+        // Use the search query passed from parent component
+        const effectiveSearchQuery = searchQuery || '';
+        
+        if (!effectiveSearchQuery || effectiveSearchQuery.trim() === '') {
+            return evaluations;
+        }
+
+        const searchTerm = effectiveSearchQuery.toLowerCase().trim();
+        return evaluations.filter(evaluation => {
+            // Search in Board name (using the anonymized name for display)
+            const displayName = anonymizeBoardName(String(evaluation.Board || '')).toLowerCase();
+            if (displayName.includes(searchTerm)) {
+                return true;
+            }
+
+            // Search in original Board name (the actual data value)
+            const originalBoardName = String(evaluation.Board || '').toLowerCase();
+            if (originalBoardName.includes(searchTerm)) {
+                return true;
+            }
+
+            // Also search without @ symbol
+            const cleanBoardName = String(evaluation.Board || '').replace(/^@/, '').toLowerCase();
+            if (cleanBoardName.includes(searchTerm)) {
+                return true;
+            }
+
+            return false;
+        });
+    }, [evaluations, searchQuery]);
+
     const visibleColumns = columns.filter(col => col.visible);
 
     // Helper function to create unique identifier for stable sorting
@@ -216,9 +272,8 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
     const dataRanges = useMemo(() => {
         const ranges: Record<string, { min: number; max: number }> = {};
         
-        // Get all gradient-eligible columns (excluding Consensus)
+        // Get all gradient-eligible columns (excluding Consensus and NBA Draft)
         const gradientColumns = [
-            'NBA Draft Lottery', 'NBA Draft Top 30', 'NBA Draft Top 60',
             'Redraft Lottery', 'Redraft Top 30', 'Redraft Top 60',
             'EPM Lottery', 'EPM Top 30', 'EPM Top 60',
             'EW Lottery', 'EW Top 30', 'EW Top 60',
@@ -244,18 +299,18 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
 
     // Helper function to get performance gradient styling for hit rates
     const getPerformanceGradient = (value: any, key: string): { backgroundColor: string; color: string } => {
-        // No gradient for Consensus columns
-        if (key.includes('Consensus')) {
+        // No gradient for Consensus columns OR NBA Draft columns
+        if (key.includes('Consensus') || key.includes('NBA Draft')) {
             return { backgroundColor: 'transparent', color: '#d1d5db' };
         }
-
+    
         if (value === null || value === undefined || value === '' || isNaN(parseFloat(String(value)))) {
             return { backgroundColor: 'transparent', color: '#d1d5db' };
         }
-
+    
         const numValue = parseFloat(String(value));
         let intensity: number;
-
+    
         // Get the data range for this column
         const range = dataRanges[key];
         if (!range || range.min === range.max) {
@@ -265,12 +320,8 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             // Normalize the value within the actual data range
             const normalizedValue = (numValue - range.min) / (range.max - range.min);
             
-            // For NBA Draft columns (correlation %), higher is better
-            if (key.includes('NBA Draft')) {
-                intensity = normalizedValue;
-            }
             // For MAE columns (Redraft, EPM, EW), lower is better (inverse)
-            else if (key.includes('Redraft') || key.includes('EPM') || key.includes('EW')) {
+            if (key.includes('Redraft') || key.includes('EPM') || key.includes('EW')) {
                 intensity = 1 - normalizedValue;
             }
             // For rank columns, lower numbers are better (inverse)
@@ -282,21 +333,21 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                 intensity = normalizedValue;
             }
         }
-
+    
         // Ensure minimum visibility and cap at maximum
         intensity = Math.max(0.1, Math.min(1, intensity));
-
+    
         // Create blue gradient (consistent with your existing tables)
         const backgroundColor = `rgba(59, 130, 246, ${0.1 + intensity * 0.4})`;
         const textColor = intensity > 0.3 ? '#ffffff' : '#e5e7eb';
-
+    
         return { backgroundColor, color: textColor };
     };
 
     const sortedEvaluations = useMemo(() => {
-        if (!sortConfig) return evaluations;
+        if (!sortConfig) return filteredEvaluations;
 
-        const evaluationsWithId = evaluations.map((evaluation, originalIndex) => ({
+        const evaluationsWithId = filteredEvaluations.map((evaluation, originalIndex) => ({
             ...evaluation,
             _uniqueId: createUniqueId(evaluation),
             _originalIndex: originalIndex
@@ -359,25 +410,22 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             const { _uniqueId, _originalIndex, ...evaluation } = item;
             return evaluation;
         }) as unknown as T[];
-    }, [evaluations, sortConfig]);
-
-    const displayCategories = categories || [...new Set(columns.map(col => col.category))];
+    }, [filteredEvaluations, sortConfig]);
 
     // Helper function to render cell content
     const renderCell = (evaluation: T, column: ContributorColumnConfig) => {
         const key = column.key as keyof T;
 
         if (column.key === 'Board') {
-            // Remove @ symbol from board names for display
-            const cleanBoardName = String(evaluation.Board || '').replace(/^@/, '');
+            const displayName = anonymizeBoardName(String(evaluation.Board || ''));
             return (
                 <TableCell key={column.key} className="font-semibold text-gray-300 whitespace-nowrap">
-                    {cleanBoardName}
+                    {displayName}
                 </TableCell>
             );
         }
 
-        // Handle performance metrics with gradient styling (excluding Consensus)
+        // Handle performance metrics with gradient styling (excluding Consensus and NBA Draft)
         if ([
             'NBA Draft Lottery', 'NBA Draft Top 30', 'NBA Draft Top 60',
             'Redraft Lottery', 'Redraft Top 30', 'Redraft Top 60',
@@ -387,13 +435,17 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
         ].includes(column.key)) {
             const cellValue = evaluation[key];
             let displayValue = '';
-
+        
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
                 // Only format NBA Draft columns as percentages
                 if (['NBA Draft Lottery', 'NBA Draft Top 30', 'NBA Draft Top 60'].includes(column.key)) {
                     const numValue = parseFloat(String(cellValue));
+                    
                     if (!isNaN(numValue)) {
-                        displayValue = `${(numValue * 100).toFixed(1)}%`;
+                        // Ensure we're working with a decimal (0.535 -> 53.5%)
+                        // If the value is already > 1, it might already be a percentage
+                        const percentageValue = Math.abs(numValue) > 1 ? numValue : numValue * 100;
+                        displayValue = `${percentageValue.toFixed(1)}%`;
                     } else {
                         displayValue = String(cellValue);
                     }
@@ -404,9 +456,9 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             } else {
                 displayValue = 'N/A';
             }
-
+        
             const gradientStyle = getPerformanceGradient(cellValue, column.key);
-
+        
             return (
                 <TableCell
                     key={column.key}
@@ -417,7 +469,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                 </TableCell>
             );
         }
-
+        
         // Handle Consensus columns without gradient
         if ([
             'Consensus Lottery', 'Consensus Top 30', 'Consensus Top 60'
@@ -462,9 +514,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
 
     return (
         <div className={`max-w-6xl mx-auto px-4 pt-2 ${className}`}>
-            {/* Remove the entire Controls Row section - it's now handled by the parent */}
-            
-            {/* Table */}
+            {/* Table - No search bar, no settings button */}
             <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-700/40">
                 <Table>
                     <TableHeader>

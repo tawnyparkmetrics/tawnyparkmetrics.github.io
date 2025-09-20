@@ -1,5 +1,8 @@
 # *
 User-agent: *
+
+Allow: public/TPM_logo_designs/
+
 Disallow: /images/
 Disallow: /data/
 Disallow: /*.csv
@@ -8,8 +11,6 @@ Disallow: /*.jpg
 Disallow: /*.jpeg
 Disallow: /*.gif
 Disallow: /*.webp
-
-Allow: public/TPM_logo_designs/
 
 # Host
 Host: https://tawnyparkmetrics.com

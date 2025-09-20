@@ -68,7 +68,10 @@ const mobileCollegeNames: { [key: string]: string } = {
     "CB Gran Canaria": "Gran Canaria",
     "Baloncesto Málaga": "Málaga",
     "OTE City Reapers": "OTE Reapers",
-    "Northwest Missouri": "NW Missouri St.",
+    "Northwest Missouri State": "NW Missouri St.",
+    "Metropolitans 92": "Metro 92",
+    "Cal State Northridge": "CSUN",
+    "Mississippi State" : "Mississippi St."
 }
 
 const draftShort: { [key: string]: string } = {

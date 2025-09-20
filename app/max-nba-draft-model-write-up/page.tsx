@@ -537,7 +537,7 @@ export default function TPMWriteUpPage() {
         Thank you to <strong>Mike Gribanov</strong> (<a href="https://x.com/mikegrib8?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@mikegrib8 on X</a>) for his feedback and input, as well as all the members of the NBA draft group chat he added me to (ifykyk). It&apos;s hard not to learn more about basketball when you&apos;re spammed with hundreds of messages a day about the sport. 
       </p>
       <p className="mb-4">
-        Lastly, thanks to <strong>Josh Lloyd</strong> (<a href="https://x.com/redrock_bball?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@redrock_bball on X</a>) who&apos;s draft content first inspired me to pursue my own.
+        Lastly, thanks to <strong>Josh Lloyd</strong> (<a href="https://x.com/redrock_bball?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-200 underline">@redrock_bball on X</a>) whose draft content first inspired me to pursue my own.
       </p>
 
         </div>
