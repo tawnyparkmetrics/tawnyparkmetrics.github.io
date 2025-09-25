@@ -71,13 +71,8 @@ const HistoryPageProspectCard: React.FC<{
             setIsMobile(window.innerWidth < 768);
         };
 
-        // Set initial value
         checkMobile();
-
-        // Add event listener for window resize
         window.addEventListener('resize', checkMobile);
-
-        // Cleanup
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
@@ -322,7 +317,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                     whileTap={{ scale: 0.95 }}
                                 >
                                     {/* Only show icons on desktop, not on mobile */}
-                                    <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
+                                    <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Table View'}</span>
                                     <span className="hidden sm:flex items-center">
                                         {viewMode === 'card' ? (
                                             <>
@@ -790,7 +785,7 @@ export default function DraftHistoryPage() {
             { key: 'League', label: 'League', category: 'Team Info', visible: true, sortable: true },
             { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Team Info', visible: true, sortable: true },
             { key: 'NBA Team', label: 'NBA Team', category: 'Team Info', visible: true, sortable: true },
-            { key: 'Age', label: 'Draft Age', category: 'Basic Info', visible: false, sortable: true },
+            { key: 'Age', label: 'Age', category: 'Basic Info', visible: false, sortable: true },
             { key: 'Height', label: 'Height', category: 'Physical', visible: false, sortable: true },
             { key: 'Wingspan', label: 'Wingspan', category: 'Physical', visible: false, sortable: true },
             { key: 'Wing - Height', label: 'Wing-Height', category: 'Physical', visible: false, sortable: true },

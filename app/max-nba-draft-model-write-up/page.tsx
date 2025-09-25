@@ -558,12 +558,13 @@ export default function TPMWriteUpPage() {
     <div className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="" />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16">
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
             FAQs
           </h1>
           <p className="text-gray-300 mb-4">Learn about my draft model & analysis via frequently asked questions</p>
+          <p className="text-gray-300 mb-4">Written by Max Savin</p>
         </div>
 
         <div className="space-y-4">

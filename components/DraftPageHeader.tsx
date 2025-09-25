@@ -83,7 +83,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
     <div className={`bg-[#19191A] border-b border-gray-800 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`${paddingClass} pl-2 md:pl-0 md:ml-[3.25rem]`}>
-          <h1 className="text-xl md:text-2xl font-semibold text-white">
+          <h1 className="text-xl md:text-2xl font-semibold text-white"> {/* here is the fix for the draft history page uneven padding pb-# */}
             {getTitle(firstName, author, selectedYear)}
           </h1>
           <p className={`mt-1 text-gray-400 text-xs md:text-sm ${getDescriptionMaxWidth(author)}`}>

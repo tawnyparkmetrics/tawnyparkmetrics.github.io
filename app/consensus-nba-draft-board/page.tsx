@@ -7,7 +7,6 @@ import { Search, TrendingUp, Table as TableIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input'; // Import the Input component
 import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
-import ContributorsData from '@/components/ContributorsData';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,7 +22,6 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
 import { ContributorEvaluationTable, BaseContributorEvaluation, ContributorColumnConfig } from '@/components/ContributorEvaluationTable';
-
 
 export interface DraftProspect {
     //Player info for hover
@@ -71,165 +69,13 @@ export interface DraftProspect {
 }
 
 export interface ConsensusColumns {
-    'Name': string;
-    'The Athletic (Sam Vecenie)': number;
-    'CBS Sports': number;
-    '@KevinOConnorNBA (Yahoo)': number;
-    'The Ringer': number;
-    'Tankathon': number;
-    'NBADraft.net': number;
-    'ESPN': number;
-    'No Ceilings': number;
-    'CraftedNBA': number;
-    '@KlineNBA (Fansided)': number;
-    'Swish Theory': number;
-    'Kevin Pelton (ESPN)': number;
-    'Opta': number;
-    'the center hub': number;
-    '@supersayansavin (TPM)': number;
-    '@CRiehl30': number;
-    '@JoelHinkieMaxey': number;
-    '@draymottishaw': number;
-    '@ZP12Hoops': number;
-    '@kimonsjaer24': number;
-    '@Jackmatthewss_': number;
-    '@rowankent': number;
-    '@CannibalSerb': number;
-    'Jishnu': number;
-    '@fra_sempru': number;
-    '@FPL_Mou': number;
-    'RyanHammer09': number;
-    '@thezonemaster': number;
-    '@hutsonboggs': number;
-    '@PAKA_FLOCKA': number;
-    '@drew_cant_hoop': number;
-    '@PenguinHoops': number;
-    'PK': number;
-    '@nore4dh': number;
-    '@LeftFieldSoup': number;
-    '@OranjeGuerrero': number;
-    '@503sbest': number;
-    '@BrianJNBA': number;
-    '@CediBetter': number;
-    '@JEnnisNBADraft': number;
-    '@report_court': number;
-    '@esotericloserr': number;
-    '@atthelevel': number;
-    '@freewave3': number;
-    'Andrea Cannici': number;
-    '@LoganH_utk': number;
-    'JoshW': number;
-    '@double_pg': number;
-    '@TaouTi959': number;
-    '@Alley_Oop_Coop': number;
-    '@perspectivehoop': number;
-    '@chipwilliamsjr': number;
-    '@DraftCasual': number;
-    '@thebigwafe': number;
-    '@NPComplete34': number;
-    '@SPTSJUNKIE (NBA Draft Network)': number;
-    '@bjpf_': number;
-    '@ram_dub': number;
-    'ReverseEnigma (databallr)': number;
-    '@OpticalHoops': number;
-    '@Rileybushh': number;
-    '@jhirsh03': number;
-    '@who_____knows': number;
-    '@GrizzliesFilm': number;
-    '@Juul__Embiid': number;
-    '@redrock_bball': number;
-    '@matwnba': number;
-    '@SpencerVonNBA': number;
-    'Jack Chambers': number;
-    'NBA Draft Room': number;
-    '@LoganPAdams': number;
-    '@bballstrategy': number;
-    '@movedmypivot': number;
-    '@drakemayefc': number;
-    '@Trellinterlude': number;
-    '@TrashPanda': number;
-    '@Duydidt': number;
-    '@Hoops_Haven1': number;
-    'Isaiah Silas': number;
-    '@codyreeves14': number;
-    '@nikoza2': number;
-    '@zjy2000': number;
-    '@Quinnfishburne': number;
-    '@antoniodias_pt': number;
-    '@cparkernba': number;
-    '@ChuckingDarts': number;
-    '@ShoryLogan': number;
-    '@Ethan387': number;
-    '@IFIMINC': number;
-    '@TStapletonNBA': number;
-    '@WillC': number;
-    '@mobanks10': number;
-    '@RichStayman': number;
-    '@_thedealzone': number;
-    '@_GatheringIntel': number;
-    '@DraftPow': number;
-    '@Dkphisports': number;
-    '@NicThomasNBA': number;
-    'Giddf': number;
-    '@BeyondTheRK': number;
-    '@greg23m': number;
-    'DrewDataDesign': number;
-    'Kam H': number;
-    '@dancingwithnoah': number;
-    'theballhaus': number;
-    'Oneiric': number;
-    '@undraliu': number;
-    '@corbannba': number;
-    '@_LarroHoops': number;
-    'salvador cali': number;
-    '@LoganRoA_': number;
-    '@sammygprops': number;
-    '@wilkomcv': number;
-    '@wheatonbrando': number;
-    '@Flawlesslikeeli': number;
-    '@_R_M_M': number;
-    '@mcfNBA': number;
-    '@evidenceforZ': number;
-    '@sixringsofsteeI': number;
-    '@CozyLito': number;
-    '@HoopsMetrOx': number;
-    '@SBNRicky': number;
-    '@redcooteay': number;
-    '@jessefischer': number;
-    '@henrynbadraft': number;
-    '@spursbeliever': number;
-    'SMILODON': number;
-    '@ayush_batra15': number;
-    '@AmericanNumbers': number;
-    '@100guaranteed': number;
-    '@jaynay1': number;
-    '@NileHoops': number;
-    '@HuntHoops': number;
-    'Mike Gribanov': number;
-    '@bendog28': number;
-    '@JHM Basketball': number;
-    '@halfwaketakes': number;
-    '@criggsnba': number;
-    '@NBADraftFuture': number;
-    '@JoeHulbertNBA': number;
-    '@CTFazio24': number;
-    '@JozhNBA': number;
-    '@hoop_tetris': number;
-    '@tobibuehner': number;
-    '@Josh_markowitz': number;
-    '@onlyonepodcastt': number;
-    '@akaCK_': number;
-    '@TheNicolau15': number;
-    '@British_Buzz': number;
-    '@hellyymarco': number;
-    '@SaucyTakez': number;
-    '@j0nzzzz': number;
-    '@JackDAnder': number;
-    '@nbadrafting': number;
-    'TheProcess': number;
-    '@canpekerpekcan': number;
-    '@ByAnthonyRizzo': number;
-    '@TwoWayMurray': number;
+    Name: string;
+    [key: string]: string | number; // This allows any contributor column
+}
+
+export interface DynamicConsensusColumns {
+    Name: string;
+    [contributorName: string]: string | number;
 }
 
 interface ConsensusHistogramProps {
@@ -238,10 +84,29 @@ interface ConsensusHistogramProps {
     isMobile?: boolean;
 }
 
+const getContributorColumns = (consensusData: ConsensusColumns): string[] => {
+    // Exclude known prospect metadata columns
+    const excludedColumns = new Set([
+        'Name', 'Height', 'Height (in)', 'Weight (lbs)', 'Role', 'Age',
+        'Wingspan', 'Wingspan (in)', 'Wing - Height', 'Pre-NBA', 'NBA Team',
+        'Actual Pick', 'League', 'ABV', 'Team Color', 'Rank', 'MEAN',
+        'MEDIAN', 'MODE', 'HIGH', 'LOW', 'RANGE', 'STDEV', 'COUNT',
+        'Inclusion Rate', 'SCORE', '1 - 3', '4 - 14', '15 - 30',
+        '2nd Round', 'Undrafted', 'Summary'
+    ]);
+
+    return Object.keys(consensusData).filter(key => !excludedColumns.has(key));
+};
+
 const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
     prospect,
     consensusData,
 }) => {
+    // Get contributor columns dynamically
+    const contributorColumns = useMemo(() => {
+        return consensusData ? getContributorColumns(consensusData) : [];
+    }, [consensusData]);
+
     // Debug function to analyze data validity
     const analyzeDataValidity = useMemo(() => {
         const analysis = {
@@ -255,90 +120,64 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
             totalPicks: 0
         };
 
-        Object.entries(consensusData)
-            .filter(([key]) => key !== "Name")
-            .forEach(([contributor, value]) => {
-                analysis.totalContributors++;
-                analysis.totalPicks++;
+        contributorColumns.forEach((contributor) => {
+            const value = consensusData[contributor];
+            analysis.totalContributors++;
+            analysis.totalPicks++;
 
-                // Check for empty or invalid values
-                if (value === null || value === undefined || value === '') {
-                    analysis.emptyContributors.push(contributor);
-                    return;
-                }
+            // Check for empty or invalid values
+            if (value === null || value === undefined || value === '') {
+                analysis.emptyContributors.push(contributor);
+                return;
+            }
 
-                // Try to parse the value
-                let pick: number;
-                if (typeof value === "number") {
-                    pick = value;
-                } else if (typeof value === "string" && value.trim() !== "") {
-                    pick = parseInt(value);
-                } else {
-                    analysis.invalidContributors.push(contributor);
-                    analysis.invalidValues.push({ contributor, value });
-                    return;
-                }
+            // Try to parse the value
+            let pick: number;
+            if (typeof value === "number") {
+                pick = value;
+            } else if (typeof value === "string" && value.trim() !== "") {
+                pick = parseInt(value);
+            } else {
+                analysis.invalidContributors.push(contributor);
+                analysis.invalidValues.push({ contributor, value });
+                return;
+            }
 
-                // Check if it's a valid NBA draft pick
-                if (!isNaN(pick) && pick >= 1 && pick <= 60) {
-                    analysis.validContributors++;
-                    analysis.validPicks++;
-                } else {
-                    analysis.invalidContributors.push(contributor);
-                    analysis.invalidValues.push({ contributor, value });
-                }
-            });
+            // Check if it's a valid NBA draft pick
+            if (!isNaN(pick) && pick >= 1 && pick <= 60) {
+                analysis.validContributors++;
+                analysis.validPicks++;
+            } else {
+                analysis.invalidContributors.push(contributor);
+                analysis.invalidValues.push({ contributor, value });
+            }
+        });
 
         return analysis;
-    }, [consensusData, prospect.Name]);
-
-    // Log analysis for debugging (only for first few prospects to avoid spam)
-    useEffect(() => {
-        if (prospect.Name === 'Cooper Flagg') {
-            console.log(`Data Analysis for ${prospect.Name}:`, analyzeDataValidity);
-
-            if (analyzeDataValidity.invalidContributors.length > 0) {
-                console.log(`Invalid contributors for ${prospect.Name}:`, analyzeDataValidity.invalidContributors);
-                console.log(`Invalid values for ${prospect.Name}:`, analyzeDataValidity.invalidValues);
-            }
-
-            if (analyzeDataValidity.emptyContributors.length > 0) {
-                console.log(`Empty contributors for ${prospect.Name}:`, analyzeDataValidity.emptyContributors);
-            }
-        }
-    }, [analyzeDataValidity, prospect.Name]);
+    }, [consensusData, prospect.Name, contributorColumns]);
 
     // Build histogram data with proper counting and percentage conversion
     const histogramData = useMemo(() => {
         const counts: Record<number, number> = {};
         const picks: number[] = [];
 
-        Object.entries(consensusData)
-            .filter(([key]) => key !== "Name")
-            .forEach(([, value]) => {
-                let pick: number | undefined;
+        contributorColumns.forEach((contributor) => {
+            const value = consensusData[contributor];
+            let pick: number | undefined;
 
-                if (typeof value === "number") {
-                    pick = value;
-                } else if (typeof value === "string") {
-                    const cleaned = value.replace(/[^\d]/g, ''); // remove commas, quotes, etc.
-                    const parsed = parseInt(cleaned);
-                    if (!isNaN(parsed)) pick = parsed;
-                }
+            if (typeof value === "number") {
+                pick = value;
+            } else if (typeof value === "string") {
+                const cleaned = value.replace(/[^\d]/g, '');
+                const parsed = parseInt(cleaned);
+                if (!isNaN(parsed)) pick = parsed;
+            }
 
-                if (pick && pick >= 1 && pick <= 108) {
-                    counts[pick] = (counts[pick] || 0) + 1;
-                    picks.push(pick);
-                }
-            });
-
-        // RJ Davis specific debug
-        if (prospect.Name === 'RJ Davis') {
-            console.log(`🔍 RJ Davis Area Chart Data:`, {
-                rawPicks: picks,
-                histogramCounts: counts,
-            });
-        }
+            if (pick && pick >= 1 && pick <= 108) {
+                counts[pick] = (counts[pick] || 0) + 1;
+                picks.push(pick);
+            }
+        });
 
         if (picks.length === 0) return [];
 
@@ -347,19 +186,18 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         const uniquePicks = new Set(picks);
 
         // Calculate total valid contributors for percentage calculation
-        const totalContributors = Object.entries(consensusData)
-            .filter(([key]) => key !== "Name")
-            .reduce((count, [, value]) => {
-                let pick: number | undefined;
-                if (typeof value === "number") {
-                    pick = value;
-                } else if (typeof value === "string") {
-                    const cleaned = value.replace(/[^\d]/g, '');
-                    const parsed = parseInt(cleaned);
-                    if (!isNaN(parsed)) pick = parsed;
-                }
-                return pick && pick >= 1 && pick <= 108 ? count + 1 : count;
-            }, 0);
+        const totalContributors = contributorColumns.reduce((count, contributor) => {
+            const value = consensusData[contributor];
+            let pick: number | undefined;
+            if (typeof value === "number") {
+                pick = value;
+            } else if (typeof value === "string") {
+                const cleaned = value.replace(/[^\d]/g, '');
+                const parsed = parseInt(cleaned);
+                if (!isNaN(parsed)) pick = parsed;
+            }
+            return pick && pick >= 1 && pick <= 108 ? count + 1 : count;
+        }, 0);
 
         const histogram =
             uniquePicks.size === 1
@@ -382,56 +220,46 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
                     };
                 });
 
-        if (prospect.Name === 'RJ Davis') {
-            console.log("✅ Final RJ Davis histogramData:", histogram);
-        }
-
         return histogram;
-    }, [consensusData, prospect]);
+    }, [consensusData, contributorColumns]);
 
-
-    // Calculate data quality metrics - FIXED VOTE COUNTING
+    // Calculate data quality metrics
     const dataQuality = useMemo(() => {
-        const totalContributors = Object.keys(consensusData).length - 1; // Exclude 'Name'
+        const totalContributors = contributorColumns.length;
 
-        // FIXED: Count valid picks directly from consensusData instead of histogramData
         let actualValidPicks = 0;
-        Object.entries(consensusData)
-            .filter(([key]) => key !== "Name")
-            .forEach(([, value]) => {
-                // Handle different value types
-                let pick: number;
-                if (typeof value === "number") {
-                    pick = value;
-                } else if (typeof value === "string" && value.trim() !== "") {
-                    pick = parseInt(value);
-                } else {
-                    return; // Skip empty/invalid values
-                }
+        contributorColumns.forEach((contributor) => {
+            const value = consensusData[contributor];
 
-                // Count all valid NBA draft picks (1-60)
-                if (!isNaN(pick) && pick >= 1 && pick <= 60) {
-                    actualValidPicks++;
-                }
-            });
+            let pick: number;
+            if (typeof value === "number") {
+                pick = value;
+            } else if (typeof value === "string" && value.trim() !== "") {
+                pick = parseInt(value);
+            } else {
+                return;
+            }
+
+            if (!isNaN(pick) && pick >= 1 && pick <= 60) {
+                actualValidPicks++;
+            }
+        });
 
         const participationRate = totalContributors > 0 ? (actualValidPicks / totalContributors) * 100 : 0;
         const maxPercentage = Math.max(...histogramData.map(item => item.percentage));
 
-        // FIXED: Make sparse data criteria extremely restrictive - only for truly exceptional cases
-        // Only use bars for prospects with 1-2 total votes or completely no distribution
         const uniquePickPositions = histogramData.filter(item => item.count > 0).length;
-        const isSparseData = actualValidPicks <= 1 || (actualValidPicks === 2 && uniquePickPositions === 1); // Very restrictive
+        const isSparseData = actualValidPicks <= 1 || (actualValidPicks === 2 && uniquePickPositions === 1);
 
         return {
             totalContributors,
-            validPicks: actualValidPicks, // Use the correctly counted picks
+            validPicks: actualValidPicks,
             participationRate,
             maxPercentage,
             isSparseData,
             uniquePickPositions
         };
-    }, [histogramData, consensusData]);
+    }, [histogramData, contributorColumns, consensusData]);
 
     // Use team color or fallback to blue
     const teamColor =
@@ -1322,7 +1150,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                         handleViewModeChange('contributors');
                                     }}
                                 >
-                                    Contributors
+                                    Evaluations
                                 </DropdownMenuItem>
                                 {/* Desktop: With icons */}
                                 <DropdownMenuItem
@@ -1620,7 +1448,11 @@ export default function ConsensusPage() {
     const [contributorEvaluations, setContributorEvaluations] = useState<BaseContributorEvaluation[]>([]);
     const [consensusFilter, setConsensusFilter] = useState<'lottery' | 'top30' | 'top60'>('lottery');
 
-
+    useEffect(() => {
+        // Clear any existing table column state to respect initial visibility settings
+        const storageKeys = Object.keys(localStorage).filter(key => key.startsWith('prospect-table-columns-'));
+        storageKeys.forEach(key => localStorage.removeItem(key));
+    }, [selectedYear]);
 
     // Define column configuration with proper Player Information order
     const initialColumns: ColumnConfig[] = [
@@ -1628,33 +1460,33 @@ export default function ConsensusPage() {
         { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
         { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
         { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
-        { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
+        { key: 'League', label: 'League', category: 'Player Information', visible: false, sortable: true },
         { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
         { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
         { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Age', label: 'Draft Age', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Height', label: 'Height', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: true, sortable: true },
+        { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
+        { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
 
         // Consensus Rank
-        { key: 'MEAN', label: 'Mean', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'MEAN', label: 'Mean', category: 'Consensus Rank', visible: true, sortable: true },
         { key: 'MEDIAN', label: 'Median', category: 'Consensus Rank', visible: false, sortable: true },
         { key: 'MODE', label: 'Mode', category: 'Consensus Rank', visible: false, sortable: true },
-        { key: 'HIGH', label: 'High', category: 'Consensus Rank', visible: false, sortable: true },
-        { key: 'LOW', label: 'Low', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'HIGH', label: 'High', category: 'Consensus Rank', visible: true, sortable: true },
+        { key: 'LOW', label: 'Low', category: 'Consensus Rank', visible: true, sortable: true },
         { key: 'RANGE', label: 'Range', category: 'Consensus Rank', visible: false, sortable: true },
         { key: 'STDEV', label: 'StDev', category: 'Consensus Rank', visible: false, sortable: true },
         { key: 'COUNT', label: 'Count', category: 'Consensus Rank', visible: false, sortable: true },
-        { key: 'Inclusion Rate', label: 'Inclusion Rate', category: 'Consensus Rank', visible: false, sortable: true },
+        { key: 'Inclusion Rate', label: 'Inclusion Rate', category: 'Consensus Rank', visible: true, sortable: true },
 
         // Range Consensus Info
-        { key: '1 - 3', label: 'Picks 1-3', category: 'Consensus Range', visible: false, sortable: true },
-        { key: '4 - 14', label: 'Picks 4-14', category: 'Consensus Range', visible: false, sortable: true },
-        { key: '15 - 30', label: 'Picks 15-30', category: 'Consensus Range', visible: false, sortable: true },
-        { key: '2nd Round', label: '2nd Round', category: 'Consensus Range', visible: false, sortable: true },
-        { key: 'Undrafted', label: 'Undrafted', category: 'Consensus Range', visible: false, sortable: true },
+        { key: '1 - 3', label: 'Picks 1-3', category: 'Consensus Range', visible: true, sortable: true },
+        { key: '4 - 14', label: 'Picks 4-14', category: 'Consensus Range', visible: true, sortable: true },
+        { key: '15 - 30', label: 'Picks 15-30', category: 'Consensus Range', visible: true, sortable: true },
+        { key: '2nd Round', label: '2nd Round', category: 'Consensus Range', visible: true, sortable: true },
+        { key: 'Undrafted', label: 'Undrafted', category: 'Consensus Range', visible: true, sortable: true },
     ];
 
     useEffect(() => {
@@ -1704,7 +1536,7 @@ export default function ConsensusPage() {
     useEffect(() => {
         async function fetchContributorEvaluations() {
             // Only fetch for 2020 and 2021
-            if (selectedYear !== '2020' && selectedYear !== '2021') {
+            if (selectedYear !== '2020' && selectedYear !== '2021' && selectedYear !== '2022' && selectedYear !== '2023' && selectedYear !== '2024' && selectedYear !== '2025') {
                 setContributorEvaluations([]);
                 return;
             }
@@ -1854,184 +1686,32 @@ export default function ConsensusPage() {
 
                         const consensusMap: Record<string, ConsensusColumns> = {};
 
-                        // Interface for raw CSV row data
-                        interface CSVRow {
-                            Name: string;
-                            [key: string]: string | number;
-                        }
-
-                        // Helper function to safely convert CSV values to numbers
+                        // Helper function to safely convert CSV values
                         const safeParseInt = (value: string | number): number => {
                             if (typeof value === 'number') return value;
-                            if (typeof value === 'string') return parseInt(value) || 0;
+                            if (typeof value === 'string') {
+                                const parsed = parseInt(value.trim());
+                                return isNaN(parsed) ? 0 : parsed;
+                            }
                             return 0;
                         };
 
-                        for (const row of results.data as CSVRow[]) {
+                        for (const row of results.data as any[]) {
                             if (!row.Name) continue;
-                            const consensus: ConsensusColumns = {
-                                Name: row.Name,
-                                'The Athletic (Sam Vecenie)': safeParseInt(row['The Athletic (Sam Vecenie)']),
-                                'CBS Sports': safeParseInt(row['CBS Sports']),
-                                '@KevinOConnorNBA (Yahoo)': safeParseInt(row['@KevinOConnorNBA (Yahoo)']),
-                                'The Ringer': safeParseInt(row['The Ringer']),
-                                'Tankathon': safeParseInt(row['Tankathon']),
-                                'NBADraft.net': safeParseInt(row['NBADraft.net']),
-                                'ESPN': safeParseInt(row['ESPN']),
-                                'No Ceilings': safeParseInt(row['No Ceilings']),
-                                'CraftedNBA': safeParseInt(row['CraftedNBA']),
-                                '@KlineNBA (Fansided)': safeParseInt(row['@KlineNBA (Fansided)']),
-                                'Swish Theory': safeParseInt(row['Swish Theory']),
-                                'Kevin Pelton (ESPN)': safeParseInt(row['Kevin Pelton (ESPN)']),
-                                'Opta': safeParseInt(row['Opta']),
-                                'the center hub': safeParseInt(row['the center hub']),
-                                '@supersayansavin (TPM)': safeParseInt(row['@supersayansavin (TPM)']),
-                                '@CRiehl30': safeParseInt(row['@CRiehl30']),
-                                '@JoelHinkieMaxey': safeParseInt(row['@JoelHinkieMaxey']),
-                                '@draymottishaw': safeParseInt(row['@draymottishaw']),
-                                '@ZP12Hoops': safeParseInt(row['@ZP12Hoops']),
-                                '@kimonsjaer24': safeParseInt(row['@kimonsjaer24']),
-                                '@Jackmatthewss_': safeParseInt(row['@Jackmatthewss_']),
-                                '@rowankent': safeParseInt(row['@rowankent']),
-                                '@CannibalSerb': safeParseInt(row['@CannibalSerb']),
-                                'Jishnu': safeParseInt(row['Jishnu']),
-                                '@fra_sempru': safeParseInt(row['@fra_sempru']),
-                                '@FPL_Mou': safeParseInt(row['@FPL_Mou']),
-                                'RyanHammer09': safeParseInt(row['RyanHammer09']),
-                                '@thezonemaster': safeParseInt(row['@thezonemaster']),
-                                '@hutsonboggs': safeParseInt(row['@hutsonboggs']),
-                                '@PAKA_FLOCKA': safeParseInt(row['@PAKA_FLOCKA']),
-                                '@drew_cant_hoop': safeParseInt(row['@drew_cant_hoop']),
-                                '@PenguinHoops': safeParseInt(row['@PenguinHoops']),
-                                'PK': safeParseInt(row['PK']),
-                                '@nore4dh': safeParseInt(row['@nore4dh']),
-                                '@LeftFieldSoup': safeParseInt(row['@LeftFieldSoup']),
-                                '@OranjeGuerrero': safeParseInt(row['@OranjeGuerrero']),
-                                '@503sbest': safeParseInt(row['@503sbest']),
-                                '@BrianJNBA': safeParseInt(row['@BrianJNBA']),
-                                '@CediBetter': safeParseInt(row['@CediBetter']),
-                                '@JEnnisNBADraft': safeParseInt(row['@JEnnisNBADraft']),
-                                '@report_court': safeParseInt(row['@report_court']),
-                                '@esotericloserr': safeParseInt(row['@esotericloserr']),
-                                '@atthelevel': safeParseInt(row['@atthelevel']),
-                                '@freewave3': safeParseInt(row['@freewave3']),
-                                'Andrea Cannici': safeParseInt(row['Andrea Cannici']),
-                                '@LoganH_utk': safeParseInt(row['@LoganH_utk']),
-                                'JoshW': safeParseInt(row['JoshW']),
-                                '@double_pg': safeParseInt(row['@double_pg']),
-                                '@TaouTi959': safeParseInt(row['@TaouTi959']),
-                                '@Alley_Oop_Coop': safeParseInt(row['@Alley_Oop_Coop']),
-                                '@perspectivehoop': safeParseInt(row['@perspectivehoop']),
-                                '@chipwilliamsjr': safeParseInt(row['@chipwilliamsjr']),
-                                '@DraftCasual': safeParseInt(row['@DraftCasual']),
-                                '@thebigwafe': safeParseInt(row['@thebigwafe']),
-                                '@NPComplete34': safeParseInt(row['@NPComplete34']),
-                                '@SPTSJUNKIE (NBA Draft Network)': safeParseInt(row['@SPTSJUNKIE (NBA Draft Network)']),
-                                '@bjpf_': safeParseInt(row['@bjpf_']),
-                                '@ram_dub': safeParseInt(row['@ram_dub']),
-                                'ReverseEnigma (databallr)': safeParseInt(row['ReverseEnigma (databallr)']),
-                                '@OpticalHoops': safeParseInt(row['@OpticalHoops']),
-                                '@Rileybushh': safeParseInt(row['@Rileybushh']),
-                                '@jhirsh03': safeParseInt(row['@jhirsh03']),
-                                '@who_____knows': safeParseInt(row['@who_____knows']),
-                                '@GrizzliesFilm': safeParseInt(row['@GrizzliesFilm']),
-                                '@Juul__Embiid': safeParseInt(row['@Juul__Embiid']),
-                                '@redrock_bball': safeParseInt(row['@redrock_bball']),
-                                '@matwnba': safeParseInt(row['@matwnba']),
-                                '@SpencerVonNBA': safeParseInt(row['@SpencerVonNBA']),
-                                'Jack Chambers': safeParseInt(row['Jack Chambers']),
-                                'NBA Draft Room': safeParseInt(row['NBA Draft Room']),
-                                '@LoganPAdams': safeParseInt(row['@LoganPAdams']),
-                                '@bballstrategy': safeParseInt(row['@bballstrategy']),
-                                '@movedmypivot': safeParseInt(row['@movedmypivot']),
-                                '@drakemayefc': safeParseInt(row['@drakemayefc']),
-                                '@Trellinterlude': safeParseInt(row['@Trellinterlude']),
-                                '@TrashPanda': safeParseInt(row['@TrashPanda']),
-                                '@Duydidt': safeParseInt(row['@Duydidt']),
-                                '@Hoops_Haven1': safeParseInt(row['@Hoops_Haven1']),
-                                'Isaiah Silas': safeParseInt(row['Isaiah Silas']),
-                                '@codyreeves14': safeParseInt(row['@codyreeves14']),
-                                '@nikoza2': safeParseInt(row['@nikoza2']),
-                                '@zjy2000': safeParseInt(row['@zjy2000']),
-                                '@Quinnfishburne': safeParseInt(row['@Quinnfishburne']),
-                                '@antoniodias_pt': safeParseInt(row['@antoniodias_pt']),
-                                '@cparkernba': safeParseInt(row['@cparkernba']),
-                                '@ChuckingDarts': safeParseInt(row['@ChuckingDarts']),
-                                '@ShoryLogan': safeParseInt(row['@ShoryLogan']),
-                                '@Ethan387': safeParseInt(row['@Ethan387']),
-                                '@IFIMINC': safeParseInt(row['@IFIMINC']),
-                                '@TStapletonNBA': safeParseInt(row['@TStapletonNBA']),
-                                '@WillC': safeParseInt(row['@WillC']),
-                                '@mobanks10': safeParseInt(row['@mobanks10']),
-                                '@RichStayman': safeParseInt(row['@RichStayman']),
-                                '@_thedealzone': safeParseInt(row['@_thedealzone']),
-                                '@_GatheringIntel': safeParseInt(row['@_GatheringIntel']),
-                                '@DraftPow': safeParseInt(row['@DraftPow']),
-                                '@Dkphisports': safeParseInt(row['@Dkphisports']),
-                                '@NicThomasNBA': safeParseInt(row['@NicThomasNBA']),
-                                'Giddf': safeParseInt(row['Giddf']),
-                                '@BeyondTheRK': safeParseInt(row['@BeyondTheRK']),
-                                '@greg23m': safeParseInt(row['@greg23m']),
-                                'DrewDataDesign': safeParseInt(row['DrewDataDesign']),
-                                'Kam H': safeParseInt(row['Kam H']),
-                                '@dancingwithnoah': safeParseInt(row['@dancingwithnoah']),
-                                'theballhaus': safeParseInt(row['theballhaus']),
-                                'Oneiric': safeParseInt(row['Oneiric']),
-                                '@undraliu': safeParseInt(row['@undraliu']),
-                                '@corbannba': safeParseInt(row['@corbannba']),
-                                '@_LarroHoops': safeParseInt(row['@_LarroHoops']),
-                                'salvador cali': safeParseInt(row['salvador cali']),
-                                '@LoganRoA_': safeParseInt(row['@LoganRoA_']),
-                                '@sammygprops': safeParseInt(row['@sammygprops']),
-                                '@wilkomcv': safeParseInt(row['@wilkomcv']),
-                                '@wheatonbrando': safeParseInt(row['@wheatonbrando']),
-                                '@Flawlesslikeeli': safeParseInt(row['@Flawlesslikeeli']),
-                                '@_R_M_M': safeParseInt(row['@_R_M_M']),
-                                '@mcfNBA': safeParseInt(row['@mcfNBA']),
-                                '@evidenceforZ': safeParseInt(row['@evidenceforZ']),
-                                '@sixringsofsteeI': safeParseInt(row['@sixringsofsteeI']),
-                                '@CozyLito': safeParseInt(row['@CozyLito']),
-                                '@HoopsMetrOx': safeParseInt(row['@HoopsMetrOx']),
-                                '@SBNRicky': safeParseInt(row['@SBNRicky']),
-                                '@redcooteay': safeParseInt(row['@redcooteay']),
-                                '@jessefischer': safeParseInt(row['@jessefischer']),
-                                '@henrynbadraft': safeParseInt(row['@henrynbadraft']),
-                                '@spursbeliever': safeParseInt(row['@spursbeliever']),
-                                'SMILODON': safeParseInt(row['SMILODON']),
-                                '@ayush_batra15': safeParseInt(row['@ayush_batra15']),
-                                '@AmericanNumbers': safeParseInt(row['@AmericanNumbers']),
-                                '@100guaranteed': safeParseInt(row['@100guaranteed']),
-                                '@jaynay1': safeParseInt(row['@jaynay1']),
-                                '@NileHoops': safeParseInt(row['@NileHoops']),
-                                '@HuntHoops': safeParseInt(row['@HuntHoops']),
-                                'Mike Gribanov': safeParseInt(row['Mike Gribanov']),
-                                '@bendog28': safeParseInt(row['@bendog28']),
-                                '@JHM Basketball': safeParseInt(row['@JHM Basketball']),
-                                '@halfwaketakes': safeParseInt(row['@halfwaketakes']),
-                                '@criggsnba': safeParseInt(row['@criggsnba']),
-                                '@NBADraftFuture': safeParseInt(row['@NBADraftFuture']),
-                                '@JoeHulbertNBA': safeParseInt(row['@JoeHulbertNBA']),
-                                '@CTFazio24': safeParseInt(row['@CTFazio24']),
-                                '@JozhNBA': safeParseInt(row['@JozhNBA']),
-                                '@hoop_tetris': safeParseInt(row['@hoop_tetris']),
-                                '@tobibuehner': safeParseInt(row['@tobibuehner']),
-                                '@Josh_markowitz': safeParseInt(row['@Josh_markowitz']),
-                                '@onlyonepodcastt': safeParseInt(row['@onlyonepodcastt']),
-                                '@akaCK_': safeParseInt(row['@akaCK_']),
-                                '@TheNicolau15': safeParseInt(row['@TheNicolau15']),
-                                '@British_Buzz': safeParseInt(row['@British_Buzz']),
-                                '@hellyymarco': safeParseInt(row['@hellyymarco']),
-                                '@SaucyTakez': safeParseInt(row['@SaucyTakez']),
-                                '@j0nzzzz': safeParseInt(row['@j0nzzzz']),
-                                '@JackDAnder': safeParseInt(row['@JackDAnder']),
-                                '@nbadrafting': safeParseInt(row['@nbadrafting']),
-                                'TheProcess': safeParseInt(row['TheProcess']),
-                                '@canpekerpekcan': safeParseInt(row['@canpekerpekcan']),
-                                '@ByAnthonyRizzo': safeParseInt(row['@ByAnthonyRizzo']),
-                                '@TwoWayMurray': safeParseInt(row['@TwoWayMurray'])
-                            };
+
+                            // Create consensus object with all available columns
+                            const consensus: ConsensusColumns = { Name: row.Name };
+
+                            // Add all other columns from the CSV
+                            Object.keys(row).forEach(key => {
+                                if (key !== 'Name') {
+                                    consensus[key] = safeParseInt(row[key]);
+                                }
+                            });
+
                             consensusMap[row.Name] = consensus;
                         }
+
                         setConsensusMap(consensusMap);
                     }
                 });
@@ -2117,11 +1797,11 @@ export default function ConsensusPage() {
                         {/* Controls Row */}
                         <div className="flex items-center justify-between gap-2">
                             {/* Consensus Filter Buttons - only show for 2020/2021 */}
-                            {(selectedYear === '2020' || selectedYear === '2021') && (
+                            {(selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') && (
                                 <div className="flex items-center gap-1 p-1 bg-gray-800/20 border border-gray-800 rounded-lg">
                                     <motion.button
                                         onClick={() => handleConsensusFilterChange('lottery')}
-                                        className={`px-2 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'lottery'
+                                        className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'lottery'
                                             ? 'bg-blue-500/20 text-blue-400'
                                             : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
                                             }`}
@@ -2131,7 +1811,7 @@ export default function ConsensusPage() {
                                     </motion.button>
                                     <motion.button
                                         onClick={() => handleConsensusFilterChange('top30')}
-                                        className={`px-2 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top30'
+                                        className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top30'
                                             ? 'bg-blue-500/20 text-blue-400'
                                             : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
                                             }`}
@@ -2141,7 +1821,7 @@ export default function ConsensusPage() {
                                     </motion.button>
                                     <motion.button
                                         onClick={() => handleConsensusFilterChange('top60')}
-                                        className={`px-2 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top60'
+                                        className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top60'
                                             ? 'bg-blue-500/20 text-blue-400'
                                             : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
                                             }`}
@@ -2233,7 +1913,7 @@ export default function ConsensusPage() {
 
                             <div className="flex items-center gap-2">
                                 {/* Consensus Filter Switcher - only show for 2020/2021 */}
-                                {(selectedYear === '2020' || selectedYear === '2021') && (
+                                {(selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') && (
                                     <>
                                         <div className="flex items-center gap-1 p-1 bg-[#19191A] border border-gray-800 rounded-lg">
                                             <motion.button
@@ -2346,7 +2026,7 @@ export default function ConsensusPage() {
             )}
 
             {viewMode === 'contributors' ? (
-                (selectedYear === '2020' || selectedYear === '2021') ? (
+                (selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') ? (
                     <ContributorEvaluationTable
                         evaluations={contributorEvaluations}
                         initialColumns={contributorColumns}
@@ -2356,10 +2036,9 @@ export default function ConsensusPage() {
                         searchQuery={contributorSearch}
                     />
                 ) : (
-                    <ContributorsData
-                        selectedYear={selectedYear}
-                        searchQuery={contributorSearch}
-                    />
+                    <div className="text-center py-8 text-gray-400">
+                    Contributor evaluation data not available for {selectedYear}
+                </div>
                 )
             ) : filteredProspects.length > 0 ? (
                 viewMode === 'card' ? (

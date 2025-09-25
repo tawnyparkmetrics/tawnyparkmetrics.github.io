@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { motion } from 'framer-motion';
 
 // Column configuration interface for contributor evaluations
 export interface ContributorColumnConfig {
@@ -51,9 +50,6 @@ export interface ContributorEvaluationTableProps<T extends BaseContributorEvalua
 // Board anonymization configuration
 const ANONYMOUS_BOARD_NAMES: Record<string, string> = {
     '@marx_posts': '[redacted]',
-    // Add more anonymous boards here as needed
-    // '@another_board': '[anonymous]',
-    // '@secret_board': '[classified]',
 };
 
 // Helper function to anonymize board names
@@ -63,21 +59,16 @@ const anonymizeBoardName = (boardName: string): string => {
     if (anonymizedName) {
         return anonymizedName;
     }
-    
-    // If no anonymization needed, remove @ symbol for display
-    return boardName.replace(/^@/, '');
+    return boardName;
 };
 
 export function ContributorEvaluationTable<T extends BaseContributorEvaluation>({
     evaluations,
     initialColumns,
     className = '',
-    categories,
     lockedColumns = ['Board'],
     consensusFilter = 'lottery',
-    onConsensusFilterChange,
     searchQuery = '',
-    onSearchChange,
 }: ContributorEvaluationTableProps<T>) {
     const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'ascending' | 'descending' } | null>(null);
     const [columns, setColumns] = useState<ContributorColumnConfig[]>([]);
@@ -122,20 +113,6 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             setSortConfig({ key: 'Board' as keyof T, direction: 'ascending' });
         }
     }, [initialColumns, storageKey]);
-
-    // Save column visibility state
-    const saveColumnState = useCallback((updatedColumns: ContributorColumnConfig[]) => {
-        try {
-            const visibilityState = updatedColumns.reduce((acc, col) => {
-                acc[col.key] = col.visible;
-                return acc;
-            }, {} as Record<string, boolean>);
-
-            localStorage.setItem(storageKey, JSON.stringify(visibilityState));
-        } catch (error) {
-            console.warn('Failed to save column state:', error);
-        }
-    }, [storageKey]);
 
     const handleSort = (key: keyof T) => {
         setSortConfig(current => {

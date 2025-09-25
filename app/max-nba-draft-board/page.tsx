@@ -451,7 +451,7 @@ const TimelineFilter = ({
                 whileTap={{ scale: 0.95 }}
               >
                 {/* Only show icons on desktop, not on mobile */}
-                <span className="sm:hidden">{viewMode === 'cards' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
+                <span className="sm:hidden">{viewMode === 'cards' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Table View'}</span>
                 <span className="hidden sm:flex items-center">
                   {viewMode === 'cards' ? (
                     <>

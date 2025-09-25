@@ -407,17 +407,19 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                         {/* Mobile: Player Name - Centered */}
                         {isMobile ? (
                             <>
-                                {/* Player Name - Absolutely centered */}
+                                {/* Player Name - Absolutely centered with forced font size */}
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     <h2 className={`
                                         ${barlow.className} 
-                                        text-xl font-bold tracking-wide transition-all duration-300
+                                        font-bold tracking-wide transition-all duration-300
                                         ${((isHovered && !isMobile) || isExpanded)
                                             ? 'text-white drop-shadow-[0_8px_16px_rgba(0,0,0,2)]'
                                             : 'text-[#6c727f] drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]'
                                         }
                                         z-10
-                                    `}>
+                                    `}
+                                    style={{ fontSize: '1.25rem', lineHeight: '1.75rem' }} // Force text-xl equivalent
+                                    >
                                         {getMobilePlayerDisplayName(true).toUpperCase()}
                                     </h2>
                                 </div>
@@ -431,7 +433,9 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
                                             ? 'text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]'
                                             : 'text-[#6c727f] drop-shadow-[0_1px_4px_rgba(0,0,0,1)]'
                                         }
-                                    `}>
+                                    `}
+                                    style={{ fontSize: '1rem', lineHeight: '1.5rem' }}
+                                    >
                                         {(() => {
                                             if (!isDraftMode) {
                                                 return rank;

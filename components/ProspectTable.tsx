@@ -927,7 +927,7 @@ export function ProspectTable<T extends BaseProspect>({
                                                         </div>
                                                     </div>
                                                     <span className="text-gray-400 text-xs md:text-sm cursor-pointer flex-1 select-none">
-                                                        {column.label}
+                                                        {column.key === 'Age' ? 'Draft Age' : column.label}
                                                     </span>
                                                 </div>
                                             ))}

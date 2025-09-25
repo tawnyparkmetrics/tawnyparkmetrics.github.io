@@ -293,8 +293,7 @@ const AndrePageProspectCard: React.FC<{
     selectedYear: number;
     rankingSystem: Map<string, number>;
 }> = ({ prospect, selectedSortKey, selectedYear, rankingSystem }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [, setIsHovered] = useState(false);
+    const [, setIsExpanded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [activeChart] = useState('spider');
 
@@ -304,24 +303,12 @@ const AndrePageProspectCard: React.FC<{
             setIsMobile(window.innerWidth < 768);
         };
 
-        // Set initial value
         checkMobile();
-
-        // Add event listener for window resize
         window.addEventListener('resize', checkMobile);
-
-        // Cleanup
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Update hover state when dropdown is expanded
-    useEffect(() => {
-        if (isExpanded && !isMobile) {
-            setIsHovered(true);
-        }
-    }, [isExpanded, isMobile]);
 
-    // First, extract the complex expression to a variable
     const pickNumber = Number(prospect['Actual Pick']);
 
     // Then modify the useMemo hook to use the ranking system
@@ -370,7 +357,7 @@ const AndrePageProspectCard: React.FC<{
             {/* Expanded View Content with pre-allocated space */}
                             <div className={`${isMobile ? '' : 'grid grid-cols-2 gap-4'}`}>
                                 {/* Charts Column - Now on the left (first column) */}
-                    <div className="text-gray-300 px-2 space-y-4 flex flex-col justify-start">
+                                <div className="text-gray-300 px-2 space-y-4 flex flex-col justify-start">
                                     {/* Tier display with color border */}
                                     <h3 className="font-semibold text-lg mb-3 text-white mt-2">
                                         Prospect Tier: <span
@@ -583,7 +570,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
                                 whileTap={{ scale: 0.95 }}
                             >
                                 {/* Only show icons on desktop, not on mobile */}
-                                <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Card View'}</span>
+                                <span className="sm:hidden">{viewMode === 'card' ? 'Card View' : viewMode === 'table' ? 'Table View' : 'Table View'}</span>
                                 <span className="hidden sm:flex items-center">
                                     {viewMode === 'card' ? (
                                         <>
@@ -979,7 +966,7 @@ export default function AndreDraftPage() {
             setIsMobile(window.innerWidth < 768);
         };
 
-        // Set initial value
+        // Set initial value immediately
         checkMobile();
 
         // Add event listener for window resize
@@ -1021,7 +1008,7 @@ export default function AndreDraftPage() {
             { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
             { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
             { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
-            { key: 'Age', label: 'Draft Age', category: 'Player Information', visible: false, sortable: true },
+            { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
             { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
             { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
             { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
