@@ -39,8 +39,12 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
     },
     {
       name: 'Consensus',
-      href: '/consensus-nba-draft-board',
-      available: true
+      href: '#',
+      available: true,
+      subItems: [
+        { name: 'Write Up', href: '/consensus-nba-draft-board-write-up', available: true },
+        { name: 'Draft Board', href: '/consensus-nba-draft-board', available: true }
+      ]
     },
     {
       name: 'Max Savin',

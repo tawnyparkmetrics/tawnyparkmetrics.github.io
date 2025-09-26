@@ -106,7 +106,6 @@ const tierColors: { [key: string]: string } = {
     'Solid Rotation': '#FFDE59',
     'Bench Reserve': '#FFA455',
     'Fringe NBA': '#FF5757',
-    // Add numeric tiers for Andre's page
     '10': '#FF66C4',
     '9': '#E9A2FF',
     '8': '#5CE1E6',
