@@ -102,57 +102,126 @@ const ProspectsTable = () => {
     );
 };
 
-const NBAConsensusTable = () => (
-    <div className="overflow-x-auto my-4">
-        <table className="w-full border-collapse">
-            <thead>
-                <tr className="bg-gray-700">
-                    <th className="border border-gray-600 px-4 py-2 text-left text-white">Draft Class</th>
-                    <th className="border border-gray-600 px-4 py-2 text-center text-white">NBA</th>
-                    <th className="border border-gray-600 px-4 py-2 text-center text-white">Consensus</th>
-                    <th className="border border-gray-600 px-4 py-2 text-center text-white">Correlation</th>
-                </tr>
-            </thead>
-            <tbody>
-                {[
-                    ['2020', '', '', ''],
-                    ['  Lottery', '37.5', '84.4', '52.5%'],
-                    ['  Top 30', '53.1', '89.1', '79.6%'],
-                    ['  Top 60', '79.1', '88.4', '75.0%'],
-                    ['2021', '', '', ''],
-                    ['  Lottery', '65.7', '55.2', '87.3%'],
-                    ['  Top 30', '83.2', '66.3', '62.4%'],
-                    ['  Top 60', '28.4', '64.2', '79.5%'],
-                    ['2022', '', '', ''],
-                    ['  Lottery', '97.0', '80.2', '87.3%'],
-                    ['  Top 30', '100', '78.2', '83.3%'],
-                    ['  Top 60', 'N/A', '92.2', '86.4%'],
-                    ['2023', '', '', ''],
-                    ['  Lottery', '97.2', '88.9', '62.6%'],
-                    ['  Top 30', '77.1', '68.6', '85.7%'],
-                    ['  Top 60', 'N/A', '68.4', '84.6%'],
-                    ['2024', '', '', ''],
-                    ['  Lottery', '12.5', '57.1', '70.1%'],
-                    ['  Top 30', '42.3', '80.8', '74.8%'],
-                    ['  Top 60', 'N/A', '93.1', '92.1%'],
-                    ['2025', '', '', ''],
-                    ['  Lottery', 'N/A', 'N/A', '95.6%'],
-                    ['  Top 30', 'N/A', 'N/A', '74.7%'],
-                    ['  Top 60', 'N/A', 'N/A', '89.3%']
-                ].map((row, index) => (
-                    <tr key={index} className={index % 2 === 0 ? '' : 'bg-gray-800/30'}>
-                        <td className={`border border-gray-600 px-4 py-2 text-white ${row[0].startsWith('  ') ? 'pl-8' : 'font-semibold'}`}>
-                            {row[0]}
-                        </td>
-                        <td className="border border-gray-600 px-4 py-2 text-white text-center">{row[1]}</td>
-                        <td className="border border-gray-600 px-4 py-2 text-white text-center">{row[2]}</td>
-                        <td className="border border-gray-600 px-4 py-2 text-white text-center">{row[3]}</td>
+const NBAConsensusTable = () => {
+    // Function to get blue gradient based on value (0-100 scale)
+    const getColorForValue = (value: string | undefined) => {
+        if (!value || value === 'N/A') return 'transparent';
+
+        let numValue = parseFloat(value.replace('%', ''));
+        if (isNaN(numValue)) return 'transparent';
+
+        // Convert to 0-1 scale
+        const normalized = Math.max(0, Math.min(100, numValue)) / 100;
+
+        // Use blue gradient with variable opacity
+        const opacity = 0.1 + normalized * 0.4; // Range from 0.1 to 0.5
+        return `rgba(59, 130, 246, ${opacity})`;
+    };
+
+    // Restructured data with years on the side
+    const yearGroups = [
+        {
+            year: '2020',
+            rows: [
+                { category: 'Lottery', nba: '37.5', consensus: '84.4', correlation: '52.5%' },
+                { category: 'Top 30', nba: '53.1', consensus: '89.1', correlation: '79.6%' },
+                { category: 'Top 60', nba: '79.1', consensus: '88.4', correlation: '75.0%' },
+            ]
+        },
+        {
+            year: '2021',
+            rows: [
+                { category: 'Lottery', nba: '65.7', consensus: '55.2', correlation: '87.3%' },
+                { category: 'Top 30', nba: '83.2', consensus: '66.3', correlation: '62.4%' },
+                { category: 'Top 60', nba: '28.4', consensus: '64.2', correlation: '79.5%' },
+            ]
+        },
+        {
+            year: '2022',
+            rows: [
+                { category: 'Lottery', nba: '97.0', consensus: '80.2', correlation: '87.3%' },
+                { category: 'Top 30', nba: '100', consensus: '78.2', correlation: '83.3%' },
+                { category: 'Top 60', nba: 'N/A', consensus: '92.2', correlation: '86.4%' },
+            ]
+        },
+        {
+            year: '2023',
+            rows: [
+                { category: 'Lottery', nba: '97.2', consensus: '88.9', correlation: '62.6%' },
+                { category: 'Top 30', nba: '77.1', consensus: '68.6', correlation: '85.7%' },
+                { category: 'Top 60', nba: 'N/A', consensus: '68.4', correlation: '84.6%' },
+            ]
+        },
+        {
+            year: '2024',
+            rows: [
+                { category: 'Lottery', nba: '12.5', consensus: '57.1', correlation: '70.1%' },
+                { category: 'Top 30', nba: '42.3', consensus: '80.8', correlation: '74.8%' },
+                { category: 'Top 60', nba: 'N/A', consensus: '93.1', correlation: '92.1%' },
+            ]
+        },
+        {
+            year: '2025',
+            rows: [
+                { category: 'Lottery', nba: 'N/A', consensus: 'N/A', correlation: '95.6%' },
+                { category: 'Top 30', nba: 'N/A', consensus: 'N/A', correlation: '74.7%' },
+                { category: 'Top 60', nba: 'N/A', consensus: 'N/A', correlation: '89.3%' },
+            ]
+        },
+    ];
+
+    return (
+        <div className="overflow-x-auto my-4">
+            <table className="w-full border-collapse border border-gray-600">
+                <thead>
+                    <tr>
+                        <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold" colSpan={2}>Draft Class</th>
+                        <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold">NBA</th>
+                        <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold">Consensus</th>
+                        <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold">Correlation</th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
-    </div>
-);
+                </thead>
+                <tbody>
+                    {yearGroups.map((yearGroup, yearIndex) => 
+                        yearGroup.rows.map((row, rowIndex) => (
+                            <tr key={`${yearGroup.year}-${rowIndex}`} className="">
+                                {rowIndex === 0 && (
+                                    <td 
+                                        rowSpan={yearGroup.rows.length}
+                                        className="border border-gray-600 px-4 py-2 text-white font-bold text-center align-middle"
+                                    >
+                                        {yearGroup.year}
+                                    </td>
+                                )}
+                                <td className="border border-gray-600 px-4 py-2 text-white italic">
+                                    {row.category}
+                                </td>
+                                <td
+                                    className="border border-gray-600 px-4 py-2 text-white text-center"
+                                    style={{ backgroundColor: getColorForValue(row.nba) }}
+                                >
+                                    {row.nba}
+                                </td>
+                                <td
+                                    className="border border-gray-600 px-4 py-2 text-white text-center"
+                                    style={{ backgroundColor: getColorForValue(row.consensus) }}
+                                >
+                                    {row.consensus}
+                                </td>
+                                <td
+                                    className="border border-gray-600 px-4 py-2 text-white text-center"
+                                    style={{ backgroundColor: getColorForValue(row.correlation) }}
+                                >
+                                    {row.correlation}
+                                </td>
+                            </tr>
+                        ))
+                    )}
+                </tbody>
+            </table>
+        </div>
+    );
+};
 
 export default function ConsensusFAQPage() {
     const [openSections, setOpenSections] = useState({});
@@ -498,7 +567,7 @@ export default function ConsensusFAQPage() {
                         In contrast to inconsistent board performance, there is a <strong>persistent divide between analysts who stick closely to consensus and those who take a more contrarian approach.</strong> These tendencies often align with how closely each board mirrors the NBA’s draft decisions. Partially, this is due to the availability of “insider” information (some analysts and organizations have better access), but strategy and
                         psychology likely play a role as well. It’s plausible that some evaluators are wary of straying too far from consensus, either consciously or due to implicit anchoring. Equally plausible is that others deliberately lean away from consensus, preferring to stand out from the crowd. This same concept applies to draft models as well. While models limit subjectivity, they don’t all weigh consensus or anticipated draft position
                         equally, if at all. Regardless of the validity of either tendency, their persistence is revealing in itself.</p>
-                        <p className="mb-4">
+                    <p className="mb-4">
                         <strong>In future work, we hope to analyze multi-year trends and apply clustering techniques</strong>, revealing more nuanced findings. Our interest lies less in individual board performance and more in identifying broader patterns: how do analysts naturally group, how do those groups perform, and what can we infer about specific draft approaches?
                     </p>
                     <p className="mb-4">
@@ -610,7 +679,7 @@ export default function ConsensusFAQPage() {
                         process old consensus boards, update the consensus ranking system, and evaluate individual board performance. <strong>Bala Ravikumar</strong> (<a href="https://x.com/BalaRavikumar5" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@BalaRavikumar5</a>) – with help from <strong>Seena Pourzand</strong> – publishes the consensus boards and evaluation to the TPM website.
                     </p>
                     <p className="mb-4">
-                        We also want to highlight the “Draft Twitter” volunteers who have helped manually input every board and rank that makes up each year’s consensus, including: <strong><a href="https://x.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@thegrantedwards</a></strong>, <strong><a href="https://x.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@codyreeves14"</a></strong>,
+                        We also want to highlight the “Draft Twitter” volunteers who have helped manually input every board and rank that makes up each year’s consensus, including: <strong><a href="https://x.com/SloanImperative" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@SloanImperative</a><a href="https://x.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@thegrantedwards</a></strong>, <strong><a href="https://x.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@codyreeves14"</a></strong>,
                         <strong><a href="https://x.com/dualbarl" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@dualbarl</a></strong>, <strong><a href="https://x.com/CannibalSerb" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@CannibalSerb</a></strong>, & <strong><a href="https://x.com/bendog28" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@bendog28</a></strong>. This is an incredibly
                         tedious and time consuming task; these consensus boards would not exist without their past efforts. As noted in <em>How is the consensus built?</em>, we are working to make the aggregation process more efficient going forward – but the foundation laid by these volunteers is what enables the project in the first place.
                     </p>
@@ -624,11 +693,6 @@ export default function ConsensusFAQPage() {
                 <div>
                     <p className="mb-4">
                         The boards are processed and evaluated over time in <strong>Python.</strong> The frontend is built with <strong>HTML, CSS, Typescript,</strong> and <strong>Javascript</strong> (<strong>Next.js</strong>).
-                    </p>
-                    <p className="mb-4">
-                        We also want to highlight the “Draft Twitter” volunteers who have helped manually input every board and rank that makes up each year’s consensus, including: <strong><a href="https://x.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@thegrantedwards</a></strong>, <strong><a href="https://x.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@codyreeves14"</a></strong>,
-                        <strong><a href="https://x.com/dualbarl" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@dualbarl</a></strong>, <strong><a href="https://x.com/CannibalSerb" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@CannibalSerb</a></strong>, & <strong><a href="https://x.com/bendog28" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@bendog28</a></strong>. This is an incredibly
-                        tedious and time consuming task; these consensus boards would not exist without their past efforts. As noted in <em>How is the consensus built?</em>, we are working to make the aggregation process more efficient going forward – but the foundation laid by these volunteers is what enables the project in the first place.
                     </p>
                 </div>
             )
