@@ -921,7 +921,7 @@ interface ProspectFilterProps {
     onYearChange?: (year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020') => void;
 }
 
-const ProspectFilter: React.FC<ProspectFilterProps> = ({
+const ConsensusFilter: React.FC<ProspectFilterProps> = ({
     prospects,
     onFilteredProspectsChange,
     onRankingSystemChange,
@@ -1202,7 +1202,7 @@ const ProspectFilter: React.FC<ProspectFilterProps> = ({
             {/* Filter Content (Desktop and Mobile Dropdown) */}
             <div className={`
           px-4 py-2
-          sm:grid sm:grid-cols-[1fr_auto] sm:gap-4
+          sm:grid sm:grid-cols-[2fr_auto] sm:gap-4
           flex flex-col
           ${isMobileFilterOpen ? 'block' : 'hidden sm:grid'}
         `}>
@@ -1736,7 +1736,7 @@ export default function ConsensusPage() {
 
                 requestAnimationFrame(() => {
                     setLoadedProspects(prev => {
-                        const newCount = prev + 5;
+                        const newCount = prev + 20;
                         setHasMore(newCount < filteredProspects.length);
                         return newCount;
                     });
@@ -1757,8 +1757,8 @@ export default function ConsensusPage() {
             setHasMore(false);
         } else {
             // On desktop, start with 5 prospects
-            setLoadedProspects(5);
-            setHasMore(filteredProspects.length > 5);
+            setLoadedProspects(20);
+            setHasMore(filteredProspects.length > 20);
         }
     }, [filteredProspects, isMobile]);
 
@@ -1768,7 +1768,7 @@ export default function ConsensusPage() {
             <DraftPageHeader author="Consensus" selectedYear={selectedYear} />
             <GoogleAnalytics gaId="G-X22HKJ13B7" />
             {viewMode !== 'contributors' ? (
-                <ProspectFilter
+                <ConsensusFilter
                     prospects={prospects}
                     onFilteredProspectsChange={setFilteredProspects}
                     onRankingSystemChange={setRankingSystem}
@@ -1787,7 +1787,7 @@ export default function ConsensusPage() {
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
                                 <Input
                                     type="text"
-                                    placeholder="Search contributors..."
+                                    placeholder="Search Contributors"
                                     value={contributorSearch}
                                     onChange={(e) => setContributorSearch(e.target.value)}
                                     className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
@@ -1899,19 +1899,32 @@ export default function ConsensusPage() {
 
                     {/* Desktop Layout - Unchanged */}
                     <div className="hidden sm:block px-4 py-3">
-                        <div className="flex items-center justify-between gap-2">
-                            <div className="relative flex-grow max-w-md">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
-                                <Input
-                                    type="text"
-                                    placeholder="Search Contributors"
-                                    value={contributorSearch}
-                                    onChange={(e) => setContributorSearch(e.target.value)}
-                                    className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
-                                />
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-2 flex-grow max-w-2xl">
+                                <div className="relative flex-grow">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+                                    <Input
+                                        type="text"
+                                        placeholder="Search Contributors"
+                                        value={contributorSearch}
+                                        onChange={(e) => setContributorSearch(e.target.value)}
+                                        className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+                                    />
+                                </div>
+                                {contributorSearch && (
+                                    <motion.button
+                                        onClick={() => setContributorSearch('')}
+                                        className="flex items-center px-3 py-2 rounded-lg text-xs transition-all duration-300 text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30 whitespace-nowrap flex-shrink-0"
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <X className="h-4 w-4 mr-1" />
+                                        Clear
+                                    </motion.button>
+                                )}
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-shrink-0">
                                 {(selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') && (
                                     <>
                                         <div className="flex items-center gap-1 p-1 bg-[#19191A] border border-gray-800 rounded-lg">
@@ -2038,46 +2051,46 @@ export default function ConsensusPage() {
                             onConsensusFilterChange={handleConsensusFilterChange}
                             searchQuery={contributorSearch} />
                     </>
-    ) : (
-        <div className="text-center py-8 text-gray-400">
-            Contributor evaluation data not available for {selectedYear}
-        </div>
-    )
-            ) : filteredProspects.length > 0 ? (
-        viewMode === 'card' ? (
-            <div className="space-y mt-6">
-                {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
-                    <ConsensusPageProspectCard
-                        key={prospect.Name}
-                        prospect={prospect}
-                        filteredProspects={filteredProspects}
-                        allProspects={prospects}
-                        selectedSortKey={selectedSortKey}
-                        selectedYear={Number(selectedYear)}
-                        consensusData={consensusMap[prospect.Name]}
-                        rankingSystem={rankingSystem}
-                        rank={0}
-                    />
-                ))}
-                {isLoading && !isMobile && (
-                    <div className="flex justify-center py-4">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+                ) : (
+                    <div className="text-center py-8 text-gray-400">
+                        Contributor evaluation data not available for {selectedYear}
                     </div>
-                )}
-            </div>
-        ) : (
-            <ProspectTable
-                prospects={filteredProspects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
-                rankingSystem={rankingSystem}
-                initialColumns={initialColumns}
-            />
-        )
-    ) : (
-        <div className="text-center py-8 text-gray-400">
-            No prospects found matching your search criteria
-        </div>
-    )
-}
+                )
+            ) : filteredProspects.length > 0 ? (
+                viewMode === 'card' ? (
+                    <div className="space-y mt-6">
+                        {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
+                            <ConsensusPageProspectCard
+                                key={prospect.Name}
+                                prospect={prospect}
+                                filteredProspects={filteredProspects}
+                                allProspects={prospects}
+                                selectedSortKey={selectedSortKey}
+                                selectedYear={Number(selectedYear)}
+                                consensusData={consensusMap[prospect.Name]}
+                                rankingSystem={rankingSystem}
+                                rank={0}
+                            />
+                        ))}
+                        {isLoading && !isMobile && (
+                            <div className="flex justify-center py-4">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <ProspectTable
+                        prospects={filteredProspects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
+                        rankingSystem={rankingSystem}
+                        initialColumns={initialColumns}
+                    />
+                )
+            ) : (
+                <div className="text-center py-8 text-gray-400">
+                    No prospects found matching your search criteria
+                </div>
+            )
+            }
         </div >
     );
 }

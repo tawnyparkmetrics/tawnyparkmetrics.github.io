@@ -1,4 +1,3 @@
-# *
 User-agent: *
 
 Allow: public/TPM_logo_designs/
@@ -12,8 +11,6 @@ Disallow: /*.jpeg
 Disallow: /*.gif
 Disallow: /*.webp
 
-# Host
 Host: https://tawnyparkmetrics.com
 
-# Sitemaps
 Sitemap: https://tawnyparkmetrics.com/sitemap-0.xml

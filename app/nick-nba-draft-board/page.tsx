@@ -696,7 +696,7 @@ export default function NickDraftPage() {
 
         requestAnimationFrame(() => {
           setLoadedProspects(prev => {
-            const newCount = prev + 5;
+            const newCount = prev + 20;
             setHasMore(newCount < filteredProspects.length);
             return newCount;
           });
@@ -717,8 +717,8 @@ export default function NickDraftPage() {
       setHasMore(false);
     } else {
       // On desktop, start with 5 prospects
-      setLoadedProspects(5);
-      setHasMore(filteredProspects.length > 5);
+      setLoadedProspects(20);
+      setHasMore(filteredProspects.length > 20);
     }
   }, [filteredProspects, isMobile]);
 

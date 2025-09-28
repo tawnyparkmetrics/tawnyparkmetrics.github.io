@@ -65,13 +65,12 @@ const ProspectsTable = ({ boldColumnIndex }: { boldColumnIndex?: number }) => {
         <div className="overflow-x-auto my-4">
             <table className="w-full border-collapse">
                 <thead>
-                <tr className="bg-[#19191A]0">
+                    <tr className="bg-[#19191A]0">
                         {headers.map((header, index) => (
-                            <th 
-                                key={index} 
-                                className={`border border-gray-600 px-4 py-2 text-left text-white relative group cursor-pointer ${
-                                    boldColumnIndex === index ? 'bg-gray-800/50' : ''
-                                }`}
+                            <th
+                                key={index}
+                                className={`border border-gray-600 px-4 py-2 text-left text-white relative group cursor-pointer ${boldColumnIndex === index ? 'bg-gray-800/50' : ''
+                                    }`}
                             >
                                 {header.title}
                                 {header.tooltip && (
@@ -94,17 +93,16 @@ const ProspectsTable = ({ boldColumnIndex }: { boldColumnIndex?: number }) => {
                         ['2020', '192', '128', '4172', '63', '66.2']
                     ].map((row, index) => (
                         <tr key={row[0]} className={index % 2 === 0 ? '' : 'bg-[#19191A]'}>
-                        {row.map((cell, cellIndex) => (
-                            <td 
-                                key={cellIndex} 
-                                className={`border border-gray-600 px-4 py-2 text-white ${
-                                    boldColumnIndex === cellIndex ? 'bg-gray-800/50' : ''
-                                }`}
-                            >
-                                {boldColumnIndex === cellIndex ? <strong>{cell}</strong> : cell}
-                            </td>
-                        ))}
-                    </tr>
+                            {row.map((cell, cellIndex) => (
+                                <td
+                                    key={cellIndex}
+                                    className={`border border-gray-600 px-4 py-2 text-white ${boldColumnIndex === cellIndex ? 'bg-gray-800/50' : ''
+                                        }`}
+                                >
+                                    {boldColumnIndex === cellIndex ? <strong>{cell}</strong> : cell}
+                                </td>
+                            ))}
+                        </tr>
                     ))}
                 </tbody>
             </table>
@@ -187,8 +185,8 @@ const NBAConsensusTable = () => {
                     <tr>
                         <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold" colSpan={2}>Draft Class</th>
                         <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold">NBA</th>
-                        <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold">Consensus</th>
-                        <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold">Correlation</th>
+                        <th className="border border-gray-600 px-2 py-2 text-center text-white font-bold">Consensus</th>
+                        <th className="border border-gray-600 px-2 py-2 text-center text-white font-bold">Correlation</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -354,7 +352,7 @@ export default function ConsensusFAQPage() {
             content: (
                 <div>
                     <p className="mb-4">Here's a detailed breakdown of the number of prospects ranked per consensus draft class:</p>
-                    <ProspectsTable boldColumnIndex={2}/>
+                    <ProspectsTable boldColumnIndex={2} />
                     <p>
                         You can find this same information in <em>How many boards make up this consensus?</em>. Feel free to also reference the subheader, table view, and evaluation for each draft class consensus page.
                     </p>
@@ -633,19 +631,21 @@ export default function ConsensusFAQPage() {
                         Here are the results (as of the 2024/25 NBA season) across each draft class:
                         <NBAConsensusTable /> {/* gonna need to change the sytle of this table */}
                     </p>
-                    <li><em><strong>The NBA & Consensus columns refer to their predictiveness</strong> as <strong>percentiles</strong> (higher value = more predictive)</em></li>
-                    <ul className="list-disc list-inside ml-6 mt-2">
-                        <li><em>Percentiles are based on their rank relative to all the individual boards that form the consensus that year</em></li>
-                        <li><em>Top 60 in 2022-2024 are N/A for ‘NBA’, since there were less than 60 picks in these draft classes (will substitute with top 58 & top 59 comparisons, where applicable, in a future update)</em></li>
-                        <li><em>2025 are all N/A since there is not any evaluation data (at the time of writing, players from this draft class are yet to play in the NBA)</em></li>
+                    <ul className="list-disc list-inside space-y-2 mb-4">
+                        <li><em><strong>The NBA & Consensus columns refer to their predictiveness</strong> as <strong>percentiles</strong> (higher value = more predictive)</em>
+                            <ul className="list-disc list-inside space-y-1 ml-6 mt-2">
+                                <li><em>Percentiles are based on their rank relative to all the individual boards that form the consensus that year</em></li>
+                                <li><em>Top 60 in 2022-2024 are N/A for 'NBA', since there were less than 60 picks in these draft classes (will substitute with top 58 & top 59 comparisons, where applicable, in a future update)</em></li>
+                                <li><em>2025 are all N/A since there is not any evaluation data (at the time of writing, players from this draft class are yet to play in the NBA)</em></li>
+                            </ul>
+                        </li>
+                        <li><em>The <strong>Correlation % column refers to the similarity between NBA & Consensus</strong></em>
+                            <ul className="list-disc list-inside space-y-1 ml-6 mt-2">
+                                <li><em>Correlation % for 'Top 60', in 2022-2024, is really comparing Top 58 (only 58 draft picks – two forfeited)</em></li>
+                                <li><em>Correlation % for 'Top 60', in 2025, is really comparing Top 59 (only 59 draft picks – one forfeited)</em></li>
+                            </ul>
+                        </li>
                     </ul>
-                    <p>
-                        <li><em>The <strong>Correlation % column refers to the similarity between NBA & Consensus</strong></em></li>
-                        <ul className="list-disc list-inside ml-6 mt-2">
-                            <li><em>Correlation % for ‘Top 60’, in 2022-2024, is really comparing Top 58 (only 58 draft picks – two forfeited)</em></li>
-                            <li><em>Correlation % for ‘Top 60’, in 2025, is really comparing Top 59 (only 59 draft picks – one forfeited)</em></li>
-                        </ul>
-                    </p>
                 </div>
             )
         },
@@ -655,8 +655,7 @@ export default function ConsensusFAQPage() {
             content: (
                 <div>
                     <p className="mb-4">
-                        Every year we <strong>solicit draft boards on social media</strong> (primarily via X, but we try to post on BlueSky and Reddit as well). These posts (from <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@supersayansavin</a> or <a href="https://x.com/mikegrib8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@mikegrib8</a>) include a <strong>link to a Google Form</strong>
-                        where you can attach your board (preferably as a Google Sheet) and formally agree to be part of the consensus.
+                        Every year we <strong>solicit draft boards on social media</strong> (primarily via X, but we try to post on BlueSky and Reddit as well). These posts (from <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@supersayansavin</a> or <a href="https://x.com/mikegrib8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@mikegrib8</a>) include a <strong>link to a Google Form</strong> where you can attach your board (preferably as a Google Sheet) and formally agree to be part of the consensus.
                     </p>
                     <p className="mb-4">
                         We will also continue to source public boards that are not directly submitted. (<em>In the spirit of Liam Neeson: we will look for you, we will find you, and we will collect your draft board.</em>)
@@ -691,7 +690,7 @@ export default function ConsensusFAQPage() {
                         process old consensus boards, update the consensus ranking system, and evaluate individual board performance. <strong>Bala Ravikumar</strong> (<a href="https://x.com/BalaRavikumar5" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@BalaRavikumar5</a>) – with help from <strong>Seena Pourzand</strong> – publishes the consensus boards and evaluation to the TPM website.
                     </p>
                     <p className="mb-4">
-                        We also want to highlight the “Draft Twitter” volunteers who have helped manually input every board and rank that makes up each year’s consensus, including: <strong><a href="https://x.com/SloanImperative" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@SloanImperative</a>, <a href="https://x.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@thegrantedwards</a></strong>, <strong><a href="https://x.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@codyreeves14</a></strong> 
+                        We also want to highlight the “Draft Twitter” volunteers who have helped manually input every board and rank that makes up each year’s consensus, including: <strong><a href="https://x.com/SloanImperative" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@SloanImperative</a>, <a href="https://x.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@thegrantedwards</a></strong>, <strong><a href="https://x.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@codyreeves14</a></strong>
                         , <strong><a href="https://x.com/dualbarl" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@dualbarl</a></strong>, <strong><a href="https://x.com/CannibalSerb" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@CannibalSerb</a></strong>, & <strong><a href="https://x.com/bendog28" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@bendog28</a></strong>. This is an incredibly
                         tedious and time consuming task; these consensus boards would not exist without their past efforts. As noted in <em>How is the consensus built?</em>, we are working to make the aggregation process more efficient going forward – but the foundation laid by these volunteers is what enables the project in the first place.
                     </p>

@@ -2003,7 +2003,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
         setIsLoading(true);
         // Simulate loading delay
         setTimeout(() => {
-          setDisplayedProspects(prev => prev + 5);
+          setDisplayedProspects(prev => prev + 20);
           setIsLoading(false);
         }, 500);
       }
@@ -2016,7 +2016,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
 
   // Reset displayed prospects when filters change
   useEffect(() => {
-    setDisplayedProspects(5);
+    setDisplayedProspects(20);
   }, [selectedSortKey, selectedPosition, searchQuery, tierRankActive]); // Include tierRankActive
 
   // Create a separate ranking system that's independent of search filters but includes position and tier filters

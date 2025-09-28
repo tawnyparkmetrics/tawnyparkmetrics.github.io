@@ -713,8 +713,21 @@ export function ProspectTable<T extends BaseProspect>({
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
                 const numValue = parseFloat(String(cellValue));
                 if (!isNaN(numValue)) {
-                    // Convert decimal to percentage (multiply by 100) and format without unnecessary decimals
-                    const percentage = numValue * 100;
+                    let percentage: number;
+                    
+                    if (numValue <= 1) {
+                        // Likely decimal format, convert to percentage
+                        percentage = numValue * 100;
+                    } else {
+                        // Likely already in percentage format
+                        percentage = numValue;
+                    }
+
+                    if (column.key === 'Inclusion Rate') {
+                        percentage = Math.round(percentage); // Round to the nearest integer
+                    }
+                    
+                    // Format without unnecessary decimals
                     displayValue = `${percentage % 1 === 0 ? percentage.toString() : percentage.toFixed(1)}%`;
                 } else {
                     displayValue = String(cellValue);
@@ -733,7 +746,6 @@ export function ProspectTable<T extends BaseProspect>({
                 </TableCell>
             );
         }
-
 
         if (['Pred. Y1 Rank', 'Pred. Y2 Rank', 'Pred. Y3 Rank', 'Pred. Y4 Rank', 'Pred. Y5 Rank', 'Y1 Rank', 'Y2 Rank', 'Y3 Rank', 'Y4 Rank', 'Y5 Rank', 'Rank Y1-Y3', 'Rank Y1-Y5'].includes(column.key)) {
             const cellValue = prospect[key];
