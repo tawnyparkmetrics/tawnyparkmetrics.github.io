@@ -22,6 +22,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
 import { ContributorEvaluationTable, BaseContributorEvaluation, ContributorColumnConfig } from '@/components/ContributorEvaluationTable';
+import EvaluationExplanation from '@/components/EvaluationExplanation';
 
 export interface DraftProspect {
     //Player info for hover
@@ -1796,13 +1797,12 @@ export default function ConsensusPage() {
 
                         {/* Controls Row */}
                         <div className="flex items-center justify-between gap-2">
-                            {/* Consensus Filter Buttons - only show for 2020/2021 */}
                             {(selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') && (
-                                <div className="flex items-center gap-1 p-1 bg-gray-800/20 border border-gray-800 rounded-lg">
+                                <div className="px-2 py-2 flex items-center gap-1 p-1 bg-gray-800/20 border border-gray-800 rounded-lg">
                                     <motion.button
                                         onClick={() => handleConsensusFilterChange('lottery')}
                                         className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'lottery'
-                                            ? 'bg-blue-500/20 text-blue-400'
+                                            ? 'text-blue-400'
                                             : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
                                             }`}
                                         whileTap={{ scale: 0.95 }}
@@ -1812,7 +1812,7 @@ export default function ConsensusPage() {
                                     <motion.button
                                         onClick={() => handleConsensusFilterChange('top30')}
                                         className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top30'
-                                            ? 'bg-blue-500/20 text-blue-400'
+                                            ? 'text-blue-400'
                                             : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
                                             }`}
                                         whileTap={{ scale: 0.95 }}
@@ -1822,7 +1822,7 @@ export default function ConsensusPage() {
                                     <motion.button
                                         onClick={() => handleConsensusFilterChange('top60')}
                                         className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top60'
-                                            ? 'bg-blue-500/20 text-blue-400'
+                                            ? 'text-blue-400'
                                             : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
                                             }`}
                                         whileTap={{ scale: 0.95 }}
@@ -1912,7 +1912,6 @@ export default function ConsensusPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                {/* Consensus Filter Switcher - only show for 2020/2021 */}
                                 {(selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') && (
                                     <>
                                         <div className="flex items-center gap-1 p-1 bg-[#19191A] border border-gray-800 rounded-lg">
@@ -2027,53 +2026,58 @@ export default function ConsensusPage() {
 
             {viewMode === 'contributors' ? (
                 (selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') ? (
-                    <ContributorEvaluationTable
-                        evaluations={contributorEvaluations}
-                        initialColumns={contributorColumns}
-                        categories={['Board Information', 'Consensus', 'NBA Draft', 'Redraft', 'EPM', 'EW', 'Rankings']}
-                        consensusFilter={consensusFilter}
-                        onConsensusFilterChange={handleConsensusFilterChange}
-                        searchQuery={contributorSearch}
-                    />
-                ) : (
-                    <div className="text-center py-8 text-gray-400">
-                    Contributor evaluation data not available for {selectedYear}
-                </div>
-                )
-            ) : filteredProspects.length > 0 ? (
-                viewMode === 'card' ? (
-                    <div className="space-y mt-6">
-                        {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
-                            <ConsensusPageProspectCard
-                                key={prospect.Name}
-                                prospect={prospect}
-                                filteredProspects={filteredProspects}
-                                allProspects={prospects}
-                                selectedSortKey={selectedSortKey}
-                                selectedYear={selectedYear}
-                                consensusData={consensusMap[prospect.Name]}
-                                rankingSystem={rankingSystem}
-                                rank={0}
-                            />
-                        ))}
-                        {isLoading && !isMobile && (
-                            <div className="flex justify-center py-4">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <ProspectTable
-                        prospects={filteredProspects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
-                        rankingSystem={rankingSystem}
-                        initialColumns={initialColumns}
-                    />
-                )
-            ) : (
-                <div className="text-center py-8 text-gray-400">
-                    No prospects found matching your search criteria
-                </div>
-            )}
+                    <><EvaluationExplanation
+                        selectedYear={selectedYear}
+                        consensusFilter={consensusFilter} />
+
+                        <ContributorEvaluationTable
+                            evaluations={contributorEvaluations}
+                            initialColumns={contributorColumns}
+                            categories={['Board Information', 'Consensus', 'NBA Draft', 'Redraft', 'EPM', 'EW', 'Rankings']}
+                            consensusFilter={consensusFilter}
+                            onConsensusFilterChange={handleConsensusFilterChange}
+                            searchQuery={contributorSearch} />
+                    </>
+    ) : (
+        <div className="text-center py-8 text-gray-400">
+            Contributor evaluation data not available for {selectedYear}
         </div>
+    )
+            ) : filteredProspects.length > 0 ? (
+        viewMode === 'card' ? (
+            <div className="space-y mt-6">
+                {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
+                    <ConsensusPageProspectCard
+                        key={prospect.Name}
+                        prospect={prospect}
+                        filteredProspects={filteredProspects}
+                        allProspects={prospects}
+                        selectedSortKey={selectedSortKey}
+                        selectedYear={selectedYear}
+                        consensusData={consensusMap[prospect.Name]}
+                        rankingSystem={rankingSystem}
+                        rank={0}
+                    />
+                ))}
+                {isLoading && !isMobile && (
+                    <div className="flex justify-center py-4">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+                    </div>
+                )}
+            </div>
+        ) : (
+            <ProspectTable
+                prospects={filteredProspects.map(p => ({ ...p, Tier: (p as { Tier?: string; }).Tier ?? '' }))}
+                rankingSystem={rankingSystem}
+                initialColumns={initialColumns}
+            />
+        )
+    ) : (
+        <div className="text-center py-8 text-gray-400">
+            No prospects found matching your search criteria
+        </div>
+    )
+}
+        </div >
     );
 }

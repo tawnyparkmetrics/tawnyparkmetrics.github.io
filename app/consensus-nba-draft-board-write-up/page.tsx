@@ -259,7 +259,7 @@ export default function ConsensusFAQPage() {
                         By accepting almost any type of board from nearly any source, TPM's <em>Internet Consensus</em> <strong>captures almost every kind of draft perspective.</strong>
                     </p>
                     <p className="mb-4">
-                        The <em>Internet Consensus</em> is not only a valuable tool to <strong>gauge aggregate opinion on prospects.</strong> Every year, hundreds of boards are shared into the internet void,
+                        The <em>Internet Consensus</em> is not only a valuable tool to gauge aggregate opinion on prospects, but also to <strong>gauge how well evaluators rank prospects.</strong> Every year, hundreds of boards are shared into the internet void,
                         consumed before the draft and rarely revisited. We'd like to change that. Improvement as an evaluator requires reviewing your hits and misses – understanding where you excel and where you can grow. Want to show fans
                         or teams how well you project the draft? Now, you can. <strong>As some players have shared with us: maybe it's time the analysts felt what it's like to be evaluated too.</strong>
                     </p>
@@ -275,12 +275,12 @@ export default function ConsensusFAQPage() {
             content: (
                 <div>
                     <p className="mb-4">
-                        In most fields, when we think of consensus we think of the <em>wisdom of the crowd</em> – the concept that a "large group of diverse, independent individuals is often smarter at problem-solving and decision-making than an
+                        In most fields, when we think of consensus we think of the <em>wisdom of the crowd</em> – the concept that a "large group of diverse, <em>independent</em> individuals is often smarter at problem-solving and decision-making than an
                         individual expert, as their collective judgments tend to converge on the truth." However, when it comes to the NBA Draft, opinions are seldom completely independent from each other.
                     </p>
                     <p className="mb-4">
                         The draft space is subject to significant <strong>group-think</strong> – analysts constantly shape each other's perspectives as they share and learn from one another. While this circulation of ideas is positive and valuable, it <strong>limits
-                            the independence required for true wisdom of the crowd.</strong> This reduced independence often leads to anchor bias, influencing which players typically appear on draft boards and how they're ranked. That's not to say there's no
+                        the independence required for true wisdom of the crowd.</strong> This reduced independence often leads to anchor bias, influencing which players typically appear on draft boards and how they're ranked. That's not to say there's no
                         independent thinking at all, but our constant sharing of opinions and insights can, ironically, make the <em>Internet Consensus Board</em> less predictive.
                     </p>
                     <p className="mb-4">
@@ -333,7 +333,7 @@ export default function ConsensusFAQPage() {
                         Notably, you wouldn't want to sort by mean rank alone. For example, it would be misleading to rank Hunter Dickinson (mean rank = 52.7) ahead of Brice Williams (mean rank = 53.1), when Hunter was included on just 10/164 total boards, compared to Brice's 64/164.
                     </p>
                     <p>
-                        The <strong>final result is a balance between average rank and inclusion rate.</strong> While we may iterate the equation in the future (ex. testing which exponent value for inclusion rate yields the most predictive aggregate scores), we are satisfied with its current output: fair consensus ranks for every draft prospect.
+                        The final result is a <strong>balance between average rank and inclusion rate.</strong> While we may iterate the equation in the future (ex. testing which exponent value for inclusion rate yields the most predictive aggregate scores), we are satisfied with its current output: fair consensus ranks for every draft prospect.
                     </p>
                 </div>
             )
@@ -428,7 +428,7 @@ export default function ConsensusFAQPage() {
                             if they, theoretically, controlled every pick in the draft.</strong> Any evaluation, then, becomes a matter of comparing one order to another. For our purposes, this is <strong>a measure of the difference between any single board and, in retrospect, the "optimal" one.</strong>
                     </p>
                     <p className="mb-4">
-                        But how do you define optimal? In a 2025 redraft of the 2020 NBA class, fans would, inevitably, make a wide range of differing selections. Some might take Anthony Edwards first, others Tyrese Haliburton or LaMelo Ball – extending that process across all 60 picks would produce
+                        But how do you define optimal? In a 2025 redraft of the 2020 NBA Draft class, fans would, inevitably, make a wide range of differing selections. Some might take Anthony Edwards first, others Tyrese Haliburton or LaMelo Ball – extending that process across all 60 picks would produce
                         countless permutations. <strong>By definition, no universally agreed upon "true" redraft exists.</strong> Consequently, choosing the criteria to define optimality is inherently challenging and subjective.
                     </p>
                     <p className="mb-4">For now, <strong>we evaluate board performance via:</strong></p>
@@ -445,7 +445,7 @@ export default function ConsensusFAQPage() {
                         <strong>Redraft + Pick Value</strong> is far more subjective. Currently, this redraft order is determined internally by TPM. However, moving forward, <strong>we will transition to a community redraft</strong> (based on input from site-visitors). Ultimately, this criteria is more closely related
                         to public-sentiment than EPM or EW ratings alone. While that opinion generates the redraft order, it still requires a scale.
                     </p>
-                    <p>
+                    <p className="mb-4">
                         For this, we use a normalized <strong>combination of <a href="https://x.com/kpelton/status/1009888366605881344?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">Kevin Pelton's</a> & <a href="http://nbasense.com/draft-pick-trade-value/4/jacob-goldstein-4" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">Jacob Goldstein's</a> draft pick value charts.</strong> The result is a scale assigning 4000 points to the
                         first pick and 165.59 points to the 60th pick, with values distributed non-linearly in between.
                     </p>
@@ -460,15 +460,15 @@ export default function ConsensusFAQPage() {
                     <p className="mb-4">
                         For instance, in 2020, the Golden State Warriors infamously selected James Wiseman 2nd, passing on Tyrese Haliburton, who was picked 12th. In the same class, they selected Nico Mannion 48th, passing on Paul Reed, who was picked 58th. In both cases, the pick distance between the
                         player selected and, debateably, the optimal alternative was ten spots. A correlation-based evaluation treats these misses as equivalent. In reality, we all know passing on Haliburton for Wiseman was a far more costly mistake than passing on Reed for Mannion. Correlation fails to
-                        account for the non-linear cost of draft suboptimal draft decisions.
+                        account for the non-linear cost of suboptimal draft decisions.
                     </p>
                     <p className="mb-4">
-                        The next natural progression is an error-based approach, such as MAE (mean-absolute error). Here each draft board is treated as a set of predictions about player value. Thus, we can compare, for example, the career avg. EPM of the player ranked first on a board to
+                        The next natural progression is an error-based approach, such as MAE (mean absolute error). Here each draft board is treated as a set of predictions about player value. Thus, we can compare, for example, the career avg. EPM of the player ranked first on a board to
                         the career avg. EPM of the true top EPM performer. Accordingly, we can <strong>measure "loss" through the scale of each criteria</strong>, a clear upgrade over raw-correlation. But, in the words of Lee Corso, not so fast my friend. Take a look at what happens when you actually implement MAE:
                     </p>
                     <ul className="list-disc list-inside space-y-2 ml-4 mb-4">
-                        <li>Board ranks LaMelo #1. In the redraft, he's #3. Pick #1 = 4000 points, Pick #3 = 2799.61 points. Loss = 1200.39 (abs).</li>
-                        <li>Board ranks Haliburton #3. In the redraft, he's #1. Pick #3 = 2799.61 points, Pick #1 = 4000 points. Loss = 1200.39 (abs).</li>
+                        <li>Board ranks LaMelo #1. In the redraft, he's #3. Pick #1 = 4000 points, Pick #3 = 2799.61 points. Loss = 1200.39 (abs. value difference).</li>
+                        <li>Board ranks Haliburton #3. In the redraft, he's #1. Pick #3 = 2799.61 points, Pick #1 = 4000 points. Loss = 1200.39 (abs. value difference).</li>
                     </ul>
                     <p className="mb-4">
                         <em>Note, I would've included EPM or EW in this example, but those ratings are exclusive to paid subscribers to the Dunks&Threes website. To clarify, TPM pays for a yearly subscription – enabling us to access EPM & EW ratings for internal analysis, not external distribution.</em>
@@ -487,7 +487,7 @@ export default function ConsensusFAQPage() {
                     <ul className="list-disc list-inside space-y-2 ml-4 mb-4">
                         <li>Identify who the analyst ranked (i.e. who they would've selected at that spot)</li>
                         <li>Iterate through the optimal redraft order (ex. Estimated Wins) from best to worst</li>
-                        <li>For each better player available (ex. with a career EW &#62; career EW of the prospect the analyst selected – i.e suboptimally ranked ahead)...
+                        <li>For each better player available (ex. with a career EW &#62; career EW of the prospect the analyst selected – i.e. suboptimally ranked ahead)...
                             <ul className="list-disc list-inside ml-6 mt-2">
                                 <li>Calculate the difference in value (ex. better EW - ranked player's EW)</li>
                                 <li>Add that difference to the running average (ex. avg. career EW lost per pick)</li>
@@ -495,7 +495,7 @@ export default function ConsensusFAQPage() {
                         </li>
                         <li><strong>STOP</strong> once reaching a player worse than the ranked player (ex. career EW &#60; career EW of the prospect the analyst selected)</li>
                         <li> Repeat for each successive rank, keeping track of already "selected" players (ex. once a player is selected, their EW is no longer included when calculating the avg. value lost)</li>
-                        <li><strong> IF </strong> there are no better players available (i.e when analyst makes an optimal selection)...
+                        <li><strong> IF </strong> there are no better players available (i.e. when analyst makes an optimal selection)...
                             <ul className="list-disc list-inside ml-6 mt-2">
                                 <li>Set opportunity cost to zero (no penalty)</li>
                                 <li>Move onto next highest ranked player</li>
@@ -511,7 +511,7 @@ export default function ConsensusFAQPage() {
                         <li><strong>NBA</strong> (how correlated was each board with the NBA Draft results)</li>
                     </ol>
                     <p>
-                        These are purely descriptive, but help identify how boards are aligned with consensus (using the same opportunity cost calculation as EPM, EW, & Redraft + Pick Value, but instead with the consensus score described in How are prospects ranked?) and with the NBA's collective draft decisions (using Spearman correlation).
+                        These are purely descriptive, but help identify how boards are aligned with consensus (using the same opportunity cost calculation as EPM, EW, & Redraft + Pick Value, but instead with the consensus score described in <em>How are prospects ranked?</em>) and with the NBA's collective draft decisions (using Spearman correlation).
                     </p>
                 </div>
             )
@@ -561,7 +561,7 @@ export default function ConsensusFAQPage() {
                         and build larger samples, we should begin to see a clearer picture of which analysts sustain predictive performance across three or more consecutive drafts.
                     </p>
                     <p className="mb-4">
-                        For now, however, no one has, seemingly, “cracked” the draft. As we already knew, <strong>the draft is a problem without a perfect solution</strong> (extends to other sports as well). Every analyst has misses, and the data suggests we should all approach this process with humility. That said, the goal of the evaluation is not to discourage analysts; rather, to motivate continued learning, iteration, and refinement of their process.
+                        For now, however, no one has, seemingly, “cracked” the draft. As we already knew, <strong>the draft is a problem without a perfect solution</strong> (extends to other sports as well). Every analyst has misses – the data suggests we should all approach this process with humility. That said, the goal of the evaluation is not to discourage analysts; rather, to motivate continued learning, iteration, and refinement of their process.
                     </p>
                     <p className="mb-4">
                         In contrast to inconsistent board performance, there is a <strong>persistent divide between analysts who stick closely to consensus and those who take a more contrarian approach.</strong> These tendencies often align with how closely each board mirrors the NBA’s draft decisions. Partially, this is due to the availability of “insider” information (some analysts and organizations have better access), but strategy and
@@ -761,7 +761,7 @@ export default function ConsensusFAQPage() {
                     <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
                         FAQs
                     </h1>
-                    <p className="text-gray-300 mb-4">Learn about the NBA Draft Internet Consensus via frequently asked questions        </p>
+                    <p className="text-gray-300 mb-4">Learn about the <em>NBA Draft Internet Consensus</em> via frequently asked questions</p>
                     <p className="text-gray-300 mb-4">Written by Max Savin</p>
                 </div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Column configuration interface for contributor evaluations
@@ -60,6 +60,11 @@ const anonymizeBoardName = (boardName: string): string => {
         return anonymizedName;
     }
     return boardName;
+};
+
+const isHighlightedRow = (boardName: string): boolean => {
+    const cleanName = boardName.toLowerCase().trim();
+    return cleanName === 'consensus' || cleanName === 'nba';
 };
 
 export function ContributorEvaluationTable<T extends BaseContributorEvaluation>({
@@ -515,14 +520,23 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {sortedEvaluations.map((evaluation, index) => (
-                            <TableRow
-                                key={`${evaluation.Board}-${index}`}
-                                className="hover:bg-gray-800/20 border-gray-700/30"
-                            >
-                                {visibleColumns.map((column) => renderCell(evaluation, column))}
-                            </TableRow>
-                        ))}
+                        {sortedEvaluations.map((evaluation, index) => {
+                            const boardName = String(evaluation.Board || '');
+                            const shouldHighlight = isHighlightedRow(boardName);
+                            
+                            return (
+                                <TableRow
+                                    key={`${evaluation.Board}-${index}`}
+                                    className={`border-gray-700/30 ${
+                                        shouldHighlight 
+                                            ? 'bg-gray-600/30 hover:bg-gray-600/40' 
+                                            : 'hover:bg-gray-800/20'
+                                    }`}
+                                >
+                                    {visibleColumns.map((column) => renderCell(evaluation, column))}
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </div>
