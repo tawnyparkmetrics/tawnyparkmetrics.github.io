@@ -82,7 +82,7 @@ const draftShort: { [key: string]: string } = {
 interface BaseProspectCardProps {
     prospect: DraftProspect;
     rank: string | number;
-    selectedYear: number | string;
+    selectedYear: number;
     isMobile?: boolean;
     children?: React.ReactNode; // For dropdown content
     onExpand?: (isExpanded: boolean) => void;
@@ -293,8 +293,8 @@ export const BaseProspectCard: React.FC<BaseProspectCardProps> = ({
             }
         };
 
-        const yearNum = typeof selectedYear === 'string' ? parseInt(selectedYear) : selectedYear;
-        const picksLimit = getDraftPicksLimit(yearNum);
+        const yearNum = selectedYear;
+        const picksLimit = getDraftPicksLimit(selectedYear);
         const actualPick = prospect['Actual Pick'];
         const team = isMobileView ? prospect.ABV : prospect['NBA Team'];
 

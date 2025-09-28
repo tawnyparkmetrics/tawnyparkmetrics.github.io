@@ -737,10 +737,10 @@ export default function NickDraftPage() {
         onFilterStateChange={setFilterState}
       />
 
-      <div className="max-w-6xl mx-auto px-4 pt-8">
+      <div className="max-w-6xl mx-auto pt-8">
         {filteredProspects.length > 0 ? (
           viewMode === 'card' ? (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
                 <NickPageProspectCard
                   key={prospect.Name}

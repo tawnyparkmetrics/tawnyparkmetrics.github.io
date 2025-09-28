@@ -1102,10 +1102,10 @@ export default function AndreDraftPage() {
                 onFilterStateChange={handleFilterStateChange}
             />
 
-            <div className="max-w-6xl mx-auto px-4 pt-8">
+            <div className="max-w-6xl mx-auto pt-8">
                 {filteredProspects.length > 0 ? (
                     viewMode === 'card' ? (
-                        <motion.div layout className="space-y-4">
+                        <motion.div layout className="space-y-2">
                             {/* AnimatePresence is removed as it's not used in the new ProspectTable */}
                             {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect, index) => (
                                     <motion.div

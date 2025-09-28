@@ -605,7 +605,7 @@ const ConsensusPageProspectCard: React.FC<{
     filteredProspects: DraftProspect[];
     allProspects: DraftProspect[];
     selectedSortKey: string;
-    selectedYear: string; // Add this prop - should match the type from ConsensusPage
+    selectedYear: number; // Add this prop - should match the type from ConsensusPage
     consensusData?: ConsensusColumns;
     rankingSystem: Map<string, number>;
 }> = ({ prospect, consensusData, rankingSystem, selectedYear }) => { // Add selectedYear to destructuring
@@ -2053,7 +2053,7 @@ export default function ConsensusPage() {
                         filteredProspects={filteredProspects}
                         allProspects={prospects}
                         selectedSortKey={selectedSortKey}
-                        selectedYear={selectedYear}
+                        selectedYear={Number(selectedYear)}
                         consensusData={consensusMap[prospect.Name]}
                         rankingSystem={rankingSystem}
                         rank={0}

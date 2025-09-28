@@ -424,7 +424,7 @@ const TimelineFilter = ({
               </motion.button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-32 bg-[#19191A] border-gray-700">
-            <DropdownMenuItem
+              <DropdownMenuItem
                 className="text-gray-400 hover:bg-gray-800/50 cursor-pointer"
                 onClick={() => handleYearChange(2025)}
               >
@@ -1630,7 +1630,10 @@ const MaxPageProspectCard: React.FC<{
   // Check if device is mobile
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // ADD THIS DEBUG LINE:
+      console.log('MaxPageProspectCard isMobile:', mobile, 'window.innerWidth:', window.innerWidth);
     };
 
     // Set initial value
@@ -1642,6 +1645,10 @@ const MaxPageProspectCard: React.FC<{
     // Cleanup
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  console.log('MaxPageProspectCard render - isMobile:', isMobile, 'prospect:', prospect.Name);
+  console.log('BaseProspectCard received isMobile:', isMobile, 'for prospect:', prospect.Name);
+
 
   const getPositionRank = (year: string): string => {
     if (!prospect.positionRanks) return 'N/A';
@@ -1894,52 +1901,52 @@ const MaxPageProspectCard: React.FC<{
 
 // Replace the existing ProspectTable component with:
 const MaxProspectTable = ({ prospects, rankingSystem }: { prospects: DraftProspect[], rankingSystem: Map<string, number> }) => {
-    const tierRankMap = {
-        'All-Time Great': 1,
-        'All-NBA Caliber': 2,
-        'Fringe All-Star': 3,
-        'Quality Starter': 4,
-        'Solid Rotation': 5,
-        'Bench Reserve': 6,
-        'Fringe NBA': 7
-    };
+  const tierRankMap = {
+    'All-Time Great': 1,
+    'All-NBA Caliber': 2,
+    'Fringe All-Star': 3,
+    'Quality Starter': 4,
+    'Solid Rotation': 5,
+    'Bench Reserve': 6,
+    'Fringe NBA': 7
+  };
 
-    const initialColumns: ColumnConfig[] = [
-        { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
-        { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
-        { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
-        { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
-        { key: 'Pred. Y1 Rank', label: 'Y1 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Pred. Y2 Rank', label: 'Y2 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Pred. Y3 Rank', label: 'Y3 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Pred. Y4 Rank', label: 'Y4 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Pred. Y5 Rank', label: 'Y5 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Rank Y1-Y3', label: '3Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Rank Y1-Y5', label: '5Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
-        { key: 'Comp1', label: 'Comp 1', category: 'Player Comparisons', visible: false, sortable: true },
-        { key: 'Comp2', label: 'Comp 2', category: 'Player Comparisons', visible: false, sortable: true },
-        { key: 'Comp3', label: 'Comp 3', category: 'Player Comparisons', visible: false, sortable: true },
-        { key: 'Comp4', label: 'Comp 4', category: 'Player Comparisons', visible: false, sortable: true },
-        { key: 'Comp5', label: 'Comp 5', category: 'Player Comparisons', visible: false, sortable: true },
-    ];
+  const initialColumns: ColumnConfig[] = [
+    { key: 'Rank', label: 'Rank', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Name', label: 'Name', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Role', label: 'Position', category: 'Player Information', visible: true, sortable: true },
+    { key: 'League', label: 'League', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Pre-NBA', label: 'Pre-NBA', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Actual Pick', label: 'Draft Pick', category: 'Player Information', visible: true, sortable: true },
+    { key: 'NBA Team', label: 'NBA Team', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Tier', label: 'Tier', category: 'Player Information', visible: true, sortable: true },
+    { key: 'Age', label: 'Age', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Height', label: 'Height', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Wingspan', label: 'Wingspan', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Wing - Height', label: 'Wing-Height', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Weight (lbs)', label: 'Weight', category: 'Player Information', visible: false, sortable: true },
+    { key: 'Pred. Y1 Rank', label: 'Y1 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Pred. Y2 Rank', label: 'Y2 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Pred. Y3 Rank', label: 'Y3 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Pred. Y4 Rank', label: 'Y4 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Pred. Y5 Rank', label: 'Y5 Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Rank Y1-Y3', label: '3Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Rank Y1-Y5', label: '5Y Avg Rank', category: 'EPM Rank Information', visible: false, sortable: true },
+    { key: 'Comp1', label: 'Comp 1', category: 'Player Comparisons', visible: false, sortable: true },
+    { key: 'Comp2', label: 'Comp 2', category: 'Player Comparisons', visible: false, sortable: true },
+    { key: 'Comp3', label: 'Comp 3', category: 'Player Comparisons', visible: false, sortable: true },
+    { key: 'Comp4', label: 'Comp 4', category: 'Player Comparisons', visible: false, sortable: true },
+    { key: 'Comp5', label: 'Comp 5', category: 'Player Comparisons', visible: false, sortable: true },
+  ];
 
-    return (
-        <ProspectTable
-            prospects={prospects}
-            rankingSystem={rankingSystem}
-            tierRankMap={tierRankMap}
-            initialColumns={initialColumns}
-        />
-    );
+  return (
+    <ProspectTable
+      prospects={prospects}
+      rankingSystem={rankingSystem}
+      tierRankMap={tierRankMap}
+      initialColumns={initialColumns}
+    />
+  );
 };
 
 type RankType = string;
@@ -1980,6 +1987,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+
   }, []);
 
   // Handle scroll event for infinite loading
@@ -2004,6 +2012,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [viewMode, isLoading]);
+  
 
   // Reset displayed prospects when filters change
   useEffect(() => {
@@ -2281,10 +2290,10 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
         setSelectedYear={setSelectedYear}
       />
 
-      <div className="max-w-6xl mx-auto px-4 pt-8">
+      <div className="max-w-6xl mx-auto pt-8">
         {filteredProspects.length > 0 ? (
           viewMode === 'cards' ? (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {filteredProspects.slice(0, displayedProspects).map(({ prospect, originalRank }) => (
                 <MaxPageProspectCard
                   key={prospect.Name}
@@ -2318,7 +2327,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   );
 }
 
-export default function DraftProspectsPage() {
+export default function MaxDraftPage() {
   const [prospects, setProspects] = useState<DraftProspect[]>([]);
   const [selectedYear, setSelectedYear] = useState(2025);
 
