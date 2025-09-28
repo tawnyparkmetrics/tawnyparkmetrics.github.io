@@ -33,7 +33,7 @@ const DropdownSection = ({ title, children, isOpen, onToggle }: DropdownSectionP
 );
 
 //need to highlight different columns based on dropdown
-const ProspectsTable = () => {
+const ProspectsTable = ({ boldColumnIndex }: { boldColumnIndex?: number }) => {
     const headers = [
         {
             title: "Draft Class",
@@ -65,9 +65,14 @@ const ProspectsTable = () => {
         <div className="overflow-x-auto my-4">
             <table className="w-full border-collapse">
                 <thead>
-                    <tr className="bg-gray-700">
+                <tr className="bg-[#19191A]0">
                         {headers.map((header, index) => (
-                            <th key={index} className="border border-gray-600 px-4 py-2 text-left text-white relative group cursor-pointer">
+                            <th 
+                                key={index} 
+                                className={`border border-gray-600 px-4 py-2 text-left text-white relative group cursor-pointer ${
+                                    boldColumnIndex === index ? 'bg-gray-800/50' : ''
+                                }`}
+                            >
                                 {header.title}
                                 {header.tooltip && (
                                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-black text-white text-sm rounded shadow-lg invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 min-w-max">
@@ -88,13 +93,18 @@ const ProspectsTable = () => {
                         ['2021', '150', '116', '6883', '104', '66.2'],
                         ['2020', '192', '128', '4172', '63', '66.2']
                     ].map((row, index) => (
-                        <tr key={row[0]} className={index % 2 === 0 ? '' : 'bg-gray-800/30'}>
-                            {row.map((cell, cellIndex) => (
-                                <td key={cellIndex} className="border border-gray-600 px-4 py-2 text-white">
-                                    {cell}
-                                </td>
-                            ))}
-                        </tr>
+                        <tr key={row[0]} className={index % 2 === 0 ? '' : 'bg-[#19191A]'}>
+                        {row.map((cell, cellIndex) => (
+                            <td 
+                                key={cellIndex} 
+                                className={`border border-gray-600 px-4 py-2 text-white ${
+                                    boldColumnIndex === cellIndex ? 'bg-gray-800/50' : ''
+                                }`}
+                            >
+                                {boldColumnIndex === cellIndex ? <strong>{cell}</strong> : cell}
+                            </td>
+                        ))}
+                    </tr>
                     ))}
                 </tbody>
             </table>
@@ -182,11 +192,11 @@ const NBAConsensusTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {yearGroups.map((yearGroup, yearIndex) => 
+                    {yearGroups.map((yearGroup, yearIndex) =>
                         yearGroup.rows.map((row, rowIndex) => (
                             <tr key={`${yearGroup.year}-${rowIndex}`} className="">
                                 {rowIndex === 0 && (
-                                    <td 
+                                    <td
                                         rowSpan={yearGroup.rows.length}
                                         className="border border-gray-600 px-4 py-2 text-white font-bold text-center align-middle"
                                     >
@@ -280,7 +290,7 @@ export default function ConsensusFAQPage() {
                     </p>
                     <p className="mb-4">
                         The draft space is subject to significant <strong>group-think</strong> – analysts constantly shape each other's perspectives as they share and learn from one another. While this circulation of ideas is positive and valuable, it <strong>limits
-                        the independence required for true wisdom of the crowd.</strong> This reduced independence often leads to anchor bias, influencing which players typically appear on draft boards and how they're ranked. That's not to say there's no
+                            the independence required for true wisdom of the crowd.</strong> This reduced independence often leads to anchor bias, influencing which players typically appear on draft boards and how they're ranked. That's not to say there's no
                         independent thinking at all, but our constant sharing of opinions and insights can, ironically, make the <em>Internet Consensus Board</em> less predictive.
                     </p>
                     <p className="mb-4">
@@ -344,7 +354,7 @@ export default function ConsensusFAQPage() {
             content: (
                 <div>
                     <p className="mb-4">Here's a detailed breakdown of the number of prospects ranked per consensus draft class:</p>
-                    <ProspectsTable />
+                    <ProspectsTable boldColumnIndex={2}/>
                     <p>
                         You can find this same information in <em>How many boards make up this consensus?</em>. Feel free to also reference the subheader, table view, and evaluation for each draft class consensus page.
                     </p>
@@ -385,7 +395,7 @@ export default function ConsensusFAQPage() {
             content: (
                 <div>
                     <p className="mb-4">Here's a detailed breakdown of the number of draft boards per consensus draft class:</p>
-                    <ProspectsTable />
+                    <ProspectsTable boldColumnIndex={4} />
                     <p>
                         You can find this same information in <em>How many prospects are ranked?</em>. Feel free to also reference the subheader, table view, and evaluation for each draft class consensus page.
                     </p>
@@ -418,6 +428,8 @@ export default function ConsensusFAQPage() {
                 </div>
             )
         },
+
+
         {
             id: 'evaluation-method',
             title: 'How are individual boards evaluated?',
@@ -679,8 +691,8 @@ export default function ConsensusFAQPage() {
                         process old consensus boards, update the consensus ranking system, and evaluate individual board performance. <strong>Bala Ravikumar</strong> (<a href="https://x.com/BalaRavikumar5" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@BalaRavikumar5</a>) – with help from <strong>Seena Pourzand</strong> – publishes the consensus boards and evaluation to the TPM website.
                     </p>
                     <p className="mb-4">
-                        We also want to highlight the “Draft Twitter” volunteers who have helped manually input every board and rank that makes up each year’s consensus, including: <strong><a href="https://x.com/SloanImperative" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@SloanImperative</a><a href="https://x.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@thegrantedwards</a></strong>, <strong><a href="https://x.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@codyreeves14"</a></strong>,
-                        <strong><a href="https://x.com/dualbarl" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@dualbarl</a></strong>, <strong><a href="https://x.com/CannibalSerb" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@CannibalSerb</a></strong>, & <strong><a href="https://x.com/bendog28" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@bendog28</a></strong>. This is an incredibly
+                        We also want to highlight the “Draft Twitter” volunteers who have helped manually input every board and rank that makes up each year’s consensus, including: <strong><a href="https://x.com/SloanImperative" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@SloanImperative</a>, <a href="https://x.com/thegrantedwards" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@thegrantedwards</a></strong>, <strong><a href="https://x.com/codyreeves14" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@codyreeves14</a></strong> 
+                        , <strong><a href="https://x.com/dualbarl" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@dualbarl</a></strong>, <strong><a href="https://x.com/CannibalSerb" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@CannibalSerb</a></strong>, & <strong><a href="https://x.com/bendog28" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@bendog28</a></strong>. This is an incredibly
                         tedious and time consuming task; these consensus boards would not exist without their past efforts. As noted in <em>How is the consensus built?</em>, we are working to make the aggregation process more efficient going forward – but the foundation laid by these volunteers is what enables the project in the first place.
                     </p>
                 </div>
@@ -766,15 +778,37 @@ export default function ConsensusFAQPage() {
                 </div>
 
                 <div className="space-y-4">
-                    {sections.map((section) => (
-                        <DropdownSection
-                            key={section.id}
-                            title={section.title}
-                            isOpen={openSections[section.id as keyof typeof openSections]}
-                            onToggle={() => toggleSection(section.id)}
-                        >
-                            {section.content}
-                        </DropdownSection>
+                    {sections.map((section, index) => (
+                        <React.Fragment key={section.id}>
+                            <DropdownSection
+                                title={section.title}
+                                isOpen={openSections[section.id as keyof typeof openSections]}
+                                onToggle={() => toggleSection(section.id)}
+                            >
+                                {section.content}
+                            </DropdownSection>
+                            {section.id === 'board-priority' && (
+                                <div className="flex items-center my-8">
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                    <span className="px-4 text-gray-400 text-sm font-medium tracking-wider">EVALUATION</span>
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                </div>
+                            )}
+                            {section.id === 'evaluation-limitations' && (
+                                <div className="flex items-center my-8">
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                    <span className="px-4 text-gray-400 text-sm font-medium tracking-wider">LOGISTICS</span>
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                </div>
+                            )}
+                            {section.id === 'further-questions' && (
+                                <div className="flex items-center my-8">
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                    <span className="px-4 text-gray-400 text-sm font-medium tracking-wider">FOR CONTRIBUTORS</span>
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                </div>
+                            )}
+                        </React.Fragment>
                     ))}
                 </div>
             </div>
