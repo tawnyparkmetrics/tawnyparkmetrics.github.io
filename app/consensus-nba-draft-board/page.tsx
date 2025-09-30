@@ -108,6 +108,91 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         return consensusData ? getContributorColumns(consensusData) : [];
     }, [consensusData]);
 
+    // Use team color or fallback to blue
+    const teamColor =
+        typeof prospect['Team Color'] === 'string' &&
+            /^#[0-9A-Fa-f]{6}$/.test(prospect['Team Color'])
+            ? prospect['Team Color']
+            : '#60A5FA';
+
+    // Custom tooltip component for histogram
+    interface HistogramTooltipProps {
+        active?: boolean;
+        payload?: Array<{ value: number; payload: { pick: number; count: number } }>;
+        label?: string;
+    }
+
+    const CustomHistogramTooltip = ({ active, payload, label }: HistogramTooltipProps) => {
+        if (!active || !payload || !payload.length) {
+            return null;
+        }
+
+        const data = payload[0];
+        return (
+            <div className="bg-[#19191A] border border-gray-700 rounded-lg p-3 shadow-lg">
+                <div className="text-sm text-gray-300 mb-1">
+                    <span className="font-semibold">Rank:</span> {label}
+                </div>
+                <div className="text-sm text-gray-300">
+                    <span className="font-semibold">Frequency:</span> {data.value.toFixed(1)}%
+                </div>
+            </div>
+        );
+    };
+
+    // SPECIAL CASE: Victor Wembanyama - unanimous #1 pick
+    if (prospect.Name === "Victor Wembanyama") {
+        const victorData = [{
+            pick: 1,
+            count: contributorColumns.length,
+            percentage: 100,
+        }];
+
+        return (
+            <div>
+                <ChartContainer config={{ percentage: { color: teamColor, label: "Percentage" } }}>
+                    <BarChart data={victorData} barSize={60}>
+                        <defs>
+                            <linearGradient id="barGradient-VictorWembanyama" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={teamColor} stopOpacity={0.8} />
+                                <stop offset="100%" stopColor={teamColor} stopOpacity={0.4} />
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid
+                            strokeDasharray="0"
+                            stroke="#333"
+                            strokeOpacity={0.2}
+                            horizontal={true}
+                            vertical={false}
+                        />
+                        <XAxis
+                            dataKey="pick"
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            domain={[0, 2]}
+                            type="number"
+                            ticks={[1]}
+                        />
+                        <YAxis
+                            tick={{ fill: "#ccc", fontSize: 12 }}
+                            allowDecimals={false}
+                            domain={[0, 100]}
+                            ticks={[0, 20, 40, 60, 80, 100]}
+                            label={{ value: '', angle: 0, position: 'insideLeft' }}
+                        />
+                        <Bar
+                            dataKey="percentage"
+                            fill="url(#barGradient-VictorWembanyama)"
+                            stroke={teamColor}
+                            strokeWidth={1}
+                            radius={[4, 4, 0, 0]}
+                        />
+                        <ChartTooltip content={<CustomHistogramTooltip />} />
+                    </BarChart>
+                </ChartContainer>
+            </div>
+        );
+    }
+
     // Debug function to analyze data validity
     const analyzeDataValidity = useMemo(() => {
         const analysis = {
@@ -262,38 +347,6 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         };
     }, [histogramData, contributorColumns, consensusData]);
 
-    // Use team color or fallback to blue
-    const teamColor =
-        typeof prospect['Team Color'] === 'string' &&
-            /^#[0-9A-Fa-f]{6}$/.test(prospect['Team Color'])
-            ? prospect['Team Color']
-            : '#60A5FA';
-
-    // Custom tooltip component for histogram
-    interface HistogramTooltipProps {
-        active?: boolean;
-        payload?: Array<{ value: number; payload: { pick: number; count: number } }>;
-        label?: string;
-    }
-
-    const CustomHistogramTooltip = ({ active, payload, label }: HistogramTooltipProps) => {
-        if (!active || !payload || !payload.length) {
-            return null;
-        }
-
-        const data = payload[0];
-        return (
-            <div className="bg-[#19191A] border border-gray-700 rounded-lg p-3 shadow-lg">
-                <div className="text-sm text-gray-300 mb-1">
-                    <span className="font-semibold">Rank:</span> {label}
-                </div>
-                <div className="text-sm text-gray-300">
-                    <span className="font-semibold">Frequency:</span> {data.value.toFixed(1)}%
-                </div>
-            </div>
-        );
-    };
-
     // If no data, show message
     if (histogramData.length === 0) {
         return (
@@ -303,11 +356,9 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         );
     }
 
-    // Calculate proper domains for better visualization
-    const xDomain = histogramData.length > 0 ? [
-        histogramData[0].pick,
-        histogramData[histogramData.length - 1].pick
-    ] : [1, 60];
+    const xDomain = histogramData.length > 0
+        ? [histogramData[0].pick, histogramData[histogramData.length - 1].pick]
+        : [1, 60];
 
     // Calculate dynamic y-axis max based on the highest percentage
     const getYAxisMax = (maxPercentage: number): number => {
@@ -343,7 +394,7 @@ const ConsensusHistogram: React.FC<ConsensusHistogramProps> = ({
         <div>
             <ChartContainer config={{ percentage: { color: teamColor, label: "Percentage" } }}>
                 {dataQuality.isSparseData ? (
-                    // Use bar chart for truly sparse data (very few picks or single position)
+                    // Use bar chart for truly sparse data
                     <BarChart data={histogramData} barCategoryGap="20%">
                         <defs>
                             <linearGradient id={`barGradient-${prospect.Name.replace(/[^a-zA-Z0-9]/g, '')}`} x1="0" y1="0" x2="0" y2="1">
@@ -778,7 +829,7 @@ const ConsensusPageProspectCard: React.FC<{
                     <>
                         {/* Desktop: Original layout */}
                         <div className="flex-[0.8] flex justify-center pr-1/2">
-                            <h3 className="italic text-lg text-white">
+                            <h3 className="italic text-lg text-white ml-20">
                                 {showRangeConsensus ? 'draft range distribution' : 'draft rank distribution'}
                             </h3>
                         </div>
@@ -833,7 +884,7 @@ const ConsensusPageProspectCard: React.FC<{
                         </div>
 
                         <div className="flex-[0.8] flex justify-center pl-1/2">
-                            <h3 className="italic text-lg text-white">
+                            <h3 className="italic text-lg text-white mr-20">
                                 {showRangeConsensus ? 'draft range data' : 'draft rank data'}
                             </h3>
                         </div>
@@ -846,7 +897,7 @@ const ConsensusPageProspectCard: React.FC<{
                 {/* Charts Column */}
                 <div className={`text-gray-300 flex flex-col justify-start ${isMobile ? 'px-2' : 'px-1'}`}>
                     {/* Chart Container - Shows either histogram or range consensus */}
-                    <div className={isMobile ? 'w-full -ml-2' : '-ml-8 w-[calc(100%+48px)]'}>
+                    <div className={isMobile ? 'w-full -ml-5' : '-ml-8 w-[calc(100%+48px)]'}> {/*-ml-5 is to center the mobile view*/}
                         {showRangeConsensus ? (
                             // Range Consensus Graph
                             <RangeConsensusGraph
@@ -871,10 +922,10 @@ const ConsensusPageProspectCard: React.FC<{
                 </div>
 
                 {/* Consensus Data Tables */}
-                <div className="text-gray-300 px-2 flex items-center"> {/* Add flex items-center here */}
+                <div className={`text-gray-300 flex items-center ${isMobile ? 'px-0' : 'px-2'}`}> {/* Remove px-2 on mobile */}
                     {showRangeConsensus ? (
                         /* Range Consensus Table - This one gets centered */
-                        <div className="w-full"> {/* Add w-full to ensure it takes full width */}
+                        <div className="w-full max-w-l">
                             <div className="space-y-2.5">
                                 {rangeConsensusTableData.map((item, index) => (
                                     <div
@@ -889,7 +940,7 @@ const ConsensusPageProspectCard: React.FC<{
                         </div>
                     ) : (
                         /* Original Consensus Statistics Table */
-                        <div className="w-full"> {/* Add w-full for consistency */}
+                        <div className="w-full max-w-l">
                             <div className="space-y-0">
                                 {consensusTableData.map((item, index) => (
                                     <div
@@ -1151,7 +1202,7 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                                         handleViewModeChange('contributors');
                                     }}
                                 >
-                                    Evaluations
+                                    Evaluation
                                 </DropdownMenuItem>
                                 {/* Desktop: With icons */}
                                 <DropdownMenuItem

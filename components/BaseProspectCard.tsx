@@ -105,6 +105,7 @@ const preNBALogoSizes: { [key: string]: { width: number; height: number; leftOff
     "Providence": { width: 150, height: 150, leftOffset: -20 },
     "Penn State": { width: 150, height: 150, leftOffset: -20 },
     "Nebraska": { width: 100, height: 100 },
+    "Tennessee": { width: 100, height: 100 },
     "Georgia": { width: 125, height: 125 }, //off on mobile
     "Liberty": { width: 125, height: 125 },
 }

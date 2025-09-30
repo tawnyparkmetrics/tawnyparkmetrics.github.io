@@ -35,7 +35,11 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Max Savin':
         return 'Featuring EPM projections, prospect tiers, skills graphs, and player comps.';
       case 'Nick Kalinowski':
-        return 'Ranking prospects by predicted EPM using 500+ unique predictors.';
+        return (
+          <>
+            Ranking prospects by predicted EPM using 500+ unique predictors. You can find the full collection of Nick's at <a href="https://kalidrafts.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">kalidrafts.com</a>.
+          </>
+        );
       case 'Andre Liu':
         return 'Analyzing prospects via original metrics and clustered tiers.';
       case 'Draft History':
@@ -72,12 +76,15 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
   };
 
   const getDescriptionMaxWidth = (author: string) => {
-    return author === 'Consensus' ? 'max-w-6xl' : 'max-w-2xl';
+    if (author === 'Consensus' || author === 'Nick Kalinowski') {
+      return 'max-w-6xl';
+    }
+    return 'max-w-2xl';
   };
 
   // Add more padding specifically for Draft History pages
   const isDraftHistory = author === 'Draft History' || author === '2020-2025 NBA Draft History';
-  const paddingClass = isDraftHistory ? 'py-6' : 'py-3';
+  const paddingClass = isDraftHistory ? 'py-2 mt-1.5' : 'py-3';
 
   return (
     <div className={`bg-[#19191A] border-b border-gray-800 ${className}`}>

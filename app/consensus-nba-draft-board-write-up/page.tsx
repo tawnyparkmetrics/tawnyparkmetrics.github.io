@@ -303,6 +303,16 @@ export default function ConsensusFAQPage() {
             )
         },
         {
+            id: 'years-back',
+            title: 'How many years does this consensus go back?',
+            content: (
+                <p>
+                    Often referred to as the "<strong>Draft Twitter Megaboard</strong>", this consensus was founded by <strong>Mike Gribanov</strong> (<a href="https://x.com/mikegrib8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@mikegrib8</a>) and company in 2018. However, currently,
+                    TPM only has access to consensus boards starting in 2020. Therefore, <strong>2020 is the oldest consensus displayed on the site.</strong> If possible, we will add and evaluate older boards in future work.
+                </p>
+            )
+        },
+        {
             id: 'ranking-method',
             title: 'How are prospects ranked?',
             content: (
@@ -375,16 +385,6 @@ export default function ConsensusFAQPage() {
                         To easily reference this explanation in card view, hover over (on PC) or tap (on mobile) the ? icon. You can also find this data in table view under the "Consensus Rank" and "Consensus Range" customize table column headers.
                     </p>
                 </div>
-            )
-        },
-        {
-            id: 'years-back',
-            title: 'How many years does this consensus go back?',
-            content: (
-                <p>
-                    Often referred to as the "<strong>Draft Twitter Megaboard</strong>", this consensus was founded by <strong>Mike Gribanov</strong> (<a href="https://x.com/mikegrib8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@mikegrib8</a>) and company in 2018. However, currently,
-                    TPM only has access to consensus boards starting in 2020. Therefore, <strong>2020 is the oldest consensus displayed on the site.</strong> If possible, we will add and evaluate older boards in future work.
-                </p>
             )
         },
         {
@@ -786,6 +786,20 @@ export default function ConsensusFAQPage() {
                             >
                                 {section.content}
                             </DropdownSection>
+                            {section.id === 'years-back' && (
+                                <div className="flex items-center my-8">
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                    <span className="px-4 text-gray-400 text-sm font-medium tracking-wider">PROSPECTS</span>
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                </div>
+                            )}
+                            {section.id === 'how-many-boards' && (
+                                <div className="flex items-center my-8">
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                    <span className="px-4 text-gray-400 text-sm font-medium tracking-wider">BOARDS</span>
+                                    <div className="flex-grow h-px bg-gray-400"></div>
+                                </div>
+                            )}
                             {section.id === 'board-priority' && (
                                 <div className="flex items-center my-8">
                                     <div className="flex-grow h-px bg-gray-400"></div>
@@ -793,7 +807,7 @@ export default function ConsensusFAQPage() {
                                     <div className="flex-grow h-px bg-gray-400"></div>
                                 </div>
                             )}
-                            {section.id === 'evaluation-limitations' && (
+                            {section.id === 'what-are-the-board-in-evaluation' && (
                                 <div className="flex items-center my-8">
                                     <div className="flex-grow h-px bg-gray-400"></div>
                                     <span className="px-4 text-gray-400 text-sm font-medium tracking-wider">LOGISTICS</span>

@@ -146,13 +146,13 @@ const EvaluationExplanation: React.FC<EvaluationExplanationProps> = ({
                                                 <span className="text-white">lower value = more predictive</span> (opportunity cost – weighted error)
                                             </div>
                                             <div>
-                                                <span className="font-bold text-white">{parameter} Rank</span> – where does each board's {parameter} rank in terms of overall predictive value?
+                                                <span className="font-bold text-white">{parameter} Rank</span> – where does each board's {parameter} rank in terms of overall predictive value? Derived from combined (average) Redraft, EPM, & EW performance, each converted to percentiles.
                                             </div>
                                         </div>
 
                                         {/* Methodology Note */}
                                         <p className="text-sm italic leading-relaxed">
-                                            <span className="font-bold text-white">Think of each draft board as the order in which an analyst would have selected prospects if they, theoretically, controlled every pick in the draft</span>. The values you see for Redraft, EPM, & EW are measures of average opportunity cost. <span className="font-bold text-white">If the NBA had drafted exclusively from this analyst's board, on average, each team would have "lost" or missed out on ( ____ criteria), compared to the optimal (criteria) redraft order</span>.
+                                            <span className="font-bold text-white">Think of each draft board as the order in which an analyst would have selected prospects if they, theoretically, controlled every pick in the draft</span>. The values you see for Redraft, EPM, & EW are measures of average opportunity cost. If the NBA had drafted exclusively from this analyst's board, on average, each team would have "lost" or missed out on ( ____ criteria), compared to the optimal (criteria) redraft order.
                                         </p>
                                         <p className="text-sm mt-2">
                                             For further information, please refer to the <a href="https://tawnyparkmetrics.com/consensus-nba-draft-board-write-up" target="_blank" rel="noopener noreferrer" className='text-blue-400 hover:text-blue-300 underline'>Consensus Write-Up</a>.

@@ -99,12 +99,17 @@ export default function Home() {
 
           {/* Nick Kalinowski's Draft Board Card */}
           <Link href="/nick-nba-draft-board" className="block">
-            <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
+            <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full relative">
+              <img 
+                src="/nbateam_logos/Denver Nuggets.png" 
+                alt="Denver Nuggets Logo" 
+                className="absolute top-4 right-4 w-12 h-12 opacity-50 grayscale group-hover:grayscale-0 opacity-90 transition-opacity"
+              />
               <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
                 Nick&apos;s Draft Board
               </h2>
               <p className="text-gray-400">
-                Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@kalidrafts</a>&apos;s model ranking prospects by predicted EPM using 500+ unique predictors.
+                Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@kalidrafts</a>&apos;s model ranking prospects by predicted EPM. Nick now works for the Denver Nuggets.
               </p>
             </div>
           </Link>
