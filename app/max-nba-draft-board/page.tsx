@@ -1965,7 +1965,7 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [displayedProspects, setDisplayedProspects] = useState<number>(5);
   const [isLoading, setIsLoading] = useState(false);
-  const [, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [tierRankActive, setTierRankActive] = useState(true); // Always start with tiers active
 
   // Update the effect to use 'Avg. Rank Y1-Y5' for both years
@@ -1993,25 +1993,26 @@ function TimelineSlider({ initialProspects, selectedYear, setSelectedYear }: {
   // Handle scroll event for infinite loading
   useEffect(() => {
     const handleScroll = () => {
-      if (viewMode !== 'cards' || isLoading) return;
-
+      if (viewMode !== 'cards' || isLoading) return; // Don't check isMobile here!
+  
       const scrollPosition = window.scrollY + window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
-
+  
       // Load more when user is near bottom (within 100px)
       if (documentHeight - scrollPosition < 100) {
         setIsLoading(true);
+        const loadAmount = isMobile ? 10 : 20;
         // Simulate loading delay
         setTimeout(() => {
-          setDisplayedProspects(prev => prev + 20);
+          setDisplayedProspects(prev => prev + loadAmount);
           setIsLoading(false);
         }, 500);
       }
     };
-
+  
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [viewMode, isLoading]);
+  }, [viewMode, isLoading, isMobile]);
   
 
   // Reset displayed prospects when filters change

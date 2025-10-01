@@ -143,8 +143,8 @@ export interface BaseProspect {
     'Role': string;
     'Age': string;
     'Tier': string;
-    'Draft Year'?: string; // Add Draft Year to help with uniqueness
-    'Nationality'?: string; // Add National column for nationality
+    'Draft Year'?: string;
+    'Nationality'?: string;
     [key: string]: any;
 }
 
@@ -152,12 +152,12 @@ export interface ProspectTableProps<T extends BaseProspect> {
     prospects: T[];
     rankingSystem: Map<string, number>;
     initialColumns: ColumnConfig[];
-    tierRankMap?: { [key: string]: number }; // For custom tier sorting
+    tierRankMap?: { [key: string]: number };
     className?: string;
-    categories?: string[]; // Optional: pass custom categories
-    lockedColumns?: string[]; // Optional: specify which columns can't be toggled
-    showTierPrefix?: boolean; // Optional: whether to show "Tier" prefix
-    draftYear?: string; // Add draftYear prop to conditionally show Draft Year column
+    categories?: string[];
+    lockedColumns?: string[];
+    showTierPrefix?: boolean;
+    draftYear?: string;
 }
 
 export function ProspectTable<T extends BaseProspect>({
@@ -179,53 +179,75 @@ export function ProspectTable<T extends BaseProspect>({
     // Filter columns based on draftYear - only show Draft Year column for 2020-2025
     const filteredInitialColumns = useMemo(() => {
         if (draftYear === '2020-2025') {
-            // Show all columns including Draft Year
             return initialColumns;
         } else {
-            // Filter out Draft Year column for single year views
             return initialColumns.filter(col => col.key !== 'Draft Year');
         }
     }, [initialColumns, draftYear]);
 
-    // Auto-generate a unique identifier based on the column structure
-    const tableId = useMemo(() => {
-        // Create a hash-like identifier from the column keys and categories
-        const columnSignature = filteredInitialColumns
-            .map(col => `${col.key}:${col.category}`)
-            .sort()
-            .join('|');
-
-        // Simple hash function to create a shorter, consistent identifier
-        let hash = 0;
-        for (let i = 0; i < columnSignature.length; i++) {
-            const char = columnSignature.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convert to 32-bit integer
+    // Use the current page URL path as the storage key (calculated once on mount)
+    const storageKey = useMemo(() => {
+        if (typeof window !== 'undefined') {
+            const pathname = window.location.pathname;
+            const sanitized = pathname.replace(/[^a-zA-Z0-9]/g, '-');
+            const key = `prospect-table-columns${sanitized}`;
+            console.log('🔑 Storage key created:', key, 'from pathname:', pathname);
+            return key;
         }
-
-        return `table-${Math.abs(hash)}`;
-    }, [filteredInitialColumns]);
-
-    // Create a storage key based on auto-generated tableId for persistence
-    const storageKey = `prospect-table-columns-${tableId}`;
+        return 'prospect-table-columns-default';
+    }, []);
 
     // Load saved column visibility state on component mount
     useEffect(() => {
         try {
             const savedState = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            console.log('📥 Loading saved state:', savedState);
+            console.log('📋 Available columns:', filteredInitialColumns.map(c => c.key));
 
-            // Merge saved visibility state with filtered initial columns
             const updatedColumns = filteredInitialColumns.map(col => ({
                 ...col,
                 visible: savedState[col.key] !== undefined ? savedState[col.key] : col.visible
             }));
 
+            console.log('✅ Updated columns:', updatedColumns.map(c => `${c.key}: ${c.visible}`));
             setColumns(updatedColumns);
         } catch (error) {
             console.warn('Failed to load saved column state:', error);
             setColumns(filteredInitialColumns);
         }
-    }, [filteredInitialColumns, storageKey]);
+    }, [storageKey]); // Only re-run when storageKey changes (which it shouldn't)
+
+    // Separate effect to update columns when filteredInitialColumns changes (e.g., year switch)
+    useEffect(() => {
+        if (columns.length === 0) return; // Skip if columns not yet initialized
+
+        // Only sync if the column keys have actually changed (not just reference)
+        const currentKeys = new Set(columns.map(c => c.key));
+        const newKeys = new Set(filteredInitialColumns.map(c => c.key));
+        
+        const keysChanged = currentKeys.size !== newKeys.size || 
+            [...currentKeys].some(key => !newKeys.has(key));
+
+        if (!keysChanged) return; // Skip if just a reference change, not actual column changes
+
+        try {
+            const rawValue = localStorage.getItem(storageKey);
+            console.log('🔄 Raw localStorage value:', rawValue, 'for key:', storageKey);
+            
+            const savedState = JSON.parse(rawValue || '{}');
+            console.log('🔄 Updating columns for new data, saved state:', savedState);
+
+            const updatedColumns = filteredInitialColumns.map(col => ({
+                ...col,
+                visible: savedState[col.key] !== undefined ? savedState[col.key] : col.visible
+            }));
+
+            console.log('🔄 Reapplied columns:', updatedColumns.map(c => `${c.key}: ${c.visible}`));
+            setColumns(updatedColumns);
+        } catch (error) {
+            console.warn('Failed to update column state:', error);
+        }
+    }, [filteredInitialColumns, columns, storageKey]);
 
     // Save column visibility state whenever it changes
     const saveColumnState = useCallback((updatedColumns: ColumnConfig[]) => {
@@ -235,6 +257,7 @@ export function ProspectTable<T extends BaseProspect>({
                 return acc;
             }, {} as Record<string, boolean>);
 
+            console.log('💾 Saving state:', visibilityState); // Debug log
             localStorage.setItem(storageKey, JSON.stringify(visibilityState));
         } catch (error) {
             console.warn('Failed to save column state:', error);
@@ -255,7 +278,6 @@ export function ProspectTable<T extends BaseProspect>({
 
     // Column selector functionality built directly into the component
     const handleToggleColumn = useCallback((key: string) => {
-        // Prevent toggling locked columns
         if (lockedColumns.includes(key)) return;
 
         const updatedColumns = columns.map(col =>
@@ -267,7 +289,6 @@ export function ProspectTable<T extends BaseProspect>({
     }, [columns, lockedColumns, saveColumnState]);
 
     const handleToggleCategory = useCallback((category: string) => {
-        // Filter out locked columns from category columns
         const categoryColumns = columns.filter(col =>
             col.category === category && !lockedColumns.includes(col.key)
         );
@@ -289,19 +310,16 @@ export function ProspectTable<T extends BaseProspect>({
     // Helper function to format tier display
     const formatTierDisplay = (tierValue: string | number): string => {
         if (!tierValue && tierValue !== 0) return '';
-
-        // Always add "Tier" prefix to the number
         return `Tier ${tierValue}`;
     };
 
     // Helper function to create a unique identifier for each prospect
     const createUniqueId = (prospect: T): string => {
-        // Create a unique identifier using Name, Pre-NBA, and Draft Year (if available)
         const parts = [
             prospect.Name,
             prospect['Pre-NBA'],
             prospect['Draft Year'] || '',
-            prospect['NBA Team'] // Add NBA Team as additional differentiator
+            prospect['NBA Team']
         ];
         return parts.join('|');
     };
@@ -309,7 +327,6 @@ export function ProspectTable<T extends BaseProspect>({
     const sortedProspects = useMemo(() => {
         if (!sortConfig) return prospects;
 
-        // Create prospects with unique identifiers and original indices for stable sorting
         const prospectsWithId = prospects.map((prospect, originalIndex) => ({
             ...prospect,
             _uniqueId: createUniqueId(prospect),
@@ -328,7 +345,6 @@ export function ProspectTable<T extends BaseProspect>({
                 bValue = b[sortConfig.key];
             }
 
-            // Handle NA values
             const isNAValue = (value: unknown): boolean => {
                 if (value === null || value === undefined) return true;
                 if (typeof value === 'string') {
@@ -340,29 +356,23 @@ export function ProspectTable<T extends BaseProspect>({
             const aIsNA = isNAValue(aValue);
             const bIsNA = isNAValue(bValue);
 
-            // Put NA values at the end
             if (aIsNA && !bIsNA) return 1;
             if (!aIsNA && bIsNA) return -1;
             if (aIsNA && bIsNA) {
-                // For NA values, maintain stable sort using unique ID and original index
                 const uniqueIdCompare = a._uniqueId.localeCompare(b._uniqueId);
                 return uniqueIdCompare !== 0 ? uniqueIdCompare : a._originalIndex - b._originalIndex;
             }
 
-            // Handle Tier column with custom ranking
             if (sortConfig.key === 'Tier') {
                 if (tierRankMap) {
-                    // Use custom tier ranking map if provided
                     const aRank = tierRankMap[aValue as keyof typeof tierRankMap] || 999;
                     const bRank = tierRankMap[bValue as keyof typeof tierRankMap] || 999;
                     const tierCompare = sortConfig.direction === 'ascending'
                         ? aRank - bRank
                         : bRank - aRank;
 
-                    // If tier ranks are equal, use stable sort
                     return tierCompare !== 0 ? tierCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
                 } else {
-                    // Default numeric sorting for tier
                     const aNum = parseInt(aValue as string) || 0;
                     const bNum = parseInt(bValue as string) || 0;
                     const tierCompare = sortConfig.direction === 'ascending'
@@ -373,7 +383,6 @@ export function ProspectTable<T extends BaseProspect>({
                 }
             }
 
-            // Handle Height (convert to inches)
             if (sortConfig.key === 'Height') {
                 const aNum = parseFloat(a['Height (in)'] as string) || 0;
                 const bNum = parseFloat(b['Height (in)'] as string) || 0;
@@ -384,7 +393,6 @@ export function ProspectTable<T extends BaseProspect>({
                 return heightCompare !== 0 ? heightCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
-            // Handle Wingspan (convert to inches)
             if (sortConfig.key === 'Wingspan') {
                 const aNum = parseFloat(a['Wingspan (in)'] as string) || 0;
                 const bNum = parseFloat(b['Wingspan (in)'] as string) || 0;
@@ -395,7 +403,6 @@ export function ProspectTable<T extends BaseProspect>({
                 return wingspanCompare !== 0 ? wingspanCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
-            // Handle Weight
             if (sortConfig.key === 'Weight (lbs)') {
                 const aNum = parseInt(aValue as string) || 0;
                 const bNum = parseInt(bValue as string) || 0;
@@ -406,7 +413,6 @@ export function ProspectTable<T extends BaseProspect>({
                 return weightCompare !== 0 ? weightCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
-            // Handle Age
             if (sortConfig.key === 'Age') {
                 const aNum = parseFloat(aValue as string) || 0;
                 const bNum = parseFloat(bValue as string) || 0;
@@ -417,7 +423,6 @@ export function ProspectTable<T extends BaseProspect>({
                 return ageCompare !== 0 ? ageCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
-            // Handle Draft Year
             if (sortConfig.key === 'Draft Year') {
                 const aNum = parseInt(aValue as string) || 0;
                 const bNum = parseInt(bValue as string) || 0;
@@ -428,17 +433,14 @@ export function ProspectTable<T extends BaseProspect>({
                 return yearCompare !== 0 ? yearCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
-            // For numeric columns, try to parse as numbers
             const aNum = parseFloat(aValue as string);
             const bNum = parseFloat(bValue as string);
 
             if (!isNaN(aNum) && !isNaN(bNum)) {
-                // Both are valid numbers
                 const numericCompare = sortConfig.direction === 'ascending' ? aNum - bNum : bNum - aNum;
                 return numericCompare !== 0 ? numericCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
-            // Default string comparison for non-numeric values
             const aStr = aValue === undefined ? '' : String(aValue);
             const bStr = bValue === undefined ? '' : String(bValue);
 
@@ -449,12 +451,10 @@ export function ProspectTable<T extends BaseProspect>({
                 stringCompare = bStr.localeCompare(aStr);
             }
 
-            // If string comparison is equal, use secondary sort by Draft Pick (ascending - lower pick numbers first)
             if (stringCompare === 0) {
                 const aPickValue = a['Actual Pick'];
                 const bPickValue = b['Actual Pick'];
 
-                // Handle "Undrafted" or picks >= 61 as higher numbers
                 const getPickNumber = (pick: any): number => {
                     if (!pick) return 999;
                     const pickNum = Number(pick);
@@ -464,28 +464,25 @@ export function ProspectTable<T extends BaseProspect>({
                 const aPickNum = getPickNumber(aPickValue);
                 const bPickNum = getPickNumber(bPickValue);
 
-                const pickCompare = aPickNum - bPickNum; // Always ascending for draft pick
+                const pickCompare = aPickNum - bPickNum;
                 return pickCompare !== 0 ? pickCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
 
             return stringCompare;
         });
 
-        // Remove the added properties before returning
         return sortableProspects.map((item) => {
             const { _uniqueId, _originalIndex, ...prospect } = item;
             return prospect;
         }) as unknown as T[];
     }, [prospects, sortConfig, tierRankMap, rankingSystem]);
 
-    // Get unique categories from columns or use passed categories
     const displayCategories = categories || [...new Set((columns || []).map(col => col.category))];
 
     // Helper function to render cell content
     const renderCell = (prospect: T, column: ColumnConfig) => {
         const key = column.key as keyof T;
 
-        // Handle special cases for different column types
         if (column.key === 'Rank') {
             return (
                 <TableCell key={column.key} className="text-gray-300 font-semibold text-center">
@@ -532,7 +529,6 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-
         if (column.key === 'NBA Team') {
             return (
                 <TableCell key={column.key} className="text-gray-300 whitespace-nowrap">
@@ -561,7 +557,6 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        // Handle Draft Year column
         if (column.key === 'Draft Year') {
             return (
                 <TableCell key={column.key} className="text-gray-300 text-center">
@@ -570,7 +565,6 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        // Handle Height, Wingspan, Wing - Height, Weight, and Age columns with centering
         if (['Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', 'Age'].includes(column.key)) {
             return (
                 <TableCell key={column.key} className="text-gray-300 text-center">
@@ -579,7 +573,6 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        // Handle comparison columns
         if (['Comp1', 'Comp2', 'Comp3', 'Comp4', 'Comp5'].includes(column.key)) {
             const compValue = prospect[key];
             return (
@@ -589,89 +582,65 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        // Helper function to get blue gradient intensity for consensus range columns
         const getConsensusRankGradient = (value: any, key: string): { backgroundColor: string; color: string } => {
             if (value === null || value === undefined || value === '' || isNaN(parseFloat(String(value)))) {
-                return { backgroundColor: 'transparent', color: '#d1d5db' }; // gray-300
+                return { backgroundColor: 'transparent', color: '#d1d5db' };
             }
 
             const numValue = parseFloat(String(value));
             let intensity: number;
 
             if (key === 'COUNT') {
-                // For COUNT, higher values are better (more consensus)
-                // Normalize based on typical range (assume max around 150 contributors)
                 intensity = Math.min(numValue / 150, 1);
             } else if (key === 'RANGE') {
-                // For RANGE, lower values are better (less spread in rankings)
-                // Normalize based on typical range (assume max around 60)
                 const normalizedValue = Math.min(numValue / 60, 1);
-                intensity = 1 - normalizedValue; // Invert so lower range = brighter
+                intensity = 1 - normalizedValue;
             } else if (key === 'STDEV') {
-                // For STDEV, lower values are better (less deviation)
-                // Normalize based on typical range (assume max around 20)
                 const normalizedValue = Math.min(numValue / 20, 1);
-                intensity = 1 - normalizedValue; // Invert so lower stdev = brighter
+                intensity = 1 - normalizedValue;
             } else {
-                // For MEAN, MEDIAN, MODE, HIGH, LOW - lower ranks are better
-                // Normalize based on draft range (1-60)
                 const normalizedValue = Math.min(numValue / 60, 1);
-                intensity = 1 - normalizedValue; // Invert so lower rank = brighter
+                intensity = 1 - normalizedValue;
             }
 
-            // Ensure minimum visibility
             intensity = Math.max(0.1, Math.min(1, intensity));
 
-            // Create blue gradient
             const backgroundColor = `rgba(59, 130, 246, ${0.1 + intensity * 0.4})`;
             const textColor = intensity > 0.3 ? '#ffffff' : '#e5e7eb';
 
             return { backgroundColor, color: textColor };
         };
 
-        // Helper function to get blue gradient intensity for consensus range columns
         const getConsensusRangeGradient = (value: any, key: string): { backgroundColor: string; color: string } => {
             if (value === null || value === undefined || value === '' || isNaN(parseFloat(String(value)))) {
-                return { backgroundColor: 'transparent', color: '#d1d5db' }; // gray-300
+                return { backgroundColor: 'transparent', color: '#d1d5db' };
             }
 
             const numValue = parseFloat(String(value));
-
-            // For percentage values, higher percentages should be brighter blue
-            // Normalize to 0-1 range where 1 is brightest blue
-            const intensity = Math.min(numValue, 1); // Cap at 1 (100%)
-
-            // Create blue gradient - brighter blue for higher values, darker for lower
-            const blueIntensity = Math.max(0.1, intensity); // Minimum 10% intensity for visibility
-            const backgroundColor = `rgba(59, 130, 246, ${0.1 + blueIntensity * 0.4})`; // Blue with variable alpha
-            const textColor = intensity > 0.3 ? '#ffffff' : '#e5e7eb'; // White text for high intensity, light gray for low
+            const intensity = Math.min(numValue, 1);
+            const blueIntensity = Math.max(0.1, intensity);
+            const backgroundColor = `rgba(59, 130, 246, ${0.1 + blueIntensity * 0.4})`;
+            const textColor = intensity > 0.3 ? '#ffffff' : '#e5e7eb';
 
             return { backgroundColor, color: textColor };
         };
 
         const getEPMProjectionGradient = (value: any, key: string): { backgroundColor: string; color: string } => {
             if (value === null || value === undefined || value === '' || isNaN(parseFloat(String(value)))) {
-                return { backgroundColor: 'transparent', color: '#d1d5db' }; // gray-300
+                return { backgroundColor: 'transparent', color: '#d1d5db' };
             }
 
             const numValue = parseFloat(String(value));
-
-            // For EPM projections, lower rank numbers are better (rank 1 = brightest, rank 100 = darkest)
-            // Normalize based on 1-100 range
-            const normalizedValue = Math.min((numValue - 1) / 99, 1); // Convert 1-100 to 0-1 range
-            const intensity = 1 - normalizedValue; // Invert so rank 1 = intensity 1, rank 100 = intensity 0
-
-            // Ensure minimum visibility for very high ranks
+            const normalizedValue = Math.min((numValue - 1) / 99, 1);
+            const intensity = 1 - normalizedValue;
             const finalIntensity = Math.max(0.05, Math.min(1, intensity));
 
-            // Create blue gradient
             const backgroundColor = `rgba(59, 130, 246, ${0.1 + finalIntensity * 0.5})`;
             const textColor = finalIntensity > 0.4 ? '#ffffff' : '#e5e7eb';
 
             return { backgroundColor, color: textColor };
         };
 
-        // Handle Consensus Rank columns with blue gradient
         if (['MEAN', 'MEDIAN', 'MODE', 'HIGH', 'LOW', 'RANGE', 'STDEV', 'COUNT'].includes(column.key)) {
             const cellValue = prospect[key];
             let displayValue = '';
@@ -679,13 +648,11 @@ export function ProspectTable<T extends BaseProspect>({
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
                 const numValue = parseFloat(String(cellValue));
                 if (!isNaN(numValue)) {
-                    // Format based on column type
                     if (column.key === 'STDEV') {
                         displayValue = numValue.toFixed(1);
                     } else if (column.key === 'COUNT') {
                         displayValue = numValue.toString();
                     } else {
-                        // For rank columns, show as whole numbers or 1 decimal if needed
                         displayValue = numValue % 1 === 0 ? numValue.toString() : numValue.toFixed(1);
                     }
                 } else {
@@ -716,18 +683,15 @@ export function ProspectTable<T extends BaseProspect>({
                     let percentage: number;
                     
                     if (numValue <= 1) {
-                        // Likely decimal format, convert to percentage
                         percentage = numValue * 100;
                     } else {
-                        // Likely already in percentage format
                         percentage = numValue;
                     }
-
+                    
                     if (column.key === 'Inclusion Rate') {
-                        percentage = Math.round(percentage); // Round to the nearest integer
+                        percentage = Math.round(percentage);
                     }
                     
-                    // Format without unnecessary decimals
                     displayValue = `${percentage % 1 === 0 ? percentage.toString() : percentage.toFixed(1)}%`;
                 } else {
                     displayValue = String(cellValue);
@@ -749,7 +713,6 @@ export function ProspectTable<T extends BaseProspect>({
 
         if (['Pred. Y1 Rank', 'Pred. Y2 Rank', 'Pred. Y3 Rank', 'Pred. Y4 Rank', 'Pred. Y5 Rank', 'Y1 Rank', 'Y2 Rank', 'Y3 Rank', 'Y4 Rank', 'Y5 Rank', 'Rank Y1-Y3', 'Rank Y1-Y5'].includes(column.key)) {
             const cellValue = prospect[key];
-
             let displayValue = '';
 
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
@@ -765,9 +728,6 @@ export function ProspectTable<T extends BaseProspect>({
 
             const gradientStyle = getEPMProjectionGradient(cellValue, column.key);
 
-            // Debug the gradient style
-            console.log(`Gradient style for ${column.key}:`, gradientStyle);
-
             return (
                 <TableCell
                     key={column.key}
@@ -782,8 +742,6 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-
-        // Handle Rank columns - display as whole numbers
         if (column.key.includes('Rank') && !column.key.includes('Position')) {
             const rankValue = prospect[key];
             return (
@@ -793,10 +751,8 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        // Handle Tier column with color styling and conditional "Tier" prefix
         if (column.key === 'Tier') {
             const displayValue = showTierPrefix ? formatTierDisplay(prospect.Tier) : prospect.Tier;
-            // Use the original tier value for color lookup
             const tierColorKey = prospect.Tier;
 
             return (
@@ -817,7 +773,6 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        // Handle positionRanks object - skip it as it's not meant for display
         if (column.key === 'positionRanks') {
             return (
                 <TableCell key={column.key} className="text-gray-300">
@@ -826,7 +781,6 @@ export function ProspectTable<T extends BaseProspect>({
             );
         }
 
-        // Default case for other columns
         const cellValue = prospect[key];
         return (
             <TableCell key={column.key} className="text-gray-300">
@@ -837,9 +791,8 @@ export function ProspectTable<T extends BaseProspect>({
 
     return (
         <div className={`max-w-6xl mx-auto px-4 pt-2 ${className}`}>
-            {/* Built-in Column Selector - mimicking CustomSelector style */}
+            {/* Built-in Column Selector */}
             <div className="mb-4 relative">
-                {/* Toggle Button */}
                 <motion.button
                     onClick={() => setColumnSelectorOpen(!columnSelectorOpen)}
                     className="w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 bg-[#19191A] border border-gray-800 rounded-lg text-gray-400 hover:border-gray-700 transition-colors"
@@ -877,7 +830,6 @@ export function ProspectTable<T extends BaseProspect>({
                     <div className="bg-[#19191A] border border-gray-800 rounded-lg p-3 md:p-4 mt-2 shadow-lg max-h-[80vh] overflow-y-auto">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                             {displayCategories.map(category => {
-                                // Filter out locked columns from the dropdown options
                                 const categoryColumns = columns.filter(col =>
                                     col.category === category && !lockedColumns.includes(col.key)
                                 );
@@ -893,7 +845,7 @@ export function ProspectTable<T extends BaseProspect>({
                                                     e.stopPropagation();
                                                     handleToggleCategory(category);
                                                 }}
-                                                className="text-xs text-gray-300 hover:text-white px-1.5 md:px-2 py-0.5 md:py-1 rounded hover:bg-gray-800/50 transition-colors"
+                                                className="text-xs text-gray-300 hover:text-white px-1.5 md:px-2 py-0.5 md:py-1 rounded hover:bg-[#19191A] transition-colors"
                                             >
                                                 {visibleCount === totalCount ? 'Hide All' : 'Show All'}
                                             </button>
@@ -902,7 +854,7 @@ export function ProspectTable<T extends BaseProspect>({
                                             {categoryColumns.map(column => (
                                                 <div
                                                     key={column.key}
-                                                    className="flex items-center gap-2 md:gap-3 p-1.5 md:p-2 rounded hover:bg-gray-800/50 cursor-pointer transition-colors"
+                                                    className="flex items-center gap-2 md:gap-3 p-1.5 md:p-2 rounded hover:bg-[#19191A] cursor-pointer transition-colors"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleToggleColumn(column.key);
@@ -960,17 +912,15 @@ export function ProspectTable<T extends BaseProspect>({
                                 <TableHead
                                     key={column.key}
                                     className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'} ${
-                                        // Center specific columns that should be centered
                                         ['Draft Age', 'Age', 'Actual Pick', 'Draft Year', 'Height', 'Wingspan', 'Wing - Height', 'Weight (lbs)', '1 - 3', '4 - 14', '15 - 30', '2nd Round', 'Inclusion Rate'].includes(column.key) ? 'text-center' : ''
                                         }`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T | 'Rank')}
                                 >
-                                    {/* Display shortened labels for Range Consensus columns in table headers */}
                                     {['1 - 3', '4 - 14', '15 - 30', '2nd Round'].includes(column.key)
-                                        ? column.key  // Show just "1 - 3", "4 - 14", etc.
+                                        ? column.key
                                         : column.key === 'Inclusion Rate'
-                                            ? 'IR'  // Show "IR" for Inclusion Rate
-                                            : column.label  // Show full label for all other columns
+                                            ? 'IR'
+                                            : column.label
                                     }
                                     {column.sortable && sortConfig?.key === column.key && (
                                         <span className="ml-1">

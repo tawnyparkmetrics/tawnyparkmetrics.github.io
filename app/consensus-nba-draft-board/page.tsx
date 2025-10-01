@@ -970,6 +970,7 @@ interface ProspectFilterProps {
     onViewModeChange?: (mode: 'card' | 'table' | 'contributors') => void;
     selectedYear?: '2025' | '2024' | '2023' | '2022' | '2021' | '2020';
     onYearChange?: (year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020') => void;
+    id?: string;
 }
 
 const ConsensusFilter: React.FC<ProspectFilterProps> = ({
@@ -978,7 +979,8 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
     onRankingSystemChange,
     onViewModeChange,
     selectedYear,
-    onYearChange
+    onYearChange,
+    id
 }) => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [roleFilter, setRoleFilter] = useState<'all' | 'Guard' | 'Wing' | 'Big'>('all');
@@ -1084,7 +1086,7 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
     console.log('Current viewMode in render:', viewMode);
 
     return (
-        <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
+        <div id={id} className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800 max-w-6xl mx-auto">
             {/* Mobile Initial Filter Section */}
             <div className="sm:hidden px-4 py-2">
                 <div className="flex items-center justify-between gap-2">
@@ -1499,12 +1501,30 @@ export default function ConsensusPage() {
     const [selectedYear, setSelectedYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020'>('2025');
     const [contributorEvaluations, setContributorEvaluations] = useState<BaseContributorEvaluation[]>([]);
     const [consensusFilter, setConsensusFilter] = useState<'lottery' | 'top30' | 'top60'>('lottery');
+    const [filterHeight, setFilterHeight] = useState(0);
 
     useEffect(() => {
         // Clear any existing table column state to respect initial visibility settings
         const storageKeys = Object.keys(localStorage).filter(key => key.startsWith('prospect-table-columns-'));
         storageKeys.forEach(key => localStorage.removeItem(key));
     }, [selectedYear]);
+
+    useEffect(() => {
+        const measureFilter = () => {
+            const filter = document.getElementById('consensus-filter');
+            if (filter) {
+                setFilterHeight(filter.offsetHeight);
+            }
+        };
+
+        measureFilter();
+        window.addEventListener('resize', measureFilter);
+
+        // Small delay to ensure DOM is ready
+        setTimeout(measureFilter, 100);
+
+        return () => window.removeEventListener('resize', measureFilter);
+    }, [viewMode]);
 
     // Define column configuration with proper Player Information order
     const initialColumns: ColumnConfig[] = [
@@ -1705,6 +1725,7 @@ export default function ConsensusPage() {
         return globalAnalysis;
     }, [consensusMap]);
 
+
     // Run global analysis when data is loaded
     useEffect(() => {
         if (Object.keys(consensusMap).length > 0) {
@@ -1776,7 +1797,7 @@ export default function ConsensusPage() {
 
     // Handle scroll event for infinite loading - only on desktop
     useEffect(() => {
-        if (viewMode !== 'card' || isLoading || !hasMore || isMobile) return;
+        if (viewMode !== 'card' || isLoading) return; // Don't check isMobile here!
 
         const handleScroll = () => {
             const scrollPosition = window.scrollY + window.innerHeight;
@@ -1785,9 +1806,11 @@ export default function ConsensusPage() {
             if (documentHeight - scrollPosition < 100) {
                 setIsLoading(true);
 
+                const loadAmount = isMobile ? 10 : 20;
+
                 requestAnimationFrame(() => {
                     setLoadedProspects(prev => {
-                        const newCount = prev + 20;
+                        const newCount = prev + loadAmount;
                         setHasMore(newCount < filteredProspects.length);
                         return newCount;
                     });
@@ -1802,16 +1825,9 @@ export default function ConsensusPage() {
 
     // Reset loaded prospects when filters change
     useEffect(() => {
-        if (isMobile) {
-            // On mobile, show all prospects
-            setLoadedProspects(filteredProspects.length);
-            setHasMore(false);
-        } else {
-            // On desktop, start with 5 prospects
-            setLoadedProspects(20);
-            setHasMore(filteredProspects.length > 20);
-        }
-    }, [filteredProspects, isMobile]);
+        setLoadedProspects(10);
+        setHasMore(filteredProspects.length > 20);
+    }, [filteredProspects]);
 
     return (
         <div className="min-h-screen bg-[#19191A]">
@@ -1820,6 +1836,7 @@ export default function ConsensusPage() {
             <GoogleAnalytics gaId="G-X22HKJ13B7" />
             {viewMode !== 'contributors' ? (
                 <ConsensusFilter
+                    id="consensus-filter"  // Add this
                     prospects={prospects}
                     onFilteredProspectsChange={setFilteredProspects}
                     onRankingSystemChange={setRankingSystem}
@@ -2110,7 +2127,7 @@ export default function ConsensusPage() {
             ) : filteredProspects.length > 0 ? (
                 viewMode === 'card' ? (
                     <div className="space-y mt-6">
-                        {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
+                        {filteredProspects.slice(0, loadedProspects).map((prospect) => (
                             <ConsensusPageProspectCard
                                 key={prospect.Name}
                                 prospect={prospect}

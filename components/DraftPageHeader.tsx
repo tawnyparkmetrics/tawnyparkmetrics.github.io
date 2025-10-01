@@ -37,7 +37,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Nick Kalinowski':
         return (
           <>
-            Ranking prospects by predicted EPM using 500+ unique predictors. You can find the full collection of Nick's at <a href="https://kalidrafts.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">kalidrafts.com</a>.
+            Ranking prospects by predicted EPM using 500+ unique predictors. Nick now works for the Denver Nuggets. You can find the full collection of Nick's public work at <a href="https://kalidrafts.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">kalidrafts.com</a>.
           </>
         );
       case 'Andre Liu':

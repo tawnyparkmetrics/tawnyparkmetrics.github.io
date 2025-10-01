@@ -793,7 +793,7 @@ export default function ConsensusFAQPage() {
                                     <div className="flex-grow h-px bg-gray-400"></div>
                                 </div>
                             )}
-                            {section.id === 'how-many-boards' && (
+                            {section.id === 'graphs-stats' && (
                                 <div className="flex items-center my-8">
                                     <div className="flex-grow h-px bg-gray-400"></div>
                                     <span className="px-4 text-gray-400 text-sm font-medium tracking-wider">BOARDS</span>
@@ -813,7 +813,7 @@ export default function ConsensusFAQPage() {
                                     <span className="px-4 text-gray-400 text-sm font-medium tracking-wider">LOGISTICS</span>
                                     <div className="flex-grow h-px bg-gray-400"></div>
                                 </div>
-                            )}
+                            )} 
                             {section.id === 'further-questions' && (
                                 <div className="flex items-center my-8">
                                     <div className="flex-grow h-px bg-gray-400"></div>

@@ -36,6 +36,7 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --table-header-top: calc(3.5rem + 120px); /* 3.5rem for top-14, plus approximate filter height */
   }
   .dark {
     --background: 222.2 84% 4.9%;
@@ -74,7 +75,11 @@ body {
   }
 }
 
-
+@media (max-width: 640px) {
+  :root {
+    --table-header-top: calc(3.5rem + 180px); /* Adjust based on mobile filter height */
+  }
+}
 
 @layer base {
   * {

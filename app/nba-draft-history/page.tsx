@@ -694,23 +694,23 @@ export default function DraftHistoryPage() {
                 // Reset state when switching years
                 setLoadedProspects(5);
                 setHasMore(true);
-    
+
                 if (draftYear === '2020-2025') {
                     // Load all years and combine them
                     const years = ['2025', '2024', '2023', '2022', '2021', '2020'];
                     const allProspects: DraftProspect[] = [];
-    
+
                     for (const year of years) {
                         try {
                             const response = await fetch(`/NBA Draft History - ${year} NBA Draft.csv`);
-                            
+
                             if (!response.ok) {
                                 console.warn(`Could not load ${year} draft data: ${response.status}`);
                                 continue; // Skip this year if file doesn't exist
                             }
-    
+
                             const csvText = await response.text();
-    
+
                             await new Promise<void>((resolve) => {
                                 Papa.parse(csvText, {
                                     header: true,
@@ -733,20 +733,20 @@ export default function DraftHistoryPage() {
                             continue; // Continue loading other years even if one fails
                         }
                     }
-    
+
                     console.log(`Total loaded prospects for 2020-2025: ${allProspects.length}`);
                     setProspects(allProspects);
                     setFilteredProspects(allProspects);
                 } else {
                     // Load single year (existing logic)
                     const response = await fetch(`/NBA Draft History - ${draftYear} NBA Draft.csv`);
-    
+
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-    
+
                     const csvText = await response.text();
-    
+
                     Papa.parse(csvText, {
                         header: true,
                         skipEmptyLines: true,
@@ -770,7 +770,7 @@ export default function DraftHistoryPage() {
                 setFilteredProspects([]);
             }
         }
-    
+
         fetchDraftProspects();
     }, [draftYear]);
 
@@ -804,7 +804,7 @@ export default function DraftHistoryPage() {
 
     // Handle scroll event for infinite loading - only on desktop
     useEffect(() => {
-        if (viewMode !== 'card' || isLoading || !hasMore || isMobile) return;
+        if (viewMode !== 'card' || isLoading) return; // Don't check isMobile here!
 
         const handleScroll = () => {
             const scrollPosition = window.scrollY + window.innerHeight;
@@ -813,9 +813,11 @@ export default function DraftHistoryPage() {
             if (documentHeight - scrollPosition < 100) {
                 setIsLoading(true);
 
+                const loadAmount = isMobile ? 10 : 20;
+
                 requestAnimationFrame(() => {
                     setLoadedProspects(prev => {
-                        const newCount = prev + 20;
+                        const newCount = prev + loadAmount;
                         setHasMore(newCount < filteredProspects.length);
                         return newCount;
                     });
@@ -830,16 +832,9 @@ export default function DraftHistoryPage() {
 
     // Reset loaded prospects when filters change
     useEffect(() => {
-        if (isMobile) {
-            // On mobile, show all prospects
-            setLoadedProspects(filteredProspects.length);
-            setHasMore(false);
-        } else {
-            // On desktop, start with 5 prospects
-            setLoadedProspects(20);
-            setHasMore(filteredProspects.length > 20);
-        }
-    }, [filteredProspects, isMobile]);
+        setLoadedProspects(10);
+        setHasMore(filteredProspects.length > 20);
+    }, [filteredProspects]);
 
     return (
         <div className="min-h-screen bg-[#19191A]">
@@ -863,7 +858,7 @@ export default function DraftHistoryPage() {
                 {filteredProspects.length > 0 ? (
                     viewMode === 'card' ? (
                         <div className="space-y-2">
-                            {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect, index) => (
+                            {filteredProspects.slice(0, loadedProspects).map((prospect) => (
                                 <HistoryPageProspectCard
                                     key={`${prospect.Name}-${prospect['Draft Year']}`} // Use unique key
                                     prospect={prospect}

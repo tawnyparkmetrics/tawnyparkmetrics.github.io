@@ -685,7 +685,7 @@ export default function NickDraftPage() {
 
   // Handle scroll event for infinite loading - only on desktop
   useEffect(() => {
-    if (viewMode !== 'card' || isLoading || !hasMore || isMobile) return;
+    if (viewMode !== 'card' || isLoading) return; // Don't check isMobile here!
 
     const handleScroll = () => {
       const scrollPosition = window.scrollY + window.innerHeight;
@@ -694,9 +694,11 @@ export default function NickDraftPage() {
       if (documentHeight - scrollPosition < 100) {
         setIsLoading(true);
 
+        const loadAmount = isMobile ? 10 : 20;
+
         requestAnimationFrame(() => {
           setLoadedProspects(prev => {
-            const newCount = prev + 20;
+            const newCount = prev + loadAmount;
             setHasMore(newCount < filteredProspects.length);
             return newCount;
           });
@@ -711,16 +713,9 @@ export default function NickDraftPage() {
 
   // Reset loaded prospects when filters change
   useEffect(() => {
-    if (isMobile) {
-      // On mobile, show all prospects
-      setLoadedProspects(filteredProspects.length);
-      setHasMore(false);
-    } else {
-      // On desktop, start with 5 prospects
-      setLoadedProspects(20);
-      setHasMore(filteredProspects.length > 20);
-    }
-  }, [filteredProspects, isMobile]);
+    setLoadedProspects(10);
+    setHasMore(filteredProspects.length > 20);
+  }, [filteredProspects]);
 
   return (
     <div className="min-h-screen bg-[#19191A]">
@@ -741,7 +736,7 @@ export default function NickDraftPage() {
         {filteredProspects.length > 0 ? (
           viewMode === 'card' ? (
             <div className="space-y-2">
-              {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect) => (
+              {filteredProspects.slice(0, loadedProspects).map((prospect) => (
                 <NickPageProspectCard
                   key={prospect.Name}
                   prospect={prospect}

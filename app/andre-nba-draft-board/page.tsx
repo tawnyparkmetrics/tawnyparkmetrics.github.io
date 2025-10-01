@@ -1038,7 +1038,7 @@ export default function AndreDraftPage() {
 
     // Handle scroll event for infinite loading - only on desktop
     useEffect(() => {
-        if (viewMode !== 'card' || isLoading || !hasMore || isMobile) return;
+        if (viewMode !== 'card' || isLoading) return; // Don't check isMobile here!
 
         const handleScroll = () => {
             const scrollPosition = window.scrollY + window.innerHeight;
@@ -1047,9 +1047,11 @@ export default function AndreDraftPage() {
             if (documentHeight - scrollPosition < 100) {
                 setIsLoading(true);
 
+                const loadAmount = isMobile ? 10 : 20;
+
                 requestAnimationFrame(() => {
                     setLoadedProspects(prev => {
-                        const newCount = prev + 20;
+                        const newCount = prev + loadAmount;
                         setHasMore(newCount < filteredProspects.length);
                         return newCount;
                     });
@@ -1064,16 +1066,9 @@ export default function AndreDraftPage() {
 
     // Reset loaded prospects when filters change
     useEffect(() => {
-        if (isMobile) {
-            // On mobile, show all prospects
-            setLoadedProspects(filteredProspects.length);
-            setHasMore(false);
-        } else {
-            // On desktop, start with 5 prospects
-            setLoadedProspects(20);
-            setHasMore(filteredProspects.length > 20);
-        }
-    }, [filteredProspects, isMobile]);
+        setLoadedProspects(10);
+        setHasMore(filteredProspects.length > 20);
+    }, [filteredProspects]);
 
     // Fix the filter state management to prevent infinite loops
     const handleFilterStateChange = useCallback((newFilterState: { roleFilter: 'all' | 'Guard' | 'Wing' | 'Big', selectedTier: string | null }) => {
@@ -1107,7 +1102,7 @@ export default function AndreDraftPage() {
                     viewMode === 'card' ? (
                         <motion.div layout className="space-y-2">
                             {/* AnimatePresence is removed as it's not used in the new ProspectTable */}
-                            {filteredProspects.slice(0, isMobile ? filteredProspects.length : loadedProspects).map((prospect, index) => (
+                            {filteredProspects.slice(0, loadedProspects).map((prospect, index) => (
                                     <motion.div
                                     key={prospect.Name}
                                         layout
