@@ -513,7 +513,7 @@ export default function ConsensusFAQPage() {
                         </li>
                     </ul>
                     <p className="mb-4">
-                        The resulting output is the <strong>average opportunity cost for each player ranked up to a certain cutoff.</strong> For instance, Kevin Pelton's 2020 board missed out on an average of 1.058 career avg. EPM, per player ranked Top-14 (lottery). The generalized way to interpret this output: <strong>for every suboptimal pick (i.e. rank), on average, the analysts would've "lost" _____.</strong>
+                        The resulting output is the <strong>average opportunity cost for each player ranked up to a certain cutoff.</strong> For instance, Kevin Pelton's 2020 board missed out on an average of 1.058 career avg. EPM, per player ranked Top-14 (lottery). The generalized way to interpret this output: <strong>for every suboptimal pick (i.e. rank), on average, the analyst would've "lost" _____.</strong>
                     </p>
                     <p className="mb-4">We incorporate <strong>two additional exploratory criteria:</strong></p>
                     <ol className="list-decimal list-inside space-y-2 ml-4 mb-4">

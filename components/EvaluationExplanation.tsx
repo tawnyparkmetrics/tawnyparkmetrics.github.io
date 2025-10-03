@@ -176,10 +176,6 @@ const EvaluationExplanation: React.FC<EvaluationExplanationProps> = ({
                     <p>
                         Players from this draft class have not finished, even, one full NBA season. Therefore, there is <span className="font-bold text-white">not yet any evaluation data, only exploratory analysis</span> to help indicate which boards were most/least correlated with consensus and the NBA Draft results. NBA Draft 'Top 60' is really only Top 59 (one forfeited 2nd round pick).
                     </p>
-                ) : selectedYear === '2020' || selectedYear === '2021' ? (
-                    <p>
-                        NBA Draft 'Top 60' is really only Top 58 (two forfeited 2nd round picks).
-                    </p>
                 ) : (
                     needsProgressCaveat() && (
                         <p>

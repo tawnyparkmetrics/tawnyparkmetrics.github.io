@@ -430,7 +430,25 @@ export function ProspectTable<T extends BaseProspect>({
                     ? aNum - bNum
                     : bNum - aNum;
 
-                return yearCompare !== 0 ? yearCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
+                // If years are the same, sort by draft order (Actual Pick)
+                if (yearCompare === 0) {
+                    const aPickValue = a['Actual Pick'];
+                    const bPickValue = b['Actual Pick'];
+
+                    const getPickNumber = (pick: any): number => {
+                        if (!pick) return 999;
+                        const pickNum = Number(pick);
+                        return pickNum >= 61 ? 999 : pickNum;
+                    };
+
+                    const aPickNum = getPickNumber(aPickValue);
+                    const bPickNum = getPickNumber(bPickValue);
+
+                    const pickCompare = aPickNum - bPickNum;
+                    return pickCompare !== 0 ? pickCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
+                }
+
+                return yearCompare;
             }
 
             const aNum = parseFloat(aValue as string);

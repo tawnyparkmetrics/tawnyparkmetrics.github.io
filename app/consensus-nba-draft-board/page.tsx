@@ -1114,7 +1114,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                                         bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
                                         flex items-center gap-1 flex-shrink-0
                                     `}
-                                    whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
                                     {selectedYear || '2025'}
@@ -1140,7 +1139,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                             <DropdownMenuTrigger asChild>
                                 <motion.button
                                     className="px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
-                                    whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
                                     {/* Mobile view - show current mode text */}
@@ -1308,7 +1306,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                                 <motion.button
                                     onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
                                     className={`w-20 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                                    whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
                                     Guards
@@ -1316,7 +1313,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                                 <motion.button
                                     onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
                                     className={`w-20 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                                    whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
                                     Wings
@@ -1324,7 +1320,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                                 <motion.button
                                     onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
                                     className={`w-20 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                                    whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
                                     Bigs
@@ -1340,7 +1335,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Guard' ? 'all' : 'Guard')}
                                 className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Guard' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                                whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 Guards
@@ -1348,7 +1342,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Wing' ? 'all' : 'Wing')}
                                 className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Wing' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                                whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 Wings
@@ -1356,7 +1349,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                             <motion.button
                                 onClick={() => setRoleFilter(roleFilter === 'Big' ? 'all' : 'Big')}
                                 className={`w-20 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${roleFilter === 'Big' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'}`}
-                                whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 Bigs
@@ -1377,7 +1369,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                                             bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700
                                             flex items-center gap-1
                                         `}
-                                        whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         {selectedYear || '2025'}
@@ -1411,7 +1402,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                                     ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                                     : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                                     }`}
-                                whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 <TrendingUp className="mr-1 h-4 w-4" />
@@ -1423,7 +1413,6 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
                                 <DropdownMenuTrigger asChild>
                                     <motion.button
                                         className="px-3 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-300 bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700"
-                                        whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         {/* Desktop view - show icons */}
@@ -1502,6 +1491,8 @@ export default function ConsensusPage() {
     const [contributorEvaluations, setContributorEvaluations] = useState<BaseContributorEvaluation[]>([]);
     const [consensusFilter, setConsensusFilter] = useState<'lottery' | 'top30' | 'top60'>('lottery');
     const [filterHeight, setFilterHeight] = useState(0);
+    const [showPercentile, setShowPercentile] = useState(false);
+
 
     useEffect(() => {
         // Clear any existing table column state to respect initial visibility settings
@@ -1866,13 +1857,12 @@ export default function ConsensusPage() {
                         {/* Controls Row */}
                         <div className="flex items-center justify-between gap-2">
                             {(selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') && (
-                                <div className="px-2 py-2 flex items-center gap-1 p-1 bg-gray-800/20 border border-gray-800 rounded-lg">
+                                <><div className="px-2 py-2 flex items-center gap-1 p-1 bg-gray-800/20 border border-gray-800 rounded-lg">
                                     <motion.button
                                         onClick={() => handleConsensusFilterChange('lottery')}
                                         className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'lottery'
                                             ? 'text-blue-400'
-                                            : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
-                                            }`}
+                                            : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'}`}
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         Lottery
@@ -1881,8 +1871,7 @@ export default function ConsensusPage() {
                                         onClick={() => handleConsensusFilterChange('top30')}
                                         className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top30'
                                             ? 'text-blue-400'
-                                            : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
-                                            }`}
+                                            : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'}`}
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         Top 30
@@ -1891,13 +1880,43 @@ export default function ConsensusPage() {
                                         onClick={() => handleConsensusFilterChange('top60')}
                                         className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top60'
                                             ? 'text-blue-400'
-                                            : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
-                                            }`}
+                                            : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'}`}
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         Top 60
                                     </motion.button>
                                 </div>
+                                    <motion.button
+                                        onClick={() => {
+                                            console.log('Button clicked! Current state:', showPercentile);
+                                            setShowPercentile(!showPercentile);
+                                            console.log('New state will be:', !showPercentile);
+                                        }}
+                                        className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${showPercentile
+                                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                            }`}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all duration-200 ${showPercentile
+                                                ? 'border-blue-400 bg-blue-400/20'
+                                                : 'border-gray-500 bg-transparent'
+                                            }`}>
+                                            {showPercentile && (
+                                                <svg
+                                                    className="w-2.5 h-2.5 text-blue-400"
+                                                    fill="none"
+                                                    strokeWidth="2.5"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                        Percentile
+                                    </motion.button>
+                                </>
                             )}
 
                             {/* Right Side Controls */}
@@ -1907,7 +1926,6 @@ export default function ConsensusPage() {
                                     <DropdownMenuTrigger asChild>
                                         <motion.button
                                             className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-1 flex-shrink-0"
-                                            whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                         >
                                             {selectedYear}
@@ -1932,7 +1950,6 @@ export default function ConsensusPage() {
                                     <DropdownMenuTrigger asChild>
                                         <motion.button
                                             className="px-3 py-2 rounded-lg text-sm font-medium flex items-center bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                                            whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                         >
                                             <TrendingUp className="mr-1 h-4 w-4" />
@@ -1983,7 +2000,6 @@ export default function ConsensusPage() {
                                     <motion.button
                                         onClick={() => setContributorSearch('')}
                                         className="flex items-center px-3 py-2 rounded-lg text-xs transition-all duration-300 text-red-400 hover:text-red-300 bg-gray-800/20 border border-gray-800 hover:border-red-700/30 whitespace-nowrap flex-shrink-0"
-                                        whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         <X className="h-4 w-4 mr-1" />
@@ -2028,6 +2044,37 @@ export default function ConsensusPage() {
                                             </motion.button>
                                         </div>
                                         <div className="h-6 w-px bg-gray-700/30 mx-1" />
+                                        <motion.button
+                                            onClick={() => {
+                                                console.log('Button clicked! Current state:', showPercentile);
+                                                setShowPercentile(!showPercentile);
+                                                console.log('New state will be:', !showPercentile);
+                                            }}
+                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${showPercentile
+                                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                                }`}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${showPercentile
+                                                ? 'border-blue-400 bg-blue-400/20'
+                                                : 'border-gray-500 bg-transparent'
+                                                }`}>
+                                                {showPercentile && (
+                                                    <svg
+                                                        className="w-3 h-3 text-blue-400"
+                                                        fill="none"
+                                                        strokeWidth="2.5"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                            Percentile
+                                        </motion.button>
+                                        <div className="h-6 w-px bg-gray-700/30 mx-1" />
                                     </>
                                 )}
 
@@ -2036,7 +2083,6 @@ export default function ConsensusPage() {
                                     <DropdownMenuTrigger asChild>
                                         <motion.button
                                             className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-1 flex-shrink-0"
-                                            whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                         >
                                             {selectedYear}
@@ -2061,7 +2107,6 @@ export default function ConsensusPage() {
                                     <DropdownMenuTrigger asChild>
                                         <motion.button
                                             className="px-3 py-2 rounded-lg text-sm font-medium flex items-center bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                                            whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                         >
                                             <TrendingUp className="mr-1 h-4 w-4" />
@@ -2110,14 +2155,16 @@ export default function ConsensusPage() {
                     <><EvaluationExplanation
                         selectedYear={selectedYear}
                         consensusFilter={consensusFilter} />
-
                         <ContributorEvaluationTable
                             evaluations={contributorEvaluations}
                             initialColumns={contributorColumns}
                             categories={['Board Information', 'Consensus', 'NBA Draft', 'Redraft', 'EPM', 'EW', 'Rankings']}
                             consensusFilter={consensusFilter}
                             onConsensusFilterChange={handleConsensusFilterChange}
-                            searchQuery={contributorSearch} />
+                            searchQuery={contributorSearch}
+                            year={parseInt(selectedYear)}
+                            showPercentile={showPercentile}
+                        />
                     </>
                 ) : (
                     <div className="text-center py-8 text-gray-400">
