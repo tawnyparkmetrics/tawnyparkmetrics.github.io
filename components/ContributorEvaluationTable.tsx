@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { EvaluatorPopUpModel } from './EvaluatorPopUp';
+
 
 // Column configuration interface for contributor evaluations
 export interface ContributorColumnConfig {
@@ -8,6 +10,7 @@ export interface ContributorColumnConfig {
     category: string;
     visible: boolean;
     sortable: boolean;
+    
 }
 
 // Base contributor evaluation interface
@@ -44,7 +47,7 @@ export interface BaseContributorEvaluation {
     'R-T60 %ile': string;
     'EPM-L %ile': string;
     'EPM-T30 %ile': string;
-    'EPM-T60 %ile': string; 
+    'EPM-T60 %ile': string;
     'EW-L &ile': string;
     'EW-T30 %ile': string;
     'EW-T60 %ile': string;
@@ -69,6 +72,7 @@ export interface ContributorEvaluationTableProps<T extends BaseContributorEvalua
     onSearchChange?: (query: string) => void;
     year?: number;
     showPercentile?: boolean;
+    rawCsvData?: string;
 }
 
 // Board anonymization configuration
@@ -99,12 +103,30 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
     searchQuery = '',
     year,
     showPercentile = false,
+    rawCsvData,
 }: ContributorEvaluationTableProps<T>) {
     const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'ascending' | 'descending' } | null>(null);
     const [columns, setColumns] = useState<ContributorColumnConfig[]>([]);
-    console.log('=== TABLE RENDER ===');
-    console.log('showPercentile prop:', showPercentile);
-    console.log('evaluations count:', evaluations.length);
+    const [modelOpen, setModelOpen] = useState(false);
+    const [selectedEvaluator, setSelectedEvaluator] = useState('');
+    console.log('ContributorEvaluationTable received rawCsvData:', rawCsvData ? rawCsvData.length : 'undefined');
+
+
+    const handleBoardClick = (boardName: string) => {
+        // Don't open modal for highlighted rows (Consensus, NBA)
+        if (isHighlightedRow(boardName)) {
+            return;
+        }
+
+        // Don't open modal for anonymized boards
+        if (ANONYMOUS_BOARD_NAMES[boardName]) {
+            return;
+        }
+
+        setSelectedEvaluator(boardName);
+        setModelOpen(true);
+    };
+
 
     // Auto-generate a unique identifier for storage
     const tableId = useMemo(() => {
@@ -136,7 +158,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             }));
 
             setColumns(updatedColumns);
-            
+
             // Set initial sort based on year
             if (year === 2025) {
                 // For 2025, sort by Board Size
@@ -200,39 +222,39 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
     };
 
     useEffect(() => {
-        if (columns.length === initialColumns.length && 
-            consensusFilter && 
+        if (columns.length === initialColumns.length &&
+            consensusFilter &&
             consensusFilter !== prevConsensusFilterRef.current) {
-            
+
             prevConsensusFilterRef.current = consensusFilter;
-            
+
             const filterSuffixes = {
                 'lottery': 'Lottery',
-                'top30': 'Top 30', 
+                'top30': 'Top 30',
                 'top60': 'Top 60'
             };
-            
+
             const targetSuffix = filterSuffixes[consensusFilter];
-            
+
             const updatedColumns = columns.map(col => {
                 if (lockedColumns.includes(col.key) || col.key === 'Board Size') {
                     return col;
                 }
-                
+
                 if (col.key.includes('Lottery') || col.key.includes('Top 30') || col.key.includes('Top 60')) {
                     return { ...col, visible: col.key.includes(targetSuffix) };
                 }
-                
+
                 if (col.key.includes('Rank')) {
                     if (consensusFilter === 'lottery' && col.key === 'Lottery Rank') return { ...col, visible: true };
                     if (consensusFilter === 'top30' && col.key === 'Top 30 Rank') return { ...col, visible: true };
                     if (consensusFilter === 'top60' && col.key === 'Top 60 Rank') return { ...col, visible: true };
                     return { ...col, visible: false };
                 }
-                
+
                 return col;
             });
-            
+
             setColumns(updatedColumns);
             try {
                 const visibilityState = updatedColumns.reduce((acc, col) => {
@@ -248,7 +270,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
 
     const filteredEvaluations = useMemo(() => {
         const effectiveSearchQuery = searchQuery || '';
-        
+
         if (!effectiveSearchQuery || effectiveSearchQuery.trim() === '') {
             return evaluations;
         }
@@ -256,7 +278,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
         const searchTerm = effectiveSearchQuery.toLowerCase().trim();
         return evaluations.filter(evaluation => {
             const originalBoardName = String(evaluation.Board || '');
-            
+
             // If this board is anonymized, exclude it from search results entirely
             if (ANONYMOUS_BOARD_NAMES[originalBoardName]) {
                 return false;
@@ -289,20 +311,20 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
 
     const dataRanges = useMemo(() => {
         const ranges: Record<string, { min: number; max: number }> = {};
-        
+
         const gradientColumns = [
             'Redraft Lottery', 'Redraft Top 30', 'Redraft Top 60',
             'EPM Lottery', 'EPM Top 30', 'EPM Top 60',
             'EW Lottery', 'EW Top 30', 'EW Top 60',
             'Lottery Rank', 'Top 30 Rank', 'Top 60 Rank'
         ];
-        
+
         gradientColumns.forEach(columnKey => {
             const values = evaluations
                 .map(evaluation => evaluation[columnKey as keyof T])
                 .filter(value => value !== null && value !== undefined && value !== '' && !isNaN(parseFloat(String(value))))
                 .map(value => parseFloat(String(value)));
-            
+
             if (values.length > 0) {
                 ranges[columnKey] = {
                     min: Math.min(...values),
@@ -310,7 +332,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                 };
             }
         });
-        
+
         return ranges;
     }, [evaluations]);
 
@@ -318,14 +340,14 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
         if (key.includes('Consensus') || key.includes('NBA Draft')) {
             return { backgroundColor: 'transparent', color: '#d1d5db' };
         }
-    
+
         if (value === null || value === undefined || value === '' || isNaN(parseFloat(String(value)))) {
             return { backgroundColor: 'transparent', color: '#d1d5db' };
         }
-    
+
         const numValue = parseFloat(String(value));
         let intensity: number;
-    
+
         // If we're in percentile mode and this is a percentile column, scale properly
         if (showPercentile && (key.includes('Rank') || key.includes('Redraft') || key.includes('EPM') || key.includes('EW'))) {
             // Percentile values are 0-1 decimals, so we need to use them directly for intensity
@@ -337,7 +359,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                 intensity = 0.5;
             } else {
                 const normalizedValue = (numValue - range.min) / (range.max - range.min);
-                
+
                 if (key.includes('Redraft') || key.includes('EPM') || key.includes('EW')) {
                     intensity = 1 - normalizedValue;
                 }
@@ -349,12 +371,12 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                 }
             }
         }
-    
+
         intensity = Math.max(0.1, Math.min(1, intensity));
-    
+
         const backgroundColor = `rgba(59, 130, 246, ${0.1 + intensity * 0.4})`;
         const textColor = intensity > 0.3 ? '#ffffff' : '#e5e7eb';
-    
+
         return { backgroundColor, color: textColor };
     };
 
@@ -392,8 +414,8 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             if (sortConfig.key === 'Board') {
                 const aCleanBoard = String(aValue || '').replace(/^@/, '');
                 const bCleanBoard = String(bValue || '').replace(/^@/, '');
-                const boardCompare = sortConfig.direction === 'ascending' 
-                    ? aCleanBoard.localeCompare(bCleanBoard) 
+                const boardCompare = sortConfig.direction === 'ascending'
+                    ? aCleanBoard.localeCompare(bCleanBoard)
                     : bCleanBoard.localeCompare(aCleanBoard);
                 return boardCompare !== 0 ? boardCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
             }
@@ -408,8 +430,8 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
 
             const aStr = String(aValue || '');
             const bStr = String(bValue || '');
-            const stringCompare = sortConfig.direction === 'ascending' 
-                ? aStr.localeCompare(bStr) 
+            const stringCompare = sortConfig.direction === 'ascending'
+                ? aStr.localeCompare(bStr)
                 : bStr.localeCompare(aStr);
 
             return stringCompare !== 0 ? stringCompare : (a._uniqueId.localeCompare(b._uniqueId) || a._originalIndex - b._originalIndex);
@@ -427,16 +449,24 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
         if (column.key.includes('Rank') || column.key.includes('Lottery')) {
             console.log('Rendering cell:', column.key, 'showPercentile:', showPercentile);
         }
-    
+
         if (column.key === 'Board') {
             const displayName = anonymizeBoardName(String(evaluation.Board || ''));
+            const originalBoardName = String(evaluation.Board || '');
+            const isClickable = !isHighlightedRow(originalBoardName) && !ANONYMOUS_BOARD_NAMES[originalBoardName];
+
             return (
-                <TableCell key={column.key} className="font-semibold text-gray-300 whitespace-nowrap">
+                <TableCell
+                    key={column.key}
+                    className={`font-semibold text-gray-300 whitespace-nowrap ${isClickable ? 'cursor-pointer hover:text-blue-400 transition-colors' : ''
+                        }`}
+                    onClick={() => isClickable && handleBoardClick(originalBoardName)}
+                >
                     {displayName}
                 </TableCell>
             );
         }
-    
+
         if ([
             'NBA Draft Lottery', 'NBA Draft Top 30', 'NBA Draft Top 60',
             'Redraft Lottery', 'Redraft Top 30', 'Redraft Top 60',
@@ -446,7 +476,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
         ].includes(column.key)) {
             // Determine which value to use based on showPercentile
             let cellValue;
-            
+
             if (showPercentile) {
                 // Map ALL columns to their percentile equivalents
                 const percentileKeyMap: Record<string, keyof T> = {
@@ -471,14 +501,14 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             } else {
                 cellValue = evaluation[key];
             }
-            
+
             let displayValue = '';
-        
+
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
                 if (!showPercentile && ['NBA Draft Lottery', 'NBA Draft Top 30', 'NBA Draft Top 60'].includes(column.key)) {
                     // Only format as percentage when NOT in percentile mode
                     const numValue = parseFloat(String(cellValue));
-                    
+
                     if (!isNaN(numValue)) {
                         const percentageValue = Math.abs(numValue) > 1 ? numValue : numValue * 100;
                         displayValue = `${percentageValue.toFixed(1)}%`;
@@ -491,9 +521,9 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                         // If value is between 0 and 1 (or exactly 1), treat as decimal and multiply by 100
                         const percentageValue = numValue <= 1 ? numValue * 100 : numValue;
                         // Use toFixed only when needed, otherwise show whole numbers
-                        displayValue = percentageValue % 1 === 0 
-                            ? `${percentageValue.toFixed(0)}%` 
-                            : `${percentageValue.toFixed(1)}%`;
+                        displayValue = percentageValue % 1 === 0
+                            ? `${percentageValue.toFixed(0)}`
+                            : `${percentageValue.toFixed(1)}`;
                     } else {
                         displayValue = String(cellValue);
                     }
@@ -503,9 +533,9 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             } else {
                 displayValue = 'N/A';
             }
-        
+
             const gradientStyle = getPerformanceGradient(cellValue, column.key);
-        
+
             return (
                 <TableCell
                     key={column.key}
@@ -516,13 +546,13 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                 </TableCell>
             );
         }
-        
+
         if ([
             'Consensus Lottery', 'Consensus Top 30', 'Consensus Top 60'
         ].includes(column.key)) {
             // Handle Consensus columns with percentile
             let cellValue;
-            
+
             if (showPercentile) {
                 const percentileKeyMap: Record<string, keyof T> = {
                     'Consensus Lottery': 'Consensus-L %ile' as keyof T,
@@ -534,14 +564,28 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             } else {
                 cellValue = evaluation[key as keyof T];
             }
-            
+
             let displayValue = '';
-    
+
             if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
                 if (showPercentile) {
                     const numValue = parseFloat(String(cellValue));
+
                     if (!isNaN(numValue)) {
-                        displayValue = `${numValue.toFixed(1)}%`;
+                        const percentageValue = Math.abs(numValue) > 1 ? numValue : numValue * 100;
+                        displayValue = `${percentageValue.toFixed(1)}`;
+                    } else {
+                        displayValue = String(cellValue);
+                    }
+                } else if (showPercentile) {
+                    const numValue = parseFloat(String(cellValue));
+                    if (!isNaN(numValue)) {
+                        // If value is between 0 and 1 (or exactly 1), treat as decimal and multiply by 100
+                        const percentageValue = numValue <= 1 ? numValue * 100 : numValue;
+                        // Use toFixed only when needed, otherwise show whole numbers
+                        displayValue = percentageValue % 1 === 0
+                            ? `${percentageValue.toFixed(0)}`
+                            : `${percentageValue.toFixed(1)}`;
                     } else {
                         displayValue = String(cellValue);
                     }
@@ -551,7 +595,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
             } else {
                 displayValue = 'N/A';
             }
-    
+
             return (
                 <TableCell
                     key={column.key}
@@ -561,7 +605,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                 </TableCell>
             );
         }
-    
+
         if (column.key === 'Board Size') {
             const cellValue = evaluation[key];
             return (
@@ -570,7 +614,7 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                 </TableCell>
             );
         }
-    
+
         const cellValue = evaluation[key];
         return (
             <TableCell key={column.key} className="text-gray-300 text-center">
@@ -582,15 +626,21 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
     return (
         <div className={`max-w-6xl mx-auto px-4 pt-2 ${className}`}>
             <div className="w-full overflow-x-auto bg-[#19191A] rounded-lg border border-gray-700/40">
+                <EvaluatorPopUpModel
+                    isOpen={modelOpen}
+                    onClose={() => setModelOpen(false)}
+                    evaluatorName={selectedEvaluator}
+                    year={year || new Date().getFullYear()}
+                    csvData={rawCsvData}  // Change from csvContent to rawCsvData
+                    />
                 <Table>
                     <TableHeader>
                         <TableRow className="border-gray-700/30">
                             {visibleColumns.map((column) => (
                                 <TableHead
                                     key={column.key}
-                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${
-                                        column.sortable ? '' : 'cursor-default'
-                                    } ${column.key === 'Board' ? 'text-left' : 'text-center'}`}
+                                    className={`text-gray-400 font-semibold cursor-pointer hover:text-gray-200 whitespace-nowrap ${column.sortable ? '' : 'cursor-default'
+                                        } ${column.key === 'Board' ? 'text-left' : 'text-center'}`}
                                     onClick={() => column.sortable && handleSort(column.key as keyof T)}
                                 >
                                     {getColumnDisplayLabel(column)}
@@ -607,15 +657,14 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
                         {sortedEvaluations.map((evaluation, index) => {
                             const boardName = String(evaluation.Board || '');
                             const shouldHighlight = isHighlightedRow(boardName);
-                            
+
                             return (
                                 <TableRow
                                     key={`${evaluation.Board}-${index}`}
-                                    className={`border-gray-700/30 ${
-                                        shouldHighlight 
-                                            ? 'bg-gray-600/30 hover:bg-gray-600/40' 
-                                            : 'hover:bg-gray-800/20'
-                                    }`}
+                                    className={`border-gray-700/30 ${shouldHighlight
+                                        ? 'bg-gray-600/30 hover:bg-gray-600/40'
+                                        : 'hover:bg-gray-800/20'
+                                        }`}
                                 >
                                     {visibleColumns.map((column) => renderCell(evaluation, column))}
                                 </TableRow>

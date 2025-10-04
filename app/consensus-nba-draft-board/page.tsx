@@ -1492,6 +1492,7 @@ export default function ConsensusPage() {
     const [consensusFilter, setConsensusFilter] = useState<'lottery' | 'top30' | 'top60'>('lottery');
     const [filterHeight, setFilterHeight] = useState(0);
     const [showPercentile, setShowPercentile] = useState(false);
+    const [rawCsvText, setRawCsvText] = useState<string>('');
 
 
     useEffect(() => {
@@ -1741,6 +1742,9 @@ export default function ConsensusPage() {
                 const response = await fetch(`/${csvFileName}`);
                 const csvText = await response.text();
 
+                // Save the raw CSV text
+                setRawCsvText(csvText);
+
                 Papa.parse(csvText, {
                     header: true,
                     complete: (results) => {
@@ -1893,14 +1897,15 @@ export default function ConsensusPage() {
                                             console.log('New state will be:', !showPercentile);
                                         }}
                                         className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${showPercentile
-                                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                                             }`}
                                         whileTap={{ scale: 0.95 }}
                                     >
+                                        Percentiles
                                         <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all duration-200 ${showPercentile
-                                                ? 'border-blue-400 bg-blue-400/20'
-                                                : 'border-gray-500 bg-transparent'
+                                            ? 'border-blue-400 bg-blue-400/20'
+                                            : 'border-gray-500 bg-transparent'
                                             }`}>
                                             {showPercentile && (
                                                 <svg
@@ -1914,7 +1919,6 @@ export default function ConsensusPage() {
                                                 </svg>
                                             )}
                                         </div>
-                                        Percentile
                                     </motion.button>
                                 </>
                             )}
@@ -2056,6 +2060,7 @@ export default function ConsensusPage() {
                                                 }`}
                                             whileTap={{ scale: 0.95 }}
                                         >
+                                            Percentiles
                                             <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${showPercentile
                                                 ? 'border-blue-400 bg-blue-400/20'
                                                 : 'border-gray-500 bg-transparent'
@@ -2072,7 +2077,6 @@ export default function ConsensusPage() {
                                                     </svg>
                                                 )}
                                             </div>
-                                            Percentile
                                         </motion.button>
                                         <div className="h-6 w-px bg-gray-700/30 mx-1" />
                                     </>
@@ -2152,19 +2156,29 @@ export default function ConsensusPage() {
 
             {viewMode === 'contributors' ? (
                 (selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') ? (
-                    <><EvaluationExplanation
-                        selectedYear={selectedYear}
-                        consensusFilter={consensusFilter} />
-                        <ContributorEvaluationTable
-                            evaluations={contributorEvaluations}
-                            initialColumns={contributorColumns}
-                            categories={['Board Information', 'Consensus', 'NBA Draft', 'Redraft', 'EPM', 'EW', 'Rankings']}
+                    <>
+                        {console.log('ConsensusPage - About to render with rawCsvText length:', rawCsvText.length)}
+                        <EvaluationExplanation
+                            selectedYear={selectedYear}
                             consensusFilter={consensusFilter}
-                            onConsensusFilterChange={handleConsensusFilterChange}
-                            searchQuery={contributorSearch}
-                            year={parseInt(selectedYear)}
-                            showPercentile={showPercentile}
                         />
+                        {rawCsvText ? (
+                            <ContributorEvaluationTable
+                                evaluations={contributorEvaluations}
+                                initialColumns={contributorColumns}
+                                categories={['Board Information', 'Consensus', 'NBA Draft', 'Redraft', 'EPM', 'EW', 'Rankings']}
+                                consensusFilter={consensusFilter}
+                                onConsensusFilterChange={handleConsensusFilterChange}
+                                searchQuery={contributorSearch}
+                                year={parseInt(selectedYear)}
+                                showPercentile={showPercentile}
+                                rawCsvData={rawCsvText}
+                            />
+                        ) : (
+                            <div className="text-center py-8 text-gray-400">
+                                Loading CSV data...
+                            </div>
+                        )}
                     </>
                 ) : (
                     <div className="text-center py-8 text-gray-400">
