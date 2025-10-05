@@ -1492,6 +1492,7 @@ export default function ConsensusPage() {
     const [consensusFilter, setConsensusFilter] = useState<'lottery' | 'top30' | 'top60'>('lottery');
     const [filterHeight, setFilterHeight] = useState(0);
     const [showPercentile, setShowPercentile] = useState(false);
+    const [showZScore, setShowZScore] = useState(false);
     const [rawCsvText, setRawCsvText] = useState<string>('');
 
 
@@ -1869,7 +1870,7 @@ export default function ConsensusPage() {
                                             : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'}`}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        Lottery
+                                        Lotto
                                     </motion.button>
                                     <motion.button
                                         onClick={() => handleConsensusFilterChange('top30')}
@@ -1878,7 +1879,7 @@ export default function ConsensusPage() {
                                             : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'}`}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        Top 30
+                                        30
                                     </motion.button>
                                     <motion.button
                                         onClick={() => handleConsensusFilterChange('top60')}
@@ -1887,38 +1888,35 @@ export default function ConsensusPage() {
                                             : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'}`}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        Top 60
+                                        60
                                     </motion.button>
                                 </div>
                                     <motion.button
                                         onClick={() => {
-                                            console.log('Button clicked! Current state:', showPercentile);
                                             setShowPercentile(!showPercentile);
-                                            console.log('New state will be:', !showPercentile);
+                                            if (!showPercentile) setShowZScore(false); // Uncheck Z-Score when enabling Percentile
                                         }}
-                                        className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${showPercentile
+                                        className={`px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${showPercentile
                                             ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                                             : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
                                             }`}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        Percentiles
-                                        <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all duration-200 ${showPercentile
-                                            ? 'border-blue-400 bg-blue-400/20'
-                                            : 'border-gray-500 bg-transparent'
-                                            }`}>
-                                            {showPercentile && (
-                                                <svg
-                                                    className="w-2.5 h-2.5 text-blue-400"
-                                                    fill="none"
-                                                    strokeWidth="2.5"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            )}
-                                        </div>
+                                        %
+                                    </motion.button>
+
+                                    <motion.button
+                                        onClick={() => {
+                                            setShowZScore(!showZScore);
+                                            if (!showZScore) setShowPercentile(false); // Uncheck Percentile when enabling Z-Score
+                                        }}
+                                        className={`px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${showZScore
+                                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                            }`}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        Z
                                     </motion.button>
                                 </>
                             )}
@@ -2012,10 +2010,12 @@ export default function ConsensusPage() {
                                 )}
                             </div>
 
+                            <div className="h-6 w-px bg-gray-700/30 mx-1" />
+
                             <div className="flex items-center gap-2 flex-shrink-0">
                                 {(selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') && (
                                     <>
-                                        <div className="flex items-center gap-1 p-1 bg-[#19191A] border border-gray-800 rounded-lg">
+                                        <div className="flex items-center gap-1 p-1 bg-[#19191A] border border-gray-800 rounded-lg">                                            
                                             <motion.button
                                                 onClick={() => handleConsensusFilterChange('lottery')}
                                                 className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${consensusFilter === 'lottery'
@@ -2050,9 +2050,8 @@ export default function ConsensusPage() {
                                         <div className="h-6 w-px bg-gray-700/30 mx-1" />
                                         <motion.button
                                             onClick={() => {
-                                                console.log('Button clicked! Current state:', showPercentile);
                                                 setShowPercentile(!showPercentile);
-                                                console.log('New state will be:', !showPercentile);
+                                                if (!showPercentile) setShowZScore(false); // Uncheck Z-Score when enabling Percentile
                                             }}
                                             className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${showPercentile
                                                 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
@@ -2066,6 +2065,35 @@ export default function ConsensusPage() {
                                                 : 'border-gray-500 bg-transparent'
                                                 }`}>
                                                 {showPercentile && (
+                                                    <svg
+                                                        className="w-3 h-3 text-blue-400"
+                                                        fill="none"
+                                                        strokeWidth="2.5"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                        </motion.button>
+                                        <motion.button
+                                            onClick={() => {
+                                                setShowZScore(!showZScore);
+                                                if (!showZScore) setShowPercentile(false); // Uncheck Percentile when enabling Z-Score
+                                            }}
+                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${showZScore
+                                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                                }`}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            Z-Score
+                                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${showZScore
+                                                ? 'border-blue-400 bg-blue-400/20'
+                                                : 'border-gray-500 bg-transparent'
+                                                }`}>
+                                                {showZScore && (
                                                     <svg
                                                         className="w-3 h-3 text-blue-400"
                                                         fill="none"
@@ -2172,6 +2200,7 @@ export default function ConsensusPage() {
                                 searchQuery={contributorSearch}
                                 year={parseInt(selectedYear)}
                                 showPercentile={showPercentile}
+                                showZScore={showZScore}
                                 rawCsvData={rawCsvText}
                             />
                         ) : (

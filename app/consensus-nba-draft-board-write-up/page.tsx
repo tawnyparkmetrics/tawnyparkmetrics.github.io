@@ -184,7 +184,7 @@ const NBAConsensusTable = () => {
                 <thead>
                     <tr>
                         <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold" colSpan={2}>Draft Class</th>
-                        <th className="border border-gray-600 px-4 py-2 text-center text-white font-bold">NBA</th>
+                        <th className="border border-gray-600 px-8 py-2 text-center text-white font-bold">NBA</th>
                         <th className="border border-gray-600 px-2 py-2 text-center text-white font-bold">Consensus</th>
                         <th className="border border-gray-600 px-2 py-2 text-center text-white font-bold">Correlation</th>
                     </tr>
