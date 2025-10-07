@@ -1,10 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { X, Lock } from 'lucide-react';
+import { X, Lock, Link2 } from 'lucide-react';
 
 // Dictionary of evaluators whose rankings are behind paywalls
 const PAYWALLED_EVALUATORS: Record<string, string> = {
     'Sam Vecenie (The Athletic)': 'this board is hidden behind a NYTimes subscription/paywall',
     'John Hollinger (The Athletic)': 'this board is hidden behind a NYTimes subscription/paywall'
+};
+
+// Media logo mapping - maps domain patterns to logo filenames
+const MEDIA_LOGOS: Record<string, string> = {
+    'x.com': 'x.com',
+    'twitter.com': 'x.com',
+    'youtube.com': 'youtube.com',
+    'reddit.com': 'reddit.com',
+    'yahoo.com': 'yahoo.com',
+    'bsky.app': 'bsky.app',
+    'cbssports.com': 'cbssports.com',
+    'espn': 'espn',
+    'fansided.com': 'fansided.com',
+    'noceilingsnba.com': 'noceilingsnba.com',
+    'nytimes.com': 'nytimes.com',
+    'on3.com': 'on3.com',
+    'si.com': 'si.com',
+    'tawnyparkmetrics.com': 'tawnyparkmetrics.com',
+    'the-center-hub.com': 'the-center-hub.com',
+    'theanaylst.com': 'theanaylst.com',
+    'theringer.com': 'theringer.com',
 };
 
 interface PlayerRanking {
@@ -14,6 +35,11 @@ interface PlayerRanking {
     consensusRank?: number;
     preNBA?: string;
     vsConsensus?: number;
+}
+
+interface SocialLink {
+    url: string;
+    iconName: string;
 }
 
 interface EvaluatorPopUpProps {
@@ -38,9 +64,35 @@ export function EvaluatorPopUpModel({
     const [rankings, setRankings] = useState<PlayerRanking[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+    const [boardsCsvData, setBoardsCsvData] = useState<string>('');
+
+    // Load the Boards Submitted Consensus CSV when component opens
+    useEffect(() => {
+        if (isOpen) {
+            loadBoardsSubmittedCsv();
+        }
+    }, [isOpen, year]);
+
+    const loadBoardsSubmittedCsv = async () => {
+        try {
+            const csvFileName = `${year} Boards Submitted Consensus.csv`;
+            const response = await fetch(`/${csvFileName}`);
+            const csvText = await response.text();
+            setBoardsCsvData(csvText);
+            console.log(`Loaded ${csvFileName}`);
+        } catch (error) {
+            console.error('Error loading Boards Submitted Consensus CSV:', error);
+        }
+    };
 
     useEffect(() => {
         if (isOpen && evaluatorName) {
+            // Extract social links from Boards Submitted Consensus CSV first
+            if (boardsCsvData) {
+                extractSocialLinks();
+            }
+            
             // Check if this evaluator is paywalled
             if (PAYWALLED_EVALUATORS[evaluatorName]) {
                 setLoading(false);
@@ -48,7 +100,7 @@ export function EvaluatorPopUpModel({
             }
             loadRankings();
         }
-    }, [isOpen, evaluatorName, year, csvData]);
+    }, [isOpen, evaluatorName, year, csvData, boardsCsvData]);
 
     const loadRankings = async () => {
         setLoading(true);
@@ -203,6 +255,77 @@ export function EvaluatorPopUpModel({
         }
     };
 
+    const extractSocialLinks = () => {
+        if (!boardsCsvData) return;
+
+        const lines = boardsCsvData.split('\n').map((line: string) => line.trim()).filter((line: string) => line);
+        
+        if (lines.length < 2) return;
+
+        const headerLine = lines[0];
+        const headers = parseCSVLine(headerLine);
+
+        console.log('Boards CSV headers:', headers);
+
+        // Find the Board column and Link columns
+        const boardIndex = headers.findIndex(h => h.trim().toLowerCase() === 'board');
+        const link1Index = headers.findIndex(h => h.trim().toLowerCase() === 'link 1');
+        const link2Index = headers.findIndex(h => h.trim().toLowerCase() === 'link 2');
+        const link3Index = headers.findIndex(h => h.trim().toLowerCase() === 'link 3');
+
+        console.log('Board column index:', boardIndex);
+        console.log('Link indices:', { link1Index, link2Index, link3Index });
+
+        // Find the row that matches the evaluator
+        for (let i = 1; i < lines.length; i++) {
+            const cells = parseCSVLine(lines[i]);
+            const boardCell = cells[boardIndex]?.trim();
+
+            if (!boardCell) continue;
+
+            // Match evaluator name (handle @ symbols and case insensitivity)
+            const cleanBoard = boardCell.toLowerCase().replace('@', '').trim();
+            const cleanEvaluator = evaluatorName.toLowerCase().replace('@', '').trim();
+
+            // Use exact match only to avoid confusion between similar names (e.g., ESPN vs Kevin Pelton (ESPN))
+            if (cleanBoard === cleanEvaluator) {
+                console.log('Found matching board row:', boardCell);
+
+                // Extract links from this row
+                const extractedLinks: SocialLink[] = [];
+                const links = [
+                    link1Index !== -1 ? cells[link1Index]?.trim() : '',
+                    link2Index !== -1 ? cells[link2Index]?.trim() : '',
+                    link3Index !== -1 ? cells[link3Index]?.trim() : ''
+                ].filter(link => link && link !== '' && link !== 'NA' && link !== 'N/A' && link !== '-');
+
+                console.log('Found links:', links);
+
+                links.forEach(url => {
+                    // Find matching media logo
+                    let matched = false;
+                    for (const [domain, iconName] of Object.entries(MEDIA_LOGOS)) {
+                        if (url.toLowerCase().includes(domain)) {
+                            extractedLinks.push({ url, iconName });
+                            console.log(`Matched ${url} to ${iconName}`);
+                            matched = true;
+                            break;
+                        }
+                    }
+                    // If no match found, add with default icon indicator
+                    if (!matched) {
+                        extractedLinks.push({ url, iconName: 'default' });
+                        console.log(`No match for ${url}, using default icon`);
+                    }
+                });
+
+                setSocialLinks(extractedLinks);
+                console.log('Set social links:', extractedLinks);
+                break;
+            }
+        }
+    };
+
     // Helper function to parse CSV line (handles quotes and commas)
     const parseCSVLine = (line: string): string[] => {
         const result: string[] = [];
@@ -240,17 +363,60 @@ export function EvaluatorPopUpModel({
             <div className="relative bg-[#19191A] border border-gray-700/40 rounded-lg shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col mx-4 md:mx-0">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-700/30">
-                    <div>
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-100">
-                            {evaluatorName}
-                        </h2>
+                    <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-xl md:text-2xl font-bold text-gray-100">
+                                {evaluatorName}
+                            </h2>
+                            {/* Social Media Icons */}
+                            {socialLinks.length > 0 && (
+                                <div className="flex items-center gap-4">
+                                    {socialLinks.map((link, index) => (
+                                        <a
+                                            key={index}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group transition-all duration-200"
+                                            title={link.url}
+                                        >
+                                            {link.iconName === 'default' ? (
+                                                <Link2 
+                                                    size={18}
+                                                    className="text-gray-400 group-hover:text-gray-200 transition-all duration-200 group-hover:scale-110"
+                                                />
+                                            ) : (
+                                                <img
+                                                    src={`/media_logos/${link.iconName}.png`}
+                                                    alt={link.iconName}
+                                                    className={`${link.iconName === 'x.com' ? 'w-4 h-4 md:w-4 md:h-4' : link.iconName === 'tawnyparkmetrics.com' ? 'w-6 h-6 md:w-6 md:h-6' : 'w-5 h-5 md:w-5 md:h-5'} object-contain grayscale group-hover:grayscale-0 transition-all duration-200 group-hover:scale-110`}
+                                                    style={{
+                                                        filter: 'grayscale(100%) brightness(0.85)',
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.currentTarget.style.filter = 'grayscale(0%) brightness(1)';
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.currentTarget.style.filter = 'grayscale(100%) brightness(0.85)';
+                                                    }}
+                                                    onError={(e) => {
+                                                        console.error(`Failed to load icon: ${link.iconName}`);
+                                                        e.currentTarget.style.display = 'none';
+                                                    }}
+                                                />
+                                            )}
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                         <p className="text-xs md:text-sm text-gray-400 mt-1">
                             {year} NBA Draft Board
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-200 transition-colors"
+                        className="text-gray-400 hover:text-gray-200 transition-colors ml-4"
                     >
                         <X size={20} className="md:hidden" />
                         <X size={24} className="hidden md:block" />
