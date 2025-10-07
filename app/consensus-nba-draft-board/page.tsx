@@ -2088,7 +2088,7 @@ export default function ConsensusPage() {
                                                 }`}
                                             whileTap={{ scale: 0.95 }}
                                         >
-                                            Z-Score
+                                            Z-Scores
                                             <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${showZScore
                                                 ? 'border-blue-400 bg-blue-400/20'
                                                 : 'border-gray-500 bg-transparent'

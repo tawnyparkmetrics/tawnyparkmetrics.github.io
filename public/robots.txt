@@ -1,15 +1,19 @@
 User-agent: *
 
-Allow: public/TPM_logo_designs/
+Allow: /public/TPM_logo_designs/
 
-Disallow: /images/
-Disallow: /data/
+Disallow: /public/league_logos/
+Disallow: /public/nationality/
+Disallow: /public/nbateam_logos/
+Disallow: /public/prenba_logos/
+Disallow: /public/player_images2020/
+Disallow: /public/player_images2021/
+Disallow: /public/player_images2022/
+Disallow: /public/player_images2023/
+Disallow: /public/player_images2024/
+Disallow: /public/player_images2025/
+
 Disallow: /*.csv
-Disallow: /*.png
-Disallow: /*.jpg
-Disallow: /*.jpeg
-Disallow: /*.gif
-Disallow: /*.webp
 
 Host: https://tawnyparkmetrics.com
 
