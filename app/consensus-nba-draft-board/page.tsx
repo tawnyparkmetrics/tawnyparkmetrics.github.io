@@ -992,14 +992,10 @@ const ConsensusFilter: React.FC<ProspectFilterProps> = ({
 
     // Handle view mode changes with debugging
     const handleViewModeChange = useCallback((mode: 'card' | 'table' | 'contributors') => {
-        console.log('handleViewModeChange called with:', mode);
-        console.log('Current viewMode before change:', viewMode);
-
         setViewMode(mode);
 
         // Call parent callback immediately
         if (onViewModeChange) {
-            console.log('Calling onViewModeChange with:', mode);
             onViewModeChange(mode);
         }
     }, [onViewModeChange]);
@@ -1597,6 +1593,16 @@ export default function ConsensusPage() {
         { key: 'Top 60 Rank', label: 'Top 60 Rank', category: 'Rankings', visible: false, sortable: true },
     ];
 
+
+    const handleViewModeChange = useCallback((mode: 'card' | 'table' | 'contributors') => {
+        setViewMode(mode);
+        // ONLY if switching from Leaderboard to card/table, reset to 2025
+        // This preserves the year for 2020-2025 when switching between views
+        if ((mode === 'card' || mode === 'table') && selectedYear === 'Leaderboard') {
+            setSelectedYear('2025');
+        }
+    }, [selectedYear]);
+
     const handleConsensusFilterChange = useCallback((filter: 'lottery' | 'top30' | 'top60') => {
         setConsensusFilter(filter);
     }, []);
@@ -1873,7 +1879,7 @@ export default function ConsensusPage() {
                     onFilteredProspectsChange={setFilteredProspects}
                     onRankingSystemChange={setRankingSystem}
                     rank={{}}
-                    onViewModeChange={setViewMode}
+                    onViewModeChange={handleViewModeChange}
                     selectedYear={selectedYear}
                     onYearChange={setSelectedYear}
                 />
@@ -2009,19 +2015,19 @@ export default function ConsensusPage() {
                                     <DropdownMenuContent className="bg-[#19191A] border-gray-700">
                                         <DropdownMenuItem
                                             className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                            onClick={() => setViewMode('card')}
+                                            onClick={() => handleViewModeChange('card')}
                                         >
                                             Card View
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                            onClick={() => setViewMode('table')}
+                                            onClick={() => handleViewModeChange('table')}
                                         >
                                             Table View
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
-                                            onClick={() => setViewMode('contributors')}
+                                            onClick={() => handleViewModeChange('contributors')}
                                         >
                                             Evaluation
                                         </DropdownMenuItem>
@@ -2203,7 +2209,7 @@ export default function ConsensusPage() {
                                     <DropdownMenuContent className="bg-[#19191A] border-gray-700">
                                         <DropdownMenuItem
                                             className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                            onClick={() => setViewMode('card')}
+                                            onClick={() => handleViewModeChange('card')}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <LucideUser className="h-4 w-4" />
@@ -2212,7 +2218,7 @@ export default function ConsensusPage() {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className="text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md"
-                                            onClick={() => setViewMode('table')}
+                                            onClick={() => handleViewModeChange('table')}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <TableIcon className="h-4 w-4" />
@@ -2221,7 +2227,7 @@ export default function ConsensusPage() {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className="bg-blue-500/20 text-blue-400 cursor-pointer rounded-md"
-                                            onClick={() => setViewMode('contributors')}
+                                            onClick={() => handleViewModeChange('contributors')}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <TrendingUp className="h-4 w-4" />
@@ -2310,10 +2316,11 @@ export default function ConsensusPage() {
                 )
             ) : (
                 <div className="text-center py-8 text-gray-400">
-                    No prospects found matching your search criteria
+                    {selectedYear === 'Leaderboard'
+                        ? 'Please select a year to view prospects'
+                        : 'No prospects found matching your search criteria'}
                 </div>
-            )
-            }
+            )}
         </div >
     );
 }
