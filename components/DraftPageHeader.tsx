@@ -46,6 +46,13 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case '2020-2025 NBA Draft History':
         return '';
       case 'Consensus':
+        // Handle Leaderboard view
+        if (selectedYear === 'Leaderboard') {
+          return (
+            <>
+              Top 15 overall performers across 2020-2024 NBA Draft classes, by parameter (Lottery, Top 30, Top 60). This leaderboard will be updated at the end of each NBA season.            </>
+          );
+        }
         return (
           <>
             Aggregate of {getBoardCount(selectedYear || 2025)} boards, all published before the {selectedYear ?? ''} NBA Draft. Only displaying prospects who appear on at least ~5% of boards. Prospects are ordered via a weighted combination of average (mean) rank & inclusion rate.
@@ -64,6 +71,9 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       return `${firstName}'s Flagg Plant Score`;
     }
     if (author === 'Consensus') {
+      if (selectedYear === 'Leaderboard') {
+        return 'Leaderboard';
+      }
       return selectedYear ? `${selectedYear} NBA Draft Internet Consensus` : `NBA Draft Internet Consensus`;
     }
     if (author === 'Draft History') {
@@ -90,7 +100,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
     <div className={`bg-[#19191A] border-b border-gray-800 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`${paddingClass} pl-2 md:pl-0 md:ml-[3.25rem]`}>
-          <h1 className="text-xl md:text-2xl font-semibold text-white"> {/* here is the fix for the draft history page uneven padding pb-# */}
+          <h1 className="text-xl md:text-2xl font-semibold text-white">
             {getTitle(firstName, author, selectedYear)}
           </h1>
           <p className={`mt-1 text-gray-400 text-xs md:text-sm ${getDescriptionMaxWidth(author)}`}>

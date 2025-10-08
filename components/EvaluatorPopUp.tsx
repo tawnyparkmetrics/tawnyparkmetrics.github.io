@@ -1,10 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { X, Lock, Link2 } from 'lucide-react';
+import { X, Lock, ExternalLink } from 'lucide-react';
 
 // Dictionary of evaluators whose rankings are behind paywalls
 const PAYWALLED_EVALUATORS: Record<string, string> = {
     'Sam Vecenie (The Athletic)': 'this board is hidden behind a NYTimes subscription/paywall',
     'John Hollinger (The Athletic)': 'this board is hidden behind a NYTimes subscription/paywall'
+};
+
+const MOBILE_BOARD_NAMES: Record<string, string> = {
+    'Sam Vecenie (The Athletic)': 'Sam Vecenie',
+    'John Hollinger (The Athletic)': 'John Hollinger',
+    'Kevin Pelton (ESPN)': 'Kevin Pelton',
+    'Coach Spins (The Box and One)': 'Coach Spins',
+    'Michael Neff (Swish Theory': 'Michael Neff',
+    "Kevin O'Conner (The Ringer)": "Kevin O'Conner",
+    '@KlineNBA (Fansided)': '@KlineNBA',
+    '@supersayansavin (TPM)': '@supersayansavin',
+    'TheProcess (Colten Stout)': 'Colten Stout',
+    '@KevinOConnerNBA (Yahoo)': '@KevinOConnerNBA',
+    'Matt Norlander (CBS Sports)': 'Matt Norlander',
+    '@JeremyWoo (ESPN)': '@JeremyWoo',
+    '@JeremyWoo (Sports Illustrated)': '@JeremyWoo',
+    'Kevin Broom (YODA)': 'Kevin Broom',
+    "Ryan O'Hara (Hoop Scout)": "Ryan O'Hara",
 };
 
 // Media logo mapping - maps domain patterns to logo filenames
@@ -24,8 +42,9 @@ const MEDIA_LOGOS: Record<string, string> = {
     'si.com': 'si.com',
     'tawnyparkmetrics.com': 'tawnyparkmetrics.com',
     'the-center-hub.com': 'the-center-hub.com',
-    'theanaylst.com': 'theanaylst.com',
+    'theanalyst.com': 'theanalyst.com',
     'theringer.com': 'theringer.com',
+    'bleacherreport.com': 'bleacherreport.com',
 };
 
 interface PlayerRanking {
@@ -66,11 +85,13 @@ export function EvaluatorPopUpModel({
     const [error, setError] = useState<string | null>(null);
     const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
     const [boardsCsvData, setBoardsCsvData] = useState<string>('');
+    const [popupCsvData, setPopupCsvData] = useState<string>('');
 
     // Load the Boards Submitted Consensus CSV when component opens
     useEffect(() => {
         if (isOpen) {
             loadBoardsSubmittedCsv();
+            loadPopupCsv();
         }
     }, [isOpen, year]);
 
@@ -86,35 +107,70 @@ export function EvaluatorPopUpModel({
         }
     };
 
+    const loadPopupCsv = async () => {
+        try {
+            const csvFileName = `${year} Consensus PopUp.csv`;
+            console.log('🔍 POPUP CSV: Attempting to load:', csvFileName);
+            const response = await fetch(`/${csvFileName}`);
+            console.log('🔍 POPUP CSV: Response status:', response.status, response.statusText);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+            }
+            
+            const csvText = await response.text();
+            console.log('🔍 POPUP CSV: Loaded successfully, length:', csvText.length);
+            console.log('🔍 POPUP CSV: First 200 characters:', csvText.substring(0, 200));
+            setPopupCsvData(csvText);
+        } catch (error) {
+            console.error('❌ POPUP CSV: Error loading Consensus PopUp CSV:', error);
+        }
+    };
+
     useEffect(() => {
+        console.log('🔍 EFFECT: Running with:', { isOpen, evaluatorName, year, hasBoardsData: !!boardsCsvData, hasPopupData: !!popupCsvData });
+        
         if (isOpen && evaluatorName) {
             // Extract social links from Boards Submitted Consensus CSV first
             if (boardsCsvData) {
+                console.log('🔍 EFFECT: Extracting social links');
                 extractSocialLinks();
             }
             
             // Check if this evaluator is paywalled
             if (PAYWALLED_EVALUATORS[evaluatorName]) {
+                console.log('🔍 EFFECT: Evaluator is paywalled');
                 setLoading(false);
                 return;
             }
-            loadRankings();
+            
+            // Only load rankings if we have the popup CSV data
+            if (popupCsvData) {
+                console.log('🔍 EFFECT: Loading rankings from popup CSV');
+                loadRankings();
+            } else {
+                console.log('⚠️ EFFECT: Popup CSV data not yet available');
+            }
         }
-    }, [isOpen, evaluatorName, year, csvData, boardsCsvData]);
+    }, [isOpen, evaluatorName, year, boardsCsvData, popupCsvData]);
 
     const loadRankings = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            // Check if we have CSV data
-            if (!csvData) {
-                setError('CSV data not loaded yet. Please wait...');
+            console.log('🔍 LOAD RANKINGS: Starting');
+            
+            // Check if we have Popup CSV data
+            if (!popupCsvData) {
+                console.log('❌ LOAD RANKINGS: No popup CSV data');
+                setError('Popup CSV data not loaded yet. Please wait...');
                 setLoading(false);
                 return;
             }
 
-            const fileContent = csvData;
+            const fileContent = popupCsvData;
+            console.log('🔍 LOAD RANKINGS: Using popup CSV, length:', fileContent.length);
 
             // Parse CSV - the first row contains column headers including evaluator names
             const lines = fileContent.split('\n').map((line: string) => line.trim()).filter((line: string) => line);
@@ -242,15 +298,18 @@ export function EvaluatorPopUpModel({
             }
 
             console.log('Total rankings found:', playerRankings.length);
+            console.log('🔍 LOAD RANKINGS: Successfully parsed', playerRankings.length, 'rankings');
+            console.log('🔍 LOAD RANKINGS: First 3 rankings:', playerRankings.slice(0, 3));
 
             // Sort by rank
             playerRankings.sort((a, b) => a.rank - b.rank);
             setRankings(playerRankings);
 
         } catch (err) {
-            console.error('Error loading rankings:', err);
+            console.error('❌ LOAD RANKINGS: Error loading rankings:', err);
             setError(err instanceof Error ? err.message : 'Failed to load rankings');
         } finally {
+            console.log('🔍 LOAD RANKINGS: Finished, loading =', false);
             setLoading(false);
         }
     };
@@ -366,7 +425,8 @@ export function EvaluatorPopUpModel({
                     <div className="flex-1">
                         <div className="flex items-center gap-3">
                             <h2 className="text-xl md:text-2xl font-bold text-gray-100">
-                                {evaluatorName}
+                                <span className="md:hidden">{MOBILE_BOARD_NAMES[evaluatorName] || evaluatorName}</span>
+                                <span className="hidden md:inline">{evaluatorName}</span>
                             </h2>
                             {/* Social Media Icons */}
                             {socialLinks.length > 0 && (
@@ -381,7 +441,7 @@ export function EvaluatorPopUpModel({
                                             title={link.url}
                                         >
                                             {link.iconName === 'default' ? (
-                                                <Link2 
+                                                <ExternalLink 
                                                     size={18}
                                                     className="text-gray-400 group-hover:text-gray-200 transition-all duration-200 group-hover:scale-110"
                                                 />

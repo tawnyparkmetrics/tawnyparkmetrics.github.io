@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ChevronDown, Plus, Minus } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface EvaluationExplanationProps {
-    selectedYear: '2025' | '2024' | '2023' | '2022' | '2021' | '2020';
+    selectedYear: '2025' | '2024' | '2023' | '2022' | '2021' | '2020' | 'Leaderboard';
     consensusFilter: 'lottery' | 'top30' | 'top60';
 }
 
@@ -39,12 +39,17 @@ const EvaluationExplanation: React.FC<EvaluationExplanationProps> = ({
 
     // Check if year has evaluation data
     const hasEvaluationData = () => {
-        return true;
+        return selectedYear !== 'Leaderboard';
     };
 
     // Check if year needs "progress report" caveat
     const needsProgressCaveat = () => {
         return ['2024', '2023', '2022'].includes(selectedYear);
+    };
+
+    // Check if this is the leaderboard view
+    const isLeaderboard = () => {
+        return selectedYear === 'Leaderboard';
     };
 
     const parameter = getParameterName();
@@ -82,12 +87,25 @@ const EvaluationExplanation: React.FC<EvaluationExplanationProps> = ({
                                 className="overflow-hidden"
                             >
                                 <div className="px-2 py-2 text-gray-300 space-y-2">
-                                    <div className="text-sm leading-relaxed">
-                                        <span className="font-bold text-white">Consensus</span> – represents the overall consensus board (aggregate of the {boardCount} individual boards that make up the {selectedYear} Consensus). This "board" is the rankings you see in card view and table view.
-                                    </div>
-                                    <div className="text-sm leading-relaxed">
-                                        <span className="font-bold text-white">NBA</span> – represents the NBA's collective draft board. This "board" is the {selectedYear} NBA Draft results.
-                                    </div>
+                                    {isLeaderboard() ? (
+                                        <>
+                                            <div className="text-sm leading-relaxed">
+                                                <span className="font-bold text-white">Consensus</span> – represents the overall consensus board. This "board" is the rankings you see in card view and table view.
+                                            </div>
+                                            <div className="text-sm leading-relaxed">
+                                                <span className="font-bold text-white">NBA</span> – represents the NBA's collective draft board. This "board" is the 2020-2024 NBA Draft results.
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="text-sm leading-relaxed">
+                                                <span className="font-bold text-white">Consensus</span> – represents the overall consensus board (aggregate of the {boardCount} individual boards that make up the {selectedYear} Consensus). This "board" is the rankings you see in card view and table view.
+                                            </div>
+                                            <div className="text-sm leading-relaxed">
+                                                <span className="font-bold text-white">NBA</span> – represents the NBA's collective draft board. This "board" is the {selectedYear} NBA Draft results.
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </motion.div>
                         )}
@@ -146,7 +164,7 @@ const EvaluationExplanation: React.FC<EvaluationExplanationProps> = ({
                                                 <span className="text-white">lower value = more predictive</span> (opportunity cost – weighted error)
                                             </div>
                                             <div>
-                                                <span className="font-bold text-white">{parameter} Rank</span> – where does each board's {parameter} rank in terms of overall predictive value? Derived from combined (average) Redraft, EPM, & EW performance, each converted to percentiles.
+                                                <span className="font-bold text-white">{parameter} Rank</span> – where does each board's {parameter} rank in terms of overall predictive value? Derived from combined (average) Redraft, EPM, & EW performance, each converted to z-scores.
                                             </div>
                                         </div>
 
@@ -172,7 +190,12 @@ const EvaluationExplanation: React.FC<EvaluationExplanationProps> = ({
 
             {/* Permanent Caveat Section */}
             <div className="text-gray-400 space-y-1 text-sm leading-relaxed px-2 italic">
-                {selectedYear === '2025' ? (
+                {isLeaderboard() ? (
+                    <p>
+                        {/* Add your leaderboard explanation text here */}
+                        Displaying most predictive boards ({parameter}) across 2020-2024 NBA Draft classes (minimum 2 years).
+                    </p>
+                ) : selectedYear === '2025' ? (
                     <p>
                         Players from this draft class have not finished, even, one full NBA season. Therefore, there is <span className="font-bold text-white">not yet any evaluation data, only exploratory analysis</span> to help indicate which boards were most/least correlated with consensus and the NBA Draft results. NBA Draft 'Top 60' is really only Top 59 (one forfeited 2nd round pick).
                     </p>

@@ -23,6 +23,8 @@ import { ColumnConfig, ProspectTable } from '@/components/ProspectTable';
 import { BaseProspectCard } from '@/components/BaseProspectCard';
 import { ContributorEvaluationTable, BaseContributorEvaluation, ContributorColumnConfig } from '@/components/ContributorEvaluationTable';
 import EvaluationExplanation from '@/components/EvaluationExplanation';
+import { LeaderboardTable, LeaderboardEntry } from '@/components/ContributorLeaderboard';
+
 
 export interface DraftProspect {
     //Player info for hover
@@ -968,8 +970,8 @@ interface ProspectFilterProps {
     onRankingSystemChange?: (rankingSystem: Map<string, number>) => void;
     rank: Record<string, RankType>;
     onViewModeChange?: (mode: 'card' | 'table' | 'contributors') => void;
-    selectedYear?: '2025' | '2024' | '2023' | '2022' | '2021' | '2020';
-    onYearChange?: (year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020') => void;
+    selectedYear?: '2025' | '2024' | '2023' | '2022' | '2021' | '2020' | 'Leaderboard';
+    onYearChange?: (year: '2025' | '2024' | '2023' | '2022' | '2021' | '2020' | 'Leaderboard') => void;
     id?: string;
 }
 
@@ -1487,13 +1489,14 @@ export default function ConsensusPage() {
     const [selectedSortKey,] = useState<string>('Actual Pick');
     const [contributorSearch, setContributorSearch] = useState('');
     const [rankingSystem, setRankingSystem] = useState<Map<string, number>>(new Map());
-    const [selectedYear, setSelectedYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020'>('2025');
+    const [selectedYear, setSelectedYear] = useState<'2025' | '2024' | '2023' | '2022' | '2021' | '2020' | 'Leaderboard'>('2025');
     const [contributorEvaluations, setContributorEvaluations] = useState<BaseContributorEvaluation[]>([]);
     const [consensusFilter, setConsensusFilter] = useState<'lottery' | 'top30' | 'top60'>('lottery');
     const [filterHeight, setFilterHeight] = useState(0);
     const [showPercentile, setShowPercentile] = useState(false);
     const [showZScore, setShowZScore] = useState(false);
     const [rawCsvText, setRawCsvText] = useState<string>('');
+    const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
 
 
     useEffect(() => {
@@ -1825,6 +1828,39 @@ export default function ConsensusPage() {
         setHasMore(filteredProspects.length > 20);
     }, [filteredProspects]);
 
+    useEffect(() => {
+        async function fetchLeaderboardData() {
+            if (selectedYear !== 'Leaderboard') {
+                setLeaderboardData([]);
+                return;
+            }
+
+            const fileMap = {
+                'lottery': 'lottery_leaderboard.csv',
+                'top30': 't30_leaderboard.csv',
+                'top60': 't60_leaderboard.csv'
+            };
+
+            try {
+                const fileName = fileMap[consensusFilter];
+                const response = await fetch(`/${fileName}`);
+                const csvText = await response.text();
+
+                Papa.parse(csvText, {
+                    header: true,
+                    complete: (results) => {
+                        setLeaderboardData(results.data as LeaderboardEntry[]);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching leaderboard data:', error);
+                setLeaderboardData([]);
+            }
+        }
+
+        fetchLeaderboardData();
+    }, [selectedYear, consensusFilter]);
+
     return (
         <div className="min-h-screen bg-[#19191A]">
             <NavigationHeader activeTab="Consensus" />
@@ -1832,7 +1868,7 @@ export default function ConsensusPage() {
             <GoogleAnalytics gaId="G-X22HKJ13B7" />
             {viewMode !== 'contributors' ? (
                 <ConsensusFilter
-                    id="consensus-filter"  // Add this
+                    id="consensus-filter"
                     prospects={prospects}
                     onFilteredProspectsChange={setFilteredProspects}
                     onRankingSystemChange={setRankingSystem}
@@ -1861,63 +1897,73 @@ export default function ConsensusPage() {
 
                         {/* Controls Row */}
                         <div className="flex items-center justify-between gap-2">
-                            {(selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') && (
-                                <><div className="px-2 py-2 flex items-center gap-1 p-1 bg-gray-800/20 border border-gray-800 rounded-lg">
-                                    <motion.button
-                                        onClick={() => handleConsensusFilterChange('lottery')}
-                                        className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'lottery'
-                                            ? 'text-blue-400'
-                                            : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'}`}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        Lotto
-                                    </motion.button>
-                                    <motion.button
-                                        onClick={() => handleConsensusFilterChange('top30')}
-                                        className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top30'
-                                            ? 'text-blue-400'
-                                            : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'}`}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        30
-                                    </motion.button>
-                                    <motion.button
-                                        onClick={() => handleConsensusFilterChange('top60')}
-                                        className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top60'
-                                            ? 'text-blue-400'
-                                            : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'}`}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        60
-                                    </motion.button>
-                                </div>
-                                    <motion.button
-                                        onClick={() => {
-                                            setShowPercentile(!showPercentile);
-                                            if (!showPercentile) setShowZScore(false); // Uncheck Z-Score when enabling Percentile
-                                        }}
-                                        className={`px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${showPercentile
-                                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                            }`}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        %
-                                    </motion.button>
+                            {selectedYear !== undefined && (
+                                <>
+                                    <div className="px-2 py-2 flex items-center gap-1 p-1 bg-gray-800/20 border border-gray-800 rounded-lg">
+                                        <motion.button
+                                            onClick={() => handleConsensusFilterChange('lottery')}
+                                            className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'lottery'
+                                                    ? 'text-blue-400'
+                                                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+                                                }`}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            Lotto
+                                        </motion.button>
+                                        <motion.button
+                                            onClick={() => handleConsensusFilterChange('top30')}
+                                            className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top30'
+                                                    ? 'text-blue-400'
+                                                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+                                                }`}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            30
+                                        </motion.button>
+                                        <motion.button
+                                            onClick={() => handleConsensusFilterChange('top60')}
+                                            className={`px-2 py-0.5 rounded-md text-xs font-medium transition-all duration-200 ${consensusFilter === 'top60'
+                                                    ? 'text-blue-400'
+                                                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+                                                }`}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            60
+                                        </motion.button>
+                                    </div>
 
-                                    <motion.button
-                                        onClick={() => {
-                                            setShowZScore(!showZScore);
-                                            if (!showZScore) setShowPercentile(false); // Uncheck Percentile when enabling Z-Score
-                                        }}
-                                        className={`px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${showZScore
-                                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                            : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                            }`}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        Z
-                                    </motion.button>
+                                    {/* Only show Percentiles and Z-Score for non-Leaderboard years */}
+                                    {selectedYear !== 'Leaderboard' && (
+                                        <>
+                                            <motion.button
+                                                onClick={() => {
+                                                    setShowPercentile(!showPercentile);
+                                                    if (!showPercentile) setShowZScore(false);
+                                                }}
+                                                className={`px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${showPercentile
+                                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                                    }`}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                %
+                                            </motion.button>
+
+                                            <motion.button
+                                                onClick={() => {
+                                                    setShowZScore(!showZScore);
+                                                    if (!showZScore) setShowPercentile(false);
+                                                }}
+                                                className={`px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${showZScore
+                                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                                    }`}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                Z
+                                            </motion.button>
+                                        </>
+                                    )}
                                 </>
                             )}
 
@@ -1935,10 +1981,11 @@ export default function ConsensusPage() {
                                         </motion.button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                        {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
+                                        {(['2025', '2024', '2023', '2022', '2021', '2020', 'Leaderboard'] as const).map((year) => (
                                             <DropdownMenuItem
                                                 key={year}
-                                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${selectedYear === year ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${selectedYear === year ? 'bg-blue-500/20 text-blue-400' : ''
+                                                    }`}
                                                 onClick={() => setSelectedYear(year)}
                                             >
                                                 {year}
@@ -2013,9 +2060,9 @@ export default function ConsensusPage() {
                             <div className="h-6 w-px bg-gray-700/30 mx-1" />
 
                             <div className="flex items-center gap-2 flex-shrink-0">
-                                {(selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') && (
+                                {selectedYear !== undefined && (
                                     <>
-                                        <div className="flex items-center gap-1 p-1 bg-[#19191A] border border-gray-800 rounded-lg">                                            
+                                        <div className="flex items-center gap-1 p-1 bg-[#19191A] border border-gray-800 rounded-lg">
                                             <motion.button
                                                 onClick={() => handleConsensusFilterChange('lottery')}
                                                 className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${consensusFilter === 'lottery'
@@ -2048,65 +2095,71 @@ export default function ConsensusPage() {
                                             </motion.button>
                                         </div>
                                         <div className="h-6 w-px bg-gray-700/30 mx-1" />
-                                        <motion.button
-                                            onClick={() => {
-                                                setShowPercentile(!showPercentile);
-                                                if (!showPercentile) setShowZScore(false); // Uncheck Z-Score when enabling Percentile
-                                            }}
-                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${showPercentile
-                                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                                }`}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            Percentiles
-                                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${showPercentile
-                                                ? 'border-blue-400 bg-blue-400/20'
-                                                : 'border-gray-500 bg-transparent'
-                                                }`}>
-                                                {showPercentile && (
-                                                    <svg
-                                                        className="w-3 h-3 text-blue-400"
-                                                        fill="none"
-                                                        strokeWidth="2.5"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                )}
-                                            </div>
-                                        </motion.button>
-                                        <motion.button
-                                            onClick={() => {
-                                                setShowZScore(!showZScore);
-                                                if (!showZScore) setShowPercentile(false); // Uncheck Percentile when enabling Z-Score
-                                            }}
-                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${showZScore
-                                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                                : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
-                                                }`}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            Z-Scores
-                                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${showZScore
-                                                ? 'border-blue-400 bg-blue-400/20'
-                                                : 'border-gray-500 bg-transparent'
-                                                }`}>
-                                                {showZScore && (
-                                                    <svg
-                                                        className="w-3 h-3 text-blue-400"
-                                                        fill="none"
-                                                        strokeWidth="2.5"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                )}
-                                            </div>
-                                        </motion.button>
-                                        <div className="h-6 w-px bg-gray-700/30 mx-1" />
+
+                                        {/* Only show Percentiles and Z-Score for non-Leaderboard years */}
+                                        {selectedYear !== 'Leaderboard' && (
+                                            <>
+                                                <motion.button
+                                                    onClick={() => {
+                                                        setShowPercentile(!showPercentile);
+                                                        if (!showPercentile) setShowZScore(false);
+                                                    }}
+                                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${showPercentile
+                                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                                        }`}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    Percentiles
+                                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${showPercentile
+                                                        ? 'border-blue-400 bg-blue-400/20'
+                                                        : 'border-gray-500 bg-transparent'
+                                                        }`}>
+                                                        {showPercentile && (
+                                                            <svg
+                                                                className="w-3 h-3 text-blue-400"
+                                                                fill="none"
+                                                                strokeWidth="2.5"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        )}
+                                                    </div>
+                                                </motion.button>
+                                                <motion.button
+                                                    onClick={() => {
+                                                        setShowZScore(!showZScore);
+                                                        if (!showZScore) setShowPercentile(false);
+                                                    }}
+                                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${showZScore
+                                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                                        : 'bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700'
+                                                        }`}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    Z-Scores
+                                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${showZScore
+                                                        ? 'border-blue-400 bg-blue-400/20'
+                                                        : 'border-gray-500 bg-transparent'
+                                                        }`}>
+                                                        {showZScore && (
+                                                            <svg
+                                                                className="w-3 h-3 text-blue-400"
+                                                                fill="none"
+                                                                strokeWidth="2.5"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        )}
+                                                    </div>
+                                                </motion.button>
+                                                <div className="h-6 w-px bg-gray-700/30 mx-1" />
+                                            </>
+                                        )}
                                     </>
                                 )}
 
@@ -2122,10 +2175,11 @@ export default function ConsensusPage() {
                                         </motion.button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="bg-[#19191A] border-gray-700">
-                                        {(['2025', '2024', '2023', '2022', '2021', '2020'] as const).map((year) => (
+                                        {(['2025', '2024', '2023', '2022', '2021', '2020', 'Leaderboard'] as const).map((year) => (
                                             <DropdownMenuItem
                                                 key={year}
-                                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${selectedYear === year ? 'bg-blue-500/20 text-blue-400' : ''}`}
+                                                className={`text-gray-400 hover:bg-gray-800/50 cursor-pointer rounded-md ${selectedYear === year ? 'bg-blue-500/20 text-blue-400' : ''
+                                                    }`}
                                                 onClick={() => setSelectedYear(year)}
                                             >
                                                 {year}
@@ -2183,9 +2237,20 @@ export default function ConsensusPage() {
             )}
 
             {viewMode === 'contributors' ? (
-                (selectedYear === '2020' || selectedYear === '2021' || selectedYear === '2022' || selectedYear === '2023' || selectedYear === '2024' || selectedYear === '2025') ? (
+                selectedYear === 'Leaderboard' ? (
                     <>
-                        {console.log('ConsensusPage - About to render with rawCsvText length:', rawCsvText.length)}
+                        <EvaluationExplanation
+                            selectedYear={selectedYear}
+                            consensusFilter={consensusFilter}
+                        />
+                        <LeaderboardTable
+                            leaderboardData={leaderboardData}
+                            consensusFilter={consensusFilter}
+                            searchQuery={contributorSearch}
+                        />
+                    </>
+                ) : (['2020', '2021', '2022', '2023', '2024', '2025'].includes(selectedYear)) ? (
+                    <>
                         <EvaluationExplanation
                             selectedYear={selectedYear}
                             consensusFilter={consensusFilter}
