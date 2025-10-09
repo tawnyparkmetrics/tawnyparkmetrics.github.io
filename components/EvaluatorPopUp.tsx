@@ -17,12 +17,12 @@ const MOBILE_BOARD_NAMES: Record<string, string> = {
     "@KlineNBA (Fansided)": "@KlineNBA",
     "@supersayansavin (TPM)": "@supersayansavin",
     "TheProcess (Colten Stout)": "Colten Stout",
-    "@KevinOConnorNBA (Yahoo)": "Kevin O'Connor",
     "Matt Norlander (CBS Sports)": "Matt Norlander",
     "@JeremyWoo (ESPN)": "@JeremyWoo",
     "@JeremyWoo (Sports Illustrated)": "@JeremyWoo",
     "Kevin Broom (YODA)": "Kevin Broom",
     "Ryan O'Hara (Hoop Scout)": "Ryan O'Hara",
+    "@KevinOConnorNBA (Yahoo)": "Kevin O'Connor"
 };
 
 // Media logo mapping - maps domain patterns to logo filenames
