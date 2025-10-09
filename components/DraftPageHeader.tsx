@@ -11,11 +11,11 @@ const getBoardCount = (year: number | string | undefined) => {
 
   switch (numericYear) {
     case 2020:
-      return 63;
+      return 62;
     case 2021:
-      return 104;
+      return 102;
     case 2022:
-      return 100;
+      return 98;
     case 2023:
       return 71;
     case 2024:
