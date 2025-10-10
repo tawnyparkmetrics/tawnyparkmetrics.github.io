@@ -87,7 +87,9 @@ export interface ContributorEvaluationTableProps<T extends BaseContributorEvalua
 }
 
 const ANONYMOUS_BOARD_NAMES: Record<string, string> = {
-    '@marx_posts': '[redacted]',
+    "@marx_posts": "[redacted]",
+    "Sam Vecenie (The Athletic)": "[redacted]",
+    "John Hollinger (The Athletic)": "[redacted]",
 };
 
 const anonymizeBoardName = (boardName: string): string => {
