@@ -88,9 +88,12 @@ export interface ContributorEvaluationTableProps<T extends BaseContributorEvalua
 
 const ANONYMOUS_BOARD_NAMES: Record<string, string> = {
     "@marx_posts": "[redacted]",
-    "Sam Vecenie (The Athletic)": "[redacted]",
-    "John Hollinger (The Athletic)": "[redacted]",
 };
+
+const EXCLUDED_BOARD_NAMES: string[] = [
+    "Sam Vecenie (The Athletic)",
+    "John Hollinger (The Athletic)"
+];
 
 const anonymizeBoardName = (boardName: string): string => {
     const anonymizedName = ANONYMOUS_BOARD_NAMES[boardName];
@@ -269,29 +272,35 @@ export function ContributorEvaluationTable<T extends BaseContributorEvaluation>(
 
     const filteredEvaluations = useMemo(() => {
         const effectiveSearchQuery = searchQuery || '';
-
-        if (!effectiveSearchQuery || effectiveSearchQuery.trim() === '') {
-            return evaluations;
-        }
-
-        const searchTerm = effectiveSearchQuery.toLowerCase().trim();
-        return evaluations.filter(evaluation => {
+    
+        // First filter out excluded boards
+        const withoutExcluded = evaluations.filter(evaluation => {
             const originalBoardName = String(evaluation.Board || '');
-
+            return !EXCLUDED_BOARD_NAMES.includes(originalBoardName);
+        });
+    
+        if (!effectiveSearchQuery || effectiveSearchQuery.trim() === '') {
+            return withoutExcluded;
+        }
+    
+        const searchTerm = effectiveSearchQuery.toLowerCase().trim();
+        return withoutExcluded.filter(evaluation => {
+            const originalBoardName = String(evaluation.Board || '');
+    
             if (ANONYMOUS_BOARD_NAMES[originalBoardName]) {
                 return false;
             }
-
+    
             const displayName = anonymizeBoardName(originalBoardName).toLowerCase();
             if (displayName.includes(searchTerm)) {
                 return true;
             }
-
+    
             const cleanBoardName = originalBoardName.replace(/^@/, '').toLowerCase();
             if (cleanBoardName.includes(searchTerm)) {
                 return true;
             }
-
+    
             return false;
         });
     }, [evaluations, searchQuery]);
