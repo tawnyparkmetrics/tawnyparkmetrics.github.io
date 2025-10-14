@@ -67,6 +67,8 @@ export interface BaseContributorEvaluation {
     'avg L z-score': string;
     'avg T30 z-score': string;
     'avg T60 z-score': string;
+    'Align. w/ Cons.': string;
+    'Align. w/ NBA': string;
     [key: string]: any;
 }
 

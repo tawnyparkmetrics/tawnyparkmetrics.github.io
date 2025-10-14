@@ -27,10 +27,10 @@ const EvaluationExplanation: React.FC<EvaluationExplanationProps> = ({
     // Get the number of boards based on year (you'll need to adjust these numbers based on your actual data)
     const getBoardCount = () => {
         switch (selectedYear) {
-            case '2025': return 164; // Adjust based on actual count
-            case '2024': return 111;
-            case '2023': return 71;
-            case '2022': return 100;
+            case '2025': return 166; // Adjust based on actual count
+            case '2024': return 114;
+            case '2023': return 73;
+            case '2022': return 99;
             case '2021': return 104;
             case '2020': return 63;
             default: return 15;

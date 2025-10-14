@@ -41,28 +41,27 @@ export function LeaderboardTable({
 }: LeaderboardTableProps) {
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'ascending' | 'descending' } | null>(null);
 
-    // Auto-sort by Rank column in descending order on mount (or first numeric column as fallback)
     // Auto-sort by Rank column in ascending order on mount (or first numeric column as fallback)
     useEffect(() => {
         if (leaderboardData.length > 0 && !sortConfig) {
             const firstRow = leaderboardData[0];
-            
+
             // First, look for a column that contains "Rank" in its name
-            const rankColumn = Object.keys(firstRow).find(key => 
+            const rankColumn = Object.keys(firstRow).find(key =>
                 key.toLowerCase().includes('rank')
             );
-            
+
             if (rankColumn) {
                 setSortConfig({ key: rankColumn, direction: 'ascending' });
                 return;
             }
-            
+
             // Fallback: find first numeric column
             const numericColumn = Object.keys(firstRow).find(key => {
                 const value = firstRow[key];
                 return !isNaN(parseFloat(String(value))) && key !== 'Board' && key !== 'Link 1' && key !== 'Link 2';
             });
-            
+
             if (numericColumn) {
                 setSortConfig({ key: numericColumn, direction: 'descending' });
             }
@@ -174,7 +173,7 @@ export function LeaderboardTable({
         return ranges;
     }, [leaderboardData, columns]);
 
-    
+
 
     const getLogoFromUrl = (url: string): string | null => {
         if (!url || url.trim() === '' || url.toLowerCase() === 'na' || url.toLowerCase() === 'n/a') {
@@ -197,7 +196,8 @@ export function LeaderboardTable({
 
     const getPerformanceGradient = (value: any, key: string): { backgroundColor: string; color: string } => {
         // Skip gradient for non-numeric columns
-        if (key === 'Board' || key === 'Year(s)' || key.includes('%tile')) {
+        if (key === 'Board' || key === 'Year(s)' || key.includes('%tile') || 
+            key.includes('Align.') || key.toLowerCase().includes('align.')) {
             return { backgroundColor: 'transparent', color: '#d1d5db' };
         }
 
@@ -263,6 +263,8 @@ export function LeaderboardTable({
             'Board': 'Board',
             'Count': 'Count',
             'Year(s)': 'Year(s)',
+            'Align. w/ Cons.': 'Align. w/ Cons.',
+            'Align. w/ NBA': 'Align. w/ NBA',
             'Avg Z-Score': 'Avg Z-Score',
             'Top 30 %tile': consensusFilter === 'lottery' ? 'Lottery %tile' :
                 consensusFilter === 'top60' ? 'Top 60 %tile' : 'Top 30 %tile',
@@ -339,8 +341,8 @@ export function LeaderboardTable({
                                 <TableRow
                                     key={`${entry.Board}-${index}`}
                                     className={`border-gray-700/30 ${index === 10 ? 'border-t-2 border-t-white/20' : ''} ${isHighlighted
-                                            ? 'bg-gray-600/30 hover:bg-gray-600/40'
-                                            : 'hover:bg-gray-800/20'
+                                        ? 'bg-gray-600/30 hover:bg-gray-600/40'
+                                        : 'hover:bg-gray-800/20'
                                         }`}
                                 >
                                     {columns.map((column) => {

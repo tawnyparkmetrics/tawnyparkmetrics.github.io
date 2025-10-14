@@ -1,16 +1,16 @@
-Board,Count,Year(s),Avg Z-Score,Top 60 %ile,Top 60 Rank,Link 1,Link 2
-@British_Buzz,2,"2020, 2022",1.277,1.000,1,https://x.com/British_Buzz,
-@Okachukwudi,3,"2021, 2022, 2023",1.162,0.981,2,https://x.com/Okachukwudi,
-@JeremyWoo (ESPN),3,"2020, 2021, 2022",1.062,0.963,3,https://x.com/JeremyWoo,
-@DraftDummies,2,"2021, 2023",0.843,0.944,4,https://x.com/DraftDummies,
-@ADSohn,3,"2020, 2021, 2022",0.783,0.926,5,https://x.com/ADSohn,
-Tankathon,2,"2022, 2023",0.782,0.907,6,https://www.tankathon.com/,
-@qkhoops,2,"2021, 2022",0.78,0.889,7,https://x.com/qkhoops,
-Consensus,5,"2020, 2021, 2022, 2023, 2024",0.732,0.870,8,,
-@HoopIntelllect,3,"2020, 2021, 2024",0.729,0.852,9,https://www.youtube.com/@HoopIntellect,https://x.com/HoopIntelllect
-Kevin O'Connor (Yahoo),3,"2021, 2023, 2024",0.721,0.833,10,https://x.com/KevinOConnor,https://www.youtube.com/playlist?list=PLtAg01865jDfvaiOL5KNcdogZDIw5uI59
-@ephelant48,2,"2021, 2022",0.612,0.815,11,https://x.com/ephelant48,
-ESPN,3,"2022, 2023, 2024",0.607,0.796,12,https://www.espn.com/nba/,
-@jwi23,2,"2021, 2022",0.553,0.778,13,https://x.com/jwi23,
-Coach Spins (The Box and One),2,"2022, 2023",0.552,0.759,14,https://www.youtube.com/c/adamspinella,https://x.com/TheBoxAndOne_
-@SBN_Ricky,2,"2022, 2024",0.543,0.741,15,https://x.com/SBN_Ricky,
+Board,Count,Year(s),Align. w/ Cons.,Align. w/ NBA,Avg Z-Score,Top 60 %ile,Top 60 Rank,Link 1,Link 2
+@British_Buzz,2,"2020, 2022",0.53,0.775,1.314,1.000,1,https://x.com/British_Buzz,
+@Okachukwudi,3,"2021, 2022, 2023",0.867,0.483,1.118,0.981,2,https://x.com/Okachukwudi,
+@JeremyWoo,3,"2020, 2021, 2022",0.307,1.617,1.067,0.963,3,https://x.com/JeremyWoo,
+@DraftDummies,2,"2021, 2023",0.12,0.69,0.82,0.944,4,https://x.com/DraftDummies,
+@ADSohn,3,"2020, 2021, 2022",0.62,-0.19,0.759,0.907,6,https://x.com/ADSohn,
+@qkhoops,2,"2021, 2022",-0.985,-1.045,0.759,0.907,6,https://x.com/qkhoops,
+@HoopIntelllect,3,"2020, 2021, 2024",1.117,1.267,0.753,0.889,7,https://www.youtube.com/@HoopIntellect,https://x.com/HoopIntelllect
+Tankathon,2,"2022, 2023",1.165,1.405,0.743,0.870,8,https://www.tankathon.com/,
+Consensus,5,"2020, 2021, 2022, 2023, 2024",,0.99,0.732,0.852,9,,
+Kevin O'Connor,3,"2021, 2023, 2024",0.323,1.36,0.704,0.833,10,https://x.com/KevinOConnor,https://www.youtube.com/playlist?list=PLtAg01865jDfvaiOL5KNcdogZDIw5uI59
+@ephelant48,2,"2021, 2022",-0.415,-1.655,0.609,0.815,11,https://x.com/ephelant48,
+ESPN,3,"2022, 2023, 2024",0.71,1.467,0.568,0.796,12,https://www.espn.com/nba/,
+Coach Spins,2,"2022, 2023",0.03,0.56,0.521,0.778,13,https://www.youtube.com/c/adamspinella,https://x.com/TheBoxAndOne_
+@jwi23,2,"2021, 2022",0.2,-0.265,0.516,0.759,14,https://x.com/jwi23,
+@beenthrifty,3,"2020, 2021, 2022",-0.47,-1.46,0.495,0.741,15,https://x.com/beenthrifty,
