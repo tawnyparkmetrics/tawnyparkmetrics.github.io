@@ -97,7 +97,7 @@ export function EvaluatorPopUpModel({
 
     const loadBoardsSubmittedCsv = async () => {
         try {
-            const csvFileName = `${year} Boards Submitted Consensus.csv`;
+            const csvFileName = `${year} Boards Submitted Consensus.csv`; //Consensus Boards Submitted
             const response = await fetch(`/${csvFileName}`);
             const csvText = await response.text();
             setBoardsCsvData(csvText);

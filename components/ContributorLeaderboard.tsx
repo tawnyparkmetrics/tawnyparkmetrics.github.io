@@ -238,23 +238,42 @@ export function LeaderboardTable({
         if (value === null || value === undefined || value === '') {
             return 'N/A';
         }
-
+    
+        const stringValue = String(value);
+    
         // Don't format these columns - keep as strings
         if (columnKey === 'Board' || columnKey === 'Year(s)') {
-            return String(value);
+            return stringValue;
         }
-
+    
         // Count column should be a whole number
         if (columnKey === 'Count') {
-            const numValue = parseFloat(String(value));
+            const numValue = parseFloat(stringValue);
             if (!isNaN(numValue)) {
                 return Math.round(numValue).toString();
             }
-            return String(value);
+            return stringValue;
         }
-
-        // For all other columns (Avg Z-Score, %tile, Rank), keep as strings
-        return String(value);
+    
+        // Format columns containing '%ile' as percentiles (1.000 -> 100, 0.986 -> 98.6)
+        if (columnKey.includes('%ile')) {
+            const numValue = parseFloat(stringValue);
+            if (!isNaN(numValue)) {
+                const percentileValue = numValue * 100;
+    
+                // Check if it's a whole number (like 100.0)
+                if (percentileValue === Math.round(percentileValue)) {
+                    return Math.round(percentileValue).toString(); // e.g., 100
+                } else {
+                    // Otherwise, format to one decimal place
+                    return percentileValue.toFixed(1); // e.g., 98.6
+                }
+            }
+            return stringValue; // Return original string if not a valid number
+        }
+    
+        // For all other columns (Avg Z-Score, Rank), keep as strings
+        return stringValue;
     };
 
     const getColumnLabel = (key: string): string => {

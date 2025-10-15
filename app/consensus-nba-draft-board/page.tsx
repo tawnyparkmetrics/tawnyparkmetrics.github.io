@@ -1748,7 +1748,7 @@ export default function ConsensusPage() {
     useEffect(() => {
         async function fetchDraftProspects() {
             try {
-                const csvFileName = `${selectedYear} Draft Twitter Consensus Big Board.csv`;
+                const csvFileName = `${selectedYear} Draft Twitter Consensus Big Board.csv`; //Filtered Consensus
                 const response = await fetch(`/${csvFileName}`);
                 const csvText = await response.text();
 
