@@ -108,6 +108,13 @@ const preNBALogoSizes: { [key: string]: { width: number; height: number; leftOff
     "Tennessee": { width: 100, height: 100 },
     "Georgia": { width: 125, height: 125 }, //off on mobile
     "Liberty": { width: 125, height: 125 },
+    "Eastern Michigan": { width: 110, height: 110 },
+    "New Zealand": { width: 150, height: 150 },
+    "Dayton": { width: 135, height: 135 },
+    "Mississippi State": { width: 135, height: 135, leftOffset: -15 },
+    "Saint Mary's": { width: 135, height: 135, leftOffset: -15 },
+    "SMU": { width: 135, height: 135, leftOffset: -15 },
+    "Louisiana Tech": { width: 150, height: 150, leftOffset: -15 },
 }
 
 const nbaLogoSizes: { [key: string]: { width: number; height: number; rightOffset?: number } } = {

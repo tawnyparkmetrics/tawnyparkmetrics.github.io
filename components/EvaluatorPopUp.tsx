@@ -12,7 +12,7 @@ const MOBILE_BOARD_NAMES: Record<string, string> = {
     "John Hollinger (The Athletic)": "John Hollinger",
     "Kevin Pelton (ESPN)": "Kevin Pelton",
     "Coach Spins (The Box and One)": "Coach Spins",
-    "Michael Neff (Swish Theory": "Michael Neff",
+    "Michael Neff (Swish Theory)": "Michael Neff",
     "Kevin O'Connor (The Ringer)": "Kevin O'Connor",
     "@KlineNBA (Fansided)": "@KlineNBA",
     "@supersayansavin (TPM)": "@supersayansavin",
@@ -22,7 +22,7 @@ const MOBILE_BOARD_NAMES: Record<string, string> = {
     "@JeremyWoo (Sports Illustrated)": "@JeremyWoo",
     "Kevin Broom (YODA)": "Kevin Broom",
     "Ryan O'Hara (Hoop Scout)": "Ryan O'Hara",
-    "@KevinOConnorNBA (Yahoo)": "Kevin O'Connor"
+    "@KevinOConnorNBA (Yahoo)": "Kevin O'Connor",
 };
 
 // Media logo mapping - maps domain patterns to logo filenames
