@@ -12,6 +12,7 @@ export default function Custom404() {
       '/TPM_Write_Up': '/max-nba-draft-model-write-up',
       '/Consensus': '/consensus-nba-draft-board',
       '/consensus-nba-board': '/consensus-nba-draft-board',
+      '/TPM_FVC': '/'
     };
 
     if (redirects[router.asPath]) {
@@ -19,5 +20,10 @@ export default function Custom404() {
     }
   }, [router]);
 
-  return <div>Redirecting...</div>;
+  return (
+    <div style={{ padding: '20px', textAlign: 'center' }}>
+      <h1>Page Not Found</h1>
+      <p>Redirecting you to the new location...</p>
+    </div>
+  );
 }

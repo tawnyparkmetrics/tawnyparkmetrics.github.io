@@ -30,6 +30,11 @@ const nextConfig = {
         destination: '/consensus-nba-draft-board',
         permanent: true,
       },
+      {
+        source: '/TPM_FVC',
+        destination: '/',
+        permanent: true,
+      },
     ];
   },
 };
