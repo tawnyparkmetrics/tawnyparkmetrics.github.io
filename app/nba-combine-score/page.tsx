@@ -1124,14 +1124,6 @@ export default function CombineScorePage() {
         setSortConfig({ key, direction });
     };
 
-    const hasActiveFilters = () => searchQuery !== '' || selectedPosition !== 'PG-C';
-
-    const resetFilters = () => {
-        setSearchQuery('');
-        setSelectedPosition('PG-C');
-        setIsMobileFilterOpen(false);
-    };
-
     const SortIcon = ({ columnKey }: { columnKey: string }) => {
         if (sortConfig.key !== columnKey) {
             return <ChevronDown className="h-4 w-4 text-gray-500" />;
