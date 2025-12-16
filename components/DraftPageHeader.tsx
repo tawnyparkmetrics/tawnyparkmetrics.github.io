@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface DraftPageHeaderProps {
-  author: 'Max Savin' | 'Nick Kalinowski' | 'Andre Liu' | 'Consensus' | 'Draft History' | '2020-2025 NBA Draft History';
+  author: 'Max Savin' | 'Nick Kalinowski' | 'Andre Liu' | 'Consensus' | 'Draft History' | '2020-2025 NBA Draft History' | 'Combine Score';
   className?: string;
   selectedYear?: number | string;
 }
@@ -45,6 +45,8 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Draft History':
       case '2020-2025 NBA Draft History':
         return '';
+      case 'Combine Score':
+        return 'PLACEHOLDER';
       case 'Consensus':
         // Handle Leaderboard view
         if (selectedYear === 'Leaderboard') {
@@ -81,6 +83,9 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
         return '2020-2025 NBA Draft History';
       }
       return selectedYear ? `${selectedYear} NBA Draft` : `NBA Draft`;
+    }
+    if (author === 'Combine Score') {
+      return 'Combine Score';
     }
     return `${firstName}'s Draft Model`;
   };

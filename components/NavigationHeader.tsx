@@ -32,11 +32,20 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
 
   // TPM dropdown items
   const DraftDropdownItems = [
-    {
-      name: 'Draft History',
-      href: '/nba-draft-history',
-      available: true
-    },
+      {
+        name: 'Draft History',
+        href: '/nba-draft-history',
+        available: true
+      },
+      {
+        name: 'Combine Score',
+        href: '#',
+        available: true,
+        subItems: [
+          { name: 'Write Up', href: '/nba-combine-score-write-up', available: true },
+          { name: 'Combine Score', href: '/nba-combine-score', available: true }
+        ]
+      },
     {
       name: 'Consensus',
       href: '#',
