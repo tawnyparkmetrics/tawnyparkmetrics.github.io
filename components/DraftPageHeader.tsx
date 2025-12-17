@@ -101,10 +101,14 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
   const isDraftHistory = author === 'Draft History' || author === '2020-2025 NBA Draft History';
   const paddingClass = isDraftHistory ? 'py-2 mt-1.5' : 'py-3';
 
+  const isCombineScore = author === 'Combine Score';
+  const alignmentClass = isCombineScore ? '-ml-2 md:-ml-3' : 'pl-2 md:pl-0 md:ml-[3.25rem]';
+
+
   return (
     <div className={`bg-[#19191A] border-b border-gray-800 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`${paddingClass} pl-2 md:pl-0 md:ml-[3.25rem]`}>
+        <div className={`${paddingClass} ${alignmentClass}`}>
           <h1 className="text-xl md:text-2xl font-semibold text-white">
             {getTitle(firstName, author, selectedYear)}
           </h1>
