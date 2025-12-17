@@ -1,13 +1,37 @@
 "use client";
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, X, ChevronDown, SlidersHorizontal, ChevronUp } from 'lucide-react';
+import { Search, ChevronDown, SlidersHorizontal, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Papa from 'papaparse';
 import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { Barlow } from 'next/font/google';
 
+const barlow = Barlow({
+    weight: ['400', '500', '600', '700'],
+    subsets: ['latin'],
+});
+
+
+const pulseStyles = `
+  @keyframes subtle-pulse {
+    0%, 100% { 
+      filter: brightness(1) saturate(1) drop-shadow(0 0 0px currentColor);
+      transform: scale(1);
+    }
+    50% { 
+      filter: brightness(1.07) saturate(1.07) drop-shadow(0 0 4px currentColor);
+      transform: scale(1.02);
+    }
+  }
+  
+  .pulse-active {
+    animation: subtle-pulse 2s ease-in-out;
+    display: inline-block;
+  }
+`;
 
 interface CombinePlayer {
     //Player Information
@@ -62,12 +86,46 @@ interface CombinePlayer {
 }
 
 const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData: CombinePlayer[] }) => {
+    const [comparisonPlayer, setComparisonPlayer] = React.useState<CombinePlayer | null>(null);
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [showSuggestions, setShowSuggestions] = React.useState(false);
+
     const getTieredColor = (percentile: number | null | undefined): string => {
         if (percentile === null || percentile === undefined) return 'transparent';
         const score = Math.max(0, Math.min(100, percentile));
         if (score >= 60) return '#79e0ff';
         else if (score >= 40) return '#ffbc49';
         else return '#ff5757';
+    };
+
+    // Get players in the same position for comparison
+    const availableComparisons = React.useMemo(() => {
+        const position = player['Default Position'];
+        return allData.filter(p =>
+            p['Default Position'] === position &&
+            p['Is Primary'] === 1 &&
+            p['Player'] !== player['Player'] // Exclude the current player
+        ).sort((a, b) => a['Player'].localeCompare(b['Player']));
+    }, [player, allData]);
+
+    // Filter suggestions based on search
+    const filteredSuggestions = React.useMemo(() => {
+        const query = searchQuery.toLowerCase();
+        if (!query.trim()) return availableComparisons;
+        return availableComparisons.filter(p =>
+            p['Player'].toLowerCase().includes(query)
+        );
+    }, [searchQuery, availableComparisons]);
+
+    const handleSelectPlayer = (selectedPlayer: CombinePlayer) => {
+        setComparisonPlayer(selectedPlayer);
+        setSearchQuery(selectedPlayer['Player']);
+        setShowSuggestions(false);
+    };
+
+    const handleClearComparison = () => {
+        setComparisonPlayer(null);
+        setSearchQuery('');
     };
 
     // Calculate position averages across all years
@@ -130,7 +188,7 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
     ];
 
     // Spider chart helper function
-    const getSpiderPoints = (attributes: { name: string; key: string }[]) => {
+    const getSpiderPoints = (attributes: { name: string; key: string }[], targetPlayer: CombinePlayer = player) => {
         const centerX = 150;
         const centerY = 150;
         const maxRadius = 120;
@@ -138,7 +196,7 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
 
         return attributes.map((attr, i) => {
             const angle = -Math.PI / 2 + i * angleStep;
-            const value = player[attr.key] ?? 0;
+            const value = targetPlayer[attr.key] ?? 0;
             const radius = (value / 100) * maxRadius;
             const x = centerX + radius * Math.cos(angle);
             const y = centerY + radius * Math.sin(angle);
@@ -179,8 +237,8 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
         });
     };
 
-    const getSpiderPolygonPath = (attributes: { name: string; key: string }[]) => {
-        const points = getSpiderPoints(attributes);
+    const getSpiderPolygonPath = (attributes: { name: string; key: string }[], targetPlayer: CombinePlayer = player) => {
+        const points = getSpiderPoints(attributes, targetPlayer);
         return points.map(p => `${p.x},${p.y}`).join(' ');
     };
 
@@ -195,86 +253,157 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
         return { x, y };
     };
 
+
     return (
-        <div className="space-y-4">
+        <div className="space-y-5">
             <div className="grid grid-cols-3 gap-4">
-                {/* Bar Chart - Left */}
-                <div className="bg-[#19191A] p-4 rounded-lg border border-gray-800">
-                    <h4 className="text-sm font-semibold text-gray-300 mb-3 text-center">
-                        {player.Player} ({player['Default Position']}) vs Average {player['Default Position']}
-                    </h4>
-                    <div className="flex items-end justify-center gap-4 h-40">
-                        <div className="flex items-end gap-4">
-                            {compositeScores.map((score) => {
-                                const playerValue = player[score.playerKey as keyof typeof player] ?? 0;
-                                const avgValue = positionAverages[score.avgKey as keyof typeof positionAverages] ?? 0;
-                                return (
-                                    <div key={score.name} className="flex flex-col items-center gap-2 w-14">
-                                        <div className="flex items-end gap-2 w-full justify-center" style={{ height: '128px' }}>
-                                            {/* Player Bar */}
-                                            <div className="flex flex-col items-center gap-1 w-5">
-                                                <span className="text-xs font-semibold text-white" style={{ minHeight: '16px' }}>
-                                                    {playerValue.toFixed(0)}
-                                                </span>
-                                                <div
-                                                    className="w-full rounded-t transition-all duration-500"
-                                                    style={{
-                                                        height: `${(playerValue / 100) * 112}px`,
-                                                        backgroundColor: getTieredColor(playerValue),
-                                                        minHeight: '3px'
-                                                    }}
-                                                />
-                                            </div>
-                                            {/* Average Bar */}
-                                            <div className="flex flex-col items-center gap-1 w-5">
-                                                <span className="text-xs font-semibold text-gray-400" style={{ minHeight: '16px' }}>
-                                                    {avgValue.toFixed(0)}
-                                                </span>
-                                                <div
-                                                    className="w-full rounded-t transition-all duration-500"
-                                                    style={{
-                                                        height: `${(avgValue / 100) * 112}px`,
-                                                        backgroundColor: '#4b5563',
-                                                        minHeight: '3px'
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="text-xs font-medium text-gray-300 text-center">{score.name}</div>
+                {/* Bar Chart with Search - Left */}
+                <div className="flex flex-col">
+                    {/* Comparison Search Bar - Only above bar chart */}
+                    <div className="rounded-lg pb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="relative w-full">
+                                {/* Search icon */}
+                                <svg
+                                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 h-3 w-3 z-10 pointer-events-none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+                                </svg>
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        setShowSuggestions(true);
+                                        if (!e.target.value.trim()) {
+                                            setComparisonPlayer(null);
+                                        }
+                                    }}
+                                    onFocus={() => setShowSuggestions(true)}
+                                    placeholder={`Compare with Other ${player['Default Position']}s`}
+                                    className="w-full pl-8 pr-3 py-2 text-xs bg-[#19191A] border border-gray-800 text-gray-300 placeholder-gray-500 rounded focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:outline-none"
+                                />
+                                {comparisonPlayer && (
+                                    <button
+                                        onClick={handleClearComparison}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                                    >
+                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                )}
+                                {showSuggestions && filteredSuggestions.length > 0 && (
+                                    <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                                        {filteredSuggestions.map((p, idx) => (
+                                            <button
+                                                key={idx}
+                                                onClick={() => handleSelectPlayer(p)}
+                                                className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-gray-700 transition-colors"
+                                            >
+                                                {p['Player']} ({p['Draft Year']})
+                                            </button>
+                                        ))}
                                     </div>
-                                );
-                            })}
+                                )}
+                            </div>
                         </div>
                     </div>
-                    <div className="flex items-center justify-center gap-4 mt-3">
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded" style={{ backgroundColor: getTieredColor(50) }} />
-                            <span className="text-xs text-gray-400">Player</span>
+
+                    {/* Bar Chart */}
+                    <div className="bg-[#19191A] p-7 rounded-lg border border-gray-800"> {/* Changed from p-4 to p-3 */}
+                        <h4 className="text-sm font-semibold text-gray-300 mb-2 text-center"> {/* Changed from mb-3 to mb-2 */}
+                            {player.Player} vs {comparisonPlayer ? comparisonPlayer.Player : `Average ${player['Default Position']}`}
+                        </h4>
+                        <div className="flex items-end justify-center gap-4 h-32">
+                            <div className="flex items-end gap-4">
+                                {compositeScores.map((score) => {
+                                    const playerValue = player[score.playerKey as keyof typeof player] ?? 0;
+                                    const comparisonValue = comparisonPlayer
+                                        ? (comparisonPlayer[score.playerKey as keyof typeof comparisonPlayer] ?? 0)
+                                        : (positionAverages[score.avgKey as keyof typeof positionAverages] ?? 0);
+
+                                    const playerColor = comparisonPlayer ? '#3b82f6' : getTieredColor(playerValue);
+                                    const comparisonColor = comparisonPlayer ? '#ef4444' : '#4b5563';
+
+                                    return (
+                                        <div key={score.name} className="flex flex-col items-center gap-2 w-14">
+                                            <div className="flex items-end gap-2 w-full justify-center" style={{ height: '104px' }}>
+                                                {/* Player Bar */}
+                                                <div className="flex flex-col items-center gap-1 w-5">
+                                                    <span className="text-xs font-semibold text-white" style={{ minHeight: '16px' }}>
+                                                        {playerValue.toFixed(0)}
+                                                    </span>
+                                                    <motion.div
+                                                        className="w-full rounded-t"
+                                                        animate={{ height: `${(playerValue / 100) * 88}px` }}
+                                                        transition={{ duration: 0.5, ease: "easeOut" }}
+                                                        style={{
+                                                            backgroundColor: playerColor,
+                                                            minHeight: '3px'
+                                                        }}
+                                                    />
+                                                </div>
+                                                {/* Comparison/Average Bar */}
+                                                <div className="flex flex-col items-center gap-1 w-5">
+                                                    <span className="text-xs font-semibold text-gray-400" style={{ minHeight: '16px' }}>
+                                                        {comparisonValue.toFixed(0)}
+                                                    </span>
+                                                    <motion.div
+                                                        className="w-full rounded-t"
+                                                        animate={{ height: `${(comparisonValue / 100) * 88}px` }}
+                                                        transition={{ duration: 0.5, ease: "easeOut" }}
+                                                        style={{
+                                                            backgroundColor: comparisonColor,
+                                                            minHeight: '3px'
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="text-xs font-medium text-gray-300 text-center">{score.name}</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded bg-gray-600" />
-                            <span className="text-xs text-gray-400">Pos Avg</span>
+                        <div className="flex items-center justify-center gap-4 mt-3">
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded" style={{ backgroundColor: comparisonPlayer ? '#3b82f6' : getTieredColor(60) }} />
+                                <span className="text-xs text-gray-400">{player.Player}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded" style={{ backgroundColor: comparisonPlayer ? '#ef4444' : '#4b5563' }} />
+                                <span className="text-xs text-gray-400">{comparisonPlayer ? comparisonPlayer.Player : 'Pos Avg'}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Anthropometric Spider Chart - Middle */}
-                <div className="bg-[#19191A] p-4 rounded-lg border border-gray-800">
-                    <h4 className="text-sm font-semibold text-gray-300 mb-3 text-center">Anthropometric Data</h4>
+                <div className="bg-[#19191A] p-3 rounded-lg border border-gray-800">
+                    <h4 className="text-sm font-semibold text-gray-300 mb-2 text-center">Anthropometric Data</h4>
                     <svg viewBox="0 0 300 300" className="w-full h-56">
+                        {/* Grid lines and axes */}
                         {getSpiderGridLines(anthropometricAttrs.length).map((grid, i) => (
-                            <polygon
+                            <motion.polygon
                                 key={i}
                                 points={grid.points}
                                 fill="none"
                                 stroke="#374151"
                                 strokeWidth="1"
                                 opacity="0.3"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 0.3 }}
+                                transition={{ duration: 0.5, delay: i * 0.1 }}
                             />
                         ))}
 
                         {getAxisLines(anthropometricAttrs.length).map((line, i) => (
-                            <line
+                            <motion.line
                                 key={i}
                                 x1={line.x1}
                                 y1={line.y1}
@@ -283,64 +412,113 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                                 stroke="#374151"
                                 strokeWidth="1"
                                 opacity="0.5"
+                                initial={{ pathLength: 0 }}
+                                animate={{ pathLength: 1 }}
+                                transition={{ duration: 0.6, delay: i * 0.05 }}
                             />
                         ))}
 
-                        <polygon
-                            points={getSpiderPolygonPath(anthropometricAttrs)}
-                            fill={getTieredColor(player['Physical Score'])}
+                        {/* Comparison player polygon (if exists) - behind */}
+                        {comparisonPlayer && (
+                            <>
+                                <motion.polygon
+                                    points={getSpiderPolygonPath(anthropometricAttrs, comparisonPlayer)}
+                                    fill="#ef4444"
+                                    fillOpacity="0.2"
+                                    stroke="#ef4444"
+                                    strokeWidth="2"
+                                    strokeDasharray="5,5"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.6, delay: 0.4 }}
+                                />
+                                {getSpiderPoints(anthropometricAttrs, comparisonPlayer).map((point, i) => (
+                                    <motion.circle
+                                        key={i}
+                                        cx={point.x}
+                                        cy={point.y}
+                                        r="3"
+                                        fill="#ef4444"
+                                        stroke="#19191A"
+                                        strokeWidth="2"
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ duration: 0.3, delay: 0.5 + i * 0.05 }}
+                                    />
+                                ))}
+                            </>
+                        )}
+
+                        {/* Main player polygon - in front */}
+                        <motion.polygon
+                            points={getSpiderPolygonPath(anthropometricAttrs, player)}
+                            fill={comparisonPlayer ? '#3b82f6' : getTieredColor(player['Physical Score'])}
                             fillOpacity="0.3"
-                            stroke={getTieredColor(player['Physical Score'])}
+                            stroke={comparisonPlayer ? '#3b82f6' : getTieredColor(player['Physical Score'])}
                             strokeWidth="2"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6, delay: 0.3 }}
                         />
 
-                        {getSpiderPoints(anthropometricAttrs).map((point, i) => (
-                            <circle
+                        {getSpiderPoints(anthropometricAttrs, player).map((point, i) => (
+                            <motion.circle
                                 key={i}
                                 cx={point.x}
                                 cy={point.y}
                                 r="3"
-                                fill={getTieredColor(point.value)}
+                                fill={comparisonPlayer ? '#3b82f6' : getTieredColor(point.value)}
                                 stroke="#19191A"
                                 strokeWidth="2"
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ duration: 0.3, delay: 0.4 + i * 0.05 }}
                             />
                         ))}
 
+                        {/* Labels */}
                         {anthropometricAttrs.map((attr, i) => {
                             const pos = getLabelPosition(i, anthropometricAttrs.length);
                             return (
-                                <text
+                                <motion.text
                                     key={i}
                                     x={pos.x}
                                     y={pos.y}
                                     textAnchor="middle"
                                     dominantBaseline="middle"
                                     className="text-xs fill-gray-300 font-medium"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.4, delay: 0.6 + i * 0.05 }}
                                 >
                                     {attr.name}
-                                </text>
+                                </motion.text>
                             );
                         })}
                     </svg>
                 </div>
 
                 {/* Athletic Testing Spider Chart - Right */}
-                <div className="bg-[#19191A] p-4 rounded-lg border border-gray-800">
-                    <h4 className="text-sm font-semibold text-gray-300 mb-3 text-center">Athletic Testing Data</h4>
+                <div className="bg-[#19191A] p-3 rounded-lg border border-gray-800">
+                    <h4 className="text-sm font-semibold text-gray-300 mb-2 text-center">Athletic Testing Data</h4>
                     <svg viewBox="0 0 300 300" className="w-full h-56">
+                        {/* Grid lines and axes */}
                         {getSpiderGridLines(athleticAttrs.length).map((grid, i) => (
-                            <polygon
+                            <motion.polygon
                                 key={i}
                                 points={grid.points}
                                 fill="none"
                                 stroke="#374151"
                                 strokeWidth="1"
                                 opacity="0.3"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 0.3 }}
+                                transition={{ duration: 0.5, delay: i * 0.1 }}
                             />
                         ))}
 
                         {getAxisLines(athleticAttrs.length).map((line, i) => (
-                            <line
+                            <motion.line
                                 key={i}
                                 x1={line.x1}
                                 y1={line.y1}
@@ -349,42 +527,87 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                                 stroke="#374151"
                                 strokeWidth="1"
                                 opacity="0.5"
+                                initial={{ pathLength: 0 }}
+                                animate={{ pathLength: 1 }}
+                                transition={{ duration: 0.6, delay: i * 0.05 }}
                             />
                         ))}
 
-                        <polygon
-                            points={getSpiderPolygonPath(athleticAttrs)}
-                            fill={getTieredColor(player['Agility Score'])}
+                        {/* Comparison player polygon (if exists) - behind */}
+                        {comparisonPlayer && (
+                            <>
+                                <motion.polygon
+                                    points={getSpiderPolygonPath(athleticAttrs, comparisonPlayer)}
+                                    fill="#ef4444"
+                                    fillOpacity="0.2"
+                                    stroke="#ef4444"
+                                    strokeWidth="2"
+                                    strokeDasharray="5,5"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.6, delay: 0.4 }}
+                                />
+                                {getSpiderPoints(athleticAttrs, comparisonPlayer).map((point, i) => (
+                                    <motion.circle
+                                        key={i}
+                                        cx={point.x}
+                                        cy={point.y}
+                                        r="3"
+                                        fill="#ef4444"
+                                        stroke="#19191A"
+                                        strokeWidth="2"
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ duration: 0.3, delay: 0.5 + i * 0.05 }}
+                                    />
+                                ))}
+                            </>
+                        )}
+
+                        {/* Main player polygon - in front */}
+                        <motion.polygon
+                            points={getSpiderPolygonPath(athleticAttrs, player)}
+                            fill={comparisonPlayer ? '#3b82f6' : getTieredColor(player['Agility Score'])}
                             fillOpacity="0.3"
-                            stroke={getTieredColor(player['Agility Score'])}
+                            stroke={comparisonPlayer ? '#3b82f6' : getTieredColor(player['Agility Score'])}
                             strokeWidth="2"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6, delay: 0.3 }}
                         />
 
-                        {getSpiderPoints(athleticAttrs).map((point, i) => (
-                            <circle
+                        {getSpiderPoints(athleticAttrs, player).map((point, i) => (
+                            <motion.circle
                                 key={i}
                                 cx={point.x}
                                 cy={point.y}
                                 r="3"
-                                fill={getTieredColor(point.value)}
+                                fill={comparisonPlayer ? '#3b82f6' : getTieredColor(point.value)}
                                 stroke="#19191A"
                                 strokeWidth="2"
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ duration: 0.3, delay: 0.4 + i * 0.05 }}
                             />
                         ))}
 
+                        {/* Labels */}
                         {athleticAttrs.map((attr, i) => {
                             const pos = getLabelPosition(i, athleticAttrs.length);
                             return (
-                                <text
+                                <motion.text
                                     key={i}
                                     x={pos.x}
                                     y={pos.y}
                                     textAnchor="middle"
                                     dominantBaseline="middle"
                                     className="text-xs fill-gray-300 font-medium"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.4, delay: 0.6 + i * 0.05 }}
                                 >
                                     {attr.name}
-                                </text>
+                                </motion.text>
                             );
                         })}
                     </svg>
@@ -396,6 +619,22 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
 
 const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClose: () => void }) => {
     if (!player) return null;
+
+    const playerNameOverrides: { [key: string]: string } = {
+        'Yanic Konan Niederhauser': 'Yanic Konan N.',
+        'Ryan Kalkbrenner': 'R. Kalkbrenner',
+        'Walter Clayton Jr.': 'W. Clayton Jr.',
+        // Add more overrides here as needed
+    };
+
+    const getDisplayName = (playerName: string): string => {
+        return playerNameOverrides[playerName] || playerName;
+    };
+
+    const formatNumber = (num: number | null | undefined): string => {
+        if (num === null || num === undefined) return 'N/A';
+        return num % 1 === 0 ? num.toFixed(0) : num.toFixed(1);
+    };
 
     const [activeStreaks, setActiveStreaks] = React.useState<{ [key: number]: string }>({});
     const contentRef = React.useRef<HTMLDivElement>(null);
@@ -562,7 +801,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                         {/* Center: Player Name and Details */}
                         <div className="flex-1 text-center min-w-0 px-4 pt-3">
                             <h2 className="text-3xl font-bold text-white mb-2 tracking-wide font-barlow">
-                                {player.Player.toUpperCase()}
+                                {getDisplayName(player.Player).toUpperCase()}
                             </h2>
                             <div className="text-base text-sm text-gray-300 font-medium flex items-center justify-center">
                                 <span>{player['Pre-NBA'] || 'N/A'}</span>
@@ -598,7 +837,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                     Combine Score
                                 </span>
                                 <span className="text-white text-xs font-semibold">
-                                    {player['Combine Score'] ? player['Combine Score'].toFixed(1) : 'N/A'}
+                                    {formatNumber(player['Combine Score'])}
                                 </span>
                             </div>
 
@@ -631,7 +870,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 Physical Score
                                             </span>
                                             <span className="text-white text-xs font-semibold">
-                                                {player['Physical Score'] ? player['Physical Score'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Physical Score'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -655,7 +894,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Height (in.)_Percentile'] ? player['Height (in.)_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Height (in.)_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -679,7 +918,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Wingspan (in.)_Percentile'] ? player['Wingspan (in.)_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Wingspan (in.)_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -703,7 +942,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Standing Reach (in.)_Percentile'] ? player['Standing Reach (in.)_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Standing Reach (in.)_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -727,7 +966,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Weight (lbs)_Percentile'] ? player['Weight (lbs)_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Weight (lbs)_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -751,7 +990,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Hand Length (in.)_Percentile'] ? player['Hand Length (in.)_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Hand Length (in.)_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -775,7 +1014,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Hand Width (in.)_Percentile'] ? player['Hand Width (in.)_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Hand Width (in.)_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -805,7 +1044,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 Vertical Score
                                             </span>
                                             <span className="text-white text-xs font-semibold">
-                                                {player['Vertical Score'] ? player['Vertical Score'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Vertical Score'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -829,7 +1068,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Max Vertical_Percentile'] ? player['Max Vertical_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Max Vertical_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -853,7 +1092,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Standing Vertical_Percentile'] ? player['Standing Vertical_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Standing Vertical_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -874,7 +1113,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 Agility Score
                                             </span>
                                             <span className="text-white text-xs font-semibold">
-                                                {player['Agility Score'] ? player['Agility Score'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Agility Score'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -898,7 +1137,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Lane Agility Time_Percentile'] ? player['Lane Agility Time_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Lane Agility Time_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -922,7 +1161,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Three Quarter Sprint_Percentile'] ? player['Three Quarter Sprint_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Three Quarter Sprint_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -946,7 +1185,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
-                                                {player['Shuttle Run_Percentile'] ? player['Shuttle Run_Percentile'].toFixed(1) : 'N/A'}
+                                                {formatNumber(player['Shuttle Run_Percentile'])}
                                             </span>
                                         </div>
                                         <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
@@ -970,6 +1209,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
 };
 
 export default function CombineScorePage() {
+    const [pulsingCells, setPulsingCells] = useState<Set<string>>(new Set());
     const [searchQuery, setSearchQuery] = useState('');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const [selectedYear, setSelectedYear] = useState('2025');
@@ -1101,6 +1341,77 @@ export default function CombineScorePage() {
         });
     }, [combineData, selectedYear, selectedPosition, searchQuery, sortConfig, selectedPositions]);
 
+    // Add the pulsing effect AFTER filteredAndSortedData is defined
+    useEffect(() => {
+        const triggerRandomPulse = () => {
+            const visiblePlayers = filteredAndSortedData;
+            if (visiblePlayers.length === 0) return;
+
+            const randomPlayer = visiblePlayers[Math.floor(Math.random() * visiblePlayers.length)];
+
+            const pulsableKeys = [
+                'Combine Score',
+                'Height (in.)_Percentile',
+                'Wingspan (in.)_Percentile',
+                'Standing Reach (in.)_Percentile',
+                'Weight (lbs)_Percentile',
+                'Max Vertical_Percentile',
+                'Standing Vertical_Percentile',
+                'Lane Agility Time_Percentile',
+                'Three Quarter Sprint_Percentile',
+                'Shuttle Run_Percentile'
+            ].filter(key => randomPlayer[key] != null);
+
+            if (pulsableKeys.length === 0) return;
+
+            const randomKey = pulsableKeys[Math.floor(Math.random() * pulsableKeys.length)];
+            const cellId = `${randomPlayer.Player}-${randomKey}`;
+
+            setPulsingCells(prev => new Set(prev).add(cellId));
+
+            setTimeout(() => {
+                setPulsingCells(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(cellId);
+                    return newSet;
+                });
+            }, 50000);
+        };
+
+        // Calculate total number of cells that can pulse
+        const totalCells = filteredAndSortedData.reduce((count, player) => {
+            const pulsableKeys = [
+                'Combine Score',
+                'Height (in.)_Percentile',
+                'Wingspan (in.)_Percentile',
+                'Standing Reach (in.)_Percentile',
+                'Weight (lbs)_Percentile',
+                'Max Vertical_Percentile',
+                'Standing Vertical_Percentile',
+                'Lane Agility Time_Percentile',
+                'Three Quarter Sprint_Percentile',
+                'Shuttle Run_Percentile'
+            ].filter(key => player[key] != null);
+            return count + pulsableKeys.length;
+        }, 0);
+
+        if (totalCells === 0) return;
+
+        // Each cell should pulse once per minute
+        // So trigger a pulse every (60 seconds / total cells) * 1000 ms
+        const intervalTime = (60 * 50000) / totalCells;
+
+        const interval = setInterval(() => {
+            triggerRandomPulse();
+        }, intervalTime);
+
+        return () => {
+            clearInterval(interval);
+            setPulsingCells(new Set());
+        };
+    }, [filteredAndSortedData]);
+
+
     // Get all position variations for a player
     const getPlayerVariations = (playerName: string) => {
         return combineData.filter(p =>
@@ -1136,14 +1447,15 @@ export default function CombineScorePage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#19191A]">
+        <div className="min-h-screen bg-[#19191A]" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+            <style>{pulseStyles}</style>
             <NavigationHeader activeTab="Combine Score" />
             <DraftPageHeader author="Combine Score" />
 
             {/* Filter Section */}
             <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800">
                 {/* Mobile Filter */}
-                <div className="sm:hidden px-4 py-3">
+                <div className="sm:hidden max-w-screen-2xl mx-auto px-4 py-3">
                     <div className="flex items-center justify-between gap-2">
                         <motion.button
                             onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
@@ -1189,8 +1501,8 @@ export default function CombineScorePage() {
                 </div>
 
                 {/* Filter Content */}
-                <div className={`px-4 py-3 ${isMobileFilterOpen ? 'block' : 'hidden sm:block'}`}>
-                    <div className="flex items-center gap-3">
+                <div className={`max-w-screen-xl mx-auto px-4 py-3 ${isMobileFilterOpen ? 'block' : 'hidden sm:block'}`}>
+                    <div className="flex items-center gap-3 justify-start">
                         {/* Search Bar */}
                         <div className="relative flex-1 max-w-lg">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
@@ -1199,7 +1511,7 @@ export default function CombineScorePage() {
                                 placeholder="Search"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2 w-full bg-gray-800/20 border border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+                                className="pl-10 pr-4 py-2 w-full bg-[#19191A] border border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
                             />
                         </div>
 
@@ -1207,16 +1519,14 @@ export default function CombineScorePage() {
                         <div className="relative">
                             <motion.button
                                 onClick={() => setIsPositionDropdownOpen(!isPositionDropdownOpen)}
-                                className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-2 whitespace-nowrap"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                className="px-3 py-2 rounded-lg text-sm font-medium bg-[#19191A] text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-2 whitespace-nowrap"
                             >
                                 {selectedPosition}
                                 <ChevronDown className="h-4 w-4" />
                             </motion.button>
 
                             {isPositionDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-40 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+                                <div className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
                                     {positions.map(position => (
                                         <button
                                             key={position}
@@ -1238,16 +1548,14 @@ export default function CombineScorePage() {
                         <div className="relative">
                             <motion.button
                                 onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                                className="px-3 py-2 rounded-lg text-sm font-medium bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-2"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                className="px-3 py-2 rounded-lg text-sm font-medium bg-[#19191A] text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-2"
                             >
                                 {selectedYear}
                                 <ChevronDown className="h-4 w-4" />
                             </motion.button>
 
                             {isYearDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-32 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+                                <div className="absolute right-0 mt-2 w-32 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
                                     {years.map(year => (
                                         <button
                                             key={year}
@@ -1269,7 +1577,7 @@ export default function CombineScorePage() {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-screen-2xl mx-auto px-4 py-6">
+            <div className="max-w-screen-xl mx-auto px-4 py-6">
                 {isLoading ? (
                     <div className="text-center text-gray-400 py-12">
                         <p>Loading combine data...</p>
@@ -1281,7 +1589,7 @@ export default function CombineScorePage() {
                 ) : (
                     <>
                         <div className="mb-4 text-gray-400 text-sm">
-                            Click on player name to view their Combine Score Card
+                            Click on their Combine Score to view their Combine Score Card.
                         </div>
 
                         {/* Enhanced Table with All Measurements */}
@@ -1293,37 +1601,37 @@ export default function CombineScorePage() {
                                             <th className="text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap" onClick={() => handleSort('Player')}>
                                                 <div className="flex items-center gap-1">Player <SortIcon columnKey="Player" /></div>
                                             </th>
-                                            <th className="text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap" onClick={() => handleSort('Default Position')}>
+                                            <th className="text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-16" onClick={() => handleSort('Default Position')}>
                                                 <div className="flex items-center gap-1">Pos <SortIcon columnKey="Default Position" /></div>
                                             </th>
                                             <th className="text-center px-3 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
                                                 <div className="flex items-center justify-center gap-1">Combine Score <SortIcon columnKey="Combine Score" /></div>
                                             </th>
-                                            <th className="text-center px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Height (in.)')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Height (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Height <SortIcon columnKey="Height (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Wingspan (in.)')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Wingspan (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Wingspan <SortIcon columnKey="Wingspan (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Standing Reach (in.)')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Standing Reach (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Reach <SortIcon columnKey="Standing Reach (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Weight (lbs)')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Weight (lbs)')}>
                                                 <div className="flex items-center justify-center gap-1">Weight <SortIcon columnKey="Weight (lbs)" /></div>
                                             </th>
-                                            <th className="text-center px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Max Vertical')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Max Vertical')}>
                                                 <div className="flex items-center justify-center gap-1">Max Vert <SortIcon columnKey="Max Vertical" /></div>
                                             </th>
-                                            <th className="text-center px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Standing Vertical')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Standing Vertical')}>
                                                 <div className="flex items-center justify-center gap-1">Standing Vert <SortIcon columnKey="Standing Vertical" /></div>
                                             </th>
-                                            <th className="text-center px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Lane Agility Time')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Lane Agility Time')}>
                                                 <div className="flex items-center justify-center gap-1">Lane Agility <SortIcon columnKey="Lane Agility Time" /></div>
                                             </th>
-                                            <th className="text-center px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Three Quarter Sprint')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Three Quarter Sprint')}>
                                                 <div className="flex items-center justify-center gap-1">3/4 Agility <SortIcon columnKey="Three Quarter Sprint" /></div>
                                             </th>
-                                            <th className="text-center px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Shuttle Run')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Shuttle Run')}>
                                                 <div className="flex items-center justify-center gap-1">Shuttle Run <SortIcon columnKey="Shuttle Run" /></div>
                                             </th>
                                         </tr>
@@ -1345,7 +1653,7 @@ export default function CombineScorePage() {
                                             return (
                                                 <React.Fragment key={`${player.Player}-${index}`}>
                                                     <tr className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                                        <td className="px-4 py-3 text-white font-medium">
+                                                        <td className="px-4 py-3 text-white font-medium w-48">
                                                             <div className="flex items-center gap-2">
                                                                 <button
                                                                     onClick={(e) => {
@@ -1356,12 +1664,18 @@ export default function CombineScorePage() {
                                                                 >
                                                                     <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                                                                 </button>
-                                                                <span className="cursor-pointer" onClick={() => setSelectedPlayer(player)}>
+                                                                <span
+                                                                    className="cursor-pointer"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        toggleRowExpansion(player.Player);
+                                                                    }}
+                                                                >
                                                                     {player.Player}
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-4 py-3">
+                                                        <td className="px-4 py-3 w-16">
                                                             <select
                                                                 value={currentPosition}
                                                                 onChange={(e) => {
@@ -1381,9 +1695,15 @@ export default function CombineScorePage() {
                                                                 ))}
                                                             </select>
                                                         </td>
-                                                        <td className="px-3 py-3 text-center cursor-pointer" onClick={() => setSelectedPlayer(player)}>
+                                                        <td
+                                                            className="px-3 py-3 text-center cursor-pointer"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSelectedPlayer(player);
+                                                            }}
+                                                        >
                                                             <span
-                                                                className="text-m font-bold"
+                                                                className={`text-m font-bold ${pulsingCells.has(`${player.Player}-Combine Score`) ? 'pulse-active' : ''}`}
                                                                 style={{
                                                                     color: player['Combine Score'] != null ? getTieredColor(player['Combine Score']) : '#6b7280',
                                                                 }}
@@ -1395,7 +1715,7 @@ export default function CombineScorePage() {
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Height w/o Shoes'] || '-'}</span>
                                                                 <span
-                                                                    className="text-xs font-medium"
+                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Height (in.)_Percentile`) ? 'pulse-active' : ''}`}
                                                                     style={{
                                                                         color: getTieredColor(player['Height (in.)_Percentile'])
                                                                     }}
@@ -1408,7 +1728,7 @@ export default function CombineScorePage() {
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Wingspan'] || '-'}</span>
                                                                 <span
-                                                                    className="text-xs font-medium"
+                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Wingspan (in.)_Percentile`) ? 'pulse-active' : ''}`}
                                                                     style={{
                                                                         color: getTieredColor(player['Wingspan (in.)_Percentile'])
                                                                     }}
@@ -1421,7 +1741,7 @@ export default function CombineScorePage() {
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Standing Reach'] || '-'}</span>
                                                                 <span
-                                                                    className="text-xs font-medium"
+                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Standing Reach (in.)_Percentile`) ? 'pulse-active' : ''}`}
                                                                     style={{
                                                                         color: getTieredColor(player['Standing Reach (in.)_Percentile'])
                                                                     }}
@@ -1434,7 +1754,7 @@ export default function CombineScorePage() {
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Weight (lbs)'] || '-'}</span>
                                                                 <span
-                                                                    className="text-xs font-medium"
+                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Weight (lbs)_Percentile`) ? 'pulse-active' : ''}`}
                                                                     style={{
                                                                         color: getTieredColor(player['Weight (lbs)_Percentile'])
                                                                     }}
@@ -1447,7 +1767,7 @@ export default function CombineScorePage() {
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Max Vertical'] || '-'}</span>
                                                                 <span
-                                                                    className="text-xs font-medium"
+                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Max Vertical_Percentile`) ? 'pulse-active' : ''}`}
                                                                     style={{
                                                                         color: getTieredColor(player['Max Vertical_Percentile'])
                                                                     }}
@@ -1460,7 +1780,7 @@ export default function CombineScorePage() {
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Standing Vertical'] || '-'}</span>
                                                                 <span
-                                                                    className="text-xs font-medium"
+                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Standing Vertical_Percentile`) ? 'pulse-active' : ''}`}
                                                                     style={{
                                                                         color: getTieredColor(player['Standing Vertical_Percentile'])
                                                                     }}
@@ -1473,7 +1793,7 @@ export default function CombineScorePage() {
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Lane Agility Time']?.toFixed(2) || '-'}</span>
                                                                 <span
-                                                                    className="text-xs font-medium"
+                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Lane Agility Time_Percentile`) ? 'pulse-active' : ''}`}
                                                                     style={{
                                                                         color: getTieredColor(player['Lane Agility Time_Percentile'])
                                                                     }}
@@ -1486,7 +1806,7 @@ export default function CombineScorePage() {
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Three Quarter Sprint']?.toFixed(2) || '-'}</span>
                                                                 <span
-                                                                    className="text-xs font-medium"
+                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Three Quarter Sprint_Percentile`) ? 'pulse-active' : ''}`}
                                                                     style={{
                                                                         color: getTieredColor(player['Three Quarter Sprint_Percentile'])
                                                                     }}
@@ -1499,7 +1819,7 @@ export default function CombineScorePage() {
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Shuttle Run']?.toFixed(2) || '-'}</span>
                                                                 <span
-                                                                    className="text-xs font-medium"
+                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Shuttle Run_Percentile`) ? 'pulse-active' : ''}`}
                                                                     style={{
                                                                         color: getTieredColor(player['Shuttle Run_Percentile'])
                                                                     }}
