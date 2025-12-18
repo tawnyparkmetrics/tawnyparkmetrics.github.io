@@ -162,7 +162,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
           <div className="flex justify-between items-center h-16 relative">
 
             {/* Left Navigation */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-2">
               {/* Home tab */}
               <Link
                 href={homeTab.href}
@@ -178,19 +178,19 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                   className={`
                     ${buttonBaseClasses}
                     ${activeTab === 'Draft' ? buttonActiveClasses : buttonInactiveClasses}
-                    flex items-center gap-1 md:gap-2
+                    flex items-center gap-2
                   `}
                   type="button"
                   aria-haspopup="true"
                   aria-expanded={DraftDropdownOpen}
                 >
                   Draft
-                  <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
+                  <ChevronDown className="h-4 w-4" />
                 </button>
 
                 {/* Draft Dropdown menu */}
                 {DraftDropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-[#19191A] border border-gray-700 z-50">
+                  <div className="absolute left-0 mt-2 w-56 rounded-lg shadow-lg bg-[#19191A] border border-gray-700 z-50">
                     <div className="py-1" role="menu" aria-orientation="vertical">
                       {DraftDropdownItems.map((item) => (
                         <div key={item.name}>
@@ -199,7 +199,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                             <>
                               {/* Main section header */}
                               <button
-                                className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-400 hover:bg-gray-800/50 transition-colors duration-200"
+                                className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-300 hover:bg-gray-800/50 transition-colors"
                                 onClick={(e) => toggleSection(item.name, e)}
                               >
                                 <span>{item.name}</span>
@@ -216,7 +216,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                                     <Link
                                       key={subItem.name}
                                       href={subItem.available ? subItem.href : '#'}
-                                      className="block px-8 py-2 text-sm text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors duration-200"
+                                      className="block px-8 py-2 text-sm text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors"
                                       role="menuitem"
                                       onClick={(e) => handleItemClick(e, subItem)}
                                     >
@@ -227,10 +227,10 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                               )}
                             </>
                           ) : (
-                            /* Direct link item (like Consensus) */
+                            /* Direct link item */
                             <Link
                               href={item.available ? item.href : '#'}
-                              className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800/50 hover:text-white transition-colors duration-200"
+                              className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800/50 hover:text-white transition-colors"
                               role="menuitem"
                               onClick={(e) => handleItemClick(e, item)}
                             >
@@ -244,18 +244,17 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
                 )}
               </div>
 
-              {/* NBA Dropdown - keeping the same structure for consistency */}
+              {/* NBA Dropdown */}
               <div className="relative" ref={NBADropdownRef}>
-                {/* NBA button is commented out in original, keeping it that way */}
                 {NBADropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-[#19191A] border border-gray-700 z-50">
+                  <div className="absolute left-0 mt-2 w-48 rounded-lg shadow-lg bg-[#19191A] border border-gray-700 z-50">
                     <div className="py-1" role="menu" aria-orientation="vertical">
                       {NBADropdownItems.map((item) => (
                         <Link
                           key={item.name}
                           href={item.available ? item.href : '#'}
                           className={`
-                            block px-4 py-2 text-sm transition-colors duration-200
+                            block px-4 py-2 text-sm transition-colors
                             ${item.available
                               ? 'text-gray-300 hover:bg-gray-800/50 hover:text-white'
                               : 'text-gray-500 hover:bg-gray-800/50'
@@ -297,7 +296,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
             </Link>
 
             {/* Right side - Support button and Logo */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <button
                 onClick={handleSupportClick}
                 className={`${buttonBaseClasses} ${buttonInactiveClasses}`}

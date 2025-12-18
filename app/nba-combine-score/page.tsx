@@ -784,16 +784,16 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                         <div className="h-24 w-24 rounded flex items-center justify-center flex-shrink-0">
                             <img
 
-                                src={`/prenba_logos/${(player['Pre-NBA'] === null ||
+                                src={(player['Pre-NBA'] === null ||
                                     player['Pre-NBA'] === undefined ||
                                     player['Pre-NBA'] === '' ||
                                     player['Pre-NBA'].toUpperCase() === 'N/A')
-                                    ? 'na'
-                                    : player['Pre-NBA'].toLowerCase()
-                                    }.png`}
+                                    ? '/nbateam_logos/NBA Combine.png'
+                                    : `/prenba_logos/${player['Pre-NBA'].toLowerCase()}.png`
+                                }
 
                                 // Use 'N/A' for the alt text if the data is missing/invalid
-                                alt={`${(player['Pre-NBA'] === null || player['Pre-NBA'] === undefined || player['Pre-NBA'] === '') ? 'N/A' : player['Pre-NBA']} logo`}
+                                alt={`${(player['Pre-NBA'] === null || player['Pre-NBA'] === undefined || player['Pre-NBA'] === '') ? 'NBA Combine' : player['Pre-NBA']} logo`}
 
                                 className="h-20 w-20 object-contain"
 
