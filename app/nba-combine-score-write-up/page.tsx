@@ -100,7 +100,7 @@ export default function CombineScorePage() {
             <li><strong>Agility Score</strong> – the average of percentile lane agility, shuttle run, and three-quarter sprint times.</li>
             <li><strong>Vertical Score</strong> – the average of percentile standing vertical leap (in.) and maximum vertical leap (in.).</li>
           </ol>
-          <p className="mt-4 mb-4">
+          <p>
             Taking the average of these three individual scores produces the <strong>Raw Score</strong>, which is then <strong>rescaled from 0-100</strong> to generate the final (overall) <strong>Combine Score</strong> for each combine participant. This process is almost identical to Nick's original version, as described in further detail on his <a href="https://njk11.pythonanywhere.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">web-app</a>.
           </p>
         </div>
@@ -125,7 +125,7 @@ export default function CombineScorePage() {
           <p className="mb-4">
             Take <strong>Zach LaVine</strong> (2014 NBA Draft), for example. His most-played NBA position is Shooting Guard (SG), so I assign that as his primary position. However, like many two guards, he's also played significant minutes at PG & SF (secondary & tertiary roles). To evaluate his point guard variant, I insert his Combine data into the primary PG dataset, deriving his percentile measurements relative to all primary point guards before removing him from the PG dataset. I repeat the same process for his SF variant, producing Combine Scores across three different positions for user browsing and accessibility.
           </p>
-          <p className="mb-4">
+          <p>
             The result is that <strong>one player can have multiple, position-specific Combine Scores</strong>, giving us a complete and flexible view of their anthropic and athletic profile in various roles. Since I only temporarily insert their data to derive the variant scores, we maintain the integrity of the primary position percentiles/scores. Ultimately, this leads to an expanded database of Combine Scores, which I hope will further amplify its value and utility.
           </p>
         </div>
@@ -139,12 +139,16 @@ export default function CombineScorePage() {
           <p className="mb-4">
             The Combine Score page offers several visual tools to help you understand and compare player measurements:
           </p>
-          <ul className="list-disc list-inside space-y-2 ml-4">
+          <ul className="list-disc list-inside space-y-2 ml-4 mb-4">
             <li><strong>Combine Score Table</strong> – A comprehensive sortable table displaying all measurements and scores</li>
             <li><strong>Player vs. Average Position</strong> – Direct comparison charts showing how a player's measurements stack up against positional averages</li>
-            <li><strong>Spider Chart vs. Average Position</strong> – Visual radar charts displaying a player's complete athletic profile</li>
-            <li><strong>Similar Scores</strong> – Find players with comparable Combine Score profiles across different draft classes</li>
+            <li><strong>Anthopometric Data Spider Chart</strong> – Visual radar charts displaying a player's complete athletic profile</li>
+            <li><strong>Athletic Testing Data</strong> – Find players with comparable Combine Score profiles across different draft classes</li>
           </ul>
+          <p>
+          Our visuals offer two modes of analysis. In the the default view, you see a player compared to their position's historical average. However, using the comparison search bar 
+          triggers a dynamic update across the graphs, replacing positional averages with the data of a second selected player for a direct head-to-head comparison.
+          </p>
         </div>
       )
     },
@@ -165,7 +169,7 @@ export default function CombineScorePage() {
           <p className="mb-4">
             First and foremost, massive thanks to <strong>Nick Kalinowski</strong> (<a href="https://x.com/kalidrafts" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@kalidrafts on X</a>) for envisioning, building, and promoting Combine Score, enabling TPM's extension. Nick's original work set the standard for quantifying combine performance, and this continuation aims to honor that legacy.
           </p>
-          <p className="mb-4">
+          <p>
             Additionally, thank you to my co-founder, <strong>Max Savin</strong> (<a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">@supersayansavin</a>), for his support & guidance, especially since he's hard at work on his own draft models that leverage Combine Score data.
           </p>
         </div>

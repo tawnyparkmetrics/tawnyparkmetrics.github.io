@@ -14,7 +14,6 @@ const barlow = Barlow({
     subsets: ['latin'],
 });
 
-
 const pulseStyles = `
   @keyframes subtle-pulse {
     0%, 100% { 
@@ -22,7 +21,7 @@ const pulseStyles = `
       transform: scale(1);
     }
     50% { 
-      filter: brightness(1.07) saturate(1.07) drop-shadow(0 0 4px currentColor);
+      filter: brightness(1.05) saturate(1.05) drop-shadow(0 0 4px currentColor);
       transform: scale(1.02);
     }
   }
@@ -89,6 +88,21 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
     const [comparisonPlayer, setComparisonPlayer] = React.useState<CombinePlayer | null>(null);
     const [searchQuery, setSearchQuery] = React.useState('');
     const [showSuggestions, setShowSuggestions] = React.useState(false);
+
+    const searchDropdownRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const getTieredColor = (percentile: number | null | undefined): string => {
         if (percentile === null || percentile === undefined) return 'transparent';
@@ -262,7 +276,7 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                     {/* Comparison Search Bar - Only above bar chart */}
                     <div className="rounded-lg pb-4">
                         <div className="flex items-center gap-2">
-                            <div className="relative w-full">
+                            <div className="relative w-full" ref={searchDropdownRef}>
                                 {/* Search icon */}
                                 <svg
                                     className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 h-3 w-3 z-10 pointer-events-none"
@@ -298,7 +312,7 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                                     </button>
                                 )}
                                 {showSuggestions && filteredSuggestions.length > 0 && (
-                                    <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                                    <div className="absolute z-10 w-full mt-1 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-40 overflow-y-auto">
                                         {filteredSuggestions.map((p, idx) => (
                                             <button
                                                 key={idx}
@@ -765,12 +779,11 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
 
                 {/* Header (No change) */}
                 <div className="bg-[#19191A] p-2 relative">
-                    <div className="flex items-center gap-5 px-4">
+                    <div className="flex items-center justify-between px-3">
                         {/* Left: College Logo */}
                         <div className="h-24 w-24 rounded flex items-center justify-center flex-shrink-0">
                             <img
-                                // FIX: If Pre-NBA is falsy (null, undefined, "") OR is "N/A", use 'na' as a placeholder filename.
-                                // Otherwise, use the lowercase Pre-NBA value.
+
                                 src={`/prenba_logos/${(player['Pre-NBA'] === null ||
                                     player['Pre-NBA'] === undefined ||
                                     player['Pre-NBA'] === '' ||
@@ -799,16 +812,24 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                         </div>
 
                         {/* Center: Player Name and Details */}
-                        <div className="flex-1 text-center min-w-0 px-4 pt-3">
-                            <h2 className="text-3xl font-bold text-white mb-2 tracking-wide font-barlow">
+                        <div className="flex-1 mx-3 text-center pt-3" style={{ minWidth: 0 }}>
+                            <h2 className="text-4xl font-bold text-white mb-2 tracking-wide" style={{
+                                fontFamily: 'Barlow, system-ui, -apple-system, sans-serif',
+                                lineHeight: '1.1',
+                                wordWrap: 'break-word',
+                                overflowWrap: 'break-word',
+                                hyphens: 'auto'
+                            }}>
                                 {getDisplayName(player.Player).toUpperCase()}
                             </h2>
-                            <div className="text-base text-sm text-gray-300 font-medium flex items-center justify-center">
-                                <span>{player['Pre-NBA'] || 'N/A'}</span>
-                                <div className="mx-3 h-4 w-px bg-gray-500"></div>
-                                <span className="font-semibold">{player['Default Position']}</span>
-                                <div className="mx-3 h-4 w-px bg-gray-500"></div>
-                                <span>{player['Draft Year']} NBA Draft</span>
+                            <div className="text-base text-sm text-gray-300 font-medium flex items-center justify-center flex-wrap gap-2">
+                                <div className="flex items-center gap-3">
+                                    <span>{player['Pre-NBA'] || 'N/A'}</span>
+                                    <div className="h-4 w-px bg-gray-500"></div>
+                                    <span className="font-semibold">{player['Default Position']}</span>
+                                    <div className="h-4 w-px bg-gray-500"></div>
+                                    <span>{player['Draft Year']}</span>
+                                </div>
                             </div>
                         </div>
 
@@ -842,7 +863,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                             </div>
 
                             {/* Progress Bar (now centered within max-w-md) */}
-                            <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                            <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                 <div
                                     style={{
                                         width: `${player['Combine Score'] ? Math.min(100, Math.max(0, player['Combine Score'])) : 0}%`,
@@ -873,7 +894,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Physical Score'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Physical Score'] ? Math.min(100, Math.max(0, player['Physical Score'])) : 0}%`,
@@ -897,7 +918,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Height (in.)_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Height (in.)_Percentile'] ? Math.min(100, Math.max(0, player['Height (in.)_Percentile'])) : 0}%`,
@@ -921,7 +942,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Wingspan (in.)_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Wingspan (in.)_Percentile'] ? Math.min(100, Math.max(0, player['Wingspan (in.)_Percentile'])) : 0}%`,
@@ -945,7 +966,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Standing Reach (in.)_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Standing Reach (in.)_Percentile'] ? Math.min(100, Math.max(0, player['Standing Reach (in.)_Percentile'])) : 0}%`,
@@ -969,7 +990,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Weight (lbs)_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Weight (lbs)_Percentile'] ? Math.min(100, Math.max(0, player['Weight (lbs)_Percentile'])) : 0}%`,
@@ -993,7 +1014,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Hand Length (in.)_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Hand Length (in.)_Percentile'] ? Math.min(100, Math.max(0, player['Hand Length (in.)_Percentile'])) : 0}%`,
@@ -1017,7 +1038,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Hand Width (in.)_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Hand Width (in.)_Percentile'] ? Math.min(100, Math.max(0, player['Hand Width (in.)_Percentile'])) : 0}%`,
@@ -1047,7 +1068,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Vertical Score'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Vertical Score'] ? Math.min(100, Math.max(0, player['Vertical Score'])) : 0}%`,
@@ -1071,7 +1092,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Max Vertical_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Max Vertical_Percentile'] ? Math.min(100, Math.max(0, player['Max Vertical_Percentile'])) : 0}%`,
@@ -1095,7 +1116,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Standing Vertical_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Standing Vertical_Percentile'] ? Math.min(100, Math.max(0, player['Standing Vertical_Percentile'])) : 0}%`,
@@ -1116,7 +1137,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Agility Score'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Agility Score'] ? Math.min(100, Math.max(0, player['Agility Score'])) : 0}%`,
@@ -1140,7 +1161,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Lane Agility Time_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Lane Agility Time_Percentile'] ? Math.min(100, Math.max(0, player['Lane Agility Time_Percentile'])) : 0}%`,
@@ -1164,7 +1185,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Three Quarter Sprint_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Three Quarter Sprint_Percentile'] ? Math.min(100, Math.max(0, player['Three Quarter Sprint_Percentile'])) : 0}%`,
@@ -1188,7 +1209,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                 {formatNumber(player['Shuttle Run_Percentile'])}
                                             </span>
                                         </div>
-                                        <div className="relative h-1 bg-gray-800/30 rounded-full overflow-hidden">
+                                        <div className="relative h-1 bg-[#33383F] rounded-full overflow-hidden">
                                             <div
                                                 style={{
                                                     width: `${player['Shuttle Run_Percentile'] ? Math.min(100, Math.max(0, player['Shuttle Run_Percentile'])) : 0}%`,
@@ -1214,7 +1235,9 @@ export default function CombineScorePage() {
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const [selectedYear, setSelectedYear] = useState('2025');
     const [selectedPosition, setSelectedPosition] = useState('PG-C');
+    const [selectedGrouping, setSelectedGrouping] = useState<'none' | 'guards' | 'wings' | 'bigs'>('none');
     const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
+    const [isMobileYearDropdownOpen, setIsMobileYearDropdownOpen] = useState(false);
     const [isPositionDropdownOpen, setIsPositionDropdownOpen] = useState(false);
     const [combineData, setCombineData] = useState<CombinePlayer[]>([]);
     const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: 'asc' | 'desc' }>({
@@ -1225,6 +1248,10 @@ export default function CombineScorePage() {
     const [selectedPlayer, setSelectedPlayer] = useState<CombinePlayer | null>(null);
     const [selectedPositions, setSelectedPositions] = useState<{ [playerName: string]: string }>({});
     const [expandedRows, setExpandedRows] = useState<{ [playerName: string]: boolean }>({});
+    const yearDropdownRef = useRef<HTMLDivElement>(null);
+    const positionDropdownRef = useRef<HTMLDivElement>(null);
+    const mobileYearDropdownRef = useRef<HTMLDivElement>(null);
+
 
     const years = Array.from({ length: 26 }, (_, i) => 2025 - i);
     const positions = ['PG-C', 'PG', 'SG', 'SF', 'PF', 'C'];
@@ -1264,18 +1291,82 @@ export default function CombineScorePage() {
         loadData();
     }, []);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target as Node)) {
+                setIsYearDropdownOpen(false);
+            }
+            if (positionDropdownRef.current && !positionDropdownRef.current.contains(event.target as Node)) {
+                setIsPositionDropdownOpen(false);
+            }
+            if (mobileYearDropdownRef.current && !mobileYearDropdownRef.current.contains(event.target as Node)) {
+                setIsMobileYearDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     const filteredAndSortedData = useMemo(() => {
         let filtered = combineData.filter(player => {
             const playerYear = player['Draft Year'];
             return playerYear?.toString() === selectedYear;
         });
 
-        // Filter by position if not "PG-C"
-        if (selectedPosition !== 'PG-C') {
-            filtered = filtered.filter(player => {
-                const defaultPos = player['Default Position'];
-                return defaultPos === selectedPosition;
+        // Handle grouping logic
+        if (selectedGrouping !== 'none') {
+            // Group players by name
+            const playerGroups = filtered.reduce((acc, player) => {
+                const name = player['Player'];
+                if (!acc[name]) {
+                    acc[name] = [];
+                }
+                acc[name].push(player);
+                return acc;
+            }, {} as { [key: string]: CombinePlayer[] });
+
+            // Select appropriate position based on grouping
+            filtered = Object.entries(playerGroups).map(([name, variations]) => {
+                let selectedVariation: CombinePlayer | undefined;
+
+                if (selectedGrouping === 'guards') {
+                    // Find PG variation, fallback to primary
+                    selectedVariation = variations.find(v => v['Default Position'] === 'PG');
+                } else if (selectedGrouping === 'wings') {
+                    // Find SF variation, fallback to primary
+                    selectedVariation = variations.find(v => v['Default Position'] === 'SF');
+                } else if (selectedGrouping === 'bigs') {
+                    // Find C variation, fallback to primary
+                    selectedVariation = variations.find(v => v['Default Position'] === 'C');
+                }
+
+                // If no matching variation found, use primary
+                return selectedVariation || variations.find(v => v['Is Primary'] === 1) || variations[0];
+            }).filter(player => {
+                // Only include players who have the target position
+                const name = player['Player'];
+                const variations = playerGroups[name];
+
+                if (selectedGrouping === 'guards') {
+                    return variations.some(v => v['Default Position'] === 'PG');
+                } else if (selectedGrouping === 'wings') {
+                    return variations.some(v => v['Default Position'] === 'SF');
+                } else if (selectedGrouping === 'bigs') {
+                    return variations.some(v => v['Default Position'] === 'C');
+                }
+                return true;
             });
+        } else {
+            // Original position filter logic when no grouping is selected
+            if (selectedPosition !== 'PG-C') {
+                filtered = filtered.filter(player => {
+                    const defaultPos = player['Default Position'];
+                    return defaultPos === selectedPosition;
+                });
+            }
         }
 
         if (searchQuery.trim()) {
@@ -1297,8 +1388,11 @@ export default function CombineScorePage() {
         }, {} as { [key: string]: CombinePlayer[] });
 
         // For each player, select the appropriate variation based on selectedPositions or Is Primary
-        // This is done BEFORE sorting to establish the initial order
         const displayDataBeforeSort = Object.entries(playerGroups).map(([name, variations]) => {
+            // If grouping is active and we already selected the right position, use that
+            if (selectedGrouping !== 'none') {
+                return variations[0]; // Already filtered to correct position above
+            }
             // Always use Is Primary = 1 for initial sorting
             return variations.find(v => v['Is Primary'] === 1) || variations[0];
         });
@@ -1332,14 +1426,14 @@ export default function CombineScorePage() {
             const selectedPos = selectedPositions[name];
             const variations = playerGroups[name];
 
-            if (selectedPos) {
+            if (selectedPos && selectedGrouping === 'none') {
                 // Find the variation matching the selected Default Position
                 const selected = variations.find(v => v['Default Position'] === selectedPos);
                 return selected || player;
             }
             return player;
         });
-    }, [combineData, selectedYear, selectedPosition, searchQuery, sortConfig, selectedPositions]);
+    }, [combineData, selectedYear, selectedPosition, searchQuery, sortConfig, selectedPositions, selectedGrouping]);
 
     // Add the pulsing effect AFTER filteredAndSortedData is defined
     useEffect(() => {
@@ -1450,8 +1544,11 @@ export default function CombineScorePage() {
         <div className="min-h-screen bg-[#19191A]" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
             <style>{pulseStyles}</style>
             <NavigationHeader activeTab="Combine Score" />
-            <DraftPageHeader author="Combine Score" />
+            <DraftPageHeader author="Combine Score"
+                selectedYear={selectedYear}
+            />
 
+            {/* Filter Section */}
             {/* Filter Section */}
             <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800">
                 {/* Mobile Filter */}
@@ -1468,9 +1565,9 @@ export default function CombineScorePage() {
                             <ChevronDown className={`ml-1 h-4 w-4 transform transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`} />
                         </motion.button>
 
-                        <div className="relative">
+                        <div className="relative" ref={mobileYearDropdownRef}>
                             <motion.button
-                                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                                onClick={() => setIsMobileYearDropdownOpen(!isMobileYearDropdownOpen)}
                                 className="px-2 py-2 rounded-lg text-sm font-medium bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-1"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -1479,14 +1576,14 @@ export default function CombineScorePage() {
                                 <ChevronDown className="h-4 w-4" />
                             </motion.button>
 
-                            {isYearDropdownOpen && (
+                            {isMobileYearDropdownOpen && (
                                 <div className="absolute right-0 mt-2 w-32 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
                                     {years.map(year => (
                                         <button
                                             key={year}
                                             onClick={() => {
                                                 setSelectedYear(year.toString());
-                                                setIsYearDropdownOpen(false);
+                                                setIsMobileYearDropdownOpen(false);
                                             }}
                                             className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedYear === year.toString() ? 'bg-gray-700 text-white' : 'text-gray-300'
                                                 }`}
@@ -1497,80 +1594,158 @@ export default function CombineScorePage() {
                                 </div>
                             )}
                         </div>
+
                     </div>
                 </div>
 
-                {/* Filter Content */}
+                {/* Filter Content - Desktop */}
                 <div className={`max-w-screen-xl mx-auto px-4 py-3 ${isMobileFilterOpen ? 'block' : 'hidden sm:block'}`}>
-                    <div className="flex items-center gap-3 justify-start">
-                        {/* Search Bar */}
-                        <div className="relative flex-1 max-w-lg">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
-                            <input
-                                type="text"
-                                placeholder="Search"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2 w-full bg-[#19191A] border border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
-                            />
+                    <div className="flex items-center gap-3 justify-between">
+                        {/* Left Side - Search Bar and Reset */}
+                        <div className="flex items-center gap-2 flex-1 max-w-lg">
+                            {/* Search Bar */}
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+                                <input
+                                    type="text"
+                                    placeholder="Search"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-10 pr-4 py-2 w-full bg-[#19191A] border border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
+                                />
+                            </div>
+
+                            {/* Reset Button */}
+                            <motion.button
+                                onClick={() => {
+                                    setSelectedGrouping('none');
+                                    setSelectedPosition('PG-C');
+                                    setSearchQuery('');
+                                }}
+                                className="px-3 py-2 rounded-lg text-sm font-medium bg-[#19191A] text-gray-500 border border-gray-800 hover:text-red-400 hover:border-red-700 transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Reset
+                            </motion.button>
                         </div>
 
-                        {/* Position Filter */}
-                        <div className="relative">
+                        {/* Right Side - All Filter Buttons */}
+                        <div className="flex items-center gap-2">
+                            {/* Grouping Buttons */}
                             <motion.button
-                                onClick={() => setIsPositionDropdownOpen(!isPositionDropdownOpen)}
-                                className="px-3 py-2 rounded-lg text-sm font-medium bg-[#19191A] text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-2 whitespace-nowrap"
+                                onClick={() => {
+                                    setSelectedGrouping(selectedGrouping === 'guards' ? 'none' : 'guards');
+                                    setSelectedPosition('PG-C');
+                                }}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors w-20 ${selectedGrouping === 'guards'
+                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                    : 'bg-[#19191A] text-gray-400 border-gray-800 hover:border-gray-700'
+                                    }`}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                             >
-                                {selectedPosition}
-                                <ChevronDown className="h-4 w-4" />
+                                Guards
+                            </motion.button>
+                            <motion.button
+                                onClick={() => {
+                                    setSelectedGrouping(selectedGrouping === 'wings' ? 'none' : 'wings');
+                                    setSelectedPosition('PG-C');
+                                }}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors w-20 ${selectedGrouping === 'wings'
+                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                    : 'bg-[#19191A] text-gray-400 border-gray-800 hover:border-gray-700'
+                                    }`}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                Wings
+                            </motion.button>
+                            <motion.button
+                                onClick={() => {
+                                    setSelectedGrouping(selectedGrouping === 'bigs' ? 'none' : 'bigs');
+                                    setSelectedPosition('PG-C');
+                                }}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors w-20 ${selectedGrouping === 'bigs'
+                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                    : 'bg-[#19191A] text-gray-400 border-gray-800 hover:border-gray-700'
+                                    }`}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                Bigs
                             </motion.button>
 
-                            {isPositionDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
-                                    {positions.map(position => (
-                                        <button
-                                            key={position}
-                                            onClick={() => {
-                                                setSelectedPosition(position);
-                                                setIsPositionDropdownOpen(false);
-                                            }}
-                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedPosition === position ? 'bg-gray-700 text-white' : 'text-gray-300'
-                                                }`}
-                                        >
-                                            {position}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                            {/* Divider */}
+                            <div className="h-8 w-px bg-gray-700 mx-1"></div>
 
-                        {/* Year Filter */}
-                        <div className="relative">
-                            <motion.button
-                                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                                className="px-3 py-2 rounded-lg text-sm font-medium bg-[#19191A] text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-2"
-                            >
-                                {selectedYear}
-                                <ChevronDown className="h-4 w-4" />
-                            </motion.button>
+                            {/* Position Filter */}
+                            <div className="relative" ref={positionDropdownRef}>
+                                <motion.button
+                                    onClick={() => selectedGrouping === 'none' && setIsPositionDropdownOpen(!isPositionDropdownOpen)}
+                                    disabled={selectedGrouping !== 'none'}
+                                    className={`px-3 py-2 rounded-lg text-sm font-medium border whitespace-nowrap flex items-center justify-between gap-2 ${selectedGrouping !== 'none'
+                                        ? 'bg-gray-800/50 text-gray-600 border-gray-800 cursor-not-allowed'
+                                        : 'bg-[#19191A] text-gray-400 border-gray-800 hover:border-gray-700'
+                                        }`}
+                                >
+                                    <span>{selectedPosition}</span>
+                                    <ChevronDown className="h-4 w-4" />
+                                </motion.button>
 
-                            {isYearDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-32 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
-                                    {years.map(year => (
-                                        <button
-                                            key={year}
-                                            onClick={() => {
-                                                setSelectedYear(year.toString());
-                                                setIsYearDropdownOpen(false);
-                                            }}
-                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedYear === year.toString() ? 'bg-gray-700 text-white' : 'text-gray-300'
-                                                }`}
-                                        >
-                                            {year}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                                {isPositionDropdownOpen && selectedGrouping === 'none' && (
+                                    <div className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+                                        {positions.map(position => (
+                                            <button
+                                                key={position}
+                                                onClick={() => {
+                                                    setSelectedPosition(position);
+                                                    setIsPositionDropdownOpen(false);
+                                                }}
+                                                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedPosition === position ? 'bg-gray-700 text-white' : 'text-gray-300'
+                                                    }`}
+                                            >
+                                                {position}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Divider */}
+                            <div className="h-8 w-px bg-gray-700 mx-1"></div>
+
+                            {/* Year Filter */}
+                            <div className="relative" ref={yearDropdownRef}>
+                                <motion.button
+                                    onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                                    className="px-3 py-2 rounded-lg text-sm font-medium bg-[#19191A] text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center justify-between gap-2"
+                                >
+                                    <span>{selectedYear}</span>
+                                    <ChevronDown className="h-4 w-4" />
+                                </motion.button>
+
+                                {isYearDropdownOpen && (
+                                    <div className="absolute right-0 mt-2 w-32 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+                                        {years.map(year => (
+                                            <button
+                                                key={year}
+                                                onClick={() => {
+                                                    setSelectedYear(year.toString());
+                                                    setIsYearDropdownOpen(false);
+                                                }}
+                                                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedYear === year.toString() ? 'bg-gray-700 text-white' : 'text-gray-300'
+                                                    }`}
+                                            >
+                                                {year}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1588,9 +1763,21 @@ export default function CombineScorePage() {
                     </div>
                 ) : (
                     <>
-                        <div className="mb-4 text-gray-400 text-sm">
-                            Click on their Combine Score to view their Combine Score Card.
+                        <div className="mb-4 text-gray-400 text-sm flex items-center gap-4">
+                            <span className="flex items-center gap-1.5">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Click Combine Score for detailed card
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Click player name for comparison graphs
+                            </span>
                         </div>
+
 
                         {/* Enhanced Table with All Measurements */}
                         <div className="bg-[#19191A] rounded-lg overflow-hidden">

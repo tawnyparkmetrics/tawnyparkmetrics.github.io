@@ -46,7 +46,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case '2020-2025 NBA Draft History':
         return '';
       case 'Combine Score':
-        return 'PLACEHOLDER';
+        return 'NBA Draft Combine results & position specific results.';
       case 'Consensus':
         // Handle Leaderboard view
         if (selectedYear === 'Leaderboard') {
@@ -85,7 +85,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       return selectedYear ? `${selectedYear} NBA Draft` : `NBA Draft`;
     }
     if (author === 'Combine Score') {
-      return 'Combine Score';
+      return selectedYear ? `${selectedYear} NBA Draft Combine Score` : `NBA Draft Combine`;
     }
     return `${firstName}'s Draft Model`;
   };
