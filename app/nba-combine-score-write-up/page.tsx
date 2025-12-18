@@ -140,10 +140,10 @@ export default function CombineScorePage() {
             The Combine Score page offers several visual tools to help you understand and compare player measurements:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-4 mb-4">
-            <li><strong>Combine Score Table</strong> – A comprehensive sortable table displaying all measurements and scores</li>
-            <li><strong>Player vs. Average Position</strong> – Direct comparison charts showing how a player's measurements stack up against positional averages</li>
-            <li><strong>Anthopometric Data Spider Chart</strong> – Visual radar charts displaying a player's complete athletic profile</li>
-            <li><strong>Athletic Testing Data</strong> – Find players with comparable Combine Score profiles across different draft classes</li>
+            <li><strong>Combine Score Table</strong> – A comprehensive sortable table displaying all measurements (in white) and their percentiles (in color)</li>
+            <li><strong>Player vs. Average Position</strong> – Direct comparison chart showing how a player's measurements stack up against positional averages</li>
+            <li><strong>Anthopometric Data Spider Chart</strong> – Visual radar chart displaying a player's complete anthropometric profile</li>
+            <li><strong>Athletic Testing Spider Data</strong> – Visual radar chart displaying a player's complete athletic testing profile</li>
           </ul>
           <p>
           Our visuals offer two modes of analysis. In the the default view, you see a player compared to their position's historical average. However, using the comparison search bar 
