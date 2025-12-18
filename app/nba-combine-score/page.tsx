@@ -124,11 +124,15 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
 
     // Filter suggestions based on search
     const filteredSuggestions = React.useMemo(() => {
-        const query = searchQuery.toLowerCase();
-        if (!query.trim()) return availableComparisons;
-        return availableComparisons.filter(p =>
-            p['Player'].toLowerCase().includes(query)
-        );
+        const query = searchQuery.toLowerCase().trim();
+        if (!query) return availableComparisons;
+
+        return availableComparisons.filter(p => {
+            const playerName = p['Player'].toLowerCase();
+            const playerYear = p['Draft Year']?.toString() || '';
+
+            return playerName.includes(query) || playerYear.includes(query);
+        });
     }, [searchQuery, availableComparisons]);
 
     const handleSelectPlayer = (selectedPlayer: CombinePlayer) => {
@@ -1849,21 +1853,21 @@ export default function CombineScorePage() {
                                     }
                                 }}
                                 className={`px-3 rounded-lg text-sm transition-colors flex items-center gap-1.5 ${isPercentileMode
-                                        ? 'text-blue-400 hover:text-blue-300'
-                                        : sortConfig.key && [
-                                            'Height (in.)',
-                                            'Wingspan (in.)',
-                                            'Standing Reach (in.)',
-                                            'Weight (lbs)',
-                                            'Max Vertical',
-                                            'Standing Vertical',
-                                            'Lane Agility Time',
-                                            'Three Quarter Sprint',
-                                            'Shuttle Run',
-                                            'Combine Score'
-                                        ].includes(sortConfig.key)
-                                            ? 'text-gray-300 animate-pulse cursor-pointer hover:text-white'
-                                            : 'text-gray-600 opacity-50 cursor-default'
+                                    ? 'text-blue-400 hover:text-blue-300'
+                                    : sortConfig.key && [
+                                        'Height (in.)',
+                                        'Wingspan (in.)',
+                                        'Standing Reach (in.)',
+                                        'Weight (lbs)',
+                                        'Max Vertical',
+                                        'Standing Vertical',
+                                        'Lane Agility Time',
+                                        'Three Quarter Sprint',
+                                        'Shuttle Run',
+                                        'Combine Score'
+                                    ].includes(sortConfig.key)
+                                        ? 'text-gray-300 animate-pulse cursor-pointer hover:text-white'
+                                        : 'text-gray-600 opacity-50 cursor-default'
                                     }`}
                                 disabled={!sortConfig.key || ![
                                     'Height (in.)',
