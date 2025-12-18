@@ -1248,6 +1248,7 @@ export default function CombineScorePage() {
     const [selectedPlayer, setSelectedPlayer] = useState<CombinePlayer | null>(null);
     const [selectedPositions, setSelectedPositions] = useState<{ [playerName: string]: string }>({});
     const [expandedRows, setExpandedRows] = useState<{ [playerName: string]: boolean }>({});
+    const [isPercentileMode, setIsPercentileMode] = useState(false);
     const yearDropdownRef = useRef<HTMLDivElement>(null);
     const positionDropdownRef = useRef<HTMLDivElement>(null);
     const mobileYearDropdownRef = useRef<HTMLDivElement>(null);
@@ -1401,7 +1402,25 @@ export default function CombineScorePage() {
         let sortedData = displayDataBeforeSort;
         if (sortConfig.key) {
             sortedData = [...displayDataBeforeSort].sort((a, b) => {
-                const key = sortConfig.key as keyof CombinePlayer;
+                let key = sortConfig.key as keyof CombinePlayer;
+
+                // If percentile mode is active and we're sorting a measurement column, use percentile
+                const measurementColumns = [
+                    'Height (in.)',
+                    'Wingspan (in.)',
+                    'Standing Reach (in.)',
+                    'Weight (lbs)',
+                    'Max Vertical',
+                    'Standing Vertical',
+                    'Lane Agility Time',
+                    'Three Quarter Sprint',
+                    'Shuttle Run'
+                ];
+
+                if (isPercentileMode && sortConfig.key && measurementColumns.includes(sortConfig.key)) {
+                    key = `${sortConfig.key}_Percentile` as keyof CombinePlayer;
+                }
+
                 const aVal = a[key];
                 const bVal = b[key];
 
@@ -1522,11 +1541,32 @@ export default function CombineScorePage() {
     };
 
     const handleSort = (key: string) => {
+        // Check if this is a measurement column
+        const measurementColumns = [
+            'Height (in.)',
+            'Wingspan (in.)',
+            'Standing Reach (in.)',
+            'Weight (lbs)',
+            'Max Vertical',
+            'Standing Vertical',
+            'Lane Agility Time',
+            'Three Quarter Sprint',
+            'Shuttle Run'
+        ];
+
+        const isMeasurementColumn = measurementColumns.includes(key);
+
         let direction: 'asc' | 'desc' = 'desc';
         if (sortConfig.key === key) {
             direction = sortConfig.direction === 'desc' ? 'asc' : 'desc';
         }
+
         setSortConfig({ key, direction });
+
+        // Hide % button if sorting by non-measurement column
+        if (!isMeasurementColumn && key !== 'Combine Score') {
+            setIsPercentileMode(false);
+        }
     };
 
     const SortIcon = ({ columnKey }: { columnKey: string }) => {
@@ -1621,6 +1661,8 @@ export default function CombineScorePage() {
                                     setSelectedGrouping('none');
                                     setSelectedPosition('PG-C');
                                     setSearchQuery('');
+                                    setSortConfig({ key: 'Player', direction: 'asc' }); // Add this line
+                                    setIsPercentileMode(false); // Add this line
                                 }}
                                 className="px-3 py-2 rounded-lg text-sm font-medium bg-[#19191A] text-gray-500 border border-gray-800 hover:text-red-400 hover:border-red-700 transition-colors flex items-center gap-1.5 whitespace-nowrap"
                                 whileHover={{ scale: 1.02 }}
@@ -1763,19 +1805,102 @@ export default function CombineScorePage() {
                     </div>
                 ) : (
                     <>
-                        <div className="mb-4 text-gray-400 text-sm flex items-center gap-4">
-                            <span className="flex items-center gap-1.5">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                Click Combine Score for detailed card
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
-                                Click player name for comparison graphs
-                            </span>
+                        <div className="mb-4 text-gray-400 text-sm flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <span className="flex items-center gap-1.5">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Click Combine Score for detailed card
+                                </span>
+                                <span className="flex items-center gap-1.5">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                    Click player name for comparison graphs
+                                </span>
+                            </div>
+
+
+                            {/* Percentile Toggle Button - Always visible with label when active */}
+                            <motion.button
+                                onClick={() => {
+                                    // Only allow clicking if a measurement column is sorted
+                                    if (sortConfig.key && [
+                                        'Height (in.)',
+                                        'Wingspan (in.)',
+                                        'Standing Reach (in.)',
+                                        'Weight (lbs)',
+                                        'Max Vertical',
+                                        'Standing Vertical',
+                                        'Lane Agility Time',
+                                        'Three Quarter Sprint',
+                                        'Shuttle Run',
+                                        'Combine Score'
+                                    ].includes(sortConfig.key)) {
+                                        const newPercentileMode = !isPercentileMode;
+                                        setIsPercentileMode(newPercentileMode);
+
+                                        // Trigger re-sort with current column to apply percentile/measurement change
+                                        setSortConfig({
+                                            key: sortConfig.key,
+                                            direction: sortConfig.direction
+                                        });
+                                    }
+                                }}
+                                className={`px-3 rounded-lg text-sm transition-colors flex items-center gap-1.5 ${isPercentileMode
+                                        ? 'text-blue-400 hover:text-blue-300'
+                                        : sortConfig.key && [
+                                            'Height (in.)',
+                                            'Wingspan (in.)',
+                                            'Standing Reach (in.)',
+                                            'Weight (lbs)',
+                                            'Max Vertical',
+                                            'Standing Vertical',
+                                            'Lane Agility Time',
+                                            'Three Quarter Sprint',
+                                            'Shuttle Run',
+                                            'Combine Score'
+                                        ].includes(sortConfig.key)
+                                            ? 'text-gray-300 animate-pulse cursor-pointer hover:text-white'
+                                            : 'text-gray-600 opacity-50 cursor-default'
+                                    }`}
+                                disabled={!sortConfig.key || ![
+                                    'Height (in.)',
+                                    'Wingspan (in.)',
+                                    'Standing Reach (in.)',
+                                    'Weight (lbs)',
+                                    'Max Vertical',
+                                    'Standing Vertical',
+                                    'Lane Agility Time',
+                                    'Three Quarter Sprint',
+                                    'Shuttle Run',
+                                    'Combine Score'
+                                ].includes(sortConfig.key)}
+                            >
+                                {sortConfig.key && [
+                                    'Height (in.)',
+                                    'Wingspan (in.)',
+                                    'Standing Reach (in.)',
+                                    'Weight (lbs)',
+                                    'Max Vertical',
+                                    'Standing Vertical',
+                                    'Lane Agility Time',
+                                    'Three Quarter Sprint',
+                                    'Shuttle Run',
+                                    'Combine Score'
+                                ].includes(sortConfig.key) && (
+                                        <motion.span
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ duration: 0.4 }}
+                                            className="whitespace-nowrap"
+                                        >
+                                            {isPercentileMode ? 'Sort by measurements' : 'Sort by percentile'}
+                                        </motion.span>
+                                    )}
+                                %
+                            </motion.button>
                         </div>
 
 
