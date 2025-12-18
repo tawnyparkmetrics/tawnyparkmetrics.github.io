@@ -162,7 +162,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
           <div className="flex justify-between items-center h-16 relative">
 
             {/* Left Navigation */}
-            <div className="flex space-x-2">
+            <div className="flex space-x-3">
               {/* Home tab */}
               <Link
                 href={homeTab.href}

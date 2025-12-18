@@ -788,7 +788,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                     player['Pre-NBA'] === undefined ||
                                     player['Pre-NBA'] === '' ||
                                     player['Pre-NBA'].toUpperCase() === 'N/A')
-                                    ? '/nbateam_logos/NBA Combine.png'
+                                    ? `/nbateam_logos/NBA-Combine.png`
                                     : `/prenba_logos/${player['Pre-NBA'].toLowerCase()}.png`
                                 }
 
