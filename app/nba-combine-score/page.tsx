@@ -789,7 +789,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                     player['Pre-NBA'] === '' ||
                                     player['Pre-NBA'].toUpperCase() === 'N/A')
                                     ? `/nbateam_logos/NBA-Combine.png`
-                                    : `/prenba_logos/${player['Pre-NBA'].toLowerCase()}.png`
+                                    : `/prenba_logos/${player['Pre-NBA']}.png`
                                 }
 
                                 // Use 'N/A' for the alt text if the data is missing/invalid
