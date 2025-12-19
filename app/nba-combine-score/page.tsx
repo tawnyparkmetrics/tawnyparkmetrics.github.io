@@ -6,7 +6,6 @@ import Papa from 'papaparse';
 import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { Barlow } from 'next/font/google';
 
 const barlow = Barlow({
@@ -340,10 +339,13 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                         <div className="flex items-end justify-center gap-4 h-32">
                             <div className="flex items-end gap-4">
                                 {compositeScores.map((score) => {
-                                    const playerValue = player[score.playerKey as keyof typeof player] ?? 0;
-                                    const comparisonValue = comparisonPlayer
-                                        ? (comparisonPlayer[score.playerKey as keyof typeof comparisonPlayer] ?? 0)
-                                        : (positionAverages[score.avgKey as keyof typeof positionAverages] ?? 0);
+                                    const playerRawValue = player[score.playerKey as keyof typeof player];
+                                    const comparisonRawValue = comparisonPlayer
+                                        ? comparisonPlayer[score.playerKey as keyof typeof comparisonPlayer]
+                                        : positionAverages[score.avgKey as keyof typeof positionAverages];
+
+                                    const playerValue = playerRawValue ?? null;
+                                    const comparisonValue = comparisonRawValue ?? null;
 
                                     const playerColor = comparisonPlayer ? '#3b82f6' : getTieredColor(playerValue);
                                     const comparisonColor = comparisonPlayer ? '#ef4444' : '#4b5563';
@@ -354,30 +356,30 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                                                 {/* Player Bar */}
                                                 <div className="flex flex-col items-center gap-1 w-5">
                                                     <span className="text-xs font-semibold text-white" style={{ minHeight: '16px' }}>
-                                                        {playerValue.toFixed(0)}
+                                                        {playerValue !== null ? playerValue.toFixed(0) : 'N/A'}
                                                     </span>
                                                     <motion.div
                                                         className="w-full rounded-t"
-                                                        animate={{ height: `${(playerValue / 100) * 88}px` }}
+                                                        animate={{ height: `${playerValue !== null ? (playerValue / 100) * 88 : 0}px` }}
                                                         transition={{ duration: 0.5, ease: "easeOut" }}
                                                         style={{
-                                                            backgroundColor: playerColor,
-                                                            minHeight: '3px'
+                                                            backgroundColor: playerValue !== null ? playerColor : 'transparent',
+                                                            minHeight: playerValue !== null ? '3px' : '0px'
                                                         }}
                                                     />
                                                 </div>
                                                 {/* Comparison/Average Bar */}
                                                 <div className="flex flex-col items-center gap-1 w-5">
                                                     <span className="text-xs font-semibold text-gray-400" style={{ minHeight: '16px' }}>
-                                                        {comparisonValue.toFixed(0)}
+                                                        {comparisonValue !== null ? comparisonValue.toFixed(0) : 'N/A'}
                                                     </span>
                                                     <motion.div
                                                         className="w-full rounded-t"
-                                                        animate={{ height: `${(comparisonValue / 100) * 88}px` }}
+                                                        animate={{ height: `${comparisonValue !== null ? (comparisonValue / 100) * 88 : 0}px` }}
                                                         transition={{ duration: 0.5, ease: "easeOut" }}
                                                         style={{
-                                                            backgroundColor: comparisonColor,
-                                                            minHeight: '3px'
+                                                            backgroundColor: comparisonValue !== null ? comparisonColor : 'transparent',
+                                                            minHeight: comparisonValue !== null ? '3px' : '0px'
                                                         }}
                                                     />
                                                 </div>
@@ -691,32 +693,38 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
     const handleDownload = async () => {
         const content = contentRef.current;
         if (!content) return;
-
+    
         try {
+            // Wait for images to load
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Find the actual modal content (skip the wrapper with transform)
+            const modalContent = content.closest('.bg-\\[\\#19191A\\]') || content;
+            
             // Capture the content as a canvas
-            const canvas = await html2canvas(content, {
-                scale: 2, // Higher quality
-                useCORS: true,
+            const canvas = await html2canvas(modalContent as HTMLElement, {
+                scale: 2,
+                allowTaint: true,
+                useCORS: false,
                 logging: false,
-                backgroundColor: '#19191A'
+                backgroundColor: '#19191A',
+                windowWidth: modalContent.scrollWidth,
+                windowHeight: modalContent.scrollHeight
             });
-
-            // Calculate PDF dimensions
-            const imgWidth = 210; // A4 width in mm
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-            // Create PDF
-            const pdf = new jsPDF('p', 'mm', 'a4');
+    
+            // Convert canvas to PNG and download
             const imgData = canvas.toDataURL('image/png');
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-
-            // Generate filename: "Player (Position) Combine Score.pdf"
+            
+            // Create a temporary link element
+            const link = document.createElement('a');
             const position = player['Default Position'];
-            const filename = `${player.Player} (${position}) Combine Score.pdf`;
-
-            pdf.save(filename);
+            link.download = `${player.Player} (${position}) Combine Score.png`;
+            link.href = imgData;
+            
+            // Trigger download
+            link.click();
         } catch (error) {
-            console.error('Error generating PDF:', error);
+            console.error('Error generating PNG:', error);
         }
     };
 
@@ -755,24 +763,23 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
             className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={onClose}
         >
+            {/* Modal action buttons - vertically stacked, aligned, close to modal */}
             <div
-                className="bg-[#19191A] rounded-lg max-w-xl w-full max-h-[95vh] overflow-y-auto"
-                style={{ border: '0.5px solid white' }}
-                onClick={(e) => e.stopPropagation()}
+                className="absolute flex flex-col gap-2 top-4 right-4 z-50"
+                style={{ alignItems: "flex-end" }}
             >
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-[#19191A] transition-colors z-20"
+                    className="text-white p-2 rounded-full hover:bg-[#19191A] transition-colors"
                     aria-label="Close"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-
                 <button
                     onClick={handleDownload}
-                    className="absolute top-16 right-4 text-white p-2 rounded-full hover:bg-[#19191A] transition-colors z-20"
+                    className="text-white p-2 rounded-full hover:bg-[#19191A] transition-colors"
                     aria-label="Download content"
                     title="Download"
                 >
@@ -780,6 +787,13 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                 </button>
+            </div>
+
+            <div
+                className="bg-[#19191A] rounded-lg max-w-xl w-full max-h-[95vh] overflow-y-auto"
+                style={{ border: '0.5px solid white', transform: 'scale(1.1)' }}
+                onClick={(e) => e.stopPropagation()}
+            >
 
                 {/* Header (No change) */}
                 <div className="bg-[#19191A] p-2 relative">
@@ -787,7 +801,6 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                         {/* Left: College Logo */}
                         <div className="h-24 w-24 rounded flex items-center justify-center flex-shrink-0">
                             <img
-
                                 src={(player['Pre-NBA'] === null ||
                                     player['Pre-NBA'] === undefined ||
                                     player['Pre-NBA'] === '' ||
@@ -795,19 +808,13 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                     ? `/nbateam_logos/NBA-Combine.png`
                                     : `/prenba_logos/${player['Pre-NBA']}.png`
                                 }
-
-                                // Use 'N/A' for the alt text if the data is missing/invalid
                                 alt={`${(player['Pre-NBA'] === null || player['Pre-NBA'] === undefined || player['Pre-NBA'] === '') ? 'NBA Combine' : player['Pre-NBA']} logo`}
-
                                 className="h-20 w-20 object-contain"
-
-                                // Optional: Fallback if the 'na.png' or any other logo file is missing
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).onerror = null;
-                                    (e.target as HTMLImageElement).style.display = 'none'; // Hide the broken image icon
+                                    (e.target as HTMLImageElement).style.display = 'none';
                                     const parent = (e.target as HTMLImageElement).parentElement;
                                     if (parent) {
-                                        // Show the 'N/A' text if the original data was invalid, or the original text otherwise
                                         const fallbackText = (player['Pre-NBA'] === null || player['Pre-NBA'] === undefined || player['Pre-NBA'] === '' || player['Pre-NBA'].toUpperCase() === 'N/A') ? 'N/A' : player['Pre-NBA'];
                                         parent.innerHTML = `<span class="text-xs font-bold text-gray-300 p-1 text-center">${fallbackText}</span>`;
                                     }
@@ -829,9 +836,9 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                             <div className="text-base text-sm text-gray-300 font-medium flex items-center justify-center flex-wrap gap-2">
                                 <div className="flex items-center gap-3">
                                     <span>{player['Pre-NBA'] || 'N/A'}</span>
-                                    <div className="h-4 w-px bg-gray-500"></div>
+                                    <div className="h-4 w-px bg-[#33383F]"></div>
                                     <span className="font-semibold">{player['Default Position']}</span>
-                                    <div className="h-4 w-px bg-gray-500"></div>
+                                    <div className="h-4 w-px bg-[#33383F]"></div>
                                     <span>{player['Draft Year']}</span>
                                 </div>
                             </div>
@@ -849,7 +856,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                 </div>
 
                 {/* Content */}
-                <div className="p-1 px-6">
+                <div className="p-1 px-6" ref={contentRef}>
                     {/* Component Scores - Now using diverging color */}
                     <div className="pb-2 mb-1">
 
@@ -1225,6 +1232,18 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    {/* Footer */}
+                    <div className="flex justify-center pb-3">
+                        <div className="flex items-center gap-3 text-xs text-gray-400">
+                            <span>NBA Combine Score</span>
+                            <div className="h-3 w-px bg-[#33383F]"></div>
+                            <span className="font-semibold">TPM</span>
+                            <div className="h-3 w-px bg-[#33383F]"></div>
+                            <span>tawnyparkmetrics.com</span>
+                            <div className="h-3 w-px bg-[#33383F]"></div>
+                            <span>@supersayinsavin</span>
                         </div>
                     </div>
                 </div>
@@ -1815,7 +1834,7 @@ export default function CombineScorePage() {
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    Click Combine Score for detailed card
+                                    Click player's Combine Score for detailed card
                                 </span>
                                 <span className="flex items-center gap-1.5">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
