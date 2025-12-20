@@ -46,13 +46,18 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case '2020-2025 NBA Draft History':
         return '';
       case 'Combine Score':
-        return 'NBA Draft Combine results & position specific results.';
+        return (
+          <>
+            NBA Draft Combine results & position specific results. Built by <a href="https://x.com/BalaRavikumar5?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Bala Ravikumar</a>, originated by <a href="https://x.com/kalidrafts?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Nick Kalinowski</a>, and inspired by <a href="https://x.com/MathBomb?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">@MathBomb</a>;
+          </>
+        )
       case 'Consensus':
         // Handle Leaderboard view
         if (selectedYear === 'Leaderboard') {
           return (
             <>
-              Top 15 overall performers across 2020-2024 NBA Draft classes, by parameter (Lottery, Top 30, Top 60). This leaderboard will be updated at the end of each NBA season.            </>
+              Top 15 overall performers across 2020-2024 NBA Draft classes, by parameter (Lottery, Top 30, Top 60). This leaderboard will be updated at the end of each NBA season.
+            </>
           );
         }
         return (
@@ -91,7 +96,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
   };
 
   const getDescriptionMaxWidth = (author: string) => {
-    if (author === 'Consensus' || author === 'Nick Kalinowski') {
+    if (author === 'Consensus' || author === 'Nick Kalinowski' || author === 'Combine Score') {
       return 'max-w-6xl';
     }
     return 'max-w-2xl';

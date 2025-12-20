@@ -87,6 +87,8 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
     const [comparisonPlayer, setComparisonPlayer] = React.useState<CombinePlayer | null>(null);
     const [searchQuery, setSearchQuery] = React.useState('');
     const [showSuggestions, setShowSuggestions] = React.useState(false);
+    const [positionDropdownOpen, setPositionDropdownOpen] = React.useState<{ [key: string]: boolean }>({});
+    const positionDropdownRefs = React.useRef<{ [key: string]: HTMLDivElement | null }>({});
 
     const searchDropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -95,7 +97,15 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
             if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target as Node)) {
                 setShowSuggestions(false);
             }
+
+            // Close position dropdowns when clicking outside
+            Object.entries(positionDropdownRefs.current).forEach(([key, ref]) => {
+                if (ref && !ref.contains(event.target as Node)) {
+                    setPositionDropdownOpen(prev => ({ ...prev, [key]: false }));
+                }
+            });
         };
+
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
@@ -656,6 +666,13 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
         return num % 1 === 0 ? num.toFixed(0) : num.toFixed(1);
     };
 
+    const formatMeasurement = (value: any): string => {
+        if (value === null || value === undefined || value === '' || (typeof value === 'string' && value.toUpperCase() === 'N/A')) {
+            return 'N/A';
+        }
+        return String(value);
+    };
+
     const [activeStreaks, setActiveStreaks] = React.useState<{ [key: number]: string }>({});
     const contentRef = React.useRef<HTMLDivElement>(null);
 
@@ -689,44 +706,6 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
 
         return () => clearInterval(interval);
     }, []);
-
-    const handleDownload = async () => {
-        const content = contentRef.current;
-        if (!content) return;
-    
-        try {
-            // Wait for images to load
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // Find the actual modal content (skip the wrapper with transform)
-            const modalContent = content.closest('.bg-\\[\\#19191A\\]') || content;
-            
-            // Capture the content as a canvas
-            const canvas = await html2canvas(modalContent as HTMLElement, {
-                scale: 2,
-                allowTaint: true,
-                useCORS: false,
-                logging: false,
-                backgroundColor: '#19191A',
-                windowWidth: modalContent.scrollWidth,
-                windowHeight: modalContent.scrollHeight
-            });
-    
-            // Convert canvas to PNG and download
-            const imgData = canvas.toDataURL('image/png');
-            
-            // Create a temporary link element
-            const link = document.createElement('a');
-            const position = player['Default Position'];
-            link.download = `${player.Player} (${position}) Combine Score.png`;
-            link.href = imgData;
-            
-            // Trigger download
-            link.click();
-        } catch (error) {
-            console.error('Error generating PNG:', error);
-        }
-    };
 
     // The new diverging color scheme function: Red <-> Gray <-> Blue
     const getTieredColor = (percentile: number | null | undefined): string => {
@@ -765,7 +744,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
         >
             {/* Modal action buttons - vertically stacked, aligned, close to modal */}
             <div
-                className="absolute flex flex-col gap-2 top-4 right-4 z-50"
+                className="absolute flex flex-col gap-2 z-50 top-10 right-10"
                 style={{ alignItems: "flex-end" }}
             >
                 <button
@@ -775,16 +754,6 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                <button
-                    onClick={handleDownload}
-                    className="text-white p-2 rounded-full hover:bg-[#19191A] transition-colors"
-                    aria-label="Download content"
-                    title="Download"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                 </button>
             </div>
@@ -922,7 +891,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                     Height -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Height w/o Shoes']}
+                                                    {formatMeasurement(player['Height w/o Shoes'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -946,7 +915,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                     Wingspan -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Wingspan']}
+                                                    {formatMeasurement(player['Wingspan'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -970,7 +939,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                     Standing Reach -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Standing Reach']}
+                                                    {formatMeasurement(player['Standing Reach'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -991,10 +960,10 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                         <div className="flex items-center justify-between mb-1">
                                             <div className="flex items-center space-x-1">
                                                 <span className="  text-xs tracking-wider text-gray-400">
-                                                    Weight -
+                                                    Weight (lbs) -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Weight (lbs)']}
+                                                    {formatMeasurement(player['Weight (lbs)'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -1015,10 +984,10 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                         <div className="flex items-center justify-between mb-1">
                                             <div className="flex items-center space-x-1">
                                                 <span className="  text-xs tracking-wider text-gray-400">
-                                                    Hand Length -
+                                                    Hand Length (in) -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Hand Length (in.)']}
+                                                    {formatMeasurement(player['Hand Length (in.)'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -1039,10 +1008,10 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                         <div className="flex items-center justify-between mb-1">
                                             <div className="flex items-center space-x-1">
                                                 <span className="  text-xs tracking-wider text-gray-400">
-                                                    Hand Width -
+                                                    Hand Width (in) -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Hand Width (in.)']}
+                                                    {formatMeasurement(player['Hand Width (in.)'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -1096,7 +1065,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                     Max Vert -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Max Vertical']}
+                                                    {formatMeasurement(player['Max Vertical'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -1120,7 +1089,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                     Standing Vert -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Standing Vertical']}
+                                                    {formatMeasurement(player['Standing Vertical'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -1165,7 +1134,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                     Lane Agility -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Lane Agility Time'] ? player['Lane Agility Time'].toFixed(2) : 'N/A'}
+                                                    {formatMeasurement(player['Lane Agility Time'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -1189,7 +1158,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                     3/4 Sprint -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Three Quarter Sprint']}
+                                                    {formatMeasurement(player['Three Quarter Sprint'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -1213,7 +1182,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                                                     Shuttle Run -
                                                 </span>
                                                 <span className="text-gray-400 text-xs">
-                                                    {player['Shuttle Run'] ? player['Shuttle Run'].toFixed(2) : 'N/A'}
+                                                    {formatMeasurement(player['Shuttle Run'])}
                                                 </span>
                                             </div>
                                             <span className="text-gray-400 text-xs">
@@ -1243,7 +1212,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
                             <div className="h-3 w-px bg-[#33383F]"></div>
                             <span>tawnyparkmetrics.com</span>
                             <div className="h-3 w-px bg-[#33383F]"></div>
-                            <span>@supersayinsavin</span>
+                            <span>@supersayansavin</span>
                         </div>
                     </div>
                 </div>
@@ -1262,6 +1231,7 @@ export default function CombineScorePage() {
     const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
     const [isMobileYearDropdownOpen, setIsMobileYearDropdownOpen] = useState(false);
     const [isPositionDropdownOpen, setIsPositionDropdownOpen] = useState(false);
+    const [tablePositionDropdowns, setTablePositionDropdowns] = useState<{ [key: string]: boolean }>({}); // Add this new one for table rows
     const [combineData, setCombineData] = useState<CombinePlayer[]>([]);
     const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: 'asc' | 'desc' }>({
         key: 'Player',
@@ -1325,6 +1295,12 @@ export default function CombineScorePage() {
             }
             if (mobileYearDropdownRef.current && !mobileYearDropdownRef.current.contains(event.target as Node)) {
                 setIsMobileYearDropdownOpen(false);
+            }
+
+            // Close position dropdowns in table when clicking outside
+            const target = event.target as HTMLElement;
+            if (!target.closest('td')) {
+                setTablePositionDropdowns({}); // Updated to use new state name
             }
         };
 
@@ -1611,7 +1587,6 @@ export default function CombineScorePage() {
                 selectedYear={selectedYear}
             />
 
-            {/* Filter Section */}
             {/* Filter Section */}
             <div className="sticky top-14 z-30 bg-[#19191A] border-b border-gray-800">
                 {/* Mobile Filter */}
@@ -1919,7 +1894,7 @@ export default function CombineScorePage() {
                                             transition={{ duration: 0.4 }}
                                             className="whitespace-nowrap"
                                         >
-                                            {isPercentileMode ? 'Sort by measurements' : 'Sort by percentile'}
+                                            {isPercentileMode ? 'Toggle off' : 'Sort by percentile'}
                                         </motion.span>
                                     )}
                                 %
@@ -1927,47 +1902,56 @@ export default function CombineScorePage() {
                         </div>
 
 
-                        {/* Enhanced Table with All Measurements */}
+                        {/* Enhanced Table with Component Scores */}
                         <div className="bg-[#19191A] rounded-lg overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead className="bg-[#19191A]">
                                         <tr>
-                                            <th className="text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap" onClick={() => handleSort('Player')}>
+                                            <th className="sticky left-0 z-20 bg-[#19191A] text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-48" onClick={() => handleSort('Player')}>
                                                 <div className="flex items-center gap-1">Player <SortIcon columnKey="Player" /></div>
                                             </th>
-                                            <th className="text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-16" onClick={() => handleSort('Default Position')}>
+                                            <th className="sticky left-[146px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" onClick={() => handleSort('Default Position')}>
                                                 <div className="flex items-center gap-1">Pos <SortIcon columnKey="Default Position" /></div>
                                             </th>
-                                            <th className="text-center px-3 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
-                                                <div className="flex items-center justify-center gap-1">Combine Score <SortIcon columnKey="Combine Score" /></div>
+                                            <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
+                                                <div className="flex items-center justify-center gap-1">Combine <SortIcon columnKey="Combine Score" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Height (in.)')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Height (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Height <SortIcon columnKey="Height (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Wingspan (in.)')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Wingspan (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Wingspan <SortIcon columnKey="Wingspan (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Standing Reach (in.)')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Reach (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Reach <SortIcon columnKey="Standing Reach (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Weight (lbs)')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Weight (lbs)')}>
                                                 <div className="flex items-center justify-center gap-1">Weight <SortIcon columnKey="Weight (lbs)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Max Vertical')}>
+                                            <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Physical Score')}>
+                                                <div className="flex items-center justify-center gap-1">Physical <SortIcon columnKey="Physical Score" /></div>
+                                            </th>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Max Vertical')}>
                                                 <div className="flex items-center justify-center gap-1">Max Vert <SortIcon columnKey="Max Vertical" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Standing Vertical')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Vertical')}>
                                                 <div className="flex items-center justify-center gap-1">Standing Vert <SortIcon columnKey="Standing Vertical" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Lane Agility Time')}>
+                                            <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Vertical Score')}>
+                                                <div className="flex items-center justify-center gap-1">Vertical <SortIcon columnKey="Vertical Score" /></div>
+                                            </th>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Lane Agility Time')}>
                                                 <div className="flex items-center justify-center gap-1">Lane Agility <SortIcon columnKey="Lane Agility Time" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Three Quarter Sprint')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Three Quarter Sprint')}>
                                                 <div className="flex items-center justify-center gap-1">3/4 Agility <SortIcon columnKey="Three Quarter Sprint" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-gray-700/30 whitespace-nowrap w-24" onClick={() => handleSort('Shuttle Run')}>
+                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Shuttle Run')}>
                                                 <div className="flex items-center justify-center gap-1">Shuttle Run <SortIcon columnKey="Shuttle Run" /></div>
+                                            </th>
+                                            <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Agility Score')}>
+                                                <div className="flex items-center justify-center gap-1">Agility <SortIcon columnKey="Agility Score" /></div>
                                             </th>
                                         </tr>
                                     </thead>
@@ -1987,8 +1971,8 @@ export default function CombineScorePage() {
 
                                             return (
                                                 <React.Fragment key={`${player.Player}-${index}`}>
-                                                    <tr className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                                        <td className="px-4 py-3 text-white font-medium w-48">
+                                                    <tr className="group border-b border-white/5 transition-colors">
+                                                        <td className="sticky left-0 z-10 bg-[#19191A] px-4 py-3 text-white font-medium w-48">
                                                             <div className="flex items-center gap-2">
                                                                 <button
                                                                     onClick={(e) => {
@@ -2010,28 +1994,61 @@ export default function CombineScorePage() {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-4 py-3 w-16">
-                                                            <select
-                                                                value={currentPosition}
-                                                                onChange={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setSelectedPositions(prev => ({
-                                                                        ...prev,
-                                                                        [player.Player]: e.target.value
-                                                                    }));
-                                                                }}
-                                                                onClick={(e) => e.stopPropagation()}
-                                                                className="bg-transparent text-gray-300 text-sm cursor-pointer"
-                                                            >
-                                                                {variations.map((variation, idx) => (
-                                                                    <option key={idx} value={variation['Default Position']}>
-                                                                        {variation['Default Position']}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
+                                                        <td className="sticky left-[146px] z-20 bg-[#19191A] px-4 py-3 w-16">
+                                                            {selectedGrouping === 'none' ? (
+                                                                <div className="relative">
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setTablePositionDropdowns(prev => ({
+                                                                                ...prev,
+                                                                                [player.Player]: !prev[player.Player]
+                                                                            }));
+                                                                        }}
+                                                                        className="bg-transparent text-gray-300 text-sm cursor-pointer hover:text-white transition-colors flex items-center gap-1"
+                                                                    >
+                                                                        {currentPosition}
+                                                                        <ChevronDown className="h-3 w-3" />
+                                                                    </button>
+
+                                                                    {tablePositionDropdowns[player.Player] && (
+                                                                        <div
+                                                                            className="absolute left-0 mt-1 w-20 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg z-50"
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        >
+                                                                            {variations.map((variation, idx) => (
+                                                                                <button
+                                                                                    key={idx}
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        setSelectedPositions(prev => ({
+                                                                                            ...prev,
+                                                                                            [player.Player]: variation['Default Position']
+                                                                                        }));
+                                                                                        setTablePositionDropdowns(prev => ({
+                                                                                            ...prev,
+                                                                                            [player.Player]: false
+                                                                                        }));
+                                                                                    }}
+                                                                                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-700 transition-colors ${currentPosition === variation['Default Position']
+                                                                                        ? 'bg-gray-700 text-white'
+                                                                                        : 'text-gray-300'
+                                                                                        }`}
+                                                                                >
+                                                                                    {variation['Default Position']}
+                                                                                </button>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-gray-500 text-sm cursor-not-allowed">
+                                                                    {currentPosition}
+                                                                </span>
+                                                            )}
                                                         </td>
                                                         <td
-                                                            className="px-3 py-3 text-center cursor-pointer"
+                                                            className="px-3 py-3 text-center cursor-pointer bg-[#1c1c1d] hover:animate-pulse transition-colors"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 setSelectedPlayer(player);
@@ -2098,6 +2115,16 @@ export default function CombineScorePage() {
                                                                 </span>
                                                             </div>
                                                         </td>
+                                                        <td className="px-3 py-3 text-center bg-[#1c1c1d] transition-color">
+                                                            <span
+                                                                className={`text-m font-bold ${pulsingCells.has(`${player.Player}-Physical Score`) ? 'pulse-active' : ''}`}
+                                                                style={{
+                                                                    color: player['Physical Score'] != null ? getTieredColor(player['Physical Score']) : '#6b7280',
+                                                                }}
+                                                            >
+                                                                {player['Physical Score'] != null ? player['Physical Score'].toFixed(1) : '-'}
+                                                            </span>
+                                                        </td>
                                                         <td className="px-4 py-3 text-center">
                                                             <div className="flex flex-col items-center gap-0.5">
                                                                 <span className="text-white font-medium">{player['Max Vertical'] || '-'}</span>
@@ -2123,6 +2150,16 @@ export default function CombineScorePage() {
                                                                     {player['Standing Vertical_Percentile']?.toFixed(0) || '-'}
                                                                 </span>
                                                             </div>
+                                                        </td>
+                                                        <td className="px-3 py-3 text-center bg-[#1c1c1d] transition-color">
+                                                            <span
+                                                                className={`text-m font-bold ${pulsingCells.has(`${player.Player}-Vertical Score`) ? 'pulse-active' : ''}`}
+                                                                style={{
+                                                                    color: player['Vertical Score'] != null ? getTieredColor(player['Vertical Score']) : '#6b7280',
+                                                                }}
+                                                            >
+                                                                {player['Vertical Score'] != null ? player['Vertical Score'].toFixed(1) : '-'}
+                                                            </span>
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
                                                             <div className="flex flex-col items-center gap-0.5">
@@ -2163,11 +2200,32 @@ export default function CombineScorePage() {
                                                                 </span>
                                                             </div>
                                                         </td>
+                                                        <td className="px-3 py-3 text-center bg-[#1c1c1d] transition-color">
+                                                            <span
+                                                                className={`text-m font-bold ${pulsingCells.has(`${player.Player}-Agility Score`) ? 'pulse-active' : ''}`}
+                                                                style={{
+                                                                    color: player['Agility Score'] != null ? getTieredColor(player['Agility Score']) : '#6b7280',
+                                                                }}
+                                                            >
+                                                                {player['Agility Score'] != null ? player['Agility Score'].toFixed(1) : '-'}
+                                                            </span>
+                                                        </td>
                                                     </tr>
                                                     {isExpanded && (
                                                         <tr className="bg-gray-800/20 border-b border-white/5">
-                                                            <td colSpan={12} className="px-6 py-8">
-                                                                <PlayerComparison player={player} allData={combineData} />
+                                                            <td colSpan={15} className="px-6 py-8">
+                                                                <PlayerComparison
+                                                                    player={(() => {
+                                                                        const selectedPos = selectedPositions[player.Player];
+                                                                        if (selectedPos && selectedGrouping === 'none') {
+                                                                            const variations = getPlayerVariations(player.Player);
+                                                                            const selected = variations.find(v => v['Default Position'] === selectedPos);
+                                                                            return selected || player;
+                                                                        }
+                                                                        return player;
+                                                                    })()}
+                                                                    allData={combineData}
+                                                                />
                                                             </td>
                                                         </tr>
                                                     )}
