@@ -32,6 +32,7 @@ const pulseStyles = `
 `;
 
 
+
 interface CombinePlayer {
     //Player Information
     'Player': string;
@@ -1581,7 +1582,19 @@ export default function CombineScorePage() {
 
     return (
         <div className="min-h-screen bg-[#19191A]" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
-            <style>{pulseStyles}</style>
+            <style>{`
+                ${pulseStyles}
+                
+                /* Hide scrollbars but keep functionality */
+                .hide-scrollbar {
+                    -ms-overflow-style: none;  /* IE and Edge */
+                    scrollbar-width: none;  /* Firefox */
+                }
+                
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;  /* Chrome, Safari and Opera */
+                }
+            `}</style>
             <NavigationHeader activeTab="Combine Score" />
             <DraftPageHeader author="Combine Score"
                 selectedYear={selectedYear}
@@ -1904,7 +1917,7 @@ export default function CombineScorePage() {
 
                         {/* Enhanced Table with Component Scores */}
                         <div className="bg-[#19191A] rounded-lg overflow-hidden relative">
-                            <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+                            <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto hide-scrollbar">
                                 <table className="w-full text-sm">
                                     <thead className="bg-[#19191A]">
                                         <tr>
