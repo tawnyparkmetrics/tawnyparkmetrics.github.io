@@ -31,6 +31,7 @@ const pulseStyles = `
   }
 `;
 
+
 interface CombinePlayer {
     //Player Information
     'Player': string;
@@ -1316,7 +1317,6 @@ export default function CombineScorePage() {
             return playerYear?.toString() === selectedYear;
         });
 
-        // Handle grouping logic
         if (selectedGrouping !== 'none') {
             // Group players by name
             const playerGroups = filtered.reduce((acc, player) => {
@@ -1727,7 +1727,7 @@ export default function CombineScorePage() {
                                 <motion.button
                                     onClick={() => selectedGrouping === 'none' && setIsPositionDropdownOpen(!isPositionDropdownOpen)}
                                     disabled={selectedGrouping !== 'none'}
-                                    className={`px-3 py-2 rounded-lg text-sm font-medium border whitespace-nowrap flex items-center justify-between gap-2 ${selectedGrouping !== 'none'
+                                    className={`px-3 py-2 rounded-lg text-sm font-medium border whitespace-nowrap z-50 flex items-center justify-between gap-2 ${selectedGrouping !== 'none'
                                         ? 'bg-gray-800/50 text-gray-600 border-gray-800 cursor-not-allowed'
                                         : 'bg-[#19191A] text-gray-400 border-gray-800 hover:border-gray-700'
                                         }`}
@@ -1737,7 +1737,7 @@ export default function CombineScorePage() {
                                 </motion.button>
 
                                 {isPositionDropdownOpen && selectedGrouping === 'none' && (
-                                    <div className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+                                    <div className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-30">
                                         {positions.map(position => (
                                             <button
                                                 key={position}
@@ -1745,7 +1745,7 @@ export default function CombineScorePage() {
                                                     setSelectedPosition(position);
                                                     setIsPositionDropdownOpen(false);
                                                 }}
-                                                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedPosition === position ? 'bg-gray-700 text-white' : 'text-gray-300'
+                                                className={`w-full z-30 text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedPosition === position ? 'bg-gray-700 text-white' : 'text-gray-300'
                                                     }`}
                                             >
                                                 {position}
@@ -1903,15 +1903,15 @@ export default function CombineScorePage() {
 
 
                         {/* Enhanced Table with Component Scores */}
-                        <div className="bg-[#19191A] rounded-lg overflow-hidden">
-                            <div className="overflow-x-auto">
+                        <div className="bg-[#19191A] rounded-lg overflow-hidden relative">
+                            <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
                                 <table className="w-full text-sm">
                                     <thead className="bg-[#19191A]">
                                         <tr>
                                             <th className="sticky left-0 z-20 bg-[#19191A] text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-48" onClick={() => handleSort('Player')}>
                                                 <div className="flex items-center gap-1">Player <SortIcon columnKey="Player" /></div>
                                             </th>
-                                            <th className="sticky left-[146px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" onClick={() => handleSort('Default Position')}>
+                                            <th className="sticky left-[140px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" onClick={() => handleSort('Default Position')}>
                                                 <div className="flex items-center gap-1">Pos <SortIcon columnKey="Default Position" /></div>
                                             </th>
                                             <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
@@ -1972,7 +1972,7 @@ export default function CombineScorePage() {
                                             return (
                                                 <React.Fragment key={`${player.Player}-${index}`}>
                                                     <tr className="group border-b border-white/5 transition-colors">
-                                                        <td className="sticky left-0 z-10 bg-[#19191A] px-4 py-3 text-white font-medium w-48">
+                                                        <td className="sticky left-0 z-10 bg-[#19191A] hover:brightness-125 px-4 py-3 text-white font-medium w-48">
                                                             <div className="flex items-center gap-2">
                                                                 <button
                                                                     onClick={(e) => {
@@ -1994,7 +1994,7 @@ export default function CombineScorePage() {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="sticky left-[146px] z-20 bg-[#19191A] px-4 py-3 w-16">
+                                                        <td className="sticky left-[140px] bg-[#19191A] px-4 py-3 w-16" style={{ zIndex: tablePositionDropdowns[player.Player] ? 100 : 30 }}>
                                                             {selectedGrouping === 'none' ? (
                                                                 <div className="relative">
                                                                     <button
@@ -2013,7 +2013,11 @@ export default function CombineScorePage() {
 
                                                                     {tablePositionDropdowns[player.Player] && (
                                                                         <div
-                                                                            className="absolute left-0 mt-1 w-20 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg z-50"
+                                                                            className="absolute left-0 mt-1 w-20 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg overflow-hidden"
+                                                                            style={{
+                                                                                minWidth: '5.5rem',
+                                                                                zIndex: 1000
+                                                                            }}
                                                                             onClick={(e) => e.stopPropagation()}
                                                                         >
                                                                             {variations.map((variation, idx) => (
@@ -2048,7 +2052,7 @@ export default function CombineScorePage() {
                                                             )}
                                                         </td>
                                                         <td
-                                                            className="px-3 py-3 text-center cursor-pointer bg-[#1c1c1d] hover:animate-pulse transition-colors"
+                                                            className="px-3 py-3 text-center cursor-pointer bg-[#1c1c1d] hover:brightness-125 hover:text-white transition-colors"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 setSelectedPlayer(player);
