@@ -48,7 +48,7 @@ const DraftPageHeader: React.FC<DraftPageHeaderProps> = ({ author, className = '
       case 'Combine Score':
         return (
           <>
-            NBA Draft Combine results & position specific results. Built by <a href="https://x.com/BalaRavikumar5?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Bala Ravikumar</a>, originated by <a href="https://x.com/kalidrafts?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Nick Kalinowski</a>, and inspired by <a href="https://x.com/MathBomb?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">@MathBomb</a>;
+            NBA Draft Combine results & position specific results. Built by <a href="https://x.com/BalaRavikumar5?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Bala Ravikumar</a>, originated by <a href="https://x.com/kalidrafts?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">Nick Kalinowski</a>, and inspired by <a href="https://x.com/MathBomb?lang=en" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">@MathBomb</a>.
           </>
         )
       case 'Consensus':

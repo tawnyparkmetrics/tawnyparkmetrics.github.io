@@ -31,8 +31,6 @@ const pulseStyles = `
   }
 `;
 
-
-
 interface CombinePlayer {
     //Player Information
     'Player': string;
@@ -1924,7 +1922,7 @@ export default function CombineScorePage() {
                                             <th className="sticky left-0 z-20 bg-[#19191A] text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-48" onClick={() => handleSort('Player')}>
                                                 <div className="flex items-center gap-1">Player <SortIcon columnKey="Player" /></div>
                                             </th>
-                                            <th className="sticky left-[140px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" onClick={() => handleSort('Default Position')}>
+                                            <th className="sticky left-[144px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" onClick={() => handleSort('Default Position')}>
                                                 <div className="flex items-center gap-1">Pos <SortIcon columnKey="Default Position" /></div>
                                             </th>
                                             <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
@@ -2007,7 +2005,7 @@ export default function CombineScorePage() {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="sticky left-[140px] bg-[#19191A] px-4 py-3 w-16" style={{ zIndex: tablePositionDropdowns[player.Player] ? 100 : 30 }}>
+                                                        <td className="sticky left-[144px] bg-[#19191A] px-4 py-3 w-16" style={{ zIndex: tablePositionDropdowns[player.Player] ? 100 : 30 }}>
                                                             {selectedGrouping === 'none' ? (
                                                                 <div className="relative">
                                                                     <button
