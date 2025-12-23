@@ -92,7 +92,7 @@ export default function Home() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   @supersayansavin
-                </a> &apos;s model featuring EPM projections, prospect tiers, skills graphs, and player comps.
+                </a>&apos;s model featuring EPM projections, prospect tiers, skills graphs, and player comps.
               </p>
             </div>
           </Link>
