@@ -311,7 +311,13 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                                         }
                                     }}
                                     onFocus={() => setShowSuggestions(true)}
-                                    placeholder={`Compare with Other ${player['Default Position']}s`}
+                                    placeholder={`Compare with Other ${player['Default Position'] === 'PG' ? 'Point Guards' :
+                                        player['Default Position'] === 'SG' ? 'Shooting Guards' :
+                                            player['Default Position'] === 'SF' ? 'Small Forwards' :
+                                                player['Default Position'] === 'PF' ? 'Power Forwards' :
+                                                    player['Default Position'] === 'C' ? 'Centers' :
+                                                        player['Default Position'] + 's'
+                                        }`}
                                     className="w-full pl-8 pr-3 py-2 text-xs bg-[#19191A] border border-gray-800 text-gray-300 placeholder-gray-500 rounded focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 focus:outline-none"
                                 />
                                 {comparisonPlayer && (
@@ -1919,10 +1925,10 @@ export default function CombineScorePage() {
                                 <table className="w-full text-sm">
                                     <thead className="bg-[#19191A]">
                                         <tr>
-                                            <th className="sticky left-0 z-20 bg-[#19191A] text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-48" onClick={() => handleSort('Player')}>
+                                            <th className="sticky left-0 z-20 bg-[#19191A] text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" style={{ minWidth: '192px', width: '192px', maxWidth: '192px' }} onClick={() => handleSort('Player')}>
                                                 <div className="flex items-center gap-1">Player <SortIcon columnKey="Player" /></div>
                                             </th>
-                                            <th className="sticky left-[144px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" onClick={() => handleSort('Default Position')}>
+                                            <th className="sticky left-[192px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" style={{ minWidth: '80px', width: '80px', maxWidth: '80px' }} onClick={() => handleSort('Default Position')}>
                                                 <div className="flex items-center gap-1">Pos <SortIcon columnKey="Default Position" /></div>
                                             </th>
                                             <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
@@ -1983,7 +1989,7 @@ export default function CombineScorePage() {
                                             return (
                                                 <React.Fragment key={`${player.Player}-${index}`}>
                                                     <tr className="group border-b border-white/5 transition-colors">
-                                                        <td className="sticky left-0 z-10 bg-[#19191A] hover:brightness-125 px-4 py-3 text-white font-medium w-48">
+                                                        <td className="sticky left-0 bg-[#19191A] hover:brightness-125 px-4 py-3 text-white font-medium" style={{ minWidth: '192px', width: '192px', maxWidth: '192px', zIndex: 11 }}>
                                                             <div className="flex items-center gap-2">
                                                                 <button
                                                                     onClick={(e) => {
@@ -1995,7 +2001,7 @@ export default function CombineScorePage() {
                                                                     <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                                                                 </button>
                                                                 <span
-                                                                    className="cursor-pointer"
+                                                                    className="cursor-pointer truncate"
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         toggleRowExpansion(player.Player);
@@ -2005,23 +2011,28 @@ export default function CombineScorePage() {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="sticky left-[144px] bg-[#19191A] px-4 py-3 w-16" style={{ zIndex: tablePositionDropdowns[player.Player] ? 100 : 30 }}>
+                                                        <td className="sticky left-[192px] bg-[#19191A] px-4 py-3" style={{ minWidth: '80px', width: '80px', maxWidth: '80px', zIndex: tablePositionDropdowns[player.Player] ? 100 : 11 }}>
                                                             {selectedGrouping === 'none' ? (
                                                                 <div className="relative">
                                                                     <button
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
-                                                                            setTablePositionDropdowns(prev => ({
-                                                                                ...prev,
-                                                                                [player.Player]: !prev[player.Player]
-                                                                            }));
+                                                                            setTablePositionDropdowns(prev => {
+                                                                                const isCurrentlyOpen = prev[player.Player];
+                                                                                // Close all dropdowns first
+                                                                                const allClosed: { [key: string]: boolean } = {};
+                                                                                // Then open only this one if it wasn't already open
+                                                                                if (!isCurrentlyOpen) {
+                                                                                    allClosed[player.Player] = true;
+                                                                                }
+                                                                                return allClosed;
+                                                                            });
                                                                         }}
                                                                         className="bg-transparent text-gray-300 text-sm cursor-pointer hover:text-white transition-colors flex items-center gap-1"
                                                                     >
                                                                         {currentPosition}
                                                                         <ChevronDown className="h-3 w-3" />
                                                                     </button>
-
                                                                     {tablePositionDropdowns[player.Player] && (
                                                                         <div
                                                                             className="absolute left-0 mt-1 w-20 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg overflow-hidden"
@@ -2079,56 +2090,72 @@ export default function CombineScorePage() {
                                                             </span>
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <div className="flex flex-col items-center gap-0.5">
-                                                                <span className="text-white font-medium">{player['Height w/o Shoes'] || '-'}</span>
-                                                                <span
-                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Height (in.)_Percentile`) ? 'pulse-active' : ''}`}
-                                                                    style={{
-                                                                        color: getTieredColor(player['Height (in.)_Percentile'])
-                                                                    }}
-                                                                >
-                                                                    {player['Height (in.)_Percentile']?.toFixed(0) || '-'}
-                                                                </span>
-                                                            </div>
+                                                            {!player['Height w/o Shoes'] && !player['Height (in.)_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Height w/o Shoes'] || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Height (in.)_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Height (in.)_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Height (in.)_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <div className="flex flex-col items-center gap-0.5">
-                                                                <span className="text-white font-medium">{player['Wingspan'] || '-'}</span>
-                                                                <span
-                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Wingspan (in.)_Percentile`) ? 'pulse-active' : ''}`}
-                                                                    style={{
-                                                                        color: getTieredColor(player['Wingspan (in.)_Percentile'])
-                                                                    }}
-                                                                >
-                                                                    {player['Wingspan (in.)_Percentile']?.toFixed(0) || '-'}
-                                                                </span>
-                                                            </div>
+                                                            {!player['Standing Reach'] && !player['Standing Reach (in.)_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Standing Reach'] || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Standing Reach (in.)_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Standing Reach (in.)_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Standing Reach (in.)_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <div className="flex flex-col items-center gap-0.5">
-                                                                <span className="text-white font-medium">{player['Standing Reach'] || '-'}</span>
-                                                                <span
-                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Standing Reach (in.)_Percentile`) ? 'pulse-active' : ''}`}
-                                                                    style={{
-                                                                        color: getTieredColor(player['Standing Reach (in.)_Percentile'])
-                                                                    }}
-                                                                >
-                                                                    {player['Standing Reach (in.)_Percentile']?.toFixed(0) || '-'}
-                                                                </span>
-                                                            </div>
+                                                            {!player['Weight (lbs)'] && !player['Weight (lbs)_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Weight (lbs)'] || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Weight (lbs)_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Weight (lbs)_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Weight (lbs)_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <div className="flex flex-col items-center gap-0.5">
-                                                                <span className="text-white font-medium">{player['Weight (lbs)'] || '-'}</span>
-                                                                <span
-                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Weight (lbs)_Percentile`) ? 'pulse-active' : ''}`}
-                                                                    style={{
-                                                                        color: getTieredColor(player['Weight (lbs)_Percentile'])
-                                                                    }}
-                                                                >
-                                                                    {player['Weight (lbs)_Percentile']?.toFixed(0) || '-'}
-                                                                </span>
-                                                            </div>
+                                                            {!player['Weight (lbs)'] && !player['Weight (lbs)_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Weight (lbs)'] || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Weight (lbs)_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Weight (lbs)_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Weight (lbs)_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-3 py-3 text-center bg-[#1c1c1d] transition-color">
                                                             <span
@@ -2141,30 +2168,38 @@ export default function CombineScorePage() {
                                                             </span>
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <div className="flex flex-col items-center gap-0.5">
-                                                                <span className="text-white font-medium">{player['Max Vertical'] || '-'}</span>
-                                                                <span
-                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Max Vertical_Percentile`) ? 'pulse-active' : ''}`}
-                                                                    style={{
-                                                                        color: getTieredColor(player['Max Vertical_Percentile'])
-                                                                    }}
-                                                                >
-                                                                    {player['Max Vertical_Percentile']?.toFixed(0) || '-'}
-                                                                </span>
-                                                            </div>
+                                                            {!player['Max Vertical'] && !player['Max Vertical_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Max Vertical'] || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Max Vertical_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Max Vertical_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Max Vertical_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <div className="flex flex-col items-center gap-0.5">
-                                                                <span className="text-white font-medium">{player['Standing Vertical'] || '-'}</span>
-                                                                <span
-                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Standing Vertical_Percentile`) ? 'pulse-active' : ''}`}
-                                                                    style={{
-                                                                        color: getTieredColor(player['Standing Vertical_Percentile'])
-                                                                    }}
-                                                                >
-                                                                    {player['Standing Vertical_Percentile']?.toFixed(0) || '-'}
-                                                                </span>
-                                                            </div>
+                                                            {!player['Standing Vertical'] && !player['Standing Vertical_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Standing Vertical'] || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Standing Vertical_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Standing Vertical_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Standing Vertical_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-3 py-3 text-center bg-[#1c1c1d] transition-color">
                                                             <span
@@ -2177,43 +2212,55 @@ export default function CombineScorePage() {
                                                             </span>
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <div className="flex flex-col items-center gap-0.5">
-                                                                <span className="text-white font-medium">{player['Lane Agility Time']?.toFixed(2) || '-'}</span>
-                                                                <span
-                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Lane Agility Time_Percentile`) ? 'pulse-active' : ''}`}
-                                                                    style={{
-                                                                        color: getTieredColor(player['Lane Agility Time_Percentile'])
-                                                                    }}
-                                                                >
-                                                                    {player['Lane Agility Time_Percentile']?.toFixed(0) || '-'}
-                                                                </span>
-                                                            </div>
+                                                            {!player['Lane Agility Time'] && !player['Lane Agility Time_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Lane Agility Time']?.toFixed(2) || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Lane Agility Time_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Lane Agility Time_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Lane Agility Time_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <div className="flex flex-col items-center gap-0.5">
-                                                                <span className="text-white font-medium">{player['Three Quarter Sprint']?.toFixed(2) || '-'}</span>
-                                                                <span
-                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Three Quarter Sprint_Percentile`) ? 'pulse-active' : ''}`}
-                                                                    style={{
-                                                                        color: getTieredColor(player['Three Quarter Sprint_Percentile'])
-                                                                    }}
-                                                                >
-                                                                    {player['Three Quarter Sprint_Percentile']?.toFixed(0) || '-'}
-                                                                </span>
-                                                            </div>
+                                                            {!player['Three Quarter Sprint'] && !player['Three Quarter Sprint_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Three Quarter Sprint']?.toFixed(2) || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Three Quarter Sprint_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Three Quarter Sprint_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Three Quarter Sprint_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <div className="flex flex-col items-center gap-0.5">
-                                                                <span className="text-white font-medium">{player['Shuttle Run']?.toFixed(2) || '-'}</span>
-                                                                <span
-                                                                    className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Shuttle Run_Percentile`) ? 'pulse-active' : ''}`}
-                                                                    style={{
-                                                                        color: getTieredColor(player['Shuttle Run_Percentile'])
-                                                                    }}
-                                                                >
-                                                                    {player['Shuttle Run_Percentile']?.toFixed(0) || '-'}
-                                                                </span>
-                                                            </div>
+                                                            {!player['Shuttle Run'] && !player['Shuttle Run_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Shuttle Run']?.toFixed(2) || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Shuttle Run_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Shuttle Run_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Shuttle Run_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-3 py-3 text-center bg-[#1c1c1d] transition-color">
                                                             <span
