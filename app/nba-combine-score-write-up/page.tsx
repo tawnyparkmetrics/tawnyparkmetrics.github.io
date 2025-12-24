@@ -32,39 +32,6 @@ const DropdownSection = ({ title, children, isOpen, onToggle }: DropdownSectionP
   </div>
 );
 
-const ScoreTable = () => (
-  <div className="overflow-x-auto my-4">
-    <table className="w-full border-collapse">
-      <thead>
-        <tr className="bg-gray-700">
-          <th className="border border-gray-600 px-4 py-2 text-left text-white">Component Score</th>
-          <th className="border border-gray-600 px-4 py-2 text-left text-white">Measurements Included</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td className="border border-gray-600 px-4 py-2 text-white font-semibold">Physical Score</td>
-          <td className="border border-gray-600 px-4 py-2 text-gray-300">
-            Height (in.), Standing Reach (in.), Wingspan (in.), Weight (lbs)
-          </td>
-        </tr>
-        <tr className="bg-gray-800/30">
-          <td className="border border-gray-600 px-4 py-2 text-white font-semibold">Agility Score</td>
-          <td className="border border-gray-600 px-4 py-2 text-gray-300">
-            Lane Agility Time, Shuttle Run Time, Three-Quarter Sprint Time
-          </td>
-        </tr>
-        <tr>
-          <td className="border border-gray-600 px-4 py-2 text-white font-semibold">Vertical Score</td>
-          <td className="border border-gray-600 px-4 py-2 text-gray-300">
-            Standing Vertical Leap (in.), Maximum Vertical Leap (in.)
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-);
-
 export default function CombineScorePage() {
   const [openSections, setOpenSections] = useState({});
 
@@ -198,10 +165,10 @@ export default function CombineScorePage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16">
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-            Combine Score FAQs
+            FAQs
           </h1>
           <p className="text-gray-300 mb-4">
-            Learn about Combine Score methodology & interpretation via frequently asked questions
+            Learn about Combine Score via frequently asked questions
           </p>
           <p className="text-gray-300 mb-4">Written by Bala Ravikumar</p>
         </div>
