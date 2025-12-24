@@ -28,7 +28,7 @@ export default function Home() {
         />
 
         {/* Main Content */}
-        <div className="relative z-10 w-full max-w-4xl mx-auto px-6 py-8">
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-6 py-10">
           {/* Logo and Title */}
           <div className="text-center mb-12">
             <div className="flex justify-center">
