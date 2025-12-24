@@ -2,47 +2,69 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-//import ComingSoon from '../components/ui/ComingSoon';
 import NavigationHeader from '@/components/NavigationHeader';
 import { GoogleAnalytics } from '@next/third-parties/google';
-
+import Cubes from '@/components/Cubes';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Home" />
       <GoogleAnalytics gaId="G-X22HKJ13B7" />
-      {/* Hero Section - Reduced top padding from pt-20 to pt-12 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
-        <div className="bg-[#19191A] border border-white/20 rounded-xl p-8">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            {/* Logo */}
-            <div className="flex-shrink-0 relative">
-              <Image
-                src="/TPM_logo_designs/TPM Square (Dark with Map).png"
-                alt="TPM Logo"
-                width={224}  // 56 * 4 for md size
-                height={224} // 56 * 4 for md size
-                className="w-40 h-40 md:w-56 md:h-56"
-                priority // Add priority since this is above the fold
-              />
-            </div>
 
-            {/* Text Content */}
-            <div className="flex-grow text-gray-300 text-lg leading-relaxed">
-              <p className="mb-4">
-                <strong className="text-white">Tawny Park Metrics (TPM)</strong> is a platform for thoughtful and disruptive sports analysis. The name comes from the local park we&apos;ve hooped at almost all our lives. It&apos;s our way to put Tawny Park on the map. Accordingly, almost everyone involved with TPM&apos;s inception has known each other, at least, since middle school.
-              </p>
-              <p>
-                While &quot;Metrics&quot; implies a focus on data analysis, we are committed to offering a wide range of insights. Moreover, we intend to supplement our analysis with media content in the near future.
-              </p>
+      {/* Hero Section with 3D Cubes - Reduced Height */}
+      <div className="relative w-full h-[70vh] flex items-center justify-center overflow-hidden">
+        {/* Cubes Background - 20x10 grid */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-25">
+          <div className="w-full h-full flex items-center justify-center p-8 md:p-8">
+            <Cubes
+              gridCols={16}
+              gridRows={6}
+              radius={4}
+              cellGap={32}
+              maxAngle={360}
+              autoAnimate={true}
+              rippleOnClick={true}
+              cubeSize={undefined}
+              borderStyle="1px solid rgba(255, 255, 255, 0.08)"
+              faceColor="#19191A"
+              rippleColor="rgba(43, 44, 46, 0.6)"
+            />
+          </div>
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#19191A]/95 backdrop-blur-md border border-white/20 rounded-xl p-8 shadow-2xl">
+            <div className="flex flex-col md:flex-row items-center gap-12">
+              {/* Logo */}
+              <div className="flex-shrink-0 relative">
+                <Image
+                  src="/TPM_logo_designs/TPM Square (Dark with Map).png"
+                  alt="TPM Logo"
+                  width={224}
+                  height={224}
+                  className="w-40 h-40 md:w-56 md:h-56"
+                  priority
+                />
+              </div>
+
+              {/* Text Content */}
+              <div className="flex-grow text-gray-300 text-lg leading-relaxed">
+                <p className="mb-4">
+                  <strong className="text-white">Tawny Park Metrics (TPM)</strong> is a platform for thoughtful and disruptive sports analysis. The name comes from the local park we&apos;ve hooped at almost all our lives. It&apos;s our way to put Tawny Park on the map. Accordingly, almost everyone involved with TPM&apos;s inception has known each other, at least, since middle school.
+                </p>
+                <p>
+                  While &quot;Metrics&quot; implies a focus on data analysis, we are committed to offering a wide range of insights. Moreover, we intend to supplement our analysis with media content in the near future.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Consensus and NBA Draft History Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* NBA Draft History Section */}
           <Link href="/nba-draft-history" className="block">
@@ -100,10 +122,10 @@ export default function Home() {
           {/* Nick Kalinowski's Draft Board Card */}
           <Link href="/nick-nba-draft-board" className="block">
             <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full relative">
-              <img 
-                src="/nbateam_logos/Denver Nuggets.png" 
-                alt="Denver Nuggets Logo" 
-                className="absolute top-4 right-4 w-12 h-12 opacity-50 grayscale group-hover:grayscale-0 opacity-90 transition-opacity"
+              <img
+                src="/nbateam_logos/Denver Nuggets.png"
+                alt="Denver Nuggets Logo"
+                className="absolute top-4 right-4 w-12 h-12 opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-90 transition-all"
               />
               <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
                 Nick&apos;s Draft Board
