@@ -1,155 +1,214 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-//import ComingSoon from '../components/ui/ComingSoon';
 import NavigationHeader from '@/components/NavigationHeader';
 import { GoogleAnalytics } from '@next/third-parties/google';
-
+import { ChevronRight, ChevronDown } from 'lucide-react';
 
 export default function Home() {
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+
+  const toggleSection = (section: string) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
+
   return (
     <main className="min-h-screen bg-[#19191A]">
       <NavigationHeader activeTab="Home" />
       <GoogleAnalytics gaId="G-X22HKJ13B7" />
-      {/* Hero Section - Reduced top padding from pt-20 to pt-12 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
-        <div className="bg-[#19191A] border border-white/20 rounded-xl p-8">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            {/* Logo */}
-            <div className="flex-shrink-0 relative">
+
+      {/* Full Screen Hero with Basketball Texture */}
+      <div className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-[#19191A]">
+        {/* Basketball Texture Background - Fixed Position */}
+        <img
+          src="/B&W Basketball Transparent.png"
+          alt=""
+          className="fixed top-[60vh] right-0 -translate-y-1/2 max-w-4xl opacity-50 pointer-events-none z-0"
+        />
+
+        {/* Main Content */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-6 py-8">
+          {/* Logo and Title */}
+          <div className="text-center mb-12">
+            <div className="flex justify-center">
               <Image
-                src="/TPM_logo_designs/TPM Square (Dark with Map).png"
+                src="/TPM_logo_designs/TPM Square Transparent.png"
                 alt="TPM Logo"
-                width={224}  // 56 * 4 for md size
-                height={224} // 56 * 4 for md size
-                className="w-40 h-40 md:w-56 md:h-56"
-                priority // Add priority since this is above the fold
+                width={200}
+                height={200}
+                className="w-48 h-48"
+                priority
               />
             </div>
+            <h1 className="text-md font-bold text-white tracking-wide">
+              TAWNY PARK METRICS
+            </h1>
+          </div>
 
-            {/* Text Content */}
-            <div className="flex-grow text-gray-300 text-lg leading-relaxed">
-              <p className="mb-4">
-                <strong className="text-white">Tawny Park Metrics (TPM)</strong> is a platform for thoughtful and disruptive sports analysis. The name comes from the local park we&apos;ve hooped at almost all our lives. It&apos;s our way to put Tawny Park on the map. Accordingly, almost everyone involved with TPM&apos;s inception has known each other, at least, since middle school.
-              </p>
-              <p>
-                While &quot;Metrics&quot; implies a focus on data analysis, we are committed to offering a wide range of insights. Moreover, we intend to supplement our analysis with media content in the near future.
-              </p>
+          {/* Navigation Buttons */}
+          <div className="space-y-4">
+            {/* NBA Combine Score */}
+            <div className="max-w-md">
+              <Link href="/nba-combine-score">
+                <button className="w-full bg-transparent border-2 border-white/40 rounded-2xl px-7 py-5 text-white text-xl md:text-2xl font-semibold hover:border-white/80 hover:bg-white/5 transition-all duration-300 flex items-center justify-between group">
+                  <span>NBA COMBINE SCORE</span>
+                  <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+            </div>
+
+            <div></div>
+
+            {/* NBA Draft Consensus */}
+            <div className="max-w-md">
+              <Link href="/consensus-nba-draft-board">
+                <button className="w-full bg-transparent border-2 border-white/40 rounded-2xl px-7 py-5 text-white text-xl md:text-2xl font-semibold hover:border-white/80 hover:bg-white/5 transition-all duration-300 flex items-center justify-between group">
+                  <span>NBA DRAFT CONSENSUS</span>
+                  <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+            </div>
+
+            {/* NBA Draft Boards - Accordion */}
+            <div className="max-w-md">
+              <button 
+                onClick={() => toggleSection('draft-boards')}
+                className="w-full bg-transparent border-2 border-white/40 rounded-2xl px-7 py-5 text-white text-xl md:text-2xl font-semibold hover:border-white/80 hover:bg-white/5 transition-all duration-300 flex items-center justify-between"
+              >
+                <span>NBA DRAFT BOARDS</span>
+                <ChevronDown 
+                  className={`w-6 h-6 transition-transform duration-300 ${
+                    expandedSection === 'draft-boards' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              
+              {expandedSection === 'draft-boards' && (
+                <div className="mt-3 space-y-3 animate-fadeIn">
+                  <Link href="/max-nba-draft-board">
+                    <div className="bg-white/5 border border-white/20 rounded-xl px-7 py-5 hover:bg-white/10 transition-all cursor-pointer">
+                      <h3 className="text-white font-semibold text-lg mb-1">Max's Draft Board</h3>
+                      <p className="text-gray-400 text-sm">Explore <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">@supersayansavin</a>'s model featuring EPM projections, prospect tiers, skills graphs, and player comps.</p>
+                    </div>
+                  </Link>
+
+                  <div className="h-2"></div>
+                  
+                  <Link href="/nick-nba-draft-board">
+                    <div className="bg-white/5 border border-white/20 rounded-xl px-7 py-5 hover:bg-white/10 transition-all cursor-pointer relative">
+                      <img
+                        src="/nbateam_logos/Denver Nuggets.png"
+                        alt="Denver Nuggets"
+                        className="absolute top-3 right-3 w-8 h-8 opacity-40"
+                      />
+                      <h3 className="text-white font-semibold text-lg mb-1">Nick's Draft Board</h3>
+                      <p className="text-gray-400 text-sm">Check out <a href="https://x.com/kalidrafts" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">@kalidrafts</a>'s model ranking prospect by predicted EPM. Nick now works for the Denver Nuggets.</p>
+                    </div>
+                  </Link>
+
+                  <div className="h-2"></div>
+                  
+                  <Link href="/andre-nba-draft-board">
+                    <div className="bg-white/5 border border-white/20 rounded-xl px-7 py-5 hover:bg-white/10 transition-all cursor-pointer">
+                      <h3 className="text-white font-semibold text-lg mb-1">Andre's Draft Board</h3>
+                      <p className="text-gray-400 text-sm">Dive into <a href="https://x.com/undraliu" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">@undraliu</a>'s "Flagg Plant Score," which analyzes prospects via original metric and clustered tiers.</p>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* About TPM - Accordion */}
+            <div className="max-w-md">
+              <button 
+                onClick={() => toggleSection('about')}
+                className="w-full bg-transparent border-2 border-white/40 rounded-2xl px-7 py-5 text-white text-xl md:text-2xl font-semibold hover:border-white/80 hover:bg-white/5 transition-all duration-300 flex items-center justify-between"
+              >
+                <span>ABOUT TPM</span>
+                <ChevronDown 
+                  className={`w-6 h-6 transition-transform duration-300 ${
+                    expandedSection === 'about' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              
+              {expandedSection === 'about' && (
+                <div className="mt-3 bg-white/5 border border-white/20 rounded-xl px-6 py-5 animate-fadeIn">
+                  <p className="text-gray-300 leading-relaxed mb-3">
+                    <strong className="text-white">Tawny Park Metrics (TPM)</strong> is a platform for thoughtful and disruptive sports analysis. The name comes from the local park we've hooped at almost all our lives. It's our way to put Tawny Park on the map.
+                  </p>
+                  <p className="text-gray-300 leading-relaxed">
+                    While "Metrics" implies a focus on data analysis, we are committed to offering a wide range of insights. Moreover, we intend to supplement our analysis with media content in the near future.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Contact & Support - Accordion */}
+            <div className="max-w-md">
+              <button 
+                onClick={() => toggleSection('support')}
+                className="w-full bg-transparent border-2 border-white/40 rounded-2xl px-7 py-5 text-white text-xl md:text-2xl font-semibold hover:border-white/80 hover:bg-white/5 transition-all duration-300 flex items-center justify-between"
+              >
+                <span>CONTACT & SUPPORT</span>
+                <ChevronDown 
+                  className={`w-6 h-6 transition-transform duration-300 ${
+                    expandedSection === 'support' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              
+              {expandedSection === 'support' && (
+                <div className="mt-3 bg-white/5 border border-white/20 rounded-xl px-6 py-5 animate-fadeIn">
+                  <p className="text-gray-300 leading-relaxed">
+                    Support TPM by donating <a href="https://buymeacoffee.com/tawnypark" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-semibold underline">here</a>. <strong className="text-white">All work on this site has been unpaid</strong>. Your donations enable our growth and are tremendously appreciated. Sharing TPM with others is another incredibly helpful way to support our work.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* How to Join - Accordion */}
+            <div className="max-w-md">
+              <button 
+                onClick={() => toggleSection('join')}
+                className="w-full bg-transparent border-2 border-white/40 rounded-2xl px-7 py-5 text-white text-xl md:text-2xl font-semibold hover:border-white/80 hover:bg-white/5 transition-all duration-300 flex items-center justify-between"
+              >
+                <span>HOW TO JOIN</span>
+                <ChevronDown 
+                  className={`w-6 h-6 transition-transform duration-300 ${
+                    expandedSection === 'join' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              
+              {expandedSection === 'join' && (
+                <div className="mt-3 bg-white/5 border border-white/20 rounded-xl px-6 py-5 animate-fadeIn">
+                  <p className="text-gray-300 leading-relaxed">
+                    <strong className="text-white">We are actively seeking other draft boards to host on the site</strong>. If you have your own draft analysis, contact us at mes9950@stern.nyu.edu or DM <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">@supersayansavin</a>. Your board won't be exclusive to TPM. <strong className="text-white">Our goal is to create a platform where it's easy to share your work for no cost and minimal effort.</strong>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Consensus and NBA Draft History Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* NBA Draft History Section */}
-          <Link href="/nba-draft-history" className="block">
-            <div className="bg-[#19191A] border border-white/20 rounded-xl p-8 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
-              <div className="text-gray-300 text-lg leading-relaxed">
-                <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
-                  NBA Draft History
-                </h2>
-                <p>
-                  Review past NBA Draft classes (2020-2025).
-                </p>
-              </div>
-            </div>
-          </Link>
-
-          {/* Consensus Section */}
-          <Link href="/consensus-nba-draft-board" className="block">
-            <div className="bg-[#19191A] border border-white/20 rounded-xl p-8 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
-              <div className="text-gray-300 text-lg leading-relaxed">
-                <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
-                  NBA Draft Consensus Board
-                </h2>
-                <p>
-                  Aggregate of individual boards published before each draft.
-                </p>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Draft Boards Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {/* Max Savin's Draft Board Card */}
-          <Link href="/max-nba-draft-board" className="block">
-            <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
-              <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
-                Max&apos;s Draft Board
-              </h2>
-              <p className="text-gray-400">
-                Explore <a
-                  href="https://x.com/supersayansavin"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  @supersayansavin
-                </a>&apos;s model featuring EPM projections, prospect tiers, skills graphs, and player comps.
-              </p>
-            </div>
-          </Link>
-
-          {/* Nick Kalinowski's Draft Board Card */}
-          <Link href="/nick-nba-draft-board" className="block">
-            <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full relative">
-              <img 
-                src="/nbateam_logos/Denver Nuggets.png" 
-                alt="Denver Nuggets Logo" 
-                className="absolute top-4 right-4 w-12 h-12 opacity-50 grayscale group-hover:grayscale-0 opacity-90 transition-opacity"
-              />
-              <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
-                Nick&apos;s Draft Board
-              </h2>
-              <p className="text-gray-400">
-                Check out <a href="https://x.com/kalidrafts?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@kalidrafts</a>&apos;s model ranking prospects by predicted EPM. Nick now works for the Denver Nuggets.
-              </p>
-            </div>
-          </Link>
-
-          {/* Andre Liu's Draft Board Card */}
-          <Link href="/andre-nba-draft-board" className="block">
-            <div className="bg-[#19191A] border border-white/20 rounded-xl p-6 hover:border-blue-400/60 hover:bg-[#1a1a1b] hover:shadow-lg hover:shadow-blue-400/20 hover:scale-[1.02] transition-all duration-300 group cursor-pointer h-full">
-              <h2 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors">
-                Andre&apos;s Draft Board
-              </h2>
-              <p className="text-gray-400">
-                Dive into <a href="https://x.com/undraliu?s=11&t=aZX-xts5orQ1PkjaZOO7FQ" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" onClick={(e) => e.stopPropagation()}>@undraliu</a>&apos;s &quot;Flagg Plant Score,&quot; which analyzes prospects via original metrics and clustered tiers.
-              </p>
-            </div>
-          </Link>
-        </div>
-
-        {/* Support TPM and Join TPM Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Support TPM Section */}
-          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6">
-            <h2 className="text-3xl font-bold text-white mb-4">Support TPM</h2>
-            <div className="text-gray-300 text-base leading-relaxed space-y-4">
-              <p>
-                You can first support TPM by donating <a href="https://buymeacoffee.com/tawnypark" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold underline">here</a>. Up to this point, <strong className="text-white">all the work you see on the site has been unpaid</strong>. Any donations are tremendously appreciated – we can&apos;t overstate enough how much they&apos;ll mean to us – and will <strong className="text-white">enable our growth</strong>. However, <strong className="text-white">foremost, we are grateful that you are even visiting and engaging with the site to begin with</strong>. Sharing TPM with anyone who might be interested is another incredibly helpful way to support our work.
-              </p>
-            </div>
-          </div>
-
-          {/* Join TPM Section */}
-          <div className="bg-[#19191A] border border-white/20 rounded-xl p-6">
-            <h2 className="text-3xl font-bold text-white mb-4">Join TPM</h2>
-            <div className="text-gray-300 text-base leading-relaxed space-y-4">
-              <p>
-                <strong className="text-white">We are actively seeking other draft boards to host on the site</strong>. If you have your own draft analysis – it does not have to be a draft model – hit us up via mes9950@stern.nyu.edu or direct message <a href="https://x.com/supersayansavin" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">@supersayansavin</a>. Your board will not be exclusive to TPM in any way; you are absolutely welcome to display it via other means as well. <strong className="text-white">Our goal is to create a platform where it&apos;s easy to share your work for no cost, very limited additional effort, and as close to no downside as possible.</strong>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </main>
   );
 }
