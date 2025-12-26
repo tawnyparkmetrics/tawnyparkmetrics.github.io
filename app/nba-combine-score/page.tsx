@@ -1,11 +1,10 @@
 "use client";
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, ChevronDown, SlidersHorizontal, ChevronUp } from 'lucide-react';
+import { Search, ChevronDown, SlidersHorizontal, ChevronUp, Ruler } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Papa from 'papaparse';
 import NavigationHeader from '@/components/NavigationHeader';
 import DraftPageHeader from '@/components/DraftPageHeader';
-import html2canvas from 'html2canvas';
 import { Barlow } from 'next/font/google';
 
 const barlow = Barlow({
@@ -311,7 +310,7 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                                         }
                                     }}
                                     onFocus={() => setShowSuggestions(true)}
-                                    placeholder={`Compare with Other ${player['Default Position'] === 'PG' ? 'Point Guards' :
+                                    placeholder={`Compare with other ${player['Default Position'] === 'PG' ? 'Point Guards' :
                                         player['Default Position'] === 'SG' ? 'Shooting Guards' :
                                             player['Default Position'] === 'SF' ? 'Small Forwards' :
                                                 player['Default Position'] === 'PF' ? 'Power Forwards' :
@@ -1234,6 +1233,8 @@ export default function CombineScorePage() {
     const [selectedYear, setSelectedYear] = useState('2025');
     const [selectedPosition, setSelectedPosition] = useState('PG-C');
     const [selectedGrouping, setSelectedGrouping] = useState<'none' | 'guards' | 'wings' | 'bigs'>('none');
+    const [showUniversalSearch, setShowUniversalSearch] = useState(false);
+    const universalSearchRef = useRef<HTMLDivElement>(null);
     const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
     const [isMobileYearDropdownOpen, setIsMobileYearDropdownOpen] = useState(false);
     const [isPositionDropdownOpen, setIsPositionDropdownOpen] = useState(false);
@@ -1291,6 +1292,8 @@ export default function CombineScorePage() {
         loadData();
     }, []);
 
+
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (yearDropdownRef.current && !yearDropdownRef.current.contains(event.target as Node)) {
@@ -1301,6 +1304,9 @@ export default function CombineScorePage() {
             }
             if (mobileYearDropdownRef.current && !mobileYearDropdownRef.current.contains(event.target as Node)) {
                 setIsMobileYearDropdownOpen(false);
+            }
+            if (universalSearchRef.current && !universalSearchRef.current.contains(event.target as Node)) {
+                setShowUniversalSearch(false);
             }
 
             // Close position dropdowns in table when clicking outside
@@ -1458,6 +1464,49 @@ export default function CombineScorePage() {
         });
     }, [combineData, selectedYear, selectedPosition, searchQuery, sortConfig, selectedPositions, selectedGrouping]);
 
+
+
+    // Universal search across all years
+    const universalSearchResults = useMemo(() => {
+        if (!searchQuery.trim()) return [];
+
+        const query = searchQuery.toLowerCase();
+
+        // Search across ALL years and ALL positions in combineData
+        const allMatches = combineData
+            .filter(p => {
+                const playerName = (p['Player'] || '').toLowerCase();
+                return playerName.includes(query); // Removed the Is Primary filter
+            })
+            .map(p => ({
+                name: p['Player'],
+                year: p['Draft Year'] ?? 0,
+                position: p['Default Position'],
+                score: p['Combine Score'],
+                college: p['Pre-NBA'],
+                player: p
+            }))
+            .sort((a, b) => {
+                // Sort by year (most recent first), then by name, then by position
+                const yearA = typeof a.year === 'number' ? a.year : 0;
+                const yearB = typeof b.year === 'number' ? b.year : 0;
+
+                if (yearB !== yearA) return yearB - yearA;
+                if (a.name !== b.name) return a.name.localeCompare(b.name);
+                return a.position.localeCompare(b.position);
+            });
+
+        // Remove duplicates (same player, same year, same position)
+        const uniqueMatches = allMatches.filter((match, index, self) =>
+            index === self.findIndex(m =>
+                m.name === match.name &&
+                m.year === match.year &&
+                m.position === match.position
+            )
+        );
+
+        return uniqueMatches;
+    }, [searchQuery, combineData]);
     // Add the pulsing effect AFTER filteredAndSortedData is defined
     useEffect(() => {
         const triggerRandomPulse = () => {
@@ -1494,6 +1543,7 @@ export default function CombineScorePage() {
                 });
             }, 50000);
         };
+
 
         // Calculate total number of cells that can pulse
         const totalCells = filteredAndSortedData.reduce((count, player) => {
@@ -1567,7 +1617,7 @@ export default function CombineScorePage() {
 
         setSortConfig({ key, direction });
 
-        // Hide % button if sorting by non-measurement column
+        // Reset percentile mode if sorting by non-measurement column
         if (!isMeasurementColumn && key !== 'Combine Score') {
             setIsPercentileMode(false);
         }
@@ -1658,16 +1708,130 @@ export default function CombineScorePage() {
                     <div className="flex items-center gap-3 justify-between">
                         {/* Left Side - Search Bar and Reset */}
                         <div className="flex items-center gap-2 flex-1 max-w-lg">
-                            {/* Search Bar */}
-                            <div className="relative flex-1">
+                            {/* Search Bar with Universal Results */}
+                            <div className="relative flex-1" ref={universalSearchRef}>
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
                                 <input
                                     type="text"
-                                    placeholder="Search"
+                                    placeholder="Search players across all years..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        setShowUniversalSearch(true);
+                                    }}
+                                    onFocus={() => searchQuery.trim() && setShowUniversalSearch(true)}
                                     className="pl-10 pr-4 py-2 w-full bg-[#19191A] border border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30"
                                 />
+
+                                {/* Universal Search Dropdown */}
+                                {showUniversalSearch && searchQuery.trim() && universalSearchResults.length > 0 && (
+                                    <div className="absolute z-50 w-full mt-2 bg-[#19191A] border border-gray-700 rounded-lg shadow-xl max-h-96 overflow-y-auto">
+                                        <div className="p-2 border-b border-gray-800">
+                                            <p className="text-xs text-gray-400">
+                                                Found {universalSearchResults.length} player{universalSearchResults.length !== 1 ? 's' : ''} across {new Set(universalSearchResults.map(r => r.year)).size} year{new Set(universalSearchResults.map(r => r.year)).size !== 1 ? 's' : ''}
+                                            </p>
+                                        </div>
+                                        {universalSearchResults.map((result, idx) => {
+                                            const getTieredColor = (score: number | null | undefined): string => {
+                                                if (score === null || score === undefined) return '#6b7280';
+                                                const value = Math.max(0, Math.min(100, score));
+                                                if (value >= 60) return '#79e0ff';
+                                                else if (value >= 40) return '#ffbc49';
+                                                else return '#ff5757';
+                                            };
+
+                                            return (
+                                                <button
+                                                    key={`${result.name}-${result.year}-${idx}`}
+                                                    onClick={() => {
+                                                        // Set the year to match the selected result
+                                                        setSelectedYear(result.year.toString());
+                                                        // Set the selected position for this player
+                                                        setSelectedPositions(prev => ({
+                                                            ...prev,
+                                                            [result.name]: result.position
+                                                        }));
+                                                        // Clear the search query so full year shows
+                                                        setSearchQuery('');
+                                                        // Close the dropdown
+                                                        setShowUniversalSearch(false);
+
+                                                        // Expand the player's row and scroll to it after a brief delay
+                                                        // Expand the player's row and scroll to it after a brief delay
+                                                        setTimeout(() => {
+                                                            // Expand the row
+                                                            setExpandedRows(prev => ({
+                                                                ...prev,
+                                                                [result.name]: true
+                                                            }));
+
+                                                            // Scroll to the player row
+                                                            const playerRow = document.querySelector(`[data-player-row="${result.name}"]`);
+                                                            if (playerRow) {
+                                                                playerRow.scrollIntoView({
+                                                                    behavior: 'smooth',
+                                                                    block: 'start' // Changed from 'center' to 'start'
+                                                                });
+
+                                                                // Additional scroll offset to push it down a bit more
+                                                                setTimeout(() => {
+                                                                    window.scrollBy({
+                                                                        top: -150, // Negative value scrolls up, adjust this number as needed
+                                                                        behavior: 'smooth'
+                                                                    });
+                                                                }, 100);
+                                                            }
+                                                        }, 150);
+                                                    }}
+                                                    className="w-full text-left p-3 hover:bg-gray-800 transition-colors border-b border-gray-800/50 last:border-b-0"
+                                                >
+                                                    <div className="flex items-center justify-between gap-3">
+                                                        {/* Left side - Player info */}
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-white font-semibold truncate">
+                                                                    {result.name}
+                                                                </span>
+                                                                <span className="text-xs text-gray-400 whitespace-nowrap">
+                                                                    ({result.year})
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                                                                <span className="font-medium">{result.position}</span>
+                                                                {result.college && result.college !== 'N/A' && (
+                                                                    <>
+                                                                        <span>•</span>
+                                                                        <span className="truncate">{result.college}</span>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Right side - Combine Score */}
+                                                        <div className="flex flex-col items-end">
+                                                            <span className="text-xs text-gray-500 mb-0.5">Combine</span>
+                                                            <span
+                                                                className="text-lg font-bold"
+                                                                style={{ color: getTieredColor(result.score) }}
+                                                            >
+                                                                {result.score != null ? result.score.toFixed(1) : 'N/A'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* No results message */}
+                                {showUniversalSearch && searchQuery.trim() && universalSearchResults.length === 0 && (
+                                    <div className="absolute z-50 w-full mt-2 bg-[#19191A] border border-gray-700 rounded-lg shadow-xl p-4">
+                                        <p className="text-sm text-gray-400 text-center">
+                                            No players found matching "{searchQuery}"
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Reset Button */}
@@ -1837,35 +2001,31 @@ export default function CombineScorePage() {
                             </div>
 
 
-                            {/* Percentile Toggle Button - Always visible with label when active */}
-                            <motion.button
-                                onClick={() => {
-                                    // Only allow clicking if a measurement column is sorted
-                                    if (sortConfig.key && [
-                                        'Height (in.)',
-                                        'Wingspan (in.)',
-                                        'Standing Reach (in.)',
-                                        'Weight (lbs)',
-                                        'Max Vertical',
-                                        'Standing Vertical',
-                                        'Lane Agility Time',
-                                        'Three Quarter Sprint',
-                                        'Shuttle Run',
-                                        'Combine Score'
-                                    ].includes(sortConfig.key)) {
-                                        const newPercentileMode = !isPercentileMode;
-                                        setIsPercentileMode(newPercentileMode);
-
-                                        // Trigger re-sort with current column to apply percentile/measurement change
-                                        setSortConfig({
-                                            key: sortConfig.key,
-                                            direction: sortConfig.direction
-                                        });
-                                    }
-                                }}
-                                className={`px-3 rounded-lg text-sm transition-colors flex items-center gap-1.5 ${isPercentileMode
-                                    ? 'text-blue-400 hover:text-blue-300'
-                                    : sortConfig.key && [
+                            {/* Percentile/Measurement Toggle Switcher */}
+                            <div className="flex items-center overflow-hidden">
+                                {/* Ruler (Measurement) Button */}
+                                <motion.button
+                                    onClick={() => {
+                                        if (sortConfig.key && [
+                                            'Height (in.)',
+                                            'Wingspan (in.)',
+                                            'Standing Reach (in.)',
+                                            'Weight (lbs)',
+                                            'Max Vertical',
+                                            'Standing Vertical',
+                                            'Lane Agility Time',
+                                            'Three Quarter Sprint',
+                                            'Shuttle Run',
+                                            'Combine Score'
+                                        ].includes(sortConfig.key)) {
+                                            if (isPercentileMode) {
+                                                setIsPercentileMode(false);
+                                                // Force re-sort by updating the config
+                                                setSortConfig(prev => ({ ...prev }));
+                                            }
+                                        }
+                                    }}
+                                    className={`px-3 py-1.5 transition-colors ${!isPercentileMode && sortConfig.key && [
                                         'Height (in.)',
                                         'Wingspan (in.)',
                                         'Standing Reach (in.)',
@@ -1877,45 +2037,96 @@ export default function CombineScorePage() {
                                         'Shuttle Run',
                                         'Combine Score'
                                     ].includes(sortConfig.key)
-                                        ? 'text-gray-300 animate-pulse cursor-pointer hover:text-white'
-                                        : 'text-gray-600 opacity-50 cursor-default'
-                                    }`}
-                                disabled={!sortConfig.key || ![
-                                    'Height (in.)',
-                                    'Wingspan (in.)',
-                                    'Standing Reach (in.)',
-                                    'Weight (lbs)',
-                                    'Max Vertical',
-                                    'Standing Vertical',
-                                    'Lane Agility Time',
-                                    'Three Quarter Sprint',
-                                    'Shuttle Run',
-                                    'Combine Score'
-                                ].includes(sortConfig.key)}
-                            >
-                                {sortConfig.key && [
-                                    'Height (in.)',
-                                    'Wingspan (in.)',
-                                    'Standing Reach (in.)',
-                                    'Weight (lbs)',
-                                    'Max Vertical',
-                                    'Standing Vertical',
-                                    'Lane Agility Time',
-                                    'Three Quarter Sprint',
-                                    'Shuttle Run',
-                                    'Combine Score'
-                                ].includes(sortConfig.key) && (
-                                        <motion.span
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ duration: 0.4 }}
-                                            className="whitespace-nowrap"
-                                        >
-                                            {isPercentileMode ? 'Toggle off' : 'Sort by percentile'}
-                                        </motion.span>
-                                    )}
-                                %
-                            </motion.button>
+                                        ? 'text-blue-400'
+                                        : sortConfig.key && [
+                                            'Height (in.)',
+                                            'Wingspan (in.)',
+                                            'Standing Reach (in.)',
+                                            'Weight (lbs)',
+                                            'Max Vertical',
+                                            'Standing Vertical',
+                                            'Lane Agility Time',
+                                            'Three Quarter Sprint',
+                                            'Shuttle Run',
+                                            'Combine Score'
+                                        ].includes(sortConfig.key)
+                                            ? 'text-gray-400 hover:text-gray-300'
+                                            : 'text-gray-600 opacity-50 cursor-default'
+                                        }`}
+                                    disabled={!sortConfig.key || ![
+                                        'Height (in.)',
+                                        'Wingspan (in.)',
+                                        'Standing Reach (in.)',
+                                        'Weight (lbs)',
+                                        'Max Vertical',
+                                        'Standing Vertical',
+                                        'Lane Agility Time',
+                                        'Three Quarter Sprint',
+                                        'Shuttle Run',
+                                        'Combine Score'
+                                    ].includes(sortConfig.key)}
+                                >
+                                    <Ruler className="h-4 w-4" />
+                                </motion.button>
+
+                                {/* Divider */}
+                                <div className="h-6 w-px bg-gray-700"></div>
+
+                                {/* Percent (Percentile) Button */}
+                                <motion.button
+                                    onClick={() => {
+                                        if (sortConfig.key && [
+                                            'Height (in.)',
+                                            'Wingspan (in.)',
+                                            'Standing Reach (in.)',
+                                            'Weight (lbs)',
+                                            'Max Vertical',
+                                            'Standing Vertical',
+                                            'Lane Agility Time',
+                                            'Three Quarter Sprint',
+                                            'Shuttle Run',
+                                            'Combine Score'
+                                        ].includes(sortConfig.key)) {
+                                            if (!isPercentileMode) {
+                                                setIsPercentileMode(true);
+                                                // Force re-sort by updating the config
+                                                setSortConfig(prev => ({ ...prev }));
+                                            }
+                                        }
+                                    }}
+                                    className={`px-3 py-1.5 text-sm transition-colors ${isPercentileMode
+                                        ? 'text-blue-400'
+                                        : sortConfig.key && [
+                                            'Height (in.)',
+                                            'Wingspan (in.)',
+                                            'Standing Reach (in.)',
+                                            'Weight (lbs)',
+                                            'Max Vertical',
+                                            'Standing Vertical',
+                                            'Lane Agility Time',
+                                            'Three Quarter Sprint',
+                                            'Shuttle Run',
+                                            'Combine Score'
+                                        ].includes(sortConfig.key)
+                                            ? 'text-gray-400 hover:text-gray-300'
+                                            : 'text-gray-600 opacity-50 cursor-default'
+                                        }`}
+                                    disabled={!sortConfig.key || ![
+                                        'Height (in.)',
+                                        'Wingspan (in.)',
+                                        'Standing Reach (in.)',
+                                        'Weight (lbs)',
+                                        'Max Vertical',
+                                        'Standing Vertical',
+                                        'Lane Agility Time',
+                                        'Three Quarter Sprint',
+                                        'Shuttle Run',
+                                        'Combine Score'
+                                    ].includes(sortConfig.key)}
+                                >
+                                    %
+                                </motion.button>
+                            </div>
                         </div>
 
 
@@ -1988,7 +2199,10 @@ export default function CombineScorePage() {
 
                                             return (
                                                 <React.Fragment key={`${player.Player}-${index}`}>
-                                                    <tr className="group border-b border-white/5 transition-colors">
+                                                    <tr
+                                                        className="group border-b border-white/5 transition-colors"
+                                                        data-player-row={player.Player}
+                                                    >
                                                         <td className="sticky left-0 bg-[#19191A] hover:brightness-125 px-4 py-3 text-white font-medium" style={{ minWidth: '192px', width: '192px', maxWidth: '192px', zIndex: 11 }}>
                                                             <div className="flex items-center gap-2">
                                                                 <button
