@@ -48,6 +48,18 @@ export default function Home() {
 
           {/* Navigation Buttons */}
           <div className="space-y-4">
+
+            {/* NBA Combine Score */}
+            <div className="max-w-md">
+              <Link href="/nba-draft-history">
+                <button className="w-full bg-transparent border-2 border-white/40 rounded-2xl px-7 py-5 text-white text-xl md:text-2xl font-semibold hover:border-white/80 hover:bg-white/5 transition-all duration-300 flex items-center justify-between group">
+                  <span>NBA DRAFT HISTORY</span>
+                  <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+            </div>
+
+            <div></div>
             {/* NBA Combine Score */}
             <div className="max-w-md">
               <Link href="/nba-combine-score">
