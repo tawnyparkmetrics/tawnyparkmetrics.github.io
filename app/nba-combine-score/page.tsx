@@ -1308,14 +1308,14 @@ export default function CombineScorePage() {
             if (universalSearchRef.current && !universalSearchRef.current.contains(event.target as Node)) {
                 setShowUniversalSearch(false);
             }
-
+    
             // Close position dropdowns in table when clicking outside
             const target = event.target as HTMLElement;
             if (!target.closest('td')) {
-                setTablePositionDropdowns({}); // Updated to use new state name
+                setTablePositionDropdowns({});
             }
         };
-
+    
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -1648,6 +1648,18 @@ export default function CombineScorePage() {
                 .hide-scrollbar::-webkit-scrollbar {
                     display: none;  /* Chrome, Safari and Opera */
                 }
+                
+                /* Fix sticky column gap on mobile */
+                .sticky-player-cell::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: -2px;
+                    bottom: 0;
+                    width: 4px;
+                    background: #19191A;
+                    pointer-events: none;
+                }
             `}</style>
             <NavigationHeader activeTab="Combine Score" />
             <DraftPageHeader author="Combine Score"
@@ -1659,30 +1671,110 @@ export default function CombineScorePage() {
                 {/* Mobile Filter */}
                 <div className="sm:hidden max-w-screen-2xl mx-auto px-4 py-3">
                     <div className="flex items-center justify-between gap-2">
-                        <motion.button
-                            onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-                            className="flex items-center bg-gray-800/20 text-gray-300 border border-gray-800 rounded-lg px-3 py-2 text-sm"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            <SlidersHorizontal className="mr-1 h-4 w-4" />
-                            Filters
-                            <ChevronDown className={`ml-1 h-4 w-4 transform transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`} />
-                        </motion.button>
+                        {/* Search Bar */}
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10 pointer-events-none" />
+                            <input
+                                type="text"
+                                placeholder="Search players..."
+                                value={searchQuery}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    setShowUniversalSearch(true);
+                                }}
+                                onFocus={() => searchQuery.trim() && setShowUniversalSearch(true)}
+                                className="pl-10 pr-4 py-2 w-full bg-[#19191A] border border-gray-800 text-gray-300 placeholder-gray-500 rounded-lg focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/30 text-sm"
+                            />
+                        </div>
 
-                        <div className="relative" ref={mobileYearDropdownRef}>
+                        {/* Position Dropdown (with groupings inside) */}
+                        <div className="relative">
                             <motion.button
-                                onClick={() => setIsMobileYearDropdownOpen(!isMobileYearDropdownOpen)}
-                                className="px-2 py-2 rounded-lg text-sm font-medium bg-gray-800/20 text-gray-400 border border-gray-800 hover:border-gray-700 flex items-center gap-1"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsPositionDropdownOpen(!isPositionDropdownOpen);
+                                    setShowUniversalSearch(false);
+                                }}
+                                className="px-3 py-2 rounded-lg text-sm font-medium border whitespace-nowrap flex items-center justify-between gap-2 bg-[#19191A] text-gray-400 border-gray-800 hover:border-gray-700"
                             >
-                                {selectedYear}
+                                <span>{selectedGrouping !== 'none' ? (selectedGrouping === 'guards' ? 'Guards' : selectedGrouping === 'wings' ? 'Wings' : 'Bigs') : selectedPosition}</span>
+                                <ChevronDown className="h-4 w-4" />
+                            </motion.button>
+
+                            {isPositionDropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-[100]">
+                                    {/* Grouping Options */}
+                                    <div className="border-b border-gray-700 pb-1">
+                                        <div className="px-3 py-2 text-xs text-gray-500 font-semibold">Groups</div>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedGrouping(selectedGrouping === 'guards' ? 'none' : 'guards');
+                                                setSelectedPosition('PG-C');
+                                                setIsPositionDropdownOpen(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedGrouping === 'guards' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'}`}
+                                        >
+                                            Guards
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedGrouping(selectedGrouping === 'wings' ? 'none' : 'wings');
+                                                setSelectedPosition('PG-C');
+                                                setIsPositionDropdownOpen(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedGrouping === 'wings' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'}`}
+                                        >
+                                            Wings
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedGrouping(selectedGrouping === 'bigs' ? 'none' : 'bigs');
+                                                setSelectedPosition('PG-C');
+                                                setIsPositionDropdownOpen(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedGrouping === 'bigs' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'}`}
+                                        >
+                                            Bigs
+                                        </button>
+                                    </div>
+
+                                    {/* Individual Positions */}
+                                    <div className="pt-1">
+                                        <div className="px-3 py-2 text-xs text-gray-500 font-semibold">Positions</div>
+                                        {positions.map(position => (
+                                            <button
+                                                key={position}
+                                                onClick={() => {
+                                                    setSelectedPosition(position);
+                                                    setSelectedGrouping('none');
+                                                    setIsPositionDropdownOpen(false);
+                                                }}
+                                                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedPosition === position && selectedGrouping === 'none' ? 'bg-gray-700 text-white' : 'text-gray-300'}`}
+                                            >
+                                                {position}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Year Dropdown */}
+                        <div className="relative">
+                            <motion.button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsMobileYearDropdownOpen(!isMobileYearDropdownOpen);
+                                    setShowUniversalSearch(false);
+                                }}
+                                className="px-3 py-2 rounded-lg text-sm font-medium border whitespace-nowrap flex items-center justify-between gap-2 bg-[#19191A] text-gray-400 border-gray-800 hover:border-gray-700"
+                            >
+                                <span>{selectedYear}</span>
                                 <ChevronDown className="h-4 w-4" />
                             </motion.button>
 
                             {isMobileYearDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-32 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+                                <div className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-[100]">
                                     {years.map(year => (
                                         <button
                                             key={year}
@@ -1690,8 +1782,7 @@ export default function CombineScorePage() {
                                                 setSelectedYear(year.toString());
                                                 setIsMobileYearDropdownOpen(false);
                                             }}
-                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedYear === year.toString() ? 'bg-gray-700 text-white' : 'text-gray-300'
-                                                }`}
+                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedYear === year.toString() ? 'bg-gray-700 text-white' : 'text-gray-300'}`}
                                         >
                                             {year}
                                         </button>
@@ -1699,8 +1790,99 @@ export default function CombineScorePage() {
                                 </div>
                             )}
                         </div>
-
                     </div>
+
+                    {/* Universal Search Results - Rendered outside the flex container */}
+                    {showUniversalSearch && searchQuery.trim() && universalSearchResults.length > 0 && (
+                        <div className="relative mt-2">
+                            <div ref={universalSearchRef} className="absolute top-0 left-0 right-0 bg-[#19191A] border border-gray-700 rounded-lg shadow-xl max-h-96 overflow-y-auto z-[100]">
+                                <div className="p-2 border-b border-gray-800">
+                                    <p className="text-xs text-gray-400">
+                                        Found {universalSearchResults.length} player{universalSearchResults.length !== 1 ? 's' : ''} across {new Set(universalSearchResults.map(r => r.year)).size} year{new Set(universalSearchResults.map(r => r.year)).size !== 1 ? 's' : ''}
+                                    </p>
+                                </div>
+                                {universalSearchResults.map((result, idx) => {
+                                    const getTieredColor = (score: number | null | undefined): string => {
+                                        if (score === null || score === undefined) return '#6b7280';
+                                        const value = Math.max(0, Math.min(100, score));
+                                        if (value >= 60) return '#79e0ff';
+                                        else if (value >= 40) return '#ffbc49';
+                                        else return '#ff5757';
+                                    };
+
+                                    return (
+                                        <button
+                                            key={`${result.name}-${result.year}-${idx}`}
+                                            onClick={() => {
+                                                setSelectedYear(result.year.toString());
+                                                setSelectedPositions(prev => ({
+                                                    ...prev,
+                                                    [result.name]: result.position
+                                                }));
+                                                setSearchQuery('');
+                                                setShowUniversalSearch(false);
+
+                                                setTimeout(() => {
+                                                    setExpandedRows(prev => ({
+                                                        ...prev,
+                                                        [result.name]: true
+                                                    }));
+
+                                                    const playerRow = document.querySelector(`[data-player-row="${result.name}"]`);
+                                                    if (playerRow) {
+                                                        playerRow.scrollIntoView({
+                                                            behavior: 'smooth',
+                                                            block: 'start'
+                                                        });
+
+                                                        setTimeout(() => {
+                                                            window.scrollBy({
+                                                                top: -150,
+                                                                behavior: 'smooth'
+                                                            });
+                                                        }, 100);
+                                                    }
+                                                }, 150);
+                                            }}
+                                            className="w-full text-left p-3 hover:bg-gray-800 transition-colors border-b border-gray-800/50 last:border-b-0"
+                                        >
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="text-white font-semibold truncate">
+                                                            {result.name}
+                                                        </span>
+                                                        <span className="text-xs text-gray-400 whitespace-nowrap">
+                                                            ({result.year})
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                                                        <span className="font-medium">{result.position}</span>
+                                                        {result.college && result.college !== 'N/A' && (
+                                                            <>
+                                                                <span>•</span>
+                                                                <span className="truncate">{result.college}</span>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-xs text-gray-500 mb-0.5">Combine</span>
+                                                    <span
+                                                        className="text-lg font-bold"
+                                                        style={{ color: getTieredColor(result.score) }}
+                                                    >
+                                                        {result.score != null ? result.score.toFixed(1) : 'N/A'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Filter Content - Desktop */}
@@ -1985,7 +2167,7 @@ export default function CombineScorePage() {
                 ) : (
                     <>
                         <div className="mb-4 text-gray-400 text-sm flex items-center justify-between">
-                            <div className="flex items-center gap-4">
+                            <div className="hidden sm:flex items-center gap-4">
                                 <span className="flex items-center gap-1.5">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -2000,6 +2182,24 @@ export default function CombineScorePage() {
                                 </span>
                             </div>
 
+                            {/* Mobile: Reset Button (left side) */}
+                            <motion.button
+                                onClick={() => {
+                                    setSelectedGrouping('none');
+                                    setSelectedPosition('PG-C');
+                                    setSearchQuery('');
+                                    setSortConfig({ key: 'Player', direction: 'asc' });
+                                    setIsPercentileMode(false);
+                                }}
+                                className="sm:hidden px-3 py-1.5 rounded-lg text-sm font-medium bg-[#19191A] text-gray-500 border border-gray-800 hover:text-red-400 hover:border-red-700 transition-colors flex items-center gap-1.5"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Reset
+                            </motion.button>
 
                             {/* Percentile/Measurement Toggle Switcher */}
                             <div className="flex items-center overflow-hidden">
@@ -2136,10 +2336,10 @@ export default function CombineScorePage() {
                                 <table className="w-full text-sm">
                                     <thead className="bg-[#19191A]">
                                         <tr>
-                                            <th className="sticky left-0 z-20 bg-[#19191A] text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" style={{ minWidth: '192px', width: '192px', maxWidth: '192px' }} onClick={() => handleSort('Player')}>
+                                            <th className="sticky -left-px sm:left-0 z-20 bg-[#19191A] text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap shadow-[2px_0_4px_rgba(0,0,0,0.3)]" style={{ minWidth: '192px', width: '192px', maxWidth: '192px' }} onClick={() => handleSort('Player')}>
                                                 <div className="flex items-center gap-1">Player <SortIcon columnKey="Player" /></div>
                                             </th>
-                                            <th className="sticky left-[192px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" style={{ minWidth: '80px', width: '80px', maxWidth: '80px' }} onClick={() => handleSort('Default Position')}>
+                                            <th className="sm:sticky sm:left-[192px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" style={{ minWidth: '80px', width: '80px', maxWidth: '80px' }} onClick={() => handleSort('Default Position')}>
                                                 <div className="flex items-center gap-1">Pos <SortIcon columnKey="Default Position" /></div>
                                             </th>
                                             <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
@@ -2203,7 +2403,7 @@ export default function CombineScorePage() {
                                                         className="group border-b border-white/5 transition-colors"
                                                         data-player-row={player.Player}
                                                     >
-                                                        <td className="sticky left-0 bg-[#19191A] hover:brightness-125 px-4 py-3 text-white font-medium" style={{ minWidth: '192px', width: '192px', maxWidth: '192px', zIndex: 11 }}>
+                                                        <td className="sticky -left-px sm:left-0 bg-[#19191A] hover:brightness-125 px-4 py-3 text-white font-medium shadow-[2px_0_4px_rgba(0,0,0,0.3)] sticky-player-cell relative" style={{ minWidth: '192px', width: '192px', maxWidth: '192px', zIndex: 11 }}>
                                                             <div className="flex items-center gap-2">
                                                                 <button
                                                                     onClick={(e) => {
@@ -2225,7 +2425,8 @@ export default function CombineScorePage() {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="sticky left-[192px] bg-[#19191A] px-4 py-3" style={{ minWidth: '80px', width: '80px', maxWidth: '80px', zIndex: tablePositionDropdowns[player.Player] ? 100 : 11 }}>
+
+                                                        <td className="sm:sticky sm:left-[192px] bg-[#19191A] px-4 py-3" style={{ minWidth: '80px', width: '80px', maxWidth: '80px', zIndex: tablePositionDropdowns[player.Player] ? 100 : 11 }}>
                                                             {selectedGrouping === 'none' ? (
                                                                 <div className="relative">
                                                                     <button
