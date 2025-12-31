@@ -1226,6 +1226,18 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
     );
 };
 
+const MEASUREMENT_COLUMNS = [
+    'Height (in.)',
+    'Wingspan (in.)',
+    'Standing Reach (in.)',
+    'Weight (lbs)',
+    'Max Vertical',
+    'Standing Vertical',
+    'Lane Agility Time',
+    'Three Quarter Sprint',
+    'Shuttle Run'
+];
+
 export default function CombineScorePage() {
     const [pulsingCells, setPulsingCells] = useState<Set<string>>(new Set());
     const [searchQuery, setSearchQuery] = useState('');
@@ -1235,6 +1247,7 @@ export default function CombineScorePage() {
     const [selectedGrouping, setSelectedGrouping] = useState<'none' | 'guards' | 'wings' | 'bigs'>('none');
     const [showUniversalSearch, setShowUniversalSearch] = useState(false);
     const universalSearchRef = useRef<HTMLDivElement>(null);
+    const mobileUniversalSearchRef = useRef<HTMLDivElement>(null);
     const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
     const [isMobileYearDropdownOpen, setIsMobileYearDropdownOpen] = useState(false);
     const [isPositionDropdownOpen, setIsPositionDropdownOpen] = useState(false);
@@ -1309,7 +1322,8 @@ export default function CombineScorePage() {
             if (mobileYearDropdownRef.current && !mobileYearDropdownRef.current.contains(event.target as Node)) {
                 setIsMobileYearDropdownOpen(false);
             }
-            if (universalSearchRef.current && !universalSearchRef.current.contains(event.target as Node)) {
+            if (universalSearchRef.current && !universalSearchRef.current.contains(event.target as Node) &&
+                mobileUniversalSearchRef.current && !mobileUniversalSearchRef.current.contains(event.target as Node)) {
                 setShowUniversalSearch(false);
             }
 
@@ -1327,43 +1341,56 @@ export default function CombineScorePage() {
     }, []);
 
     const filteredAndSortedData = useMemo(() => {
-        let filtered = combineData.filter(player => {
+        // 1. Initial Filter by Year
+        const byYear = combineData.filter(player => {
             const playerYear = player['Draft Year'];
             return playerYear?.toString() === selectedYear;
         });
 
+        // 2. Group by Player to find variations
+        const playerGroups = byYear.reduce((acc, player) => {
+            const name = player['Player'];
+            if (!acc[name]) {
+                acc[name] = [];
+            }
+            acc[name].push(player);
+            return acc;
+        }, {} as { [key: string]: CombinePlayer[] });
+
+        // 3. Resolve to Single Display Row per Player
+        let resolvedRows = Object.entries(playerGroups).map(([name, variations]) => {
+            // Priority 1: User explicitly selected a position variation for this player
+            const userSelectedPos = selectedPositions[name];
+            if (userSelectedPos) {
+                const match = variations.find(v => v['Default Position'] === userSelectedPos);
+                if (match) return match;
+            }
+
+            // Priority 2: Broad Grouping is active (guards/wings/bigs)
+            if (selectedGrouping === 'guards') {
+                const match = variations.find(v => v['Default Position'] === 'PG'); // Guard preference
+                if (match) return match;
+            } else if (selectedGrouping === 'wings') {
+                const match = variations.find(v => v['Default Position'] === 'SF'); // Wing preference
+                if (match) return match;
+            } else if (selectedGrouping === 'bigs') {
+                const match = variations.find(v => v['Default Position'] === 'C'); // Big preference
+                if (match) return match;
+            }
+
+            // Priority 3: Is Primary
+            const primary = variations.find(v => v['Is Primary'] === 1);
+            if (primary) return primary;
+
+            // Fallback
+            return variations[0];
+        });
+
+        // 4. Filter the Resolved Rows based on active view filters
         if (selectedGrouping !== 'none') {
-            // Group players by name
-            const playerGroups = filtered.reduce((acc, player) => {
+            resolvedRows = resolvedRows.filter(player => {
                 const name = player['Player'];
-                if (!acc[name]) {
-                    acc[name] = [];
-                }
-                acc[name].push(player);
-                return acc;
-            }, {} as { [key: string]: CombinePlayer[] });
-
-            // Select appropriate position based on grouping
-            filtered = Object.entries(playerGroups).map(([name, variations]) => {
-                let selectedVariation: CombinePlayer | undefined;
-
-                if (selectedGrouping === 'guards') {
-                    // Find PG variation, fallback to primary
-                    selectedVariation = variations.find(v => v['Default Position'] === 'PG');
-                } else if (selectedGrouping === 'wings') {
-                    // Find SF variation, fallback to primary
-                    selectedVariation = variations.find(v => v['Default Position'] === 'SF');
-                } else if (selectedGrouping === 'bigs') {
-                    // Find C variation, fallback to primary
-                    selectedVariation = variations.find(v => v['Default Position'] === 'C');
-                }
-
-                // If no matching variation found, use primary
-                return selectedVariation || variations.find(v => v['Is Primary'] === 1) || variations[0];
-            }).filter(player => {
-                // Only include players who have the target position
-                const name = player['Player'];
-                const variations = playerGroups[name];
+                const variations = playerGroups[name]; // Check ALL variations for eligibility
 
                 if (selectedGrouping === 'guards') {
                     return variations.some(v => v['Default Position'] === 'PG');
@@ -1375,63 +1402,20 @@ export default function CombineScorePage() {
                 return true;
             });
         } else {
-            // Original position filter logic when no grouping is selected
+            // Standard Position Filter
             if (selectedPosition !== 'PG-C') {
-                filtered = filtered.filter(player => {
-                    const defaultPos = player['Default Position'];
-                    return defaultPos === selectedPosition;
-                });
+                resolvedRows = resolvedRows.filter(player =>
+                    player['Default Position'] === selectedPosition
+                );
             }
         }
 
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase().trim();
-            filtered = filtered.filter(player => {
-                const playerName = (player['Player'] || '').toLowerCase();
-                return playerName.includes(query);
-            });
-        }
-
-        // Group by player name and get their position variations
-        const playerGroups = filtered.reduce((acc, player) => {
-            const name = player['Player'];
-            if (!acc[name]) {
-                acc[name] = [];
-            }
-            acc[name].push(player);
-            return acc;
-        }, {} as { [key: string]: CombinePlayer[] });
-
-        // For each player, select the appropriate variation based on selectedPositions or Is Primary
-        const displayDataBeforeSort = Object.entries(playerGroups).map(([name, variations]) => {
-            // If grouping is active and we already selected the right position, use that
-            if (selectedGrouping !== 'none') {
-                return variations[0]; // Already filtered to correct position above
-            }
-            // Always use Is Primary = 1 for initial sorting
-            return variations.find(v => v['Is Primary'] === 1) || variations[0];
-        });
-
-        // Sort based on the PRIMARY position data
-        let sortedData = displayDataBeforeSort;
+        // 5. Sort the Final Rows
         if (sortConfig.key) {
-            sortedData = [...displayDataBeforeSort].sort((a, b) => {
+            resolvedRows.sort((a, b) => {
                 let key = sortConfig.key as keyof CombinePlayer;
 
-                // If percentile mode is active and we're sorting a measurement column, use percentile
-                const measurementColumns = [
-                    'Height (in.)',
-                    'Wingspan (in.)',
-                    'Standing Reach (in.)',
-                    'Weight (lbs)',
-                    'Max Vertical',
-                    'Standing Vertical',
-                    'Lane Agility Time',
-                    'Three Quarter Sprint',
-                    'Shuttle Run'
-                ];
-
-                if (isPercentileMode && sortConfig.key && measurementColumns.includes(sortConfig.key)) {
+                if (isPercentileMode && sortConfig.key && MEASUREMENT_COLUMNS.includes(sortConfig.key)) {
                     key = `${sortConfig.key}_Percentile` as keyof CombinePlayer;
                 }
 
@@ -1444,6 +1428,12 @@ export default function CombineScorePage() {
                 if (typeof aVal === 'number' && typeof bVal === 'number') {
                     return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
                 } else {
+                    const aNum = Number(aVal);
+                    const bNum = Number(bVal);
+                    if (!isNaN(aNum) && !isNaN(bNum)) {
+                        return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
+                    }
+
                     const aStr = String(aVal);
                     const bStr = String(bVal);
                     return sortConfig.direction === 'asc'
@@ -1453,20 +1443,8 @@ export default function CombineScorePage() {
             });
         }
 
-        // Now map to selected positions while maintaining sort order
-        return sortedData.map(player => {
-            const name = player['Player'];
-            const selectedPos = selectedPositions[name];
-            const variations = playerGroups[name];
-
-            if (selectedPos && selectedGrouping === 'none') {
-                // Find the variation matching the selected Default Position
-                const selected = variations.find(v => v['Default Position'] === selectedPos);
-                return selected || player;
-            }
-            return player;
-        });
-    }, [combineData, selectedYear, selectedPosition, searchQuery, sortConfig, selectedPositions, selectedGrouping]);
+        return resolvedRows;
+    }, [combineData, selectedYear, selectedPosition, selectedGrouping, selectedPositions, sortConfig, isPercentileMode]);
 
 
 
@@ -1598,21 +1576,9 @@ export default function CombineScorePage() {
         }));
     };
 
-    const handleSort = (key: string) => {
+    const handleSort = React.useCallback((key: string) => {
         // Check if this is a measurement column
-        const measurementColumns = [
-            'Height (in.)',
-            'Wingspan (in.)',
-            'Standing Reach (in.)',
-            'Weight (lbs)',
-            'Max Vertical',
-            'Standing Vertical',
-            'Lane Agility Time',
-            'Three Quarter Sprint',
-            'Shuttle Run'
-        ];
-
-        const isMeasurementColumn = measurementColumns.includes(key);
+        const isMeasurementColumn = MEASUREMENT_COLUMNS.includes(key);
 
         let direction: 'asc' | 'desc' = 'desc';
         if (sortConfig.key === key) {
@@ -1625,7 +1591,7 @@ export default function CombineScorePage() {
         if (!isMeasurementColumn && key !== 'Combine Score') {
             setIsPercentileMode(false);
         }
-    };
+    }, [sortConfig]);
 
     const SortIcon = ({ columnKey }: { columnKey: string }) => {
         if (sortConfig.key !== columnKey) {
@@ -1859,7 +1825,7 @@ export default function CombineScorePage() {
                     {/* Universal Search Results - Rendered outside the flex container */}
                     {showUniversalSearch && searchQuery.trim() && universalSearchResults.length > 0 && (
                         <div className="relative mt-2">
-                            <div ref={universalSearchRef} className="absolute top-0 left-0 right-0 bg-[#19191A] border border-gray-700 rounded-lg shadow-xl max-h-96 overflow-y-auto z-[100]">
+                            <div ref={mobileUniversalSearchRef} className="absolute top-0 left-0 right-0 bg-[#19191A] border border-gray-700 rounded-lg shadow-xl max-h-96 overflow-y-auto z-[100]">
                                 <div className="p-2 border-b border-gray-800">
                                     <p className="text-xs text-gray-400">
                                         Found {universalSearchResults.length} player{universalSearchResults.length !== 1 ? 's' : ''} across {new Set(universalSearchResults.map(r => r.year)).size} year{new Set(universalSearchResults.map(r => r.year)).size !== 1 ? 's' : ''}
@@ -1877,12 +1843,18 @@ export default function CombineScorePage() {
                                     return (
                                         <button
                                             key={`${result.name}-${result.year}-${idx}`}
-                                            onClick={() => {
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
                                                 setSelectedYear(result.year.toString());
                                                 setSelectedPositions(prev => ({
                                                     ...prev,
                                                     [result.name]: result.position
                                                 }));
+                                                // Reset filters to ensure player is visible
+                                                setSelectedPosition('PG-C');
+                                                setSelectedGrouping('none');
+
                                                 setSearchQuery('');
                                                 setShowUniversalSearch(false);
 
@@ -1906,7 +1878,7 @@ export default function CombineScorePage() {
                                                             });
                                                         }, 100);
                                                     }
-                                                }, 150);
+                                                }, 300);
                                             }}
                                             className="w-full text-left p-3 hover:bg-gray-800 transition-colors border-b border-gray-800/50 last:border-b-0"
                                         >
@@ -1989,7 +1961,9 @@ export default function CombineScorePage() {
                                             return (
                                                 <button
                                                     key={`${result.name}-${result.year}-${idx}`}
-                                                    onClick={() => {
+                                                    onMouseDown={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
                                                         // Set the year to match the selected result
                                                         setSelectedYear(result.year.toString());
                                                         // Set the selected position for this player
@@ -1997,6 +1971,10 @@ export default function CombineScorePage() {
                                                             ...prev,
                                                             [result.name]: result.position
                                                         }));
+                                                        // Reset filters to ensure player is visible
+                                                        setSelectedPosition('PG-C');
+                                                        setSelectedGrouping('none');
+
                                                         // Clear the search query so full year shows
                                                         setSearchQuery('');
                                                         // Close the dropdown
@@ -2027,7 +2005,7 @@ export default function CombineScorePage() {
                                                                     });
                                                                 }, 100);
                                                             }
-                                                        }, 150);
+                                                        }, 300);
                                                     }}
                                                     className="w-full text-left p-3 hover:bg-gray-800 transition-colors border-b border-gray-800/50 last:border-b-0"
                                                 >
@@ -2586,6 +2564,23 @@ export default function CombineScorePage() {
                                                             )}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
+                                                            {!player['Wingspan'] && !player['Wingspan (in.)_Percentile'] ? (
+                                                                <span className="text-gray-500">-</span>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center gap-0.5">
+                                                                    <span className="text-white font-medium">{player['Wingspan'] || '-'}</span>
+                                                                    <span
+                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Wingspan (in.)_Percentile`) ? 'pulse-active' : ''}`}
+                                                                        style={{
+                                                                            color: getTieredColor(player['Wingspan (in.)_Percentile'])
+                                                                        }}
+                                                                    >
+                                                                        {player['Wingspan (in.)_Percentile']?.toFixed(0) || '-'}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">
                                                             {!player['Standing Reach'] && !player['Standing Reach (in.)_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2598,23 +2593,6 @@ export default function CombineScorePage() {
                                                                         }}
                                                                     >
                                                                         {player['Standing Reach (in.)_Percentile']?.toFixed(0) || '-'}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                        </td>
-                                                        <td className="px-4 py-3 text-center">
-                                                            {!player['Weight (lbs)'] && !player['Weight (lbs)_Percentile'] ? (
-                                                                <span className="text-gray-500">-</span>
-                                                            ) : (
-                                                                <div className="flex flex-col items-center gap-0.5">
-                                                                    <span className="text-white font-medium">{player['Weight (lbs)'] || '-'}</span>
-                                                                    <span
-                                                                        className={`text-xs font-medium ${pulsingCells.has(`${player.Player}-Weight (lbs)_Percentile`) ? 'pulse-active' : ''}`}
-                                                                        style={{
-                                                                            color: getTieredColor(player['Weight (lbs)_Percentile'])
-                                                                        }}
-                                                                    >
-                                                                        {player['Weight (lbs)_Percentile']?.toFixed(0) || '-'}
                                                                     </span>
                                                                 </div>
                                                             )}
