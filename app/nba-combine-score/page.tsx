@@ -1251,6 +1251,7 @@ export default function CombineScorePage() {
     const [isPercentileMode, setIsPercentileMode] = useState(false);
     const yearDropdownRef = useRef<HTMLDivElement>(null);
     const positionDropdownRef = useRef<HTMLDivElement>(null);
+    const mobilePositionDropdownRef = useRef<HTMLDivElement>(null);
     const mobileYearDropdownRef = useRef<HTMLDivElement>(null);
 
 
@@ -1302,20 +1303,23 @@ export default function CombineScorePage() {
             if (positionDropdownRef.current && !positionDropdownRef.current.contains(event.target as Node)) {
                 setIsPositionDropdownOpen(false);
             }
+            if (mobilePositionDropdownRef.current && !mobilePositionDropdownRef.current.contains(event.target as Node)) {
+                setIsPositionDropdownOpen(false); // Add this
+            }
             if (mobileYearDropdownRef.current && !mobileYearDropdownRef.current.contains(event.target as Node)) {
                 setIsMobileYearDropdownOpen(false);
             }
             if (universalSearchRef.current && !universalSearchRef.current.contains(event.target as Node)) {
                 setShowUniversalSearch(false);
             }
-    
+
             // Close position dropdowns in table when clicking outside
             const target = event.target as HTMLElement;
             if (!target.closest('td')) {
                 setTablePositionDropdowns({});
             }
         };
-    
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -1688,8 +1692,15 @@ export default function CombineScorePage() {
                         </div>
 
                         {/* Position Dropdown (with groupings inside) */}
-                        <div className="relative">
-                            <motion.button
+                        <div className="relative" ref={mobilePositionDropdownRef}>
+                            <button
+                                type="button"
+                                onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setIsPositionDropdownOpen(!isPositionDropdownOpen);
+                                    setShowUniversalSearch(false);
+                                }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setIsPositionDropdownOpen(!isPositionDropdownOpen);
@@ -1699,40 +1710,69 @@ export default function CombineScorePage() {
                             >
                                 <span>{selectedGrouping !== 'none' ? (selectedGrouping === 'guards' ? 'Guards' : selectedGrouping === 'wings' ? 'Wings' : 'Bigs') : selectedPosition}</span>
                                 <ChevronDown className="h-4 w-4" />
-                            </motion.button>
+                            </button>
 
                             {isPositionDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-[100]">
+                                <div
+                                    className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-[100]"
+                                >
                                     {/* Grouping Options */}
                                     <div className="border-b border-gray-700 pb-1">
                                         <div className="px-3 py-2 text-xs text-gray-500 font-semibold">Groups</div>
                                         <button
-                                            onClick={() => {
+                                            type="button"
+                                            onTouchEnd={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
                                                 setSelectedGrouping(selectedGrouping === 'guards' ? 'none' : 'guards');
                                                 setSelectedPosition('PG-C');
                                                 setIsPositionDropdownOpen(false);
                                             }}
-                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedGrouping === 'guards' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedGrouping(selectedGrouping === 'guards' ? 'none' : 'guards');
+                                                setSelectedPosition('PG-C');
+                                                setIsPositionDropdownOpen(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-sm active:bg-gray-700 ${selectedGrouping === 'guards' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'}`}
                                         >
                                             Guards
                                         </button>
                                         <button
-                                            onClick={() => {
+                                            type="button"
+                                            onTouchEnd={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
                                                 setSelectedGrouping(selectedGrouping === 'wings' ? 'none' : 'wings');
                                                 setSelectedPosition('PG-C');
                                                 setIsPositionDropdownOpen(false);
                                             }}
-                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedGrouping === 'wings' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedGrouping(selectedGrouping === 'wings' ? 'none' : 'wings');
+                                                setSelectedPosition('PG-C');
+                                                setIsPositionDropdownOpen(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-sm active:bg-gray-700 ${selectedGrouping === 'wings' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'}`}
                                         >
                                             Wings
                                         </button>
                                         <button
-                                            onClick={() => {
+                                            type="button"
+                                            onTouchEnd={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
                                                 setSelectedGrouping(selectedGrouping === 'bigs' ? 'none' : 'bigs');
                                                 setSelectedPosition('PG-C');
                                                 setIsPositionDropdownOpen(false);
                                             }}
-                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedGrouping === 'bigs' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedGrouping(selectedGrouping === 'bigs' ? 'none' : 'bigs');
+                                                setSelectedPosition('PG-C');
+                                                setIsPositionDropdownOpen(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-sm active:bg-gray-700 ${selectedGrouping === 'bigs' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-300'}`}
                                         >
                                             Bigs
                                         </button>
@@ -1744,12 +1784,21 @@ export default function CombineScorePage() {
                                         {positions.map(position => (
                                             <button
                                                 key={position}
-                                                onClick={() => {
+                                                type="button"
+                                                onTouchEnd={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
                                                     setSelectedPosition(position);
                                                     setSelectedGrouping('none');
                                                     setIsPositionDropdownOpen(false);
                                                 }}
-                                                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedPosition === position && selectedGrouping === 'none' ? 'bg-gray-700 text-white' : 'text-gray-300'}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedPosition(position);
+                                                    setSelectedGrouping('none');
+                                                    setIsPositionDropdownOpen(false);
+                                                }}
+                                                className={`w-full text-left px-4 py-2 text-sm active:bg-gray-700 ${selectedPosition === position && selectedGrouping === 'none' ? 'bg-gray-700 text-white' : 'text-gray-300'}`}
                                             >
                                                 {position}
                                             </button>
@@ -1760,8 +1809,15 @@ export default function CombineScorePage() {
                         </div>
 
                         {/* Year Dropdown */}
-                        <div className="relative">
-                            <motion.button
+                        <div className="relative" ref={mobileYearDropdownRef}>
+                            <button
+                                type="button"
+                                onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setIsMobileYearDropdownOpen(!isMobileYearDropdownOpen);
+                                    setShowUniversalSearch(false);
+                                }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setIsMobileYearDropdownOpen(!isMobileYearDropdownOpen);
@@ -1771,18 +1827,26 @@ export default function CombineScorePage() {
                             >
                                 <span>{selectedYear}</span>
                                 <ChevronDown className="h-4 w-4" />
-                            </motion.button>
+                            </button>
 
                             {isMobileYearDropdownOpen && (
                                 <div className="absolute right-0 mt-2 w-40 bg-[#19191A] border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-[100]">
                                     {years.map(year => (
                                         <button
                                             key={year}
-                                            onClick={() => {
+                                            type="button"
+                                            onTouchEnd={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
                                                 setSelectedYear(year.toString());
                                                 setIsMobileYearDropdownOpen(false);
                                             }}
-                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${selectedYear === year.toString() ? 'bg-gray-700 text-white' : 'text-gray-300'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedYear(year.toString());
+                                                setIsMobileYearDropdownOpen(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-sm active:bg-gray-700 ${selectedYear === year.toString() ? 'bg-gray-700 text-white' : 'text-gray-300'}`}
                                         >
                                             {year}
                                         </button>
