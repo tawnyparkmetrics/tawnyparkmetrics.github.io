@@ -14,16 +14,16 @@ const barlow = Barlow({
 
 const pulseStyles = `
   @keyframes subtle-pulse {
-    0%, 100% { 
+    0%, 100% {
       filter: brightness(1) saturate(1) drop-shadow(0 0 0px currentColor);
       transform: scale(1);
     }
-    50% { 
+    50% {
       filter: brightness(1.05) saturate(1.05) drop-shadow(0 0 4px currentColor);
       transform: scale(1.02);
     }
   }
-  
+
   .pulse-active {
     animation: subtle-pulse 2s ease-in-out;
     display: inline-block;
@@ -1639,7 +1639,7 @@ export default function CombineScorePage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#19191A]" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+        <div className="min-h-screen bg-[#19191A]">
             <style>{`
                 ${pulseStyles}
                 
