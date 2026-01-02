@@ -32,20 +32,20 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
 
   // TPM dropdown items
   const DraftDropdownItems = [
-      {
-        name: 'Draft History',
-        href: '/nba-draft-history',
-        available: true
-      },
-      {
-        name: 'Combine Score',
-        href: '#',
-        available: true,
-        subItems: [
-          { name: 'Write Up', href: '/nba-combine-score-write-up', available: true },
-          { name: 'Combine Score', href: '/nba-combine-score', available: true }
-        ]
-      },
+    {
+      name: 'Draft History',
+      href: '/nba-draft-history',
+      available: true
+    },
+    {
+      name: 'Combine Score',
+      href: '#',
+      available: true,
+      subItems: [
+        { name: 'Write Up', href: '/nba-combine-score-write-up', available: true },
+        { name: 'Combine Score', href: '/nba-combine-score', available: true }
+      ]
+    },
     {
       name: 'Consensus',
       href: '#',
@@ -157,7 +157,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({ activeTab }) => {
   return (
     <>
       {/* Fixed header */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-[#19191A] border-b border-gray-800">
+      <div className="fixed top-0 left-0 right-0 z-[100] bg-[#19191A] border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 relative">
 
