@@ -347,7 +347,7 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                     </div>
 
                     {/* Bar Chart */}
-                    <div className="bg-[#19191A] p-7 rounded-lg border border-gray-800"> {/* Changed from p-4 to p-3 */}
+                    <div className="bg-[#19191A] p-7 rounded-lg border border-gray-800">
                         <h4 className="text-sm font-semibold text-gray-300 mb-2 text-center"> {/* Changed from mb-3 to mb-2 */}
                             {player.Player} vs {comparisonPlayer ? comparisonPlayer.Player : `Average ${player['Default Position']}`}
                         </h4>
@@ -744,7 +744,7 @@ const PlayerModal = ({ player, onClose }: { player: CombinePlayer | null; onClos
 
     return (
         <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm hidden md:flex items-center justify-center z-50 p-4"
             onClick={onClose}
         >
             {/* Modal action buttons - vertically stacked, aligned, close to modal */}
@@ -2378,49 +2378,49 @@ export default function CombineScorePage() {
                                 <table className="w-full text-sm">
                                     <thead className="bg-[#19191A]">
                                         <tr>
-                                            <th className="sticky -left-px sm:left-0 z-20 bg-[#19191A] text-left px-4 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap shadow-[2px_0_4px_rgba(0,0,0,0.3)]" style={{ minWidth: '192px', width: '192px', maxWidth: '192px' }} onClick={() => handleSort('Player')}>
+                                            <th className="sticky -left-px sm:left-0 z-20 bg-[#19191A] text-left px-4 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap shadow-[2px_0_4px_rgba(0,0,0,0.3)]" style={{ minWidth: '192px', width: '192px', maxWidth: '192px' }} onClick={() => handleSort('Player')}>
                                                 <div className="flex items-center gap-1">Player <SortIcon columnKey="Player" /></div>
                                             </th>
-                                            <th className="sm:sticky sm:left-[192px] z-20 bg-[#19191A] text-left px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" style={{ minWidth: '80px', width: '80px', maxWidth: '80px' }} onClick={() => handleSort('Default Position')}>
+                                            <th className="sm:sticky sm:left-[192px] z-20 bg-[#19191A] text-left px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" style={{ minWidth: '80px', width: '80px', maxWidth: '80px' }} onClick={() => handleSort('Default Position')}>
                                                 <div className="flex items-center gap-1">Pos <SortIcon columnKey="Default Position" /></div>
                                             </th>
-                                            <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
+                                            <th className="text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
                                                 <div className="flex items-center justify-center gap-1">Combine <SortIcon columnKey="Combine Score" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Height (in.)')}>
+                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Height (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Height <SortIcon columnKey="Height (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Wingspan (in.)')}>
+                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Wingspan (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Wingspan <SortIcon columnKey="Wingspan (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Reach (in.)')}>
+                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Reach (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Reach <SortIcon columnKey="Standing Reach (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Weight (lbs)')}>
+                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Weight (lbs)')}>
                                                 <div className="flex items-center justify-center gap-1">Weight <SortIcon columnKey="Weight (lbs)" /></div>
                                             </th>
-                                            <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Physical Score')}>
+                                            <th className="text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Physical Score')}>
                                                 <div className="flex items-center justify-center gap-1">Physical <SortIcon columnKey="Physical Score" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Max Vertical')}>
+                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Max Vertical')}>
                                                 <div className="flex items-center justify-center gap-1">Max Vert <SortIcon columnKey="Max Vertical" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Vertical')}>
+                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Vertical')}>
                                                 <div className="flex items-center justify-center gap-1">Standing Vert <SortIcon columnKey="Standing Vertical" /></div>
                                             </th>
-                                            <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Vertical Score')}>
+                                            <th className="text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Vertical Score')}>
                                                 <div className="flex items-center justify-center gap-1">Vertical <SortIcon columnKey="Vertical Score" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Lane Agility Time')}>
+                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Lane Agility Time')}>
                                                 <div className="flex items-center justify-center gap-1">Lane Agility <SortIcon columnKey="Lane Agility Time" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Three Quarter Sprint')}>
+                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Three Quarter Sprint')}>
                                                 <div className="flex items-center justify-center gap-1">3/4 Agility <SortIcon columnKey="Three Quarter Sprint" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-3 text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Shuttle Run')}>
+                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Shuttle Run')}>
                                                 <div className="flex items-center justify-center gap-1">Shuttle Run <SortIcon columnKey="Shuttle Run" /></div>
                                             </th>
-                                            <th className="text-center px-3 py-3 text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Agility Score')}>
+                                            <th className="text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Agility Score')}>
                                                 <div className="flex items-center justify-center gap-1">Agility <SortIcon columnKey="Agility Score" /></div>
                                             </th>
                                         </tr>
@@ -2445,7 +2445,7 @@ export default function CombineScorePage() {
                                                         className="group border-b border-white/5 transition-colors"
                                                         data-player-row={player.Player}
                                                     >
-                                                        <td className="sticky -left-px sm:left-0 bg-[#19191A] hover:brightness-125 px-4 py-3 text-white font-medium shadow-[2px_0_4px_rgba(0,0,0,0.3)] sticky-player-cell relative" style={{ minWidth: '192px', width: '192px', maxWidth: '192px', zIndex: 11 }}>
+                                                        <td className="sticky -left-px sm:left-0 bg-[#19191A] hover:brightness-125 px-4 py-[10px] text-white font-medium shadow-[2px_0_4px_rgba(0,0,0,0.3)] sticky-player-cell relative" style={{ minWidth: '192px', width: '192px', maxWidth: '192px', zIndex: 11 }}>
                                                             <div className="flex items-center gap-2">
                                                                 <button
                                                                     onClick={(e) => {
@@ -2468,8 +2468,8 @@ export default function CombineScorePage() {
                                                             </div>
                                                         </td>
 
-                                                        <td className="sm:sticky sm:left-[192px] bg-[#19191A] px-4 py-3" style={{ minWidth: '80px', width: '80px', maxWidth: '80px', zIndex: tablePositionDropdowns[player.Player] ? 100 : 11 }}>
-                                                            {selectedGrouping === 'none' ? (
+                                                        <td className="sm:sticky sm:left-[192px] bg-[#19191A] px-4 py-[10px]" style={{ minWidth: '80px', width: '80px', maxWidth: '80px', zIndex: tablePositionDropdowns[player.Player] ? 100 : 11 }}>
+                                                            {selectedGrouping === 'none' && variations.length > 1 ? (
                                                                 <div className="relative">
                                                                     <button
                                                                         onClick={(e) => {
@@ -2525,13 +2525,13 @@ export default function CombineScorePage() {
                                                                     )}
                                                                 </div>
                                                             ) : (
-                                                                <span className="text-gray-500 text-sm cursor-not-allowed">
+                                                                <span className={`text-sm ${selectedGrouping === 'none' ? 'text-gray-300' : 'text-gray-500 cursor-not-allowed'}`}>
                                                                     {currentPosition}
                                                                 </span>
                                                             )}
                                                         </td>
                                                         <td
-                                                            className="px-3 py-3 text-center cursor-pointer bg-[#1c1c1d] hover:brightness-125 hover:text-white transition-colors"
+                                                            className="px-3 py-[10px] text-center cursor-pointer bg-[#1c1c1d] hover:brightness-125 hover:text-white transition-colors"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 setSelectedPlayer(player);
@@ -2546,7 +2546,7 @@ export default function CombineScorePage() {
                                                                 {player['Combine Score'] != null ? player['Combine Score'].toFixed(1) : '-'}
                                                             </span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
+                                                        <td className="px-4 py-[10px] text-center">
                                                             {!player['Height w/o Shoes'] && !player['Height (in.)_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2563,7 +2563,7 @@ export default function CombineScorePage() {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
+                                                        <td className="px-4 py-[10px] text-center">
                                                             {!player['Wingspan'] && !player['Wingspan (in.)_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2580,7 +2580,7 @@ export default function CombineScorePage() {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
+                                                        <td className="px-4 py-[10px] text-center">
                                                             {!player['Standing Reach'] && !player['Standing Reach (in.)_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2597,7 +2597,7 @@ export default function CombineScorePage() {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
+                                                        <td className="px-4 py-[10px] text-center">
                                                             {!player['Weight (lbs)'] && !player['Weight (lbs)_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2614,7 +2614,7 @@ export default function CombineScorePage() {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-3 py-3 text-center bg-[#1c1c1d] transition-color">
+                                                        <td className="px-3 py-[10px] text-center bg-[#1c1c1d] transition-color">
                                                             <span
                                                                 className={`text-m font-bold ${pulsingCells.has(`${player.Player}-Physical Score`) ? 'pulse-active' : ''}`}
                                                                 style={{
@@ -2624,7 +2624,7 @@ export default function CombineScorePage() {
                                                                 {player['Physical Score'] != null ? player['Physical Score'].toFixed(1) : '-'}
                                                             </span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
+                                                        <td className="px-4 py-[10px] text-center">
                                                             {!player['Max Vertical'] && !player['Max Vertical_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2641,7 +2641,7 @@ export default function CombineScorePage() {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
+                                                        <td className="px-4 py-[10px] text-center">
                                                             {!player['Standing Vertical'] && !player['Standing Vertical_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2658,7 +2658,7 @@ export default function CombineScorePage() {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-3 py-3 text-center bg-[#1c1c1d] transition-color">
+                                                        <td className="px-3 py-[10px] text-center bg-[#1c1c1d] transition-color">
                                                             <span
                                                                 className={`text-m font-bold ${pulsingCells.has(`${player.Player}-Vertical Score`) ? 'pulse-active' : ''}`}
                                                                 style={{
@@ -2668,7 +2668,7 @@ export default function CombineScorePage() {
                                                                 {player['Vertical Score'] != null ? player['Vertical Score'].toFixed(1) : '-'}
                                                             </span>
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
+                                                        <td className="px-4 py-[10px] text-center">
                                                             {!player['Lane Agility Time'] && !player['Lane Agility Time_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2685,7 +2685,7 @@ export default function CombineScorePage() {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
+                                                        <td className="px-4 py-[10px] text-center">
                                                             {!player['Three Quarter Sprint'] && !player['Three Quarter Sprint_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2702,7 +2702,7 @@ export default function CombineScorePage() {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-4 py-3 text-center">
+                                                        <td className="px-4 py-[10px] text-center">
                                                             {!player['Shuttle Run'] && !player['Shuttle Run_Percentile'] ? (
                                                                 <span className="text-gray-500">-</span>
                                                             ) : (
@@ -2719,7 +2719,7 @@ export default function CombineScorePage() {
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="px-3 py-3 text-center bg-[#1c1c1d] transition-color">
+                                                        <td className="px-3 py-[10px] text-center bg-[#1c1c1d] transition-color">
                                                             <span
                                                                 className={`text-m font-bold ${pulsingCells.has(`${player.Player}-Agility Score`) ? 'pulse-active' : ''}`}
                                                                 style={{
@@ -2732,7 +2732,7 @@ export default function CombineScorePage() {
                                                     </tr>
                                                     {isExpanded && (
                                                         <tr className="bg-gray-800/20 border-b border-white/5">
-                                                            <td colSpan={15} className="px-6 py-8">
+                                                            <td colSpan={15} className="px-3 py-4">
                                                                 <PlayerComparison
                                                                     player={(() => {
                                                                         const selectedPos = selectedPositions[player.Player];
