@@ -282,7 +282,7 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
 
     return (
         <div className="space-y-5">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Bar Chart with Search - Left */}
                 <div className="flex flex-col">
                     {/* Comparison Search Bar - Only above bar chart */}
