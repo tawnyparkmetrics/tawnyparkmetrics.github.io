@@ -347,7 +347,7 @@ const PlayerComparison = ({ player, allData }: { player: CombinePlayer; allData:
                     </div>
 
                     {/* Bar Chart */}
-                    <div className="bg-[#19191A] p-7 rounded-lg border border-gray-800">
+                    <div className="bg-[#19191A] p-4 pb-8 rounded-lg border border-gray-800">
                         <h4 className="text-sm font-semibold text-gray-300 mb-2 text-center"> {/* Changed from mb-3 to mb-2 */}
                             {player.Player} vs {comparisonPlayer ? comparisonPlayer.Player : `Average ${player['Default Position']}`}
                         </h4>
@@ -2732,19 +2732,21 @@ export default function CombineScorePage() {
                                                     </tr>
                                                     {isExpanded && (
                                                         <tr className="bg-gray-800/20 border-b border-white/5">
-                                                            <td colSpan={15} className="px-3 py-4">
-                                                                <PlayerComparison
-                                                                    player={(() => {
-                                                                        const selectedPos = selectedPositions[player.Player];
-                                                                        if (selectedPos && selectedGrouping === 'none') {
-                                                                            const variations = getPlayerVariations(player.Player);
-                                                                            const selected = variations.find(v => v['Default Position'] === selectedPos);
-                                                                            return selected || player;
-                                                                        }
-                                                                        return player;
-                                                                    })()}
-                                                                    allData={combineData}
-                                                                />
+                                                            <td colSpan={15} className="px-0 py-4 relative">
+                                                                <div className="sticky left-0 w-[calc(100vw-2rem)] max-w-[1248px] px-3">
+                                                                    <PlayerComparison
+                                                                        player={(() => {
+                                                                            const selectedPos = selectedPositions[player.Player];
+                                                                            if (selectedPos && selectedGrouping === 'none') {
+                                                                                const variations = getPlayerVariations(player.Player);
+                                                                                const selected = variations.find(v => v['Default Position'] === selectedPos);
+                                                                                return selected || player;
+                                                                            }
+                                                                            return player;
+                                                                        })()}
+                                                                        allData={combineData}
+                                                                    />
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     )}
