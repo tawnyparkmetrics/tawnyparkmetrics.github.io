@@ -2378,49 +2378,49 @@ export default function CombineScorePage() {
                                 <table className="w-full text-sm">
                                     <thead className="bg-[#19191A]">
                                         <tr>
-                                            <th className="sticky -left-px sm:left-0 z-20 bg-[#19191A] text-left px-4 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap shadow-[2px_0_4px_rgba(0,0,0,0.3)]" style={{ minWidth: '192px', width: '192px', maxWidth: '192px' }} onClick={() => handleSort('Player')}>
+                                            <th className="sticky -left-px sm:left-0 z-50 top-[-1px] sm:top-0 bg-[#19191A] text-left px-4 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap shadow-[2px_0_4px_rgba(0,0,0,0.3)]" style={{ minWidth: '192px', width: '192px', maxWidth: '192px' }} onClick={() => handleSort('Player')}>
                                                 <div className="flex items-center gap-1">Player <SortIcon columnKey="Player" /></div>
                                             </th>
-                                            <th className="sm:sticky sm:left-[192px] z-20 bg-[#19191A] text-left px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" style={{ minWidth: '80px', width: '80px', maxWidth: '80px' }} onClick={() => handleSort('Default Position')}>
+                                            <th className="sticky sm:left-[192px] z-40 top-[-1px] sm:top-0 bg-[#19191A] text-left px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap" style={{ minWidth: '80px', width: '80px', maxWidth: '80px' }} onClick={() => handleSort('Default Position')}>
                                                 <div className="flex items-center gap-1">Pos <SortIcon columnKey="Default Position" /></div>
                                             </th>
-                                            <th className="text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Combine Score')}>
                                                 <div className="flex items-center justify-center gap-1">Combine <SortIcon columnKey="Combine Score" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Height (in.)')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 bg-[#19191A] text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Height (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Height <SortIcon columnKey="Height (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Wingspan (in.)')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 bg-[#19191A] text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Wingspan (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Wingspan <SortIcon columnKey="Wingspan (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Reach (in.)')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 bg-[#19191A] text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Reach (in.)')}>
                                                 <div className="flex items-center justify-center gap-1">Reach <SortIcon columnKey="Standing Reach (in.)" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Weight (lbs)')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 bg-[#19191A] text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Weight (lbs)')}>
                                                 <div className="flex items-center justify-center gap-1">Weight <SortIcon columnKey="Weight (lbs)" /></div>
                                             </th>
-                                            <th className="text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Physical Score')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Physical Score')}>
                                                 <div className="flex items-center justify-center gap-1">Physical <SortIcon columnKey="Physical Score" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Max Vertical')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 bg-[#19191A] text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Max Vertical')}>
                                                 <div className="flex items-center justify-center gap-1">Max Vert <SortIcon columnKey="Max Vertical" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Vertical')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 bg-[#19191A] text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Standing Vertical')}>
                                                 <div className="flex items-center justify-center gap-1">Standing Vert <SortIcon columnKey="Standing Vertical" /></div>
                                             </th>
-                                            <th className="text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Vertical Score')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Vertical Score')}>
                                                 <div className="flex items-center justify-center gap-1">Vertical <SortIcon columnKey="Vertical Score" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Lane Agility Time')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 bg-[#19191A] text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Lane Agility Time')}>
                                                 <div className="flex items-center justify-center gap-1">Lane Agility <SortIcon columnKey="Lane Agility Time" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Three Quarter Sprint')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 bg-[#19191A] text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Three Quarter Sprint')}>
                                                 <div className="flex items-center justify-center gap-1">3/4 Agility <SortIcon columnKey="Three Quarter Sprint" /></div>
                                             </th>
-                                            <th className="text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Shuttle Run')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 bg-[#19191A] text-center px-2 py-[10px] text-xs font-semibold text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Shuttle Run')}>
                                                 <div className="flex items-center justify-center gap-1">Shuttle Run <SortIcon columnKey="Shuttle Run" /></div>
                                             </th>
-                                            <th className="text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Agility Score')}>
+                                            <th className="sticky top-[-1px] sm:top-0 z-30 text-center px-3 py-[10px] text-xs font-semibold bg-[#1c1c1d] text-gray-300 cursor-pointer hover:bg-[#2a2a2b] whitespace-nowrap w-24" onClick={() => handleSort('Agility Score')}>
                                                 <div className="flex items-center justify-center gap-1">Agility <SortIcon columnKey="Agility Score" /></div>
                                             </th>
                                         </tr>
